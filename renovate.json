@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base"
+  ],
+  "branchPrefix": "renovate-",
+  "commitMessageAction": "Renovate Update",
+  "labels": [
+    "Dependencies",
+    "Renovate"
+  ],
+  "packageRules": [
+    {
+      "automerge": true,
+      "groupName": "Patch & Minor Updates",
+      "groupSlug": "all-minor-patch-updates",
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "stabilityDays": 3,
+      "prPriority": 4
+    }
+  ],
+  "major": {
+    "automerge": false,
+    "stabilityDays": 3,
+    "prPriority": 0
+  },
+  "vulnerabilityAlerts": {
+    "groupName": "Security Alerts",
+    "rangeStrategy": "update-lockfile",
+    "commitMessagePrefix": "[SECURITY]",
+    "branchTopic": "{{{datasource}}}-{{{depName}}}-vulnerability",
+    "prPriority": 5
+  }
+}

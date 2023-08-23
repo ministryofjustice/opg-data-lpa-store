@@ -25,3 +25,12 @@ create-tables:
 		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
 		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
 		--billing-mode PAY_PER_REQUEST
+
+run-structurizr:
+	docker pull structurizr/lite
+	docker run -it --rm -p 4080:8080 -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/lite
+
+run-structurizr-export:
+	docker pull structurizr/cli:latest
+	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
+	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid

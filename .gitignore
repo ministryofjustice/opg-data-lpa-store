@@ -1,0 +1,19 @@
+# OS
+.DS_STORE
+#  terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+secrets.auto.tfvars
+# editors
+.vscode/
+.idea
+*.iml
+# envs
+.env
+venv/
+env/
+# structurizr
+.structurizr
+docs/architecture/dsl/**/workspace.json
