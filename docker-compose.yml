@@ -1,0 +1,7 @@
+version: "3.6"
+
+services:
+  ddb:
+    image: amazon/dynamodb-local:latest
+    ports:
+      - 8030:8000

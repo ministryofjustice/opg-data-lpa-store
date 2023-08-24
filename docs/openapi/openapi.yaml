@@ -1,0 +1,17 @@
+openapi: "3.0.2"
+info:
+  title: LPA Deed Service
+  version: "1.0"
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://lpa-deed.api.opg.service.justice.gov.uk
+    description: Production
+  - url: https://preproduction.lpa-deed.api.opg.service.justice.gov.uk
+    description: Preproduction
+  - url: https://development.lpa-deed.api.opg.service.justice.gov.uk
+    description: Development
+security:
+  - {}
+paths: {}

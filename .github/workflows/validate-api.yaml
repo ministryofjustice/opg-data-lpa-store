@@ -1,0 +1,22 @@
+name: Validate OpenAPI spec
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+      - run: npx @redocly/cli lint ./docs/openapi/openapi.yaml --skip-rule no-empty-servers
