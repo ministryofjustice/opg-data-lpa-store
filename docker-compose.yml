@@ -3,5 +3,35 @@ version: "3.6"
 services:
   ddb:
     image: amazon/dynamodb-local:latest
+
+  lambda-create:
+    depends_on: [ddb]
+    build:
+      context: .
+      dockerfile: ./lambda/Dockerfile
+      args:
+        - DIR=create
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_DYNAMODB_ENDPOINT: http://ddb:8000
+      AWS_ACCESS_KEY_ID: X
+      AWS_SECRET_ACCESS_KEY: X
+    volumes:
+      - "./lambda/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+
+  apigw:
+    depends_on: [lambda-create]
+    build: ./mock-apigw
     ports:
-      - 8030:8000
+      - 9000:8080
+
+  aws:
+    depends_on: [ddb]
+    image: amazon/aws-cli:latest
+    environment:
+      AWS_ENDPOINT_URL: http://ddb:8000/
+      AWS_REGION: eu-west-1
+      AWS_ACCESS_KEY_ID: X
+      AWS_SECRET_ACCESS_KEY: X
+      AWS_PAGER: ""
