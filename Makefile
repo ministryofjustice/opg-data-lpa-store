@@ -3,24 +3,28 @@ export AWS_ACCESS_KEY_ID ?= X
 export AWS_SECRET_ACCESS_KEY ?= X
 
 build:
-  # Nothing to build yet
+	docker compose build --parallel lambda-create apigw
 
 up:
-	docker-compose up -d
+	docker compose up -d apigw
+	make create-tables
 
 down:
-	docker-compose down
+	docker compose down
+
+test-api:
+	curl -XPOST localhost:9000/create -d '{"uid":"test","version":"1"}' -i
 
 create-tables:
-	aws --endpoint-url http://localhost:8030 dynamodb create-table \
-		--no-cli-pager \
+	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
+	docker compose run --rm aws dynamodb create-table \
 		--table-name deeds \
 		--attribute-definitions AttributeName=uid,AttributeType=S \
 		--key-schema AttributeName=uid,KeyType=HASH \
 		--billing-mode PAY_PER_REQUEST
 
-	aws --endpoint-url http://localhost:8030 dynamodb create-table \
-		--no-cli-pager \
+	docker compose run --rm aws dynamodb describe-table --table-name events || \
+	docker compose run --rm aws dynamodb create-table \
 		--table-name events \
 		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
 		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
