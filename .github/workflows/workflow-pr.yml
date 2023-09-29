@@ -1,0 +1,83 @@
+name: Test & Build
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  generate-tags:
+    name: Generate tags
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          if [ "$GITHUB_EVENT_NAME" == "push" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            branch=${{ github.head_ref }}
+            branch=${branch//-}
+            branch=${branch//_}
+            branch=${branch//\/}
+            echo BRANCH_NAME=${branch} >> $GITHUB_ENV
+          fi
+      - name: Bump version
+        id: bump_version
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INITIAL_VERSION: 0.0.0
+          DEFAULT_BUMP: minor
+          PRERELEASE: true
+          PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
+          RELEASE_BRANCHES: main
+          WITH_V: true
+    outputs:
+      docker_tag: ${{ steps.bump_version.outputs.tag }}
+
+  generate-environment-workspace-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate workspace name
+        id: name_workspace
+        run: |
+          workspace=${{ github.event.number }}${{ github.head_ref }}
+          workspace=${workspace//-}
+          workspace=${workspace//_}
+          workspace=${workspace//\/}
+          workspace=${workspace:0:11}
+          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
+          echo "name=${workspace}" >> $GITHUB_OUTPUT
+          echo ${workspace}
+    outputs:
+      environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
+
+  build:
+    name: Build, Scan & Push Images
+    needs: [generate-tags]
+    uses: ./.github/workflows/build-push-images.yml
+    with:
+      docker_tag: ${{ needs.generate-tags.outputs.docker_tag }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  # deploy-pr-env:
+  #   name: Deploy PR Environment
+  #   needs: [build, generate-environment-workspace-name]
+  #   uses: ./.github/workflows/deploy.yml
+  #   with:
+  #     workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
+  #     version_tag: ${{ needs.generate-tags.outputs.docker_tag }}
+  #   secrets:
+  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
