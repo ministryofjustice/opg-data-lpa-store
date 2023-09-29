@@ -1,0 +1,90 @@
+name: "[Job] Docker Build, Scan and Push to ECR"
+
+on:
+  workflow_call:
+    inputs:
+      docker_tag:
+        description: "Tag for docker image"
+        required: true
+        type: string
+      checkout_tag:
+        description: "Ref or tag to checkout"
+        default: ${{ github.ref }}
+        required: false
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+permissions:
+  id-token: write
+  contents: write
+  security-events: write
+  pull-requests: read
+
+jobs:
+  docker_build_scan_push:
+    strategy:
+      matrix:
+        include:
+          - ecr_repository: lpa-store/lambda/api-create
+            dir: create
+    runs-on: ubuntu-latest
+    name: ${{ matrix.ecr_repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout_tag }}
+      - name: Build ${{ matrix.ecr_repository }} Image
+        id: build_image
+        run: |
+          docker build -f ./lambda/Dockerfile -t ${{ matrix.ecr_repository }} --build-arg DIR=${{ matrix.dir }} .
+      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
+        id: trivy_scan
+        uses: aquasecurity/trivy-action@0.12.0
+        with:
+          image-ref: ${{ matrix.ecr_repository }}:latest
+          severity: "HIGH,CRITICAL"
+          format: "sarif"
+          output: "trivy-results.sarif"
+      - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
+        id: trivy_upload_sarif
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+      - uses: unfor19/install-aws-cli-action@v1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::311462405659:role/lpa-store-ci
+          role-duration-seconds: 3600
+          role-session-name: GitHubActions
+      - name: ECR Login
+        id: login_ecr
+        uses: aws-actions/amazon-ecr-login@v1.7.0
+        with:
+          mask-password: true
+          registries: 311462405659
+      - name: Output push intentions
+        env:
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ matrix.ecr_repository }}
+        run: |
+          docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.docker_tag }}
+          echo "Would push $ECR_REGISTRY/$ECR_REPOSITORY"
+      # - name: Push ${{ matrix.ecr_repository }} Image to ECR
+      #   env:
+      #     ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+      #     ECR_REPOSITORY: ${{ matrix.ecr_repository }}
+      #   run: |
+      #     docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.docker_tag }}
+      #     if ${{ github.workflow == 'Path To Live' }}; then
+      #       docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
+      #       docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.docker_tag }}
+      #     fi
+      #     docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
