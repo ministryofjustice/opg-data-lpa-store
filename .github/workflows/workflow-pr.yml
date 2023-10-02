@@ -1,4 +1,4 @@
-name: Test & Build
+name: PR Workflow
 
 on:
   pull_request:
@@ -71,13 +71,14 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  # deploy-pr-env:
-  #   name: Deploy PR Environment
-  #   needs: [build, generate-environment-workspace-name]
-  #   uses: ./.github/workflows/deploy.yml
-  #   with:
-  #     workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
-  #     version_tag: ${{ needs.generate-tags.outputs.docker_tag }}
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  deploy-pr-env:
+    name: Deploy PR Environment
+    needs: [build, generate-environment-workspace-name]
+    uses: ./.github/workflows/env-deploy.yml
+    with:
+      workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
+      version_tag: ${{ needs.generate-tags.outputs.docker_tag }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
