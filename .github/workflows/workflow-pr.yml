@@ -73,7 +73,7 @@ jobs:
 
   deploy-pr-env:
     name: Deploy PR Environment
-    needs: [build, generate-environment-workspace-name]
+    needs: [build, generate-tags, generate-environment-workspace-name]
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
