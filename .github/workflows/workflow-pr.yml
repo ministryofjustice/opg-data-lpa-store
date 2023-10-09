@@ -82,3 +82,16 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  test-pr-env:
+    name: Test PR Environment
+    needs: [deploy-pr-env]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - name: POST to server
+        env:
+          URL: ${{ needs.deploy-pr-env.outputs.create_url }}
+        run: make test-api

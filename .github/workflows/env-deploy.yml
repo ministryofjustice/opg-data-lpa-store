@@ -19,14 +19,20 @@ on:
         description: "AWS Secret Access Key"
         required: true
       github_access_token:
-        description: 'Github Token'
+        description: "Github Token"
         required: true
+    outputs:
+      create_url:
+        description: "URL of the create endpoint"
+        value: ${{ jobs.terraform_environment_workflow.outputs.url }}
 
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.workspace_name }} popup environment
+      url: ${{ steps.terraform_outputs.outputs.url }}
+    outputs:
       url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
       - uses: actions/checkout@v4
