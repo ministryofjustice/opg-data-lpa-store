@@ -25,9 +25,9 @@ on:
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
-    # environment:
-    #   name: ${{ inputs.workspace_name }} popup environment
-    #   url: ${{ steps.terraform_outputs.outputs.url }}
+    environment:
+      name: ${{ inputs.workspace_name }} popup environment
+      url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -73,11 +73,11 @@ jobs:
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
         working-directory: ./terraform/environment
 
-      # - name: Terraform Outputs
-      #   id: terraform_outputs
-      #   env:
-      #     TF_WORKSPACE: ${{ inputs.workspace_name }}
-      #     TF_VAR_app_version: ${{ inputs.version_tag }}
-      #   run: |
-      #     echo "url=$(terraform output -raw app_fqdn)" >> $GITHUB_OUTPUT
-      #   working-directory: ./terraform/environment
+      - name: Terraform Outputs
+        id: terraform_outputs
+        env:
+          TF_WORKSPACE: ${{ inputs.workspace_name }}
+          TF_VAR_app_version: ${{ inputs.version_tag }}
+        run: |
+          echo "url=$(terraform output -raw lambda_url)" >> $GITHUB_OUTPUT
+        working-directory: ./terraform/environment
