@@ -12,8 +12,9 @@ up:
 down:
 	docker compose down
 
+test-api: URL ?= http://localhost:9000/create
 test-api:
-	curl -XPOST localhost:9000/create -d '{"uid":"test","version":"1"}' -i
+	curl $(URL) -XPOST -H 'Content-type: application/json' -d '{"uid":"M-AL9A-7EY3-075D","version":"1"}' -q
 
 create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
