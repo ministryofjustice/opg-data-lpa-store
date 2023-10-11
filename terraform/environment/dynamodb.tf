@@ -2,7 +2,8 @@ resource "aws_dynamodb_table" "deeds_table" {
   name                        = "deeds-${local.environment_name}"
   billing_mode                = "PAY_PER_REQUEST"
   deletion_protection_enabled = local.environment.is_production
-  stream_enabled              = false
+  stream_enabled              = true
+  stream_view_type            = "NEW_AND_OLD_IMAGES"
   hash_key                    = "uid"
 
   server_side_encryption {
