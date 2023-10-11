@@ -4,4 +4,5 @@ use (
 	./lambda/create
 	./lambda/shared
 	./mock-apigw
+	./signer
 )
