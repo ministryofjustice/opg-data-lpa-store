@@ -1,0 +1,19 @@
+variable "environment_name" {
+  description = "The name of the environment the region is deployed to"
+  type        = string
+}
+
+variable "app_version" {
+  description = "Version of application to deploy"
+  type        = string
+}
+
+variable "dynamodb_arn" {
+  description = "ARN of DynamoDB table"
+  type        = string
+}
+
+variable "dynamodb_name" {
+  description = "Name of DynamoDB table"
+  type        = string
+}
