@@ -53,3 +53,17 @@ resource "aws_lambda_permission" "allow_lambda_execution_operator" {
   function_name = aws_lambda_function.main.function_name
   principal     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/operator"
 }
+
+resource "aws_lambda_permission" "allow_lambda_url_execution_operator" {
+  statement_id  = "AllowExecutionOperatorUrl"
+  action        = "lambda:InvokeFunctionUrl"
+  function_name = aws_lambda_function.main.function_name
+  principal     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/operator"
+}
+
+resource "aws_lambda_permission" "allow_lambda_url_execution_operator" {
+  statement_id  = "AllowExecutionOperatorUrl"
+  action        = "lambda:InvokeFunctionUrl"
+  function_name = aws_lambda_function.main.function_name
+  principal     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-ci"
+}
