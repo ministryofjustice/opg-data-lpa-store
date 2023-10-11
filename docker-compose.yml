@@ -16,6 +16,7 @@ services:
       AWS_DYNAMODB_ENDPOINT: http://ddb:8000
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
+      DDB_TABLE_NAME_DEEDS: deeds
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
