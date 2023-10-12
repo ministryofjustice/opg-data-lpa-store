@@ -46,6 +46,8 @@ jobs:
           role-to-assume: arn:aws:iam::311462405659:role/lpa-store-ci
           role-duration-seconds: 3600
           role-session-name: GitHubActions
+      - name: Debug role
+        run: aws sts get-caller-identity
       - name: POST to server
         env:
           URL: ${{ inputs.create_url }}
