@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"time"
 
@@ -30,10 +29,9 @@ type Lambda struct {
 	logger    Logger
 }
 
-func (l *Lambda) HandleEvent(event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
 	var data shared.Case
-	log.Print(event)
-	response := events.APIGatewayProxyResponse{
+	response := events.LambdaFunctionURLResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
@@ -94,7 +92,7 @@ func main() {
 
 	l := &Lambda{
 		ddb:       dynamodb.New(sess),
-		tableName: "deeds",
+		tableName: os.Getenv("DDB_TABLE_NAME_DEEDS"),
 		logger:    logging.New(os.Stdout, "opg-data-lpa-deed"),
 	}
 
