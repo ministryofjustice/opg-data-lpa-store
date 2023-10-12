@@ -39,3 +39,9 @@ variable "management_role" {
   type        = string
   default     = "lpa-store-ci"
 }
+
+variable "app_version" {
+  description = "Version of application to deploy"
+  type        = string
+  default     = "latest"
+}
