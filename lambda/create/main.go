@@ -1,17 +1,13 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -24,12 +20,11 @@ type Logger interface {
 }
 
 type Lambda struct {
-	ddb       dynamodbiface.DynamoDBAPI
-	tableName string
-	logger    Logger
+	store  shared.Client
+	logger Logger
 }
 
-func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
+func (l *Lambda) HandleEvent(ctx context.Context, event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
 	var data shared.Case
 	response := events.LambdaFunctionURLResponse{
 		StatusCode: 500,
@@ -53,17 +48,8 @@ func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.Lamb
 
 	data.UpdatedAt = time.Now()
 
-	// save to dynamodb
-	item, err := dynamodbattribute.MarshalMap(data)
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
-	}
-
-	_, err = l.ddb.PutItem(&dynamodb.PutItemInput{
-		TableName: aws.String(l.tableName),
-		Item:      item,
-	})
+	// save
+	err = l.store.Put(ctx, data)
 
 	if err != nil {
 		l.logger.Print(err)
@@ -85,15 +71,9 @@ func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.Lamb
 }
 
 func main() {
-	sess := session.Must(session.NewSession())
-
-	endpoint := os.Getenv("AWS_DYNAMODB_ENDPOINT")
-	sess.Config.Endpoint = &endpoint
-
 	l := &Lambda{
-		ddb:       dynamodb.New(sess),
-		tableName: os.Getenv("DDB_TABLE_NAME_DEEDS"),
-		logger:    logging.New(os.Stdout, "opg-data-lpa-deed"),
+		store:  shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		logger: logging.New(os.Stdout, "opg-data-lpa-deed"),
 	}
 
 	lambda.Start(l.HandleEvent)
