@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -24,12 +25,12 @@ type Logger interface {
 }
 
 type Lambda struct {
-	ddb       dynamodbiface.DynamoDBAPI
+	ddb       *dynamodb.DynamoDB
 	tableName string
 	logger    Logger
 }
 
-func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
+func (l *Lambda) HandleEvent(ctx context.Context, event events.LambdaFunctionURLRequest) (events.LambdaFunctionURLResponse, error) {
 	var data shared.Case
 	response := events.LambdaFunctionURLResponse{
 		StatusCode: 500,
@@ -60,7 +61,7 @@ func (l *Lambda) HandleEvent(event events.LambdaFunctionURLRequest) (events.Lamb
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	_, err = l.ddb.PutItem(&dynamodb.PutItemInput{
+	_, err = l.ddb.PutItemWithContext(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(l.tableName),
 		Item:      item,
 	})
@@ -95,6 +96,8 @@ func main() {
 		tableName: os.Getenv("DDB_TABLE_NAME_DEEDS"),
 		logger:    logging.New(os.Stdout, "opg-data-lpa-deed"),
 	}
+
+	xray.AWS(l.ddb.Client)
 
 	lambda.Start(l.HandleEvent)
 }
