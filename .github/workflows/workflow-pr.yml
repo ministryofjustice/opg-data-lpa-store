@@ -71,6 +71,15 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+  plan-dev-account:
+    name: TF Plan Dev Account
+    uses: ./.github/workflows/account-deploy.yml
+    with:
+      workspace_name: development
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   deploy-pr-env:
     name: Deploy PR Environment
     needs: [build, generate-tags, generate-environment-workspace-name]
@@ -88,7 +97,7 @@ jobs:
     needs: [deploy-pr-env]
     uses: ./.github/workflows/env-test.yml
     with:
-      create_url: ${{ needs.deploy-pr-env.outputs.create_url }}
+      base_url: ${{ needs.deploy-pr-env.outputs.base_url }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
