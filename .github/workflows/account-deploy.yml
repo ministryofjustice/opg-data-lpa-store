@@ -1,14 +1,10 @@
-name: "[Job] Deploy to Environment"
+name: "[Job] Plan/Deploy to Account"
 
 on:
   workflow_call:
     inputs:
       workspace_name:
-        description: "The terraform workspace to target for environment actions"
-        required: true
-        type: string
-      version_tag:
-        description: "The docker image tag to deploy in the environment"
+        description: "The terraform workspace to target for account actions"
         required: true
         type: string
     secrets:
@@ -18,22 +14,10 @@ on:
       aws_secret_access_key:
         description: "AWS Secret Access Key"
         required: true
-      github_access_token:
-        description: "Github Token"
-        required: true
-    outputs:
-      base_url:
-        description: "Base URL of API"
-        value: ${{ jobs.terraform_environment_workflow.outputs.url }}
 
 jobs:
-  terraform_environment_workflow:
+  terraform_account_workflow:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.workspace_name }}
-      url: ${{ steps.terraform_outputs.outputs.url }}
-    outputs:
-      url: ${{ steps.terraform_outputs.outputs.url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -54,36 +38,26 @@ jobs:
 
       - name: Lint Terraform
         run: terraform fmt -check -recursive
-        working-directory: ./terraform/environment
+        working-directory: ./terraform/account
         continue-on-error: true
 
       - name: Terraform Init
         run: terraform init -input=false
-        working-directory: ./terraform/environment
+        working-directory: ./terraform/account
 
       - name: Terraform Plan
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
           echo "plan_summary=$(terraform plan -no-color -lock-timeout=300s -input=false -parallelism=30 | grep -ioE 'Plan: [[:digit:]]+ to add, [[:digit:]]+ to change, [[:digit:]]+ to destroy|No changes. Your infrastructure matches the configuration.')" >> $GITHUB_OUTPUT
           terraform plan -lock-timeout=300s -input=false -parallelism=30
-        working-directory: ./terraform/environment
+        working-directory: ./terraform/account
 
       - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
-        working-directory: ./terraform/environment
-
-      - name: Terraform Outputs
-        id: terraform_outputs
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
-        run: |
-          echo "url=$(terraform output -raw base_url)" >> $GITHUB_OUTPUT
-        working-directory: ./terraform/environment
+        working-directory: ./terraform/account
