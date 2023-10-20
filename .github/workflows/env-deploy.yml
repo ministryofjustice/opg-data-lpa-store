@@ -22,8 +22,8 @@ on:
         description: "Github Token"
         required: true
     outputs:
-      create_url:
-        description: "URL of the create endpoint"
+      base_url:
+        description: "Base URL of API"
         value: ${{ jobs.terraform_environment_workflow.outputs.url }}
 
 jobs:
@@ -85,5 +85,5 @@ jobs:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
-          echo "url=$(terraform output -raw lambda_url)" >> $GITHUB_OUTPUT
+          echo "url=$(terraform output -raw base_url)" >> $GITHUB_OUTPUT
         working-directory: ./terraform/environment
