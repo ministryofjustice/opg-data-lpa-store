@@ -14,4 +14,114 @@ servers:
     description: Development
 security:
   - {}
-paths: {}
+paths:
+  /lpas/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: The UID of the complaint
+        schema:
+          type: string
+          pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
+          example: M-789Q-P4DF-4UX3
+    put:
+      operationId: putLpa
+      summary: Store an LPA
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        "201":
+          description: Case created
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_create_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Health check endpoint for external services to consume
+      responses:
+        200:
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                additionalProperties: false
+        503:
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Unhealthy
+                additionalProperties: false
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"status":"ok", "statusCode":200}'
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "when_no_templates"
+
+components:
+  schemas:
+    AbstractError:
+      type: object
+      required:
+        - code
+        - detail
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+    BadRequestError:
+      allOf:
+        - $ref: "#/components/schemas/AbstractError"
+        - type: object
+          properties:
+            code:
+              enum: ["INVALID_REQUEST"]
+            errors:
+              type: array
+              items:
+                type: object
+                required:
+                  - source
+                  - detail
+                properties:
+                  source:
+                    type: string
+                    format: jsonpointer
+                  detail:
+                    type: string
+              example:
+                - source: "/uid"
+                  detail: "invalid uid format"

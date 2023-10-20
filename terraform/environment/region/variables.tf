@@ -17,3 +17,8 @@ variable "dynamodb_name" {
   description = "Name of DynamoDB table"
   type        = string
 }
+
+variable "allowed_arns" {
+  description = "List of external ARNs allowed to access the API Gateway"
+  type        = list(string)
+}
