@@ -5,6 +5,7 @@ module "eu_west_1" {
   dynamodb_arn     = aws_dynamodb_table.deeds_table.arn
   dynamodb_name    = aws_dynamodb_table.deeds_table.name
   environment_name = local.environment_name
+  allowed_arns     = local.environment.allowed_arns
 
   providers = {
     aws.region     = aws.eu_west_1
@@ -19,6 +20,7 @@ module "eu_west_2" {
   dynamodb_arn     = aws_dynamodb_table_replica.deeds_table.arn
   dynamodb_name    = aws_dynamodb_table.deeds_table.name
   environment_name = local.environment_name
+  allowed_arns     = local.environment.allowed_arns
 
   providers = {
     aws.region     = aws.eu_west_2
