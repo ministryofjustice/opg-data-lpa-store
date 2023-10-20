@@ -3,8 +3,8 @@ name: "[Job] Test environment"
 on:
   workflow_call:
     inputs:
-      create_url:
-        description: "URL of the create endpoint"
+      base_url:
+        description: "Base URL of API"
         required: true
         type: string
     secrets:
@@ -48,5 +48,5 @@ jobs:
           role-session-name: GitHubActions
       - name: POST to server
         env:
-          URL: ${{ inputs.create_url }}
+          URL: ${{ inputs.base_url }}
         run: make test-api

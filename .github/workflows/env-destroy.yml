@@ -54,6 +54,8 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: Destroy deployment environment
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api \
             --method DELETE \
