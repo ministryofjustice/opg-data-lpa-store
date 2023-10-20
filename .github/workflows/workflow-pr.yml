@@ -88,7 +88,7 @@ jobs:
     needs: [deploy-pr-env]
     uses: ./.github/workflows/env-test.yml
     with:
-      create_url: ${{ needs.deploy-pr-env.outputs.create_url }}
+      base_url: ${{ needs.deploy-pr-env.outputs.base_url }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

@@ -12,7 +12,7 @@ up:
 down:
 	docker compose down
 
-test-api: URL ?= http://localhost:9000/create
+test-api: URL ?= http://localhost:9000/
 test-api:
 	go build -o ./signer/test-api ./signer && \
 	chmod +x ./signer/test-api && \
