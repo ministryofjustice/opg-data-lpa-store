@@ -28,7 +28,7 @@ func main() {
 
 	req.Header.Add("Content-type", "application/json")
 
-	signer.Sign(req, body, "lambda", "eu-west-1", time.Now())
+	signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
 
 	client := http.Client{}
 	resp, err := client.Do(req)
