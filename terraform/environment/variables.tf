@@ -24,6 +24,7 @@ variable "environments" {
       account_id    = string
       account_name  = string
       is_production = bool
+      allowed_arns  = list(string)
     })
   )
 }

@@ -42,7 +42,7 @@ var ProblemInvalidRequest Problem = Problem{
 	Detail:     "Invalid request",
 }
 
-func (problem Problem) Respond() (events.LambdaFunctionURLResponse, error) {
+func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 	var errorString = ""
 	for _, ve := range problem.Errors {
 		errorString += fmt.Sprintf("%s %s, ", ve.Source, ve.Detail)
@@ -64,7 +64,7 @@ func (problem Problem) Respond() (events.LambdaFunctionURLResponse, error) {
 		body = []byte("{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}")
 	}
 
-	return events.LambdaFunctionURLResponse{
+	return events.APIGatewayProxyResponse{
 		StatusCode: code,
 		Body:       string(body),
 	}, nil
