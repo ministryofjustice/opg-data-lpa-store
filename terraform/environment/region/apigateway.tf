@@ -2,6 +2,8 @@ locals {
   stage_name = "current"
   template_file = templatefile("../../docs/openapi/openapi.yaml", {
     lambda_create_invoke_arn = module.lambda["create"].invoke_arn
+    lambda_get_invoke_arn    = module.lambda["get"].invoke_arn
+    lambda_update_invoke_arn = module.lambda["update"].invoke_arn
   })
 }
 
@@ -129,10 +131,11 @@ data "aws_iam_policy_document" "lpa_store" {
   }
 }
 
-resource "aws_lambda_permission" "api_gateway_can_create" {
+resource "aws_lambda_permission" "api_gateway_invoke" {
+  for_each      = module.lambda
   statement_id  = "AllowLambdaAPIGatewayInvocation"
   action        = "lambda:InvokeFunction"
-  function_name = module.lambda["create"].function_name
+  function_name = each.value.function_name
   principal     = "apigateway.amazonaws.com"
   # The /* part allows invocation from any stage, method and resource path
   # within API Gateway.
