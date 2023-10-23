@@ -37,6 +37,10 @@ jobs:
         include:
           - ecr_repository: lpa-store/lambda/api-create
             dir: create
+          - ecr_repository: lpa-store/lambda/api-get
+            dir: get
+          - ecr_repository: lpa-store/lambda/api-update
+            dir: update
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:

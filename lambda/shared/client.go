@@ -5,7 +5,6 @@ import (
 )
 
 type Client interface {
-	Put(ctx context.Context, data Case) error
-	// Get(ctx context.Context, id string) (Case, error)
-	// Patch(ctx context.Context, id string, data Update) (Case, error)
+	Put(ctx context.Context, data Lpa) error
+	Get(ctx context.Context, uid string) (Lpa, error)
 }

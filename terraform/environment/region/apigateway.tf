@@ -2,6 +2,8 @@ locals {
   stage_name = "current"
   template_file = templatefile("../../docs/openapi/openapi.yaml", {
     lambda_create_invoke_arn = module.lambda["create"].invoke_arn
+    lambda_get_invoke_arn    = module.lambda["get"].invoke_arn
+    lambda_update_invoke_arn = module.lambda["update"].invoke_arn
   })
 }
 
