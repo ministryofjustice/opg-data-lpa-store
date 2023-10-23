@@ -2,7 +2,9 @@ go 1.21.0
 
 use (
 	./lambda/create
+	./lambda/get
 	./lambda/shared
+	./lambda/update
 	./mock-apigw
 	./signer
 )

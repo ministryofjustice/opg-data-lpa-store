@@ -4,16 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"os"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
-
-type Response struct {
-}
 
 type Logger interface {
 	Print(...interface{})
@@ -25,48 +21,26 @@ type Lambda struct {
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var data shared.Lpa
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	err := json.Unmarshal([]byte(event.Body), &data)
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
-	}
-
-	data.Uid = event.PathParameters["uid"]
-
-	if data.Version == "" {
-		problem := shared.ProblemInvalidRequest
-		problem.Errors = []shared.FieldError{
-			{Source: "/version", Detail: "must supply a valid version"},
-		}
-
-		return problem.Respond()
-	}
-
-	data.UpdatedAt = time.Now()
-
-	// save
-	err = l.store.Put(ctx, data)
+	lpa, err := l.store.Get(ctx, event.PathParameters["uid"])
 
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	// respond
-	body, err := json.Marshal(Response{})
+	body, err := json.Marshal(lpa)
 
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	response.StatusCode = 201
+	response.StatusCode = 200
 	response.Body = string(body)
 
 	return response, nil
