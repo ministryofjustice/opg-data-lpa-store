@@ -36,12 +36,14 @@ func main() {
 		panic(err)
 	}
 
+	buf := new(strings.Builder)
+	_, _ = io.Copy(buf, resp.Body)
+
 	if resp.StatusCode >= 400 {
 		log.Printf("Response code %d", resp.StatusCode)
-		buf := new(strings.Builder)
-		_, _ = io.Copy(buf, resp.Body)
 		log.Printf("error response: %s", buf.String())
-
 		panic(fmt.Sprintf("invalid status code %d", resp.StatusCode))
 	}
+
+	os.Stdout.WriteString(fmt.Sprintf("%d: %s\n", resp.StatusCode, buf.String()))
 }

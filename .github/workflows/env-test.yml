@@ -46,7 +46,7 @@ jobs:
           role-to-assume: arn:aws:iam::493907465011:role/lpa-store-ci
           role-duration-seconds: 3600
           role-session-name: GitHubActions
-      - name: POST to server
+      - name: Run test suite
         env:
           URL: ${{ inputs.base_url }}
         run: make test-api
