@@ -16,7 +16,7 @@ type DynamoDBClient struct {
 	tableName string
 }
 
-func (c DynamoDBClient) Put(ctx context.Context, data Case) error {
+func (c DynamoDBClient) Put(ctx context.Context, data Lpa) error {
 	item, err := dynamodbattribute.MarshalMap(data)
 	if err != nil {
 		return err
@@ -28,6 +28,30 @@ func (c DynamoDBClient) Put(ctx context.Context, data Case) error {
 	})
 
 	return err
+}
+
+func (c DynamoDBClient) Get(ctx context.Context, uid string) (Lpa, error) {
+	lpa := Lpa{}
+
+	marshalledUid, err := dynamodbattribute.Marshal(uid)
+	if err != nil {
+		return lpa, err
+	}
+
+	getItemOutput, err := c.ddb.GetItemWithContext(ctx, &dynamodb.GetItemInput{
+		TableName: aws.String(c.tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"uid": marshalledUid,
+		},
+	})
+
+	if err != nil {
+		return lpa, err
+	}
+
+	err = dynamodbattribute.UnmarshalMap(getItemOutput.Item, &lpa)
+
+	return lpa, err
 }
 
 func NewDynamoDB(tableName string) DynamoDBClient {

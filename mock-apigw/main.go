@@ -13,13 +13,22 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-var LPAPath = regexp.MustCompile("/lpas/M(-[0-9A-Z]{4}){3}")
+var LPAPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})$")
+var UpdatePath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/updates$")
 
 func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	lambdaName := ""
+	uid := ""
 
 	if LPAPath.MatchString(r.URL.Path) && r.Method == http.MethodPut {
+		uid = LPAPath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "create"
+	} else if LPAPath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = LPAPath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "get"
+	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
+		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "update"
 	}
 
 	if lambdaName == "" {
@@ -33,7 +42,11 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = io.Copy(reqBody, r.Body)
 
 	body := events.APIGatewayProxyRequest{
-		Body:              reqBody.String(),
+		Body: reqBody.String(),
+		Path: r.URL.Path,
+		PathParameters: map[string]string{
+			"uid": uid,
+		},
 		HTTPMethod:        r.Method,
 		MultiValueHeaders: r.Header,
 	}

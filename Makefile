@@ -3,7 +3,7 @@ export AWS_ACCESS_KEY_ID ?= X
 export AWS_SECRET_ACCESS_KEY ?= X
 
 build:
-	docker compose build --parallel lambda-create apigw
+	docker compose build --parallel lambda-create lambda-update lambda-get apigw
 
 up:
 	docker compose up -d apigw
@@ -16,7 +16,9 @@ test-api: URL ?= http://localhost:9000
 test-api:
 	go build -o ./signer/test-api ./signer && \
 	chmod +x ./signer/test-api && \
-	./signer/test-api PUT $(URL)/lpas/M-AL9A-7EY3-075D '{"uid":"M-AL9A-7EY3-075D","version":"1"}'
+	./signer/test-api PUT $(URL)/lpas/M-AL9A-7EY3-075D '{"version":"1"}' && \
+	./signer/test-api POST $(URL)/lpas/M-AL9A-7EY3-075D/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./signer/test-api GET $(URL)/lpas/M-AL9A-7EY3-075D '' | grep '"version":"2"' \
 
 create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
@@ -27,7 +29,7 @@ create-tables:
 		--billing-mode PAY_PER_REQUEST
 
 	docker compose run --rm aws dynamodb describe-table --table-name events || \
-	docker compose run --rm aws dynamodb create-table \
+	docker compose run --rm aws dynamodb create-ta~ble \
 		--table-name events \
 		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
 		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
