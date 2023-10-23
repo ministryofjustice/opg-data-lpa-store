@@ -32,8 +32,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
+              $ref: "#/components/schemas/Lpa"
       responses:
         "201":
           description: Case created
@@ -50,6 +49,74 @@ paths:
         httpMethod: "POST"
         type: "aws_proxy"
         contentHandling: "CONVERT_TO_TEXT"
+    get:
+      operationId: getLpa
+      summary: Retrieve an LPA
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        "200":
+          description: Case found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lpa"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_get_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+  /lpas/{uid}/updates:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: The UID of the complaint
+        schema:
+          type: string
+          pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
+          example: M-789Q-P4DF-4UX3
+    post:
+      operationId: createUpdate
+      summary: Update an LPA
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Update"
+      responses:
+        "201":
+          description: Update created
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_update_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+
   /health:
     get:
       operationId: healthCheck
@@ -125,3 +192,31 @@ components:
               example:
                 - source: "/uid"
                   detail: "invalid uid format"
+    Lpa:
+      $ref: "../schemas/lpa.json"
+    Update:
+      type: object
+      required:
+        - type
+        - changes
+      properties:
+        type:
+          enum:
+            - DONOR_ADDRESS_UPDATE
+            - ATTORNEY_ADDRESS_UPDATE
+            - SCANNING_CORRECTION
+        changes:
+          type: array
+          items:
+            type: object
+            required:
+              - key
+              - old
+              - new
+            properties:
+              key:
+                type: string
+              old:
+                nullable: true
+              new:
+                nullable: true
