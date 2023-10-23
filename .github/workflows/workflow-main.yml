@@ -1,7 +1,7 @@
-name: PR Workflow
+name: Main pipeline Workflow
 
 on:
-  pull_request:
+  push:
     branches:
       - main
   workflow_dispatch:
@@ -15,23 +15,6 @@ jobs:
     name: Generate tag
     uses: ./.github/workflows/generate-tag.yml
 
-  generate-environment-workspace-name:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate workspace name
-        id: name_workspace
-        run: |
-          workspace=${{ github.event.number }}${{ github.head_ref }}
-          workspace=${workspace//-}
-          workspace=${workspace//_}
-          workspace=${workspace//\/}
-          workspace=${workspace:0:11}
-          workspace=$(echo ${workspace} | tr '[:upper:]' '[:lower:]')
-          echo "name=${workspace}" >> $GITHUB_OUTPUT
-          echo ${workspace}
-    outputs:
-      environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
-
   build:
     name: Build, Scan & Push Images
     needs: [generate-tag]
@@ -42,8 +25,8 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  plan-dev-account:
-    name: TF Plan Dev Account
+  deploy-dev-account:
+    name: TF Deploy Dev Account
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
@@ -51,24 +34,24 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  deploy-pr-env:
-    name: Deploy PR Environment
-    needs: [build, generate-tag, generate-environment-workspace-name]
+  deploy-dev-env:
+    name: Deploy Development Environment
+    needs: [build, generate-tag]
     uses: ./.github/workflows/env-deploy.yml
     with:
-      workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
+      workspace_name: development
       version_tag: ${{ needs.generate-tag.outputs.tag }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
-  test-pr-env:
-    name: Test PR Environment
-    needs: [deploy-pr-env]
+  test-dev-env:
+    name: Test Development Environment
+    needs: [deploy-dev-env]
     uses: ./.github/workflows/env-test.yml
     with:
-      base_url: ${{ needs.deploy-pr-env.outputs.base_url }}
+      base_url: ${{ needs.deploy-dev-env.outputs.base_url }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
