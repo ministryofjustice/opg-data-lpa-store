@@ -7,15 +7,18 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 )
 
+var LPAPath = regexp.MustCompile("/lpas/M(-[0-9A-Z]{4}){3}")
+
 func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	lambdaName := ""
 
-	if r.URL.Path == "/create" && r.Method == http.MethodPost {
+	if LPAPath.MatchString(r.URL.Path) && r.Method == http.MethodPut {
 		lambdaName = "create"
 	}
 
