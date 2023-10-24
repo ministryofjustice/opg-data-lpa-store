@@ -1,6 +1,6 @@
 module github.com/ministryofjustice/opg-data-lpa-deed/signer
 
-go 1.20
+go 1.21
 
 require github.com/aws/aws-sdk-go v1.45.24
 
