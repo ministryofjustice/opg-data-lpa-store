@@ -70,3 +70,18 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       AWS_PAGER: ""
+
+  go-lint:
+    image: golangci/golangci-lint:v1.54.2
+    working_dir: /go/src/app
+    volumes:
+      - ./:/go/src/app
+      - ./.cache/golangci-lint/v1.53.3:/root/.cache
+    command: golangci-lint run --timeout 5m --out-format=github-actions ./lambda/get/... ./lambda/create/... ./lambda/update/...
+
+  gosec:
+    image: securego/gosec:latest
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: -exclude-dir=.gocache /app/...
