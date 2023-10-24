@@ -6,6 +6,8 @@ github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared v0.0.0-202310121018
 github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared v0.0.0-20231012101804-da267f23d7db/go.mod h1:uarvaw7JMaubij8CuiO2bNcJBp8zWEdiU+AVqe78Ggc=
 github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90 h1:mxTHIeCYV7LDZPN7C44wwLlBTUsgQ0G8FQprsrsKXaA=
 github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90/go.mod h1:1RmCNi6dkAv8umAgNHp8RkuBoSKLlxp1UtfsGYH7ufc=
+github.com/ministryofjustice/opg-go-common v0.0.0-20231009133357-1f236d604316 h1:iuo6s75firLntoOAU+SCaRnXUHlLfTIxru8hBlYsECw=
+github.com/ministryofjustice/opg-go-common v0.0.0-20231009133357-1f236d604316/go.mod h1:1RmCNi6dkAv8umAgNHp8RkuBoSKLlxp1UtfsGYH7ufc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.7.2 h1:4jaiDzPyXQvSd7D0EjG45355tLlV3VOECpq10pLC+8s=
