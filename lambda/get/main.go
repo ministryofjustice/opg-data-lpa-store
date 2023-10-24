@@ -11,6 +11,8 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
 
+const test = "this should fail"
+
 type Logger interface {
 	Print(...interface{})
 }
