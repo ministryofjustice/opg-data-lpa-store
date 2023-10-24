@@ -1,8 +1,6 @@
 module github.com/ministryofjustice/opg-data-lpa-deed/lambda/create
 
-go 1.21.0
-
-toolchain go1.21.3
+go 1.20
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0
