@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -62,8 +63,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Do(proxyReq)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Fatal(err)
 	}
 
 	encodedRespBody, _ := io.ReadAll(resp.Body)
@@ -72,14 +72,25 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(encodedRespBody, &respBody)
 
 	w.WriteHeader(respBody.StatusCode)
-	w.Write([]byte(respBody.Body))
+	_, err = w.Write([]byte(respBody.Body))
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
 	http.HandleFunc("/", delegateHandler)
 
-	fmt.Printf("Starting server at port 8080\n")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	server := &http.Server{
+		Addr:              ":8080",
+		Handler:           nil,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Printf("running on port 8080\n")
 }

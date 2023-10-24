@@ -19,3 +19,6 @@ signer/test-api
 # structurizr
 .structurizr
 docs/architecture/dsl/**/workspace.json
+# caches
+.cache
+.gocache
