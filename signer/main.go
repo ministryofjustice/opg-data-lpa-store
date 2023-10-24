@@ -28,7 +28,10 @@ func main() {
 
 	req.Header.Add("Content-type", "application/json")
 
-	signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+	_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+	if err != nil {
+		panic(err)
+	}
 
 	client := http.Client{}
 	resp, err := client.Do(req)
@@ -45,5 +48,8 @@ func main() {
 		panic(fmt.Sprintf("invalid status code %d", resp.StatusCode))
 	}
 
-	os.Stdout.WriteString(fmt.Sprintf("%d: %s\n", resp.StatusCode, buf.String()))
+	_, err = os.Stdout.WriteString(fmt.Sprintf("%d: %s\n", resp.StatusCode, buf.String()))
+	if err != nil {
+		panic(err)
+	}
 }
