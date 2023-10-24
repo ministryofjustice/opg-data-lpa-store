@@ -32,6 +32,15 @@ jobs:
     outputs:
       environment_workspace_name: ${{ steps.name_workspace.outputs.name }}
 
+  static-analysis:
+    name: Run static analysis tools on code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - run: make check-code
+
   build:
     name: Build, Scan & Push Images
     needs: [generate-tag]
@@ -53,7 +62,7 @@ jobs:
 
   deploy-pr-env:
     name: Deploy PR Environment
-    needs: [build, generate-tag, generate-environment-workspace-name]
+    needs: [build, static-analysis, generate-tag, generate-environment-workspace-name]
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}

@@ -33,7 +33,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	body, err := json.Marshal(lpa)
+	body, err2 := json.Marshal(lpa)
 
 	if err != nil {
 		l.logger.Print(err)
