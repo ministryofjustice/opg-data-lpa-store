@@ -51,7 +51,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	data.UpdatedAt = time.Now()
 
 	// save
-	err = l.store.Put(ctx, data)
+	l.store.Put(ctx, data)
 
 	if err != nil {
 		l.logger.Print(err)
