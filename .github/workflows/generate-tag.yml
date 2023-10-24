@@ -1,0 +1,40 @@
+name: "[Job] Generate tag"
+
+on:
+  workflow_call:
+    outputs:
+      tag:
+        description: "Semver tag of this commit/deployment"
+        value: ${{ jobs.generate_tag.outputs.tag }}
+
+jobs:
+  generate_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.bump_version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "0"
+      - name: Extract branch name
+        run: |
+          if [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            echo BRANCH_NAME=main >> $GITHUB_ENV
+          else
+            branch=${{ github.head_ref }}
+            branch=${branch//-}
+            branch=${branch//_}
+            branch=${branch//\/}
+            echo BRANCH_NAME=${branch} >> $GITHUB_ENV
+          fi
+      - name: Bump version
+        id: bump_version
+        uses: anothrNick/github-tag-action@1.67.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INITIAL_VERSION: 0.0.0
+          DEFAULT_BUMP: minor
+          PRERELEASE: true
+          PRERELEASE_SUFFIX: ${{ env.BRANCH_NAME }}
+          RELEASE_BRANCHES: main
+          WITH_V: true
