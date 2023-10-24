@@ -2,16 +2,20 @@ SHELL = '/bin/bash'
 export AWS_ACCESS_KEY_ID ?= X
 export AWS_SECRET_ACCESS_KEY ?= X
 
-build:
+help:
+	@grep --no-filename -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+build: ## Build containers
 	docker compose build --parallel lambda-create lambda-update lambda-get apigw
 
-up:
+up: ## Start application
 	docker compose up -d apigw
 	make create-tables
 
-down:
+down: ## Stop application
 	docker compose down
 
+test-api: ## Test the API endpoints
 test-api: URL ?= http://localhost:9000
 test-api:
 	go build -o ./signer/test-api ./signer && \
@@ -43,3 +47,11 @@ run-structurizr-export:
 	docker pull structurizr/cli:latest
 	docker run --rm -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/cli \
 	export -workspace /usr/local/structurizr/workspace.dsl -format mermaid
+
+go-lint: ## Lint Go code
+	docker compose run --rm go-lint
+
+gosec: ## Scan Go code for security flaws
+	docker compose run --rm gosec
+
+check-code: go-lint gosec
