@@ -22,3 +22,9 @@ variable "allowed_arns" {
   description = "List of external ARNs allowed to access the API Gateway"
   type        = list(string)
 }
+
+variable "dns_weighting" {
+  description = "What percentage of DNS traffic to send to this region"
+  type        = number
+  default     = 50
+}
