@@ -143,3 +143,15 @@ resource "aws_lambda_permission" "api_gateway_invoke" {
 
   provider = aws.region
 }
+
+resource "aws_api_gateway_base_path_mapping" "mapping" {
+  api_id      = aws_api_gateway_rest_api.lpa_store.id
+  stage_name  = aws_api_gateway_stage.current.stage_name
+  domain_name = aws_api_gateway_domain_name.lpa_store.domain_name
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  provider = aws.region
+}
