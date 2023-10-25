@@ -33,3 +33,9 @@ variable "default_role" {
   type        = string
   default     = "lpa-store-ci"
 }
+
+variable "management_role" {
+  description = "Role to assume in Management account"
+  type        = string
+  default     = "lpa-store-ci"
+}
