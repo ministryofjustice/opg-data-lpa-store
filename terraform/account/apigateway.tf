@@ -1,6 +1,8 @@
 resource "aws_iam_role" "api_gateway_cloudwatch" {
   name               = "api-gateway-cloudwatch-global"
   assume_role_policy = data.aws_iam_policy_document.api_gateway_assume_role.json
+
+  provider = aws.global
 }
 
 data "aws_iam_policy_document" "api_gateway_assume_role" {
@@ -12,9 +14,13 @@ data "aws_iam_policy_document" "api_gateway_assume_role" {
       identifiers = ["apigateway.amazonaws.com"]
     }
   }
+
+  provider = aws.global
 }
 
 resource "aws_iam_role_policy_attachment" "api_gateway_log_to_cloudwatch" {
   role       = aws_iam_role.api_gateway_cloudwatch.id
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+
+  provider = aws.global
 }
