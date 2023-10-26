@@ -4,12 +4,20 @@
     "config:base"
   ],
   "branchPrefix": "renovate-",
+  "branchNameStrict": true,
   "commitMessageAction": "Renovate Update",
   "labels": [
     "Dependencies",
     "Renovate"
   ],
   "packageRules": [
+    {
+      "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
+      "matchPackageNames": [
+        "github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared"
+      ],
+      "enabled": false
+    },
     {
       "automerge": true,
       "groupName": "Patch & Minor Updates",
