@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-lambda-go v1.41.0
 	github.com/go-openapi/jsonpointer v0.20.0
 	github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared v0.0.0-00010101000000-000000000000
-	github.com/ministryofjustice/opg-go-common v0.0.0-20220816144329-763497f29f90
+	github.com/ministryofjustice/opg-go-common v0.0.0-20231009133357-1f236d604316
 )
 
 require (
