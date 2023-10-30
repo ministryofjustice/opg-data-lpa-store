@@ -117,7 +117,7 @@ paths:
         type: "aws_proxy"
         contentHandling: "CONVERT_TO_TEXT"
 
-  /health:
+  /health-check:
     get:
       operationId: healthCheck
       summary: Health check endpoint for external services to consume
@@ -145,7 +145,7 @@ paths:
                     example: Unhealthy
                 additionalProperties: false
       x-amazon-apigateway-auth:
-        type: "AWS_IAM"
+        type: "NONE"
       x-amazon-apigateway-integration:
         type: "mock"
         responses:
