@@ -129,6 +129,19 @@ data "aws_iam_policy_document" "lpa_store" {
     actions   = ["execute-api:Invoke"]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowHealthCheckExecutionFromAnyone"
+    effect = "Allow"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    actions   = ["execute-api:Invoke"]
+    resources = ["execute-api:/${local.stage_name}/GET/health-check"]
+  }
 }
 
 resource "aws_lambda_permission" "api_gateway_invoke" {
