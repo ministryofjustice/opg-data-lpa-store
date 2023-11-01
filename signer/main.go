@@ -21,7 +21,10 @@ func main() {
 
 	args := flag.Args()
 	method := args[0]
-	url := args[1]
+
+	uid := "M-AL9A-7EY3-075D"
+	url := strings.Replace(args[1], "{{UID}}", uid, -1)
+
 	body := strings.NewReader(args[2])
 
 	req, err := http.NewRequest(method, url, body)
