@@ -49,7 +49,7 @@ func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 	}
 
 	_ = json.NewEncoder(os.Stdout).Encode(LogEvent{
-		ServiceName: "opg-data-lpa-deed",
+		ServiceName: "opg-data-lpa-store",
 		Timestamp:   time.Now(),
 		Status:      problem.StatusCode,
 		Problem:     problem,

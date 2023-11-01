@@ -1,3 +1,3 @@
-# opg-data-lpa-deed
+# opg-data-lpa-store
 
-LPA deed service: Managed by opg-org-infra &amp; Terraform
+LPA Store: Managed by opg-org-infra &amp; Terraform
