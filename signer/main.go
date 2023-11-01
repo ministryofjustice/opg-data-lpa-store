@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -11,17 +12,35 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	"github.com/google/uuid"
 )
 
+// call with UID to generate a UID, or with
+// -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY> to make a test request
 func main() {
+	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
+	flag.Parse()
+
+	args := flag.Args()
+
+	// early exit if we're just generating a UID
+	if args[0] == "UID" {
+		fmt.Print("M-" + strings.ToUpper(uuid.NewString()[9:23]))
+		os.Exit(0)
+	}
+
+	if args[0] != "REQUEST" {
+		panic("Unrecognised command")
+	}
+
 	sess := session.Must(session.NewSession())
 	signer := v4.NewSigner(sess.Config.Credentials)
 
-	method := os.Args[1]
-	host := os.Args[2]
-	body := strings.NewReader(os.Args[3])
+	method := args[1]
+	url := args[2]
+	body := strings.NewReader(args[3])
 
-	req, err := http.NewRequest(method, host, body)
+	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		panic(err)
 	}
@@ -42,14 +61,14 @@ func main() {
 	buf := new(strings.Builder)
 	_, _ = io.Copy(buf, resp.Body)
 
-	if resp.StatusCode >= 400 {
-		log.Printf("Response code %d", resp.StatusCode)
-		log.Printf("error response: %s", buf.String())
-		panic(fmt.Sprintf("invalid status code %d", resp.StatusCode))
-	}
+	log.Printf("*******************")
 
-	_, err = os.Stdout.WriteString(fmt.Sprintf("%d: %s\n", resp.StatusCode, buf.String()))
-	if err != nil {
-		panic(err)
+	if resp.StatusCode != *expectedStatusCode {
+		log.Printf("! TEST FAILED - %s to %s", method, url)
+		log.Printf("invalid status code %d; expected: %d", resp.StatusCode, *expectedStatusCode)
+		log.Printf("error response: %s", buf.String())
+
+	} else {
+		log.Printf("Test passed - %d: %s", resp.StatusCode, buf.String())
 	}
 }
