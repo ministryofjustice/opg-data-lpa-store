@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-data-lpa-deed/delegator
+module github.com/ministryofjustice/opg-data-lpa-store/mock-apigw
 
 go 1.20
 

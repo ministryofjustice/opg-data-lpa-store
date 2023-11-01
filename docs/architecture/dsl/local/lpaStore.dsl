@@ -1,6 +1,6 @@
-lpaDeedService = softwareSystem "LPA Deed Service" "Stores deeds and manages changes to them" {
-    database = container "Database" "Stores deeds and events" "DynamoDB" "Database"
-    lambda = container "Lambda" "Executes code for storing, updating and retrieving deeds" "AWS Lambda, Go" "Component" {
+lpaStore = softwareSystem "LPA Store" "Stores LPAs and manages changes to them" {
+    database = container "Database" "Stores LPAs and events" "DynamoDB" "Database"
+    lambda = container "Lambda" "Executes code for storing, updating and retrieving LPAs" "AWS Lambda, Go" "Component" {
         -> database "Queries and writes to"
     }
     iam = container "IAM" "Manages permissions to API Gateway" "AWS IAM" "Component"
