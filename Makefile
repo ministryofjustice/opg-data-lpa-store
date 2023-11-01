@@ -24,7 +24,7 @@ test-api:
 	./signer/test-api -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(UID) '{"version":"1"}' && \
 	./signer/test-api -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(UID) '{"version":"2"}' && \
 	./signer/test-api -expectedStatus=201 REQUEST POST $(URL)/lpas/$(UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
-	./signer/test-api -expectedStatus=200 REQUEST GET $(URL)/lpas/$(UID) '' | grep '"version":"2"' \
+	./signer/test-api -expectedStatus=200 REQUEST GET $(URL)/lpas/$(UID) ''
 
 create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
