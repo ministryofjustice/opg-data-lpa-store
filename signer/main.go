@@ -2,30 +2,43 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	"github.com/google/uuid"
 )
 
+// call with UID to generate a UID, or with
+// -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY> to make a test request
 func main() {
-	sess := session.Must(session.NewSession())
-	signer := v4.NewSigner(sess.Config.Credentials)
-
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
 	flag.Parse()
 
 	args := flag.Args()
-	method := args[0]
 
-	uid := "M-AL9A-7EY3-075D"
-	url := strings.Replace(args[1], "{{UID}}", uid, -1)
+	// early exit if we're just generating a UID
+	if args[0] == "UID" {
+		fmt.Print("M-" + strings.ToUpper(uuid.NewString()[9:23]))
+		os.Exit(0)
+	}
 
-	body := strings.NewReader(args[2])
+	if args[0] != "REQUEST" {
+		panic("Unrecognised command")
+	}
+
+	sess := session.Must(session.NewSession())
+	signer := v4.NewSigner(sess.Config.Credentials)
+
+	method := args[1]
+	url := args[2]
+	body := strings.NewReader(args[3])
 
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
