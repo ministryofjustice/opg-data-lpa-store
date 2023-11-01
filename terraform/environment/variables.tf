@@ -5,7 +5,7 @@ locals {
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
   mandatory_moj_tags = {
     business-unit    = "OPG"
-    application      = "opg-data-lpa-deed"
+    application      = "opg-data-lpa-store"
     environment-name = local.environment_name
     account          = local.environment.account_name
     is-production    = local.environment.is_production
@@ -13,7 +13,7 @@ locals {
   }
 
   optional_tags = {
-    source-code            = "https://github.com/ministryofjustice/opg-data-lpa-deed"
+    source-code            = "https://github.com/ministryofjustice/opg-data-lpa-store"
     infrastructure-support = "opgteam@digital.justice.gov.uk"
   }
 }

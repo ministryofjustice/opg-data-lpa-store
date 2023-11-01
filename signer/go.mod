@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-data-lpa-deed/signer
+module github.com/ministryofjustice/opg-data-lpa-store/signer
 
 go 1.20
 

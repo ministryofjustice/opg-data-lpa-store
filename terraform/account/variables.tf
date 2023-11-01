@@ -14,14 +14,14 @@ locals {
 
   mandatory_moj_tags = {
     business-unit = "OPG"
-    application   = "opg-data-lpa-deed"
+    application   = "opg-data-lpa-store"
     account       = local.account.account_name
     is-production = local.account.is_production
     owner         = "opgteam@digital.justice.gov.uk"
   }
 
   optional_tags = {
-    source-code            = "https://github.com/ministryofjustice/opg-data-lpa-deed"
+    source-code            = "https://github.com/ministryofjustice/opg-data-lpa-store"
     infrastructure-support = "opgteam@digital.justice.gov.uk"
   }
 

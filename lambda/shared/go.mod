@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-data-lpa-deed/lambda/shared
+module github.com/ministryofjustice/opg-data-lpa-store/lambda/shared
 
 go 1.20
 
