@@ -1,4 +1,4 @@
-module github.com/ministryofjustice/opg-data-lpa-store/signer
+module github.com/ministryofjustice/opg-data-lpa-store/api-test
 
 go 1.20
 
