@@ -15,7 +15,7 @@ secrets.auto.tfvars
 venv/
 env/
 # built items
-signer/test-api
+api-test/api-test
 # structurizr
 .structurizr
 docs/architecture/dsl/**/workspace.json

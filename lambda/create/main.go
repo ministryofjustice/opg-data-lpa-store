@@ -48,6 +48,18 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return problem.Respond()
 	}
 
+	// check for existing Lpa
+	var existingLpa shared.Lpa
+	existingLpa, err = l.store.Get(ctx, data.Uid)
+	if err != nil {
+		return shared.ProblemInternalServerError.Respond()
+	}
+	if existingLpa.Uid == data.Uid {
+		problem := shared.ProblemInvalidRequest
+		problem.Detail = "LPA with UID already exists"
+		return problem.Respond()
+	}
+
 	data.UpdatedAt = time.Now()
 
 	// save
