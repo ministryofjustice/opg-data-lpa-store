@@ -17,13 +17,14 @@ down: ## Stop application
 
 test-api: URL ?= http://localhost:9000
 test-api:
-	$(shell go build -o ./signer/test-api ./signer && chmod +x ./signer/test-api)
-	$(eval LPA_UID := "$(shell ./signer/test-api UID)")
+	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
+	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 
-	./signer/test-api -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
-	./signer/test-api -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
-	./signer/test-api -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
-	./signer/test-api -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
+	./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
+	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
+	./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
+.PHONY: test-api
 
 create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
