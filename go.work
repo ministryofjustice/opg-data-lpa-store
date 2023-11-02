@@ -6,5 +6,5 @@ use (
 	./lambda/shared
 	./lambda/update
 	./mock-apigw
-	./signer
+	./api-test
 )
