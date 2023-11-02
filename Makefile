@@ -15,14 +15,15 @@ up: ## Start application
 down: ## Stop application
 	docker compose down
 
-test-api: ## Test the API endpoints
 test-api: URL ?= http://localhost:9000
 test-api:
-	go build -o ./signer/test-api ./signer && \
-	chmod +x ./signer/test-api && \
-	./signer/test-api PUT $(URL)/lpas/M-AL9A-7EY3-075D '{"version":"1"}' && \
-	./signer/test-api POST $(URL)/lpas/M-AL9A-7EY3-075D/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
-	./signer/test-api GET $(URL)/lpas/M-AL9A-7EY3-075D '' | grep '"version":"2"' \
+	$(shell go build -o ./signer/test-api ./signer && chmod +x ./signer/test-api)
+	$(eval LPA_UID := "$(shell ./signer/test-api UID)")
+
+	./signer/test-api -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
+	./signer/test-api -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
+	./signer/test-api -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./signer/test-api -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 
 create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name deeds || \
