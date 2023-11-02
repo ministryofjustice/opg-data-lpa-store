@@ -17,9 +17,7 @@ down: ## Stop application
 
 test-api: URL ?= http://localhost:9000
 test-api:
-	go build -o ./signer/test-api ./signer && \
-	chmod +x ./signer/test-api
-
+	$(shell go build -o ./signer/test-api ./signer && chmod +x ./signer/test-api)
 	$(eval LPA_UID := "$(shell ./signer/test-api UID)")
 
 	./signer/test-api -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
