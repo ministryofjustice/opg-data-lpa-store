@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: "0"
       - uses: unfor19/install-aws-cli-action@v1
-      - uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.4.6
           terraform_wrapper: false
