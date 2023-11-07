@@ -8,12 +8,12 @@ require (
 	github.com/aws/aws-lambda-go v1.41.0
 	github.com/go-openapi/jsonpointer v0.20.0
 	github.com/ministryofjustice/opg-data-lpa-store/lambda/shared v0.0.0-00010101000000-000000000000
-	github.com/ministryofjustice/opg-go-common v0.0.0-20231009133357-1f236d604316
+	github.com/ministryofjustice/opg-go-common v0.0.0-20231106092059-b3dcf8bd1eeb
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/aws/aws-sdk-go v1.46.5 // indirect
+	github.com/aws/aws-sdk-go v1.47.3 // indirect
 	github.com/aws/aws-xray-sdk-go v1.8.2 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
