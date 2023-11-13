@@ -3,14 +3,20 @@ package shared
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
+const (
+	sirius string = "opg.poas.sirius"
+	mrlpa         = "opg.poas.makeregister"
+)
+
 var validIssuers []string = []string{
-	"opg.poas.sirius",
-	"opg.poas.makeregister",
+	sirius,
+	mrlpa,
 }
 
 type lpaStoreClaims struct {
@@ -46,6 +52,26 @@ func (l lpaStoreClaims) Validate() error {
 	if !isValid {
 		return errors.New("Invalid Issuer")
 	}
+
+	// validate subject (sub) depending on the issuer value
+	sub, err := l.GetSubject()
+	if err != nil {
+		return err
+	}
+
+	if iss == sirius {
+		emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+    	if !emailRegex.MatchString(sub) {
+    		return errors.New("Subject is not a valid email")
+    	}
+    }
+
+    if iss == mrlpa {
+    	uidRegex := regexp.MustCompile("^.+$")
+    	if !uidRegex.MatchString(sub) {
+    		return errors.New("Subject is not a valid UID")
+    	}
+    }
 
     return nil
 }
