@@ -3,6 +3,7 @@ package shared
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 
@@ -76,11 +77,28 @@ func (l lpaStoreClaims) Validate() error {
     return nil
 }
 
-func VerifyToken(secretKey []byte, tokenStr string) error {
+type JWTVerifier struct {
+	secretKey []byte
+}
+
+func NewJWTVerifier() JWTVerifier {
+	return JWTVerifier{
+		secretKey: []byte(os.Getenv("JWT_SECRET_KEY")),
+	}
+}
+
+var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
+
+// tokenStr may be just the JWT token, or can be prefixed with "^Bearer:[ ]+"
+// (i.e. it can be the raw value from the authentication header in the original request);
+// any prefix is stripped before parsing the token
+func (v JWTVerifier) VerifyToken(tokenStr string) error {
 	lsc := lpaStoreClaims{}
 
+	tokenStr = bearerRegexp.ReplaceAllString(tokenStr, "")
+
  	parsedToken, err := jwt.ParseWithClaims(tokenStr, &lsc, func(token *jwt.Token) (interface{}, error) {
-		return secretKey, nil
+		return v.secretKey, nil
    	})
 
     if err != nil {
@@ -88,7 +106,7 @@ func VerifyToken(secretKey []byte, tokenStr string) error {
    	}
 
    	if !parsedToken.Valid {
-    	return fmt.Errorf("invalid token")
+    	return fmt.Errorf("invalid JWT")
    	}
 
    	return nil
