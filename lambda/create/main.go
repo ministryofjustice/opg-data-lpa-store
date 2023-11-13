@@ -20,8 +20,9 @@ type Logger interface {
 }
 
 type Lambda struct {
-	store  shared.Client
-	logger Logger
+	store    shared.Client
+	verifier shared.JWTVerifier
+	logger   Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -31,7 +32,21 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	err := json.Unmarshal([]byte(event.Body), &data)
+	// check JWT before touching anything else in the event;
+	// NB we just log any errors here and still accept the request (for now)
+	authHeader, ok := event.Headers["Authorization"]
+	if !ok {
+		authHeader, ok = event.Headers["authorization"]
+	}
+
+	if ok {
+		err := l.verifier.VerifyToken(authHeader)
+		if err != nil {
+			l.logger.Print(err)
+		}
+	}
+
+	err = json.Unmarshal([]byte(event.Body), &data)
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
@@ -86,8 +101,9 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 func main() {
 	l := &Lambda{
-		store:  shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
-		logger: logging.New(os.Stdout, "opg-data-lpa-store"),
+		store:    shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		verifier: shared.NewJWTVerifier(),
+		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
 
 	lambda.Start(l.HandleEvent)
