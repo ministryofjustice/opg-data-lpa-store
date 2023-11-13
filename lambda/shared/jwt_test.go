@@ -32,6 +32,7 @@ func TestVerifyExpInPast(t *testing.T) {
         "exp": time.Now().Add(time.Hour * -24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.makeregister",
+        "sub": "M-3467-89QW-ERTY",
     })
 
 	err := VerifyToken(secretKey, token)
@@ -47,6 +48,7 @@ func TestVerifyIatInFuture(t *testing.T) {
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * 24).Unix(),
         "iss": "opg.poas.sirius",
+        "sub": "someone@someplace.somewhere.com",
     })
 
 	err := VerifyToken(secretKey, token)
@@ -62,6 +64,7 @@ func TestVerifyIssuer(t *testing.T) {
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "daadsdaadsadsads",
+        "sub": "someone@someplace.somewhere.com",
     })
 
 	err := VerifyToken(secretKey, token)
@@ -72,11 +75,44 @@ func TestVerifyIssuer(t *testing.T) {
 	}
 }
 
+func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
+	token, _ := createToken(jwt.MapClaims{
+        "exp": time.Now().Add(time.Hour * 24).Unix(),
+        "iat": time.Now().Add(time.Hour * -24).Unix(),
+        "iss": "opg.poas.sirius",
+        "sub": "",
+    })
+
+	err := VerifyToken(secretKey, token)
+
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Containsf(t, err.Error(), "Subject is not a valid email", "")
+	}
+}
+
+func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
+	token, _ := createToken(jwt.MapClaims{
+        "exp": time.Now().Add(time.Hour * 24).Unix(),
+        "iat": time.Now().Add(time.Hour * -24).Unix(),
+        "iss": "opg.poas.makeregister",
+        "sub": "",
+    })
+
+	err := VerifyToken(secretKey, token)
+
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Containsf(t, err.Error(), "Subject is not a valid UID", "")
+	}
+}
+
 func TestVerifyGoodJwt(t *testing.T) {
 	token, _ := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.sirius",
+        "sub": "someone@someplace.somewhere.com",
     })
 
 	err := VerifyToken(secretKey, token)
