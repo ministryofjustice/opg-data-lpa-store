@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -9,6 +11,10 @@ import (
 )
 
 var secretKey = []byte("secret")
+
+var verifier = JWTVerifier{
+	secretKey: secretKey,
+}
 
 func createToken(claims jwt.MapClaims) (string, error) {
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -23,7 +29,7 @@ func createToken(claims jwt.MapClaims) (string, error) {
 }
 
 func TestVerifyEmptyJwt(t *testing.T) {
-	err := VerifyToken(secretKey, "")
+	err := verifier.VerifyToken("")
 	assert.NotNil(t, err)
 }
 
@@ -35,7 +41,7 @@ func TestVerifyExpInPast(t *testing.T) {
         "sub": "M-3467-89QW-ERTY",
     })
 
-	err := VerifyToken(secretKey, token)
+	err := verifier.VerifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -51,7 +57,7 @@ func TestVerifyIatInFuture(t *testing.T) {
         "sub": "someone@someplace.somewhere.com",
     })
 
-	err := VerifyToken(secretKey, token)
+	err := verifier.VerifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -67,7 +73,7 @@ func TestVerifyIssuer(t *testing.T) {
         "sub": "someone@someplace.somewhere.com",
     })
 
-	err := VerifyToken(secretKey, token)
+	err := verifier.VerifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -83,7 +89,7 @@ func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
         "sub": "",
     })
 
-	err := VerifyToken(secretKey, token)
+	err := verifier.VerifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -99,7 +105,7 @@ func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
         "sub": "",
     })
 
-	err := VerifyToken(secretKey, token)
+	err := verifier.VerifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -115,7 +121,26 @@ func TestVerifyGoodJwt(t *testing.T) {
         "sub": "someone@someplace.somewhere.com",
     })
 
-	err := VerifyToken(secretKey, token)
+    err := verifier.VerifyToken(token)
+	assert.Nil(t, err)
 
+	err = verifier.VerifyToken(fmt.Sprintf("Bearer:    %s", token))
 	assert.Nil(t, err)
 }
+
+func TestNewJWTVerifier(t *testing.T) {
+	token, _ := createToken(jwt.MapClaims{
+        "exp": time.Now().Add(time.Hour * 24).Unix(),
+        "iat": time.Now().Add(time.Hour * -24).Unix(),
+        "iss": "opg.poas.sirius",
+        "sub": "someone@someplace.somewhere.com",
+    })
+
+    os.Setenv("JWT_SECRET_KEY", string(secretKey))
+    newVerifier := NewJWTVerifier()
+    os.Unsetenv("JWT_SECRET_KEY")
+
+    err := newVerifier.VerifyToken(token)
+	assert.Nil(t, err)
+}
+
