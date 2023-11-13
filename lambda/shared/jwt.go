@@ -90,7 +90,7 @@ func NewJWTVerifier() JWTVerifier {
 var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
 
 // tokenStr may be just the JWT token, or can be prefixed with "^Bearer:[ ]+"
-// (i.e. it can be the raw value from the authentication header in the original request);
+// (i.e. it can be the raw value from the Authorization header in the original request);
 // any prefix is stripped before parsing the token
 func (v JWTVerifier) VerifyToken(tokenStr string) error {
 	lsc := lpaStoreClaims{}

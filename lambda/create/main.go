@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -27,22 +28,23 @@ type Lambda struct {
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	var data shared.Lpa
+	var err error
+
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
 	// check JWT before touching anything else in the event;
-	// NB we just log any errors here and still accept the request (for now)
-	authHeader, ok := event.Headers["Authorization"]
-	if !ok {
-		authHeader, ok = event.Headers["authorization"]
-	}
+	// NB we just log and accept the request (for now)
+	jwtHeaders := shared.GetEventHeader("X-Jwt-Authorization", event)
 
-	if ok {
-		err := l.verifier.VerifyToken(authHeader)
+	if len(jwtHeaders) > 0 {
+		err = l.verifier.VerifyToken(jwtHeaders[0])
 		if err != nil {
 			l.logger.Print(err)
+		} else {
+			l.logger.Print(fmt.Printf("Successfully parsed JWT; header was %s", jwtHeaders[0]))
 		}
 	}
 

@@ -1,6 +1,7 @@
 SHELL = '/bin/bash'
 export AWS_ACCESS_KEY_ID ?= X
 export AWS_SECRET_ACCESS_KEY ?= X
+export JWT_SECRET_KEY := secret
 
 help:
 	@grep --no-filename -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -20,10 +21,10 @@ test-api:
 	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 
-	./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
-	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
-	./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
-	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 .PHONY: test-api
 
 create-tables:
