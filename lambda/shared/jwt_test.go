@@ -1,10 +1,12 @@
 package shared
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
 
+    "github.com/aws/aws-lambda-go/events"
     "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,16 +17,12 @@ var verifier = JWTVerifier{
 	secretKey: secretKey,
 }
 
-func createToken(claims jwt.MapClaims) (string, error) {
+func createToken(claims jwt.MapClaims) string {
     token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-    tokenString, err := token.SignedString(secretKey)
+    tokenString, _ := token.SignedString(secretKey)
 
-    if err != nil {
-    	return "", err
-    }
-
- 	return tokenString, nil
+ 	return tokenString
 }
 
 func TestVerifyEmptyJwt(t *testing.T) {
@@ -33,7 +31,7 @@ func TestVerifyEmptyJwt(t *testing.T) {
 }
 
 func TestVerifyExpInPast(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * -24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.makeregister",
@@ -49,7 +47,7 @@ func TestVerifyExpInPast(t *testing.T) {
 }
 
 func TestVerifyIatInFuture(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * 24).Unix(),
         "iss": "opg.poas.sirius",
@@ -65,7 +63,7 @@ func TestVerifyIatInFuture(t *testing.T) {
 }
 
 func TestVerifyIssuer(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "daadsdaadsadsads",
@@ -81,7 +79,7 @@ func TestVerifyIssuer(t *testing.T) {
 }
 
 func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.sirius",
@@ -97,7 +95,7 @@ func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
 }
 
 func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.makeregister",
@@ -113,7 +111,7 @@ func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
 }
 
 func TestVerifyGoodJwt(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.sirius",
@@ -125,7 +123,7 @@ func TestVerifyGoodJwt(t *testing.T) {
 }
 
 func TestNewJWTVerifier(t *testing.T) {
-	token, _ := createToken(jwt.MapClaims{
+	token := createToken(jwt.MapClaims{
         "exp": time.Now().Add(time.Hour * 24).Unix(),
         "iat": time.Now().Add(time.Hour * -24).Unix(),
         "iss": "opg.poas.sirius",
@@ -140,3 +138,34 @@ func TestNewJWTVerifier(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestVerifyHeaderNoJWTHeader(t *testing.T) {
+	event := events.APIGatewayProxyRequest{
+		MultiValueHeaders: map[string][]string{},
+	}
+
+	err := verifier.VerifyHeader(event)
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Containsf(t, err.Error(), "No JWT authorization header present", "")
+	}
+}
+
+func TestVerifyHeader(t *testing.T) {
+	token := createToken(jwt.MapClaims{
+        "exp": time.Now().Add(time.Hour * 24).Unix(),
+        "iat": time.Now().Add(time.Hour * -24).Unix(),
+        "iss": "opg.poas.sirius",
+        "sub": "someone@someplace.somewhere.com",
+    })
+
+	event := events.APIGatewayProxyRequest{
+		MultiValueHeaders: map[string][]string{
+			"X-Jwt-Authorization": []string{
+				fmt.Sprintf("Bearer: %s", token),
+			},
+		},
+	}
+
+	err := verifier.VerifyHeader(event)
+	assert.Nil(t, err)
+}
