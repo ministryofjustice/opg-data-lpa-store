@@ -21,6 +21,9 @@ test-api:
 	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 
+	./api-test/tester -expectedStatus=401 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
+	./api-test/tester -expectedStatus=401 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./api-test/tester -expectedStatus=401 REQUEST GET $(URL)/lpas/$(LPA_UID) '' && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
