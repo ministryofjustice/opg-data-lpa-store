@@ -88,6 +88,6 @@ func main() {
 		log.Printf("invalid status code %d; expected: %d", resp.StatusCode, *expectedStatusCode)
 		log.Printf("error response: %s", buf.String())
 	} else {
-		log.Printf("Test passed - %d: %s", resp.StatusCode, buf.String())
+		log.Printf("Test passed - %s to %s - %d: %s", method, url, resp.StatusCode, buf.String())
 	}
 }
