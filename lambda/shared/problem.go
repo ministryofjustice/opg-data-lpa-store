@@ -42,6 +42,12 @@ var ProblemInvalidRequest Problem = Problem{
 	Detail:     "Invalid request",
 }
 
+var ProblemUnauthorisedRequest Problem = Problem{
+	StatusCode: 401,
+	Code:       "UNAUTHORISED",
+	Detail:     "Invalid JWT",
+}
+
 func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 	var errorString = ""
 	for _, ve := range problem.Errors {
