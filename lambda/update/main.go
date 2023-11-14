@@ -18,17 +18,25 @@ type Logger interface {
 }
 
 type Lambda struct {
-	store  shared.Client
-	logger Logger
+	store    shared.Client
+	verifier shared.JWTVerifier
+	logger   Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var update shared.Update
+	if !l.verifier.VerifyHeader(event) {
+		l.logger.Print("Unable to verify JWT from header")
+		return shared.ProblemUnauthorisedRequest.Respond()
+	}
+
+	l.logger.Print("Successfully parsed JWT from event header")
+
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
+	var update shared.Update
 	err := json.Unmarshal([]byte(event.Body), &update)
 	if err != nil {
 		l.logger.Print(err)
@@ -94,8 +102,9 @@ func applyUpdate(lpa *shared.Lpa, update shared.Update) error {
 
 func main() {
 	l := &Lambda{
-		store:  shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
-		logger: logging.New(os.Stdout, "opg-data-lpa-store"),
+		store:    shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		verifier: shared.NewJWTVerifier(),
+		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
 
 	lambda.Start(l.HandleEvent)
