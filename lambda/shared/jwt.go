@@ -63,19 +63,19 @@ func (l lpaStoreClaims) Validate() error {
 
 	if iss == sirius {
 		emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-    	if !emailRegex.MatchString(sub) {
-    		return errors.New("Subject is not a valid email")
-    	}
-    }
+		if !emailRegex.MatchString(sub) {
+			return errors.New("Subject is not a valid email")
+		}
+	}
 
-    if iss == mrlpa {
-    	uidRegex := regexp.MustCompile("^.+$")
-    	if !uidRegex.MatchString(sub) {
-    		return errors.New("Subject is not a valid UID")
-    	}
-    }
+	if iss == mrlpa {
+		uidRegex := regexp.MustCompile("^.+$")
+		if !uidRegex.MatchString(sub) {
+			return errors.New("Subject is not a valid UID")
+		}
+	}
 
-    return nil
+	return nil
 }
 
 type JWTVerifier struct {
@@ -92,19 +92,19 @@ func NewJWTVerifier() JWTVerifier {
 func (v JWTVerifier) VerifyToken(tokenStr string) error {
 	lsc := lpaStoreClaims{}
 
- 	parsedToken, err := jwt.ParseWithClaims(tokenStr, &lsc, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.ParseWithClaims(tokenStr, &lsc, func(token *jwt.Token) (interface{}, error) {
 		return v.secretKey, nil
-   	})
+	})
 
-    if err != nil {
-    	return err
-   	}
+	if err != nil {
+		return err
+	}
 
-   	if !parsedToken.Valid {
-        return fmt.Errorf("Invalid JWT")
-   	}
+	if !parsedToken.Valid {
+		return fmt.Errorf("Invalid JWT")
+	}
 
-   	return nil
+	return nil
 }
 
 var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
@@ -113,10 +113,10 @@ var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
 func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) error {
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
-    if len(jwtHeaders) > 0 {
-    	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
+	if len(jwtHeaders) > 0 {
+		tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
 		return v.VerifyToken(tokenStr)
-    }
+	}
 
 	return errors.New("No JWT authorization header present")
 }

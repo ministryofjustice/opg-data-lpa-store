@@ -52,14 +52,14 @@ func main() {
 		secretKey := []byte(*jwtSecret)
 
 		claims := jwt.MapClaims{
-	        "exp": time.Now().Add(time.Hour * 24).Unix(),
-	        "iat": time.Now().Add(time.Hour * -24).Unix(),
-	        "iss": "opg.poas.sirius",
-	        "sub": "someone@someplace.somewhere.com",
-	    }
+			"exp": time.Now().Add(time.Hour * 24).Unix(),
+			"iat": time.Now().Add(time.Hour * -24).Unix(),
+			"iss": "opg.poas.sirius",
+			"sub": "someone@someplace.somewhere.com",
+		}
 
-	    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    	tokenString, _ := token.SignedString(secretKey)
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, _ := token.SignedString(secretKey)
 
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer: %s", tokenString))
 	}
