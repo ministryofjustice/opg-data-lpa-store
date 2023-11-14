@@ -88,15 +88,9 @@ func NewJWTVerifier() JWTVerifier {
 	}
 }
 
-var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
-
-// tokenStr may be just the JWT token, or can be prefixed with "^Bearer:[ ]+"
-// (i.e. it can be the raw value from the Authorization header in the original request);
-// any prefix is stripped before parsing the token
+// tokenStr is the JWT token, minus any "Bearer: " prefix
 func (v JWTVerifier) VerifyToken(tokenStr string) error {
 	lsc := lpaStoreClaims{}
-
-	tokenStr = bearerRegexp.ReplaceAllString(tokenStr, "")
 
  	parsedToken, err := jwt.ParseWithClaims(tokenStr, &lsc, func(token *jwt.Token) (interface{}, error) {
 		return v.secretKey, nil
@@ -113,12 +107,15 @@ func (v JWTVerifier) VerifyToken(tokenStr string) error {
    	return nil
 }
 
+var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
+
 // verify JWT from event header
 func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) error {
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
     if len(jwtHeaders) > 0 {
-		return v.VerifyToken(jwtHeaders[0])
+    	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
+		return v.VerifyToken(tokenStr)
     }
 
 	return errors.New("No JWT authorization header present")

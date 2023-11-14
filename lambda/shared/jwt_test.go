@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -122,9 +121,6 @@ func TestVerifyGoodJwt(t *testing.T) {
     })
 
     err := verifier.VerifyToken(token)
-	assert.Nil(t, err)
-
-	err = verifier.VerifyToken(fmt.Sprintf("Bearer:    %s", token))
 	assert.Nil(t, err)
 }
 
