@@ -24,22 +24,20 @@ type Lambda struct {
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var update shared.Update
-	var err error
+	if !l.verifier.VerifyHeader(event) {
+		l.logger.Print("Unable to verify JWT from header")
+		return shared.ProblemUnauthorisedRequest.Respond()
+	}
+
+	l.logger.Print("Successfully parsed JWT from event header")
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	err = l.verifier.VerifyHeader(event)
-	if err == nil {
-		l.logger.Print("Successfully parsed JWT from event header")
-	} else {
-		l.logger.Print(err)
-	}
-
-	err = json.Unmarshal([]byte(event.Body), &update)
+	var update shared.Update
+	err := json.Unmarshal([]byte(event.Body), &update)
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()

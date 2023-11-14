@@ -110,13 +110,18 @@ func (v JWTVerifier) VerifyToken(tokenStr string) error {
 var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
 
 // verify JWT from event header
-func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) error {
+// returns true if verified, false otherwise
+func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) bool {
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
-	if len(jwtHeaders) > 0 {
-		tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
-		return v.VerifyToken(tokenStr)
+	if len(jwtHeaders) < 1 {
+		return false
 	}
 
-	return errors.New("No JWT authorization header present")
+	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
+	if v.VerifyToken(tokenStr) != nil {
+		return false
+	}
+
+	return true
 }

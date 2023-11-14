@@ -143,11 +143,8 @@ func TestVerifyHeaderNoJWTHeader(t *testing.T) {
 		MultiValueHeaders: map[string][]string{},
 	}
 
-	err := verifier.VerifyHeader(event)
-	assert.NotNil(t, err)
-	if err != nil {
-		assert.Containsf(t, err.Error(), "No JWT authorization header present", "")
-	}
+	verified := verifier.VerifyHeader(event)
+	assert.False(t, verified)
 }
 
 func TestVerifyHeader(t *testing.T) {
@@ -166,6 +163,6 @@ func TestVerifyHeader(t *testing.T) {
 		},
 	}
 
-	err := verifier.VerifyHeader(event)
-	assert.Nil(t, err)
+	verified := verifier.VerifyHeader(event)
+	assert.True(t, verified)
 }
