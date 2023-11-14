@@ -34,8 +34,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	// check JWT before touching anything else in the event;
-	// NB we just log and accept the request (for now)
 	err = l.verifier.VerifyHeader(event)
 	if err == nil {
 		l.logger.Print("Successfully parsed JWT from event header")

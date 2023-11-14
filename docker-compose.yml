@@ -35,6 +35,7 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       DDB_TABLE_NAME_DEEDS: deeds
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -52,6 +53,7 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       DDB_TABLE_NAME_DEEDS: deeds
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
