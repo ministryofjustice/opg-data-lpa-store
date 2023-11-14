@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -106,8 +107,19 @@ func (v JWTVerifier) VerifyToken(tokenStr string) error {
    	}
 
    	if !parsedToken.Valid {
-    	return fmt.Errorf("invalid JWT")
+        return fmt.Errorf("Invalid JWT")
    	}
 
    	return nil
+}
+
+// verify JWT from event header
+func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) error {
+	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
+
+    if len(jwtHeaders) > 0 {
+		return v.VerifyToken(jwtHeaders[0])
+    }
+
+	return errors.New("No JWT authorization header present")
 }

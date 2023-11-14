@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 
@@ -37,15 +36,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 	// check JWT before touching anything else in the event;
 	// NB we just log and accept the request (for now)
-	jwtHeaders := shared.GetEventHeader("X-Jwt-Authorization", event)
-
-	if len(jwtHeaders) > 0 {
-		err = l.verifier.VerifyToken(jwtHeaders[0])
-		if err != nil {
-			l.logger.Print(err)
-		} else {
-			l.logger.Print(fmt.Printf("Successfully parsed JWT; header was %s", jwtHeaders[0]))
-		}
+	err = l.verifier.VerifyHeader(event)
+	if err == nil {
+		l.logger.Print("Successfully parsed JWT from event header")
+	} else {
+		l.logger.Print(err)
 	}
 
 	err = json.Unmarshal([]byte(event.Body), &data)
