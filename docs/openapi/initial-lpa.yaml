@@ -16,8 +16,6 @@ properties:
     minLength: 1
 additionalProperties: false
 $defs:
-  InitialLpa:
-
   Person:
     type: object
     required:
