@@ -33,41 +33,44 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 	l.logger.Print("Successfully parsed JWT from event header")
 
+	var input shared.LpaInit
+	uid := event.PathParameters["uid"]
+
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	var data shared.Lpa
-	err := json.Unmarshal([]byte(event.Body), &data)
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
-	}
-
-	data.Uid = event.PathParameters["uid"]
-
-	if data.Version == "" {
-		problem := shared.ProblemInvalidRequest
-		problem.Errors = []shared.FieldError{
-			{Source: "/version", Detail: "must supply a valid version"},
-		}
-
-		return problem.Respond()
-	}
-
 	// check for existing Lpa
 	var existingLpa shared.Lpa
-	existingLpa, err = l.store.Get(ctx, data.Uid)
+	existingLpa, err := l.store.Get(ctx, uid)
 	if err != nil {
 		return shared.ProblemInternalServerError.Respond()
 	}
-	if existingLpa.Uid == data.Uid {
+	if existingLpa.Uid == uid {
 		problem := shared.ProblemInvalidRequest
 		problem.Detail = "LPA with UID already exists"
 		return problem.Respond()
 	}
 
+	err = json.Unmarshal([]byte(event.Body), &input)
+	if err != nil {
+		l.logger.Print(err)
+		return shared.ProblemInternalServerError.Respond()
+	}
+
+	// validation
+	errors := Validate(input)
+	if len(errors) > 0 {
+		problem := shared.ProblemInvalidRequest
+		problem.Errors = errors
+
+		return problem.Respond()
+	}
+
+	data := shared.Lpa{LpaInit: input}
+	data.Uid = uid
+	data.Status = shared.LpaStatusProcessing
 	data.UpdatedAt = time.Now()
 
 	// save
