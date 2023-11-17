@@ -1,0 +1,99 @@
+$id: https://opg.service.justice.gov.uk/schema/lpa/2023-10
+$schema: http://json-schema.org/draft/2020-02/schema
+title: Initial LPA
+description: Digital representation of a Lasting Power of Attorney
+type: object
+required:
+  - donor
+  - attorneys
+properties:
+  donor:
+    $ref: "#/$defs/Donor"
+  attorneys:
+    type: array
+    items:
+      $ref: "#/$defs/Attorney"
+    minLength: 1
+additionalProperties: false
+$defs:
+  InitialLpa:
+
+  Person:
+    type: object
+    required:
+      - firstNames
+      - surname
+      - dateOfBirth
+      - address
+    properties:
+      firstNames:
+        type: string
+        x-faker: name.firstName
+      surname:
+        type: string
+        x-faker: name.lastName
+      dateOfBirth:
+        type: string
+        format: date
+      email:
+        type: string
+        x-faker: internet.email
+      address:
+        $ref: "#/$defs/Address"
+  Address:
+    type: object
+    required:
+      - line1
+      - town
+      - country
+    properties:
+      line1:
+        type: string
+        x-faker: address.streetAddress
+      line2:
+        type: string
+        x-faker: address.streetName
+      line3:
+        type: string
+        x-faker: address.cityName
+      town:
+        type: string
+        x-faker: address.cityName
+      postcode:
+        type: string
+        x-faker:
+          helpers.replaceSymbols: "??# #??"
+      country:
+        type: string
+        format: ISO-3166-1
+        minLength: 2
+        maxLength: 2
+        x-faker: address.countryCode
+    additionalProperties: false
+    example:
+      line1: Flat 3
+      line2: 42 Primrose Lane
+      line3: Greenfields
+      town: Manchester
+      postcode: M17 2XY
+      country: GB
+  Donor:
+    allOf:
+      - $ref: "#/$defs/Person"
+    type: object
+    properties:
+      otherNames:
+        type: string
+        nullable: true
+        x-faker: name.findName
+  Attorney:
+    allOf:
+      - $ref: "#/$defs/Person"
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+          - active
+          - replacement
+          - removed
