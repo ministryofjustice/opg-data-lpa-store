@@ -16,6 +16,9 @@ up: ## Start application
 down: ## Stop application
 	docker compose down
 
+test: ## Unit tests
+	go test ./lambda/get/... ./lambda/create/... ./lambda/update/... ./lambda/shared/... -race -covermode=atomic -coverprofile=coverage.out
+
 test-api: URL ?= http://localhost:9000
 test-api:
 	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
@@ -60,4 +63,4 @@ go-lint: ## Lint Go code
 gosec: ## Scan Go code for security flaws
 	docker compose run --rm gosec
 
-check-code: go-lint gosec
+check-code: go-lint gosec test

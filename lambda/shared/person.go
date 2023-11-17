@@ -12,7 +12,7 @@ type Address struct {
 type Person struct {
 	FirstNames  string  `json:"firstNames" dynamodbav:""`
 	Surname     string  `json:"surname" dynamodbav:""`
-	DateOfBirth Time    `json:"dateOfBirth" dynamodbav:""`
+	DateOfBirth Date    `json:"dateOfBirth" dynamodbav:""`
 	Email       string  `json:"email" dynamodbav:""`
 	Address     Address `json:"address" dynamodbav:""`
 }

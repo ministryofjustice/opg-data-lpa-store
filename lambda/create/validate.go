@@ -40,7 +40,9 @@ func validateAttorney(attorney shared.Attorney, prefix string, errors []shared.F
 		}
 	}
 
-	if attorney.DateOfBirth.IsZero() {
+	if attorney.DateOfBirth.IsMalformed {
+		errors = append(errors, shared.FieldError{Source: fmt.Sprintf("%s/dateOfBirth", prefix), Detail: "invalid format"})
+	} else if attorney.DateOfBirth.IsZero() {
 		errors = append(errors, shared.FieldError{Source: fmt.Sprintf("%s/dateOfBirth", prefix), Detail: "field is required"})
 	}
 
