@@ -16,6 +16,7 @@ venv/
 env/
 # built items
 api-test/tester
+**/coverage.out
 # structurizr
 .structurizr
 docs/architecture/dsl/**/workspace.json

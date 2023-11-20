@@ -16,6 +16,9 @@ up: ## Start application
 down: ## Stop application
 	docker compose down
 
+test: ## Unit tests
+	go test ./lambda/get/... ./lambda/create/... ./lambda/update/... ./lambda/shared/... -race -covermode=atomic -coverprofile=coverage.out
+
 test-api: URL ?= http://localhost:9000
 test-api:
 	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
@@ -24,9 +27,9 @@ test-api:
 	./api-test/tester -expectedStatus=401 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
 	./api-test/tester -expectedStatus=401 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
 	./api-test/tester -expectedStatus=401 REQUEST GET $(URL)/lpas/$(LPA_UID) '' && \
-	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \
+	cat ./docs/example-lpa.json | ./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`" && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
-	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}' && \
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"CHANGE_NAME","changes":[{"key":"/donor/surname","old":"Zoller","new":"Kjar"}]}' && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 .PHONY: test-api
 
@@ -60,4 +63,4 @@ go-lint: ## Lint Go code
 gosec: ## Scan Go code for security flaws
 	docker compose run --rm gosec
 
-check-code: go-lint gosec
+check-code: go-lint gosec test
