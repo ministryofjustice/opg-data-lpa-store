@@ -1,9 +1,5 @@
 # This file instructs Redocly's linter to ignore the rules contained for specific parts of your API.
 # See https://redoc.ly/docs/cli/ for more information.
-docs/schemas/lpa.json:
-  spec:
-    - '#/$id'
-    - '#/$schema'
 docs/openapi/openapi.yaml:
   spec:
     - >-
