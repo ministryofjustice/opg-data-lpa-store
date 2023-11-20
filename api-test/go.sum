@@ -1,9 +1,10 @@
-github.com/aws/aws-sdk-go v1.47.9 h1:rarTsos0mA16q+huicGx0e560aYRtOucV5z2Mw23JRY=
-github.com/aws/aws-sdk-go v1.47.9/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
+github.com/aws/aws-sdk-go v1.47.13 h1:pJgCtldg5azDAFoEcE0fz6n+FnCc1/FY4krtUa5uvZQ=
+github.com/aws/aws-sdk-go v1.47.13/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/golang-jwt/jwt/v5 v5.1.0 h1:UGKbA/IPjtS6zLcdB7i5TyACMgSbOTiR8qzXgw8HWQU=
+github.com/golang-jwt/jwt/v5 v5.1.0/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
 github.com/google/uuid v1.4.0 h1:MtMxsa51/r9yyhkyLsVeVt0B+BGQZzpQiTQ4eHZ8bc4=
 github.com/google/uuid v1.4.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
