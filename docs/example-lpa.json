@@ -1,0 +1,42 @@
+{
+  "donor": {
+    "firstNames": "Homer",
+    "surname": "Zoller",
+    "dateOfBirth": "1960-04-06",
+    "email": "h.zoller@example.com",
+    "address": {
+      "line1": "79 Bury Rd",
+      "town": "Hampton Lovett",
+      "postcode": "WR9 2PF",
+      "country": "GB"
+    }
+  },
+  "attorneys": [
+    {
+      "firstNames": "Jake",
+      "surname": "Vallar",
+      "dateOfBirth": "2001-01-17",
+      "email": "jval5@example.com",
+      "status": "active",
+      "address": {
+        "line1": "71 South Western Terrace",
+        "town": "Milton",
+        "postcode": "6306",
+        "country": "AU"
+      }
+    },
+    {
+      "firstNames": "Tory",
+      "surname": "Lapolla",
+      "dateOfBirth": "1989-12-29",
+      "status": "replacement",
+      "address": {
+        "line1": "184 Bayside Apartments",
+        "line2": "East Street",
+        "line3": "Saratosa",
+        "town": "Polebrook",
+        "country": "US"
+      }
+    }
+  ]
+}
