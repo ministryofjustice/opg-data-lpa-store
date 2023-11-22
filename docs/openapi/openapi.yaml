@@ -290,7 +290,7 @@ components:
         - $ref: "#/components/schemas/Person"
       type: object
       properties:
-        otherNames:
+        otherNamesKnownBy:
           type: string
           nullable: true
           x-faker: name.findName

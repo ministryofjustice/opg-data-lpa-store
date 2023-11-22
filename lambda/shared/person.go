@@ -19,7 +19,7 @@ type Person struct {
 
 type Donor struct {
 	Person
-	OtherNames string `json:"otherNames" dynamodbav:""`
+	OtherNamesKnownBy string `json:"otherNamesKnownBy" dynamodbav:""`
 }
 
 type AttorneyStatus string
