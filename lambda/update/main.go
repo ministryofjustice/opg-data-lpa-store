@@ -49,10 +49,18 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	err = applyUpdate(&lpa, update)
+	validationErrs, err := applyUpdate(&lpa, update)
+
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
+	}
+
+	if len(validationErrs) > 0 {
+		problem := shared.ProblemInvalidRequest
+		problem.Errors = validationErrs
+
+		return problem.Respond()
 	}
 
 	err = l.store.Put(ctx, lpa)
@@ -74,30 +82,34 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	return response, nil
 }
 
-func applyUpdate(lpa *shared.Lpa, update shared.Update) error {
-	for _, change := range update.Changes {
+func applyUpdate(lpa *shared.Lpa, update shared.Update) ([]shared.FieldError, error) {
+	validationErrs := []shared.FieldError{}
+
+	for index, change := range update.Changes {
 		pointer, err := jsonpointer.New(change.Key)
 		if err != nil {
-			return err
+			return validationErrs, err
 		}
 
 		current, _, err := pointer.Get(*lpa)
 		if err != nil {
-			return err
+			return validationErrs, err
 		}
 
 		if current != change.Old {
-			err = fmt.Errorf("existing value for %s does not match request", change.Key)
-			return err
+			validationErrs = append(validationErrs, shared.FieldError{
+				Source: fmt.Sprintf("/changes/%d/old", index),
+				Detail: "does not match existing value",
+			})
 		}
 
 		_, err = pointer.Set(lpa, change.New)
 		if err != nil {
-			return err
+			return validationErrs, err
 		}
 	}
 
-	return nil
+	return validationErrs, nil
 }
 
 func main() {

@@ -14,13 +14,16 @@ servers:
     description: Development
 security:
   - {}
+x-json-schema-faker:
+  alwaysFakeOptionals: false
+  optionalsProbability: 0.5
 paths:
   /lpas/{uid}:
     parameters:
       - name: uid
         in: path
         required: true
-        description: The UID of the complaint
+        description: The UID of the case
         schema:
           type: string
           pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
@@ -32,7 +35,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Lpa"
+              $ref: "#/components/schemas/InitialLpa"
       responses:
         "201":
           description: Case created
@@ -52,12 +55,6 @@ paths:
     get:
       operationId: getLpa
       summary: Retrieve an LPA
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              additionalProperties: false
       responses:
         "200":
           description: Case found
@@ -83,7 +80,7 @@ paths:
       - name: uid
         in: path
         required: true
-        description: The UID of the complaint
+        description: The UID of the case
         schema:
           type: string
           pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
@@ -193,7 +190,121 @@ components:
                 - source: "/uid"
                   detail: "invalid uid format"
     Lpa:
-      $ref: "../schemas/lpa.json"
+      allOf:
+        - $ref: "#/components/schemas/InitialLpa"
+      type: object
+      required:
+        - uid
+        - status
+        - registrationDate
+      properties:
+        uid:
+          type: string
+          pattern: M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})
+          example: M-789Q-P4DF-4UX3
+        status:
+          type: string
+          enum:
+            - processing
+            - registered
+        registrationDate:
+          type: string
+          format: date
+          nullable: true
+      additionalProperties: false
+    InitialLpa:
+      type: object
+      required:
+        - donor
+        - attorneys
+      properties:
+        donor:
+          $ref: "#/components/schemas/Donor"
+        attorneys:
+          type: array
+          items:
+            $ref: "#/components/schemas/Attorney"
+          minLength: 1
+      additionalProperties: false
+    Address:
+      type: object
+      required:
+        - line1
+        - town
+        - country
+      properties:
+        line1:
+          type: string
+          x-faker: address.streetAddress
+        line2:
+          type: string
+          x-faker: address.streetName
+        line3:
+          type: string
+          x-faker: address.cityName
+        town:
+          type: string
+          x-faker: address.cityName
+        postcode:
+          type: string
+          x-faker:
+            helpers.replaceSymbols: "??# #??"
+        country:
+          type: string
+          format: ISO-3166-1
+          minLength: 2
+          maxLength: 2
+          x-faker: address.countryCode
+      additionalProperties: false
+      example:
+        line1: Flat 3
+        line2: 42 Primrose Lane
+        line3: Greenfields
+        town: Manchester
+        postcode: M17 2XY
+        country: GB
+    Person:
+      type: object
+      required:
+        - firstNames
+        - surname
+        - dateOfBirth
+        - address
+      properties:
+        firstNames:
+          type: string
+          x-faker: name.firstName
+        surname:
+          type: string
+          x-faker: name.lastName
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          x-faker: internet.email
+        address:
+          $ref: "#/components/schemas/Address"
+    Donor:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
+      properties:
+        otherNamesKnownBy:
+          type: string
+          nullable: true
+          x-faker: name.findName
+    Attorney:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - active
+            - replacement
+            - removed
     Update:
       type: object
       required:
