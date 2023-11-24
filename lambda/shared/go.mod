@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0
-	github.com/aws/aws-sdk-go v1.48.1
+	github.com/aws/aws-sdk-go v1.48.2
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/stretchr/testify v1.8.4
