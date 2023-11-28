@@ -197,6 +197,7 @@ components:
         - uid
         - status
         - registrationDate
+        - updatedAt
       properties:
         uid:
           type: string
@@ -211,6 +212,9 @@ components:
           type: string
           format: date
           nullable: true
+        updatedAt:
+          type: string
+          format: date
       additionalProperties: false
     InitialLpa:
       type: object
