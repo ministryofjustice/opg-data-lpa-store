@@ -107,7 +107,7 @@ func (v JWTVerifier) VerifyToken(tokenStr string) error {
 	return nil
 }
 
-var bearerRegexp = regexp.MustCompile("^Bearer:[ ]+")
+var bearerRegexp = regexp.MustCompile("^Bearer[ ]+")
 
 // verify JWT from event header
 // returns true if verified, false otherwise

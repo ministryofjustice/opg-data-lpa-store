@@ -158,7 +158,7 @@ func TestVerifyHeader(t *testing.T) {
 	event := events.APIGatewayProxyRequest{
 		MultiValueHeaders: map[string][]string{
 			"X-Jwt-Authorization": []string{
-				fmt.Sprintf("Bearer: %s", token),
+				fmt.Sprintf("Bearer %s", token),
 			},
 		},
 	}
