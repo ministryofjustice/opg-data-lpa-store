@@ -71,6 +71,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	var respBody events.APIGatewayProxyResponse
 	_ = json.Unmarshal(encodedRespBody, &respBody)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(respBody.StatusCode)
 	_, err = w.Write([]byte(respBody.Body))
 
