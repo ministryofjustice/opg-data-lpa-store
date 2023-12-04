@@ -17,8 +17,9 @@ import (
 )
 
 // ./api-test/tester UID -> generate a UID
+// ./api-test/tester JWT -> generate a JWT
 // ./api-test/tester -jwtSecret=secret -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
-//   -> make a test request with a JWT generated using secret "secret" and expected status 200
+//	-> make a test request with a JWT generated using secret "secret" and expected status 200
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
@@ -30,6 +31,11 @@ func main() {
 	// early exit if we're just generating a UID or JWT
 	if args[0] == "UID" {
 		fmt.Print("M-" + strings.ToUpper(uuid.NewString()[9:23]))
+		os.Exit(0)
+	}
+
+	if args[0] == "JWT" {
+		fmt.Print(makeJwt([]byte(*jwtSecret)))
 		os.Exit(0)
 	}
 
@@ -49,27 +55,19 @@ func main() {
 	req.Header.Add("Content-type", "application/json")
 
 	if *jwtSecret != "" {
-		secretKey := []byte(*jwtSecret)
+		tokenString := makeJwt([]byte(*jwtSecret))
 
-		claims := jwt.MapClaims{
-			"exp": time.Now().Add(time.Hour * 24).Unix(),
-			"iat": time.Now().Add(time.Hour * -24).Unix(),
-			"iss": "opg.poas.sirius",
-			"sub": "someone@someplace.somewhere.com",
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-		tokenString, _ := token.SignedString(secretKey)
-
-		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer: %s", tokenString))
+		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
-	sess := session.Must(session.NewSession())
-	signer := v4.NewSigner(sess.Config.Credentials)
+	sess, err := session.NewSession()
+	if err == nil {
+		signer := v4.NewSigner(sess.Config.Credentials)
 
-	_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
-	if err != nil {
-		panic(err)
+		_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	client := http.Client{}
@@ -88,6 +86,25 @@ func main() {
 		log.Printf("invalid status code %d; expected: %d", resp.StatusCode, *expectedStatusCode)
 		log.Printf("error response: %s", buf.String())
 	} else {
+		log.Print(resp.Header)
 		log.Printf("Test passed - %s to %s - %d: %s", method, url, resp.StatusCode, buf.String())
 	}
+}
+
+func makeJwt(secretKey []byte) string {
+	claims := jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().Add(time.Hour * -24).Unix(),
+		"iss": "opg.poas.sirius",
+		"sub": "someone@someplace.somewhere.com",
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(secretKey)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return tokenString
 }
