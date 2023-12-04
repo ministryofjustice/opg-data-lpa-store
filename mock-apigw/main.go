@@ -21,6 +21,18 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	lambdaName := ""
 	uid := ""
 
+	if r.URL.Path == "/_pact_state" {
+		err := handlePactState(r)
+		if err != nil {
+			log.Printf("Error setting up state: %s", err.Error())
+			http.Error(w, err.Error(), 500)
+		} else {
+			w.WriteHeader(200)
+		}
+
+		return
+	}
+
 	if LPAPath.MatchString(r.URL.Path) && r.Method == http.MethodPut {
 		uid = LPAPath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "create"
@@ -71,12 +83,73 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	var respBody events.APIGatewayProxyResponse
 	_ = json.Unmarshal(encodedRespBody, &respBody)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(respBody.StatusCode)
 	_, err = w.Write([]byte(respBody.Body))
 
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func handlePactState(r *http.Request) error {
+	var state struct {
+		State string `json:"state"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&state); err != nil {
+		return err
+	}
+
+	re := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists$`)
+	if match := re.FindStringSubmatch(state.State); len(match) > 0 {
+		url := fmt.Sprintf("http://localhost:8080/lpas/%s", match[1])
+		body := `{
+			"donor": {
+				"firstNames": "Homer",
+				"surname": "Zoller",
+				"dateOfBirth": "1960-04-06",
+				"address": {
+					"line1": "79 Bury Rd",
+					"town": "Hampton Lovett",
+					"postcode": "WR9 2PF",
+					"country": "GB"
+				}
+			},
+			"attorneys": [
+				{
+					"firstNames": "Jake",
+					"surname": "Vallar",
+					"dateOfBirth": "2001-01-17",
+					"status": "active",
+					"address": {
+						"line1": "71 South Western Terrace",
+						"town": "Milton",
+						"country": "AU"
+					}
+				}
+			]
+		}`
+
+		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
+		if err != nil {
+			return err
+		}
+
+		req.Header = r.Header.Clone()
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+
+		if resp.StatusCode >= 400 {
+			return fmt.Errorf("request failed with status code %d", resp.StatusCode)
+		}
+	}
+
+	return nil
 }
 
 func main() {
