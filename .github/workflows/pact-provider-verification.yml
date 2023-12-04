@@ -50,4 +50,7 @@ jobs:
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=${{ github.head_ref }} \
             --consumer-version-selectors='{"branch": "VEGA2174_lpastore_service"}'
+      - name: Debug
+        if: ${{ failure() }}
+        run: docker compose logs
         # --consumer-version-selectors='{"mainBranch": true}'
