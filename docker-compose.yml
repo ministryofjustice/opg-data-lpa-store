@@ -60,7 +60,9 @@ services:
 
   apigw:
     depends_on: [lambda-create, lambda-update, lambda-get]
-    build: ./mock-apigw
+    build:
+      context: .
+      dockerfile: ./mock-apigw/Dockerfile
     ports:
       - 9000:8080
 

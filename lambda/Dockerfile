@@ -1,13 +1,16 @@
 FROM golang:1.21.4 AS build-env
 
 WORKDIR /app
+COPY ./go.mod /app/go.mod
+COPY ./go.sum /app/go.sum
 
-COPY go.work .
-COPY go.work.sum .
+RUN go mod download
 
-COPY . .
+COPY ./lambda/shared /app/lambda/shared
 
 ARG DIR
+COPY ./lambda/$DIR /app/lambda/$DIR
+
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main ./lambda/$DIR
 
 FROM alpine:3

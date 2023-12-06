@@ -23,7 +23,7 @@ jobs:
         if: ${{ github.event_name == 'repository_dispatch' }}
         run: |
           docker-compose run --rm pact-verifier \
-            --header="X-Jwt-Authorization: Bearer $JWT" \
+            --header="X-Jwt-Authorization=Bearer $JWT" \
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=main \
             --publish \
@@ -34,7 +34,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           docker-compose run --rm pact-verifier \
-            --header="X-Jwt-Authorization: Bearer $JWT" \
+            --header="X-Jwt-Authorization=Bearer $JWT" \
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=main \
             --publish \
