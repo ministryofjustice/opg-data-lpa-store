@@ -21,7 +21,7 @@ test: ## Unit tests
 
 test-api: URL ?= http://localhost:9000
 test-api:
-	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
+	$(shell cd ./api-test && go build -o ./tester . && chmod +x ./tester)
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 
 	./api-test/tester -expectedStatus=401 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}' && \

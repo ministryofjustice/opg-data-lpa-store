@@ -1,28 +1,28 @@
-module github.com/ministryofjustice/opg-data-lpa-store/lambda/update
+module github.com/ministryofjustice/opg-data-lpa-store/lambda
 
 go 1.20
 
-replace github.com/ministryofjustice/opg-data-lpa-store/lambda/shared => ../shared
-
 require (
 	github.com/aws/aws-lambda-go v1.41.0
+	github.com/aws/aws-sdk-go v1.48.11
+	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/go-openapi/jsonpointer v0.20.0
-	github.com/ministryofjustice/opg-data-lpa-store/lambda/shared v0.0.0-00010101000000-000000000000
+	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
+	github.com/stretchr/testify v1.8.4
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
-	github.com/aws/aws-sdk-go v1.48.3 // indirect
-	github.com/aws/aws-xray-sdk-go v1.8.3 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
-	github.com/golang-jwt/jwt/v5 v5.1.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.50.0 // indirect
