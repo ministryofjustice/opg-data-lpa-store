@@ -1,14 +1,16 @@
 FROM golang:1.21.4 AS build-env
 
-WORKDIR /app
-
-COPY go.work .
-COPY go.work.sum .
-
-COPY . .
-
 ARG DIR
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main ./lambda/$DIR
+WORKDIR /app/lambda/$DIR
+COPY ./lambda/shared ../shared
+COPY ./lambda/$DIR/go.mod ./go.mod
+COPY ./lambda/$DIR/go.sum ./go.sum
+
+RUN go mod download
+
+COPY ./lambda/$DIR .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main .
 
 FROM alpine:3
 
