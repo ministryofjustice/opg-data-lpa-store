@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/ministryofjustice/opg-data-lpa-store/lambda/shared"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
 func validateAddress(address shared.Address, prefix string, errors []shared.FieldError) []shared.FieldError {

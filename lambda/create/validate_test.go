@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ministryofjustice/opg-data-lpa-store/lambda/shared"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
 )
 
