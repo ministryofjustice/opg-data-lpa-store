@@ -17,7 +17,7 @@ down: ## Stop application
 	docker compose down
 
 test: ## Unit tests
-	go test ./lambda/get/... ./lambda/create/... ./lambda/update/... ./lambda/shared/... -race -covermode=atomic -coverprofile=coverage.out
+	go test ./lambda/get/... ./lambda/create/... ./lambda/update/... ./internal/shared/... -race -covermode=atomic -coverprofile=coverage.out
 
 test-api: URL ?= http://localhost:9000
 test-api:
