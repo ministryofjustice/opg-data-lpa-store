@@ -4,11 +4,11 @@ go 1.20
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0
-	github.com/aws/aws-sdk-go v1.48.11
+	github.com/aws/aws-sdk-go v1.48.14
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/go-openapi/jsonpointer v0.20.0
 	github.com/golang-jwt/jwt/v5 v5.2.0
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
 	github.com/stretchr/testify v1.8.4
 )
