@@ -14,7 +14,7 @@
     {
       "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
       "matchPackageNames": [
-        "github.com/ministryofjustice/opg-data-lpa-store/lambda/shared"
+        "github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
       ],
       "enabled": false
     },
