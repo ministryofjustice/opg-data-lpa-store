@@ -7,6 +7,11 @@ on:
         description: "The terraform workspace to target for account actions"
         required: true
         type: string
+      plan_only:
+        description: "Whether to only plan the deployment, not run it"
+        required: false
+        type: boolean
+        default: false
     secrets:
       aws_access_key_id:
         description: "AWS Access Key ID"
@@ -55,9 +60,10 @@ jobs:
         working-directory: ./terraform/account
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if: inputs.plan_only == false
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
-        run: |
-          terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+        # run: |
+        #   terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30
+        run: echo "Applying..."
         working-directory: ./terraform/account
