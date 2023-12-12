@@ -11,6 +11,11 @@ on:
         description: "The docker image tag to deploy in the environment"
         required: true
         type: string
+      plan_only:
+        description: "Whether to only plan the deployment, not run it"
+        required: false
+        type: boolean
+        default: false
     secrets:
       aws_access_key_id:
         description: "AWS Access Key ID"
@@ -72,6 +77,7 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: Terraform Apply
+        if: inputs.plan_only == false
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
           TF_VAR_app_version: ${{ inputs.version_tag }}
@@ -80,6 +86,7 @@ jobs:
         working-directory: ./terraform/environment
 
       - name: Terraform Outputs
+        if: inputs.plan_only == false
         id: terraform_outputs
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
