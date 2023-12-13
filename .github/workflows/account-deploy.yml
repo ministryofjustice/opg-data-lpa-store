@@ -7,6 +7,11 @@ on:
         description: "The terraform workspace to target for account actions"
         required: true
         type: string
+      apply:
+        description: "Whether to apply the deployment"
+        required: false
+        type: boolean
+        default: false
     secrets:
       aws_access_key_id:
         description: "AWS Access Key ID"
@@ -55,7 +60,7 @@ jobs:
         working-directory: ./terraform/account
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if: inputs.apply == true
         env:
           TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
