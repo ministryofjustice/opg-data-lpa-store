@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -52,6 +53,28 @@ jobs:
     uses: ./.github/workflows/env-test.yml
     with:
       base_url: ${{ needs.deploy-dev-env.outputs.base_url }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy-preproduction-account:
+    needs: [test-dev-env]
+    name: TF Deploy Preproduction Account
+    uses: ./.github/workflows/account-deploy.yml
+    with:
+      workspace_name: preproduction
+      apply: true
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy-production-account:
+    name: TF Deploy Production Account
+    needs: [deploy-preproduction-account]
+    uses: ./.github/workflows/account-deploy.yml
+    with:
+      workspace_name: production
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

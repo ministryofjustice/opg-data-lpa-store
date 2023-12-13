@@ -56,11 +56,17 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-  plan-dev-account:
-    name: TF Plan Dev Account
+  plan-account:
+    strategy:
+      matrix:
+        account:
+          - development
+          - preproduction
+          - production
+    name: "TF Plan Account: ${{ matrix.account }}"
     uses: ./.github/workflows/account-deploy.yml
     with:
-      workspace_name: development
+      workspace_name: ${{ matrix.account }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
