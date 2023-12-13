@@ -71,6 +71,23 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+  plan-environment:
+    strategy:
+      matrix:
+        environment:
+          - preproduction
+          - production
+    name: "TF Plan Environment: ${{ matrix.environment }}"
+    needs: [generate-tag]
+    uses: ./.github/workflows/env-deploy.yml
+    with:
+      workspace_name: ${{ matrix.environment }}
+      version_tag: ${{ needs.generate-tag.outputs.tag }}
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
   deploy-pr-env:
     name: Deploy PR Environment
     needs:
@@ -84,6 +101,7 @@ jobs:
     with:
       workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
