@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -62,6 +63,7 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: preproduction
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -72,6 +74,7 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: production
+      apply: true
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
