@@ -219,9 +219,17 @@ components:
     InitialLpa:
       type: object
       required:
+        - type
         - donor
         - attorneys
+        - certificateProvider
+        - signedAt
       properties:
+        type:
+          type: string
+          enum:
+            - pfa
+            - hw
         donor:
           $ref: "#/components/schemas/Donor"
         attorneys:
@@ -229,7 +237,52 @@ components:
           items:
             $ref: "#/components/schemas/Attorney"
           minLength: 1
-      additionalProperties: false
+        certificateProvider:
+          $ref: "#/components/schemas/CertificateProvider"
+        peopleToNotify:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonToNotify"
+        howAttorneysMakeDecisions:
+          type: string
+          enum:
+            - jointly
+            - jointly-and-severally
+            - mixed
+        howAttorneysMakeDecisionsDetails:
+          type: string
+        howReplacementAttorneysMakeDecisions:
+          type: string
+          enum:
+            - jointly
+            - jointly-and-severally
+            - mixed
+        howReplacementAttorneysMakeDecisionsDetails:
+          type: string
+        howReplacementAttorneysStepIn:
+          type: string
+          enum:
+            - all
+            - one
+            - other
+        howReplacementAttorneysStepInDetails:
+          type: string
+        whenTheLpaCanBeUsed:
+          type: string
+          enum:
+            - when-capacity-lost
+            - when-has-capacity
+        lifeSustainingTreatmentOption:
+          type: string
+          enum:
+            - option-a
+            - option-b
+        restrictions:
+          type: string
+        signedAt:
+          type: string
+          format: date-time
+        additionalProperties: false
     Address:
       type: object
       required:
@@ -271,29 +324,31 @@ components:
       type: object
       required:
         - firstNames
-        - surname
-        - dateOfBirth
+        - lastName
         - address
       properties:
         firstNames:
           type: string
           x-faker: name.firstName
-        surname:
+        lastName:
           type: string
           x-faker: name.lastName
-        dateOfBirth:
-          type: string
-          format: date
-        email:
-          type: string
-          x-faker: internet.email
         address:
           $ref: "#/components/schemas/Address"
     Donor:
       allOf:
         - $ref: "#/components/schemas/Person"
       type: object
+      required:
+        - dateOfBirth
+        - email
       properties:
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          x-faker: internet.email
         otherNamesKnownBy:
           type: string
           nullable: true
@@ -302,13 +357,43 @@ components:
       allOf:
         - $ref: "#/components/schemas/Person"
       type: object
+      required:
+        - dateOfBirth
+        - email
+        - status
       properties:
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          x-faker: internet.email
         status:
           type: string
           enum:
             - active
             - replacement
             - removed
+    CertificateProvider:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
+      required:
+        - email
+        - carryOutBy
+      properties:
+        email:
+          type: string
+          x-faker: internet.email
+        carryOutBy:
+          type: string
+          enum:
+            - paper
+            - online
+    PersonToNotify:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
     Update:
       type: object
       required:
