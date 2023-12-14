@@ -10,16 +10,33 @@ type Address struct {
 }
 
 type Person struct {
-	FirstNames  string  `json:"firstNames" dynamodbav:""`
-	Surname     string  `json:"surname" dynamodbav:""`
-	DateOfBirth Date    `json:"dateOfBirth" dynamodbav:""`
-	Email       string  `json:"email" dynamodbav:""`
-	Address     Address `json:"address" dynamodbav:""`
+	FirstNames string  `json:"firstNames" dynamodbav:""`
+	LastName   string  `json:"lastName"`
+	Address    Address `json:"address" dynamodbav:""`
 }
 
 type Donor struct {
 	Person
+	DateOfBirth       Date   `json:"dateOfBirth" dynamodbav:""`
+	Email             string `json:"email" dynamodbav:""`
 	OtherNamesKnownBy string `json:"otherNamesKnownBy" dynamodbav:""`
+}
+
+type CertificateProvider struct {
+	Person
+	Email      string     `json:"email" dynamodbav:""`
+	CarryOutBy CarryOutBy `json:"carryOutBy"`
+}
+
+type CarryOutBy string
+
+const (
+	CarryOutByOnline = CarryOutBy("online")
+	CarryOutByPaper  = CarryOutBy("paper")
+)
+
+func (e CarryOutBy) IsValid() bool {
+	return e == CarryOutByOnline || e == CarryOutByPaper
 }
 
 type AttorneyStatus string
@@ -36,5 +53,65 @@ func (a AttorneyStatus) IsValid() bool {
 
 type Attorney struct {
 	Person
-	Status AttorneyStatus `json:"status" dynamodbav:""`
+	DateOfBirth Date           `json:"dateOfBirth" dynamodbav:""`
+	Email       string         `json:"email" dynamodbav:""`
+	Status      AttorneyStatus `json:"status" dynamodbav:""`
+}
+
+type PersonToNotify struct {
+	Person
+}
+
+type HowMakeDecisions string
+
+const (
+	HowMakeDecisionsUnset                            = HowMakeDecisions("")
+	HowMakeDecisionsJointly                          = HowMakeDecisions("jointly")
+	HowMakeDecisionsJointlyAndSeverally              = HowMakeDecisions("jointly-and-severally")
+	HowMakeDecisionsJointlyForSomeSeverallyForOthers = HowMakeDecisions("mixed")
+)
+
+func (e HowMakeDecisions) IsValid() bool {
+	return e == HowMakeDecisionsJointly || e == HowMakeDecisionsJointlyAndSeverally || e == HowMakeDecisionsJointlyForSomeSeverallyForOthers
+}
+
+func (e HowMakeDecisions) Unset() bool {
+	return e == HowMakeDecisionsUnset
+}
+
+type HowStepIn string
+
+const (
+	HowStepInUnset             = HowStepIn("")
+	HowStepInAllCanNoLongerAct = HowStepIn("all")
+	HowStepInOneCanNoLongerAct = HowStepIn("one")
+	HowStepInAnotherWay        = HowStepIn("other")
+)
+
+func (e HowStepIn) IsValid() bool {
+	return e == HowStepInUnset || e == HowStepInAllCanNoLongerAct || e == HowStepInOneCanNoLongerAct || e == HowStepInAnotherWay
+}
+
+type CanUseWhen string
+
+const (
+	CanUseWhenUnset        = CanUseWhen("")
+	CanUseWhenCapacityLost = CanUseWhen("when-capacity-lost")
+	CanUseWhenHasCapacity  = CanUseWhen("when-has-capacity")
+)
+
+func (e CanUseWhen) IsValid() bool {
+	return e == CanUseWhenCapacityLost || e == CanUseWhenHasCapacity
+}
+
+type LifeSustainingTreatment string
+
+const (
+	LifeSustainingTreatmentUnset   = LifeSustainingTreatment("")
+	LifeSustainingTreatmentOptionA = LifeSustainingTreatment("option-a")
+	LifeSustainingTreatmentOptionB = LifeSustainingTreatment("option-b")
+)
+
+func (e LifeSustainingTreatment) IsValid() bool {
+	return e == LifeSustainingTreatmentOptionA || e == LifeSustainingTreatmentOptionB
 }
