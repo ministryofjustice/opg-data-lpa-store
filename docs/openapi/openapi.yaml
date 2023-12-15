@@ -68,6 +68,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BadRequestError"
+        "404":
+          description: Case not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundError"
       x-amazon-apigateway-auth:
         type: "AWS_IAM"
       x-amazon-apigateway-integration:
@@ -189,6 +195,13 @@ components:
               example:
                 - source: "/uid"
                   detail: "invalid uid format"
+    NotFoundError:
+      allOf:
+        - $ref: "#/components/schemas/AbstractError"
+        - type: object
+          properties:
+            code:
+              enum: ["NOT_FOUND"]
     Lpa:
       allOf:
         - $ref: "#/components/schemas/InitialLpa"
