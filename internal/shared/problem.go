@@ -48,6 +48,12 @@ var ProblemUnauthorisedRequest Problem = Problem{
 	Detail:     "Invalid JWT",
 }
 
+var ProblemNotFoundRequest Problem = Problem{
+	StatusCode: 404,
+	Code:       "NOT_FOUND",
+	Detail:     "Record not found",
+}
+
 func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 	var errorString = ""
 	for _, ve := range problem.Errors {
