@@ -202,22 +202,6 @@ components:
           properties:
             code:
               enum: ["NOT_FOUND"]
-            errors:
-              type: array
-              items:
-                type: object
-                required:
-                  - source
-                  - detail
-                properties:
-                  source:
-                    type: string
-                    format: jsonpointer
-                  detail:
-                    type: string
-              example:
-                - source: "/uid"
-                  detail: "uid not found"
     Lpa:
       allOf:
         - $ref: "#/components/schemas/InitialLpa"
