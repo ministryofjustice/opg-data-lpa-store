@@ -190,7 +190,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 	}{
 		"empty": {
 			contains: []shared.FieldError{
-				{Source: "/type", Detail: "field is required"},
+				{Source: "/lpaType", Detail: "field is required"},
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
@@ -200,7 +200,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		"online certificate provider missing email": {
 			lpa: shared.LpaInit{
 				CertificateProvider: shared.CertificateProvider{
-					CarryOutBy: shared.CarryOutByOnline,
+					Channel: shared.ChannelOnline,
 				},
 			},
 			contains: []shared.FieldError{
@@ -210,8 +210,8 @@ func TestValidateLpaInvalid(t *testing.T) {
 		"paper certificate provider with email": {
 			lpa: shared.LpaInit{
 				CertificateProvider: shared.CertificateProvider{
-					CarryOutBy: shared.CarryOutByPaper,
-					Email:      "something",
+					Channel: shared.ChannelPaper,
+					Email:   "something",
 				},
 			},
 			contains: []shared.FieldError{
@@ -332,7 +332,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		},
 		"health welfare with when can be used": {
 			lpa: shared.LpaInit{
-				Type:                shared.TypeHealthWelfare,
+				LpaType:             shared.LpaTypePersonalWelfare,
 				WhenTheLpaCanBeUsed: shared.CanUseWhenHasCapacity,
 			},
 			contains: []shared.FieldError{
@@ -342,7 +342,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		},
 		"property finance with life sustaining treatment": {
 			lpa: shared.LpaInit{
-				Type:                          shared.TypePropertyFinance,
+				LpaType:                       shared.LpaTypePropertyAndAffairs,
 				LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionA,
 			},
 			contains: []shared.FieldError{
@@ -364,7 +364,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 
 func TestValidateLpaValid(t *testing.T) {
 	lpa := shared.LpaInit{
-		Type: "hw",
+		LpaType: "personal-welfare",
 		Donor: shared.Donor{
 			Person: shared.Person{
 				FirstNames: "Otto",
@@ -390,8 +390,8 @@ func TestValidateLpaValid(t *testing.T) {
 				LastName:   "Person",
 				Address:    validAddress,
 			},
-			Email:      "some@example.com",
-			CarryOutBy: "online",
+			Email:   "some@example.com",
+			Channel: "online",
 		},
 		LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionA,
 		SignedAt:                      time.Now(),
