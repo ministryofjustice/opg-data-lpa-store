@@ -1,11 +1,12 @@
 FROM golang:1.21.5 AS build-env
 
 WORKDIR /app
-
-COPY go.mod .
-COPY go.sum .
+COPY ./go.mod /app/go.mod
+COPY ./go.sum /app/go.sum
 
 RUN go mod download
+
+COPY ./internal/shared /app/internal/shared
 
 COPY mock-apigw mock-apigw
 
