@@ -8,6 +8,8 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
+var countryCodeRe = regexp.MustCompile("^[A-Z]{2}$")
+
 func Validate(lpa shared.LpaInit) []shared.FieldError {
 	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys)
 
@@ -77,14 +79,6 @@ func flatten(fieldErrors ...[]shared.FieldError) []shared.FieldError {
 	return errors
 }
 
-func validateIf(ok bool, e []shared.FieldError) []shared.FieldError {
-	if ok {
-		return e
-	}
-
-	return nil
-}
-
 func validateIfElse(ok bool, eIf []shared.FieldError, eElse []shared.FieldError) []shared.FieldError {
 	if ok {
 		return eIf
@@ -93,20 +87,16 @@ func validateIfElse(ok bool, eIf []shared.FieldError, eElse []shared.FieldError)
 	return eElse
 }
 
-func required(source string, value string) []shared.FieldError {
-	if value == "" {
-		return []shared.FieldError{{Source: source, Detail: "field is required"}}
-	}
+func validateIf(ok bool, e []shared.FieldError) []shared.FieldError {
+	return validateIfElse(ok, e, nil)
+}
 
-	return nil
+func required(source string, value string) []shared.FieldError {
+	return validateIf(value == "", []shared.FieldError{{Source: source, Detail: "field is required"}})
 }
 
 func empty(source string, value string) []shared.FieldError {
-	if value != "" {
-		return []shared.FieldError{{Source: source, Detail: "field must not be provided"}}
-	}
-
-	return nil
+	return validateIf(value != "", []shared.FieldError{{Source: source, Detail: "field must not be provided"}})
 }
 
 func validateDate(source string, date shared.Date) []shared.FieldError {
@@ -122,25 +112,16 @@ func validateDate(source string, date shared.Date) []shared.FieldError {
 }
 
 func validateTime(source string, t time.Time) []shared.FieldError {
-	if t.IsZero() {
-		return []shared.FieldError{{Source: source, Detail: "field is required"}}
-	}
-
-	return nil
+	return validateIf(t.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
 }
 
 func validateAddress(prefix string, address shared.Address) []shared.FieldError {
-	errors := flatten(
+	return flatten(
 		required(fmt.Sprintf("%s/line1", prefix), address.Line1),
 		required(fmt.Sprintf("%s/town", prefix), address.Town),
 		required(fmt.Sprintf("%s/country", prefix), address.Country),
+		validateIf(!countryCodeRe.MatchString(address.Country), []shared.FieldError{{Source: fmt.Sprintf("%s/country", prefix), Detail: "must be a valid ISO-3166-1 country code"}}),
 	)
-
-	if ok, _ := regexp.MatchString("^[A-Z]{2}$", address.Country); !ok {
-		errors = append(errors, shared.FieldError{Source: fmt.Sprintf("%s/country", prefix), Detail: "must be a valid ISO-3166-1 country code"})
-	}
-
-	return errors
 }
 
 type isValid interface {
@@ -161,11 +142,7 @@ func validateIsValid[V isValid](source string, v V) []shared.FieldError {
 }
 
 func validateUnset(source string, v interface{ Unset() bool }) []shared.FieldError {
-	if !v.Unset() {
-		return []shared.FieldError{{Source: source, Detail: "field must not be provided"}}
-	}
-
-	return nil
+	return validateIf(!v.Unset(), []shared.FieldError{{Source: source, Detail: "field must not be provided"}})
 }
 
 func validateAttorneys(prefix string, attorneys []shared.Attorney) []shared.FieldError {
