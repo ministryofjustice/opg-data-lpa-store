@@ -7,6 +7,7 @@ COPY go.sum .
 
 RUN go mod download
 
+COPY ./internal/shared /app/internal/shared
 COPY mock-apigw mock-apigw
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main ./mock-apigw
