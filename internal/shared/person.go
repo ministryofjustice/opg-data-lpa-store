@@ -58,6 +58,14 @@ type Attorney struct {
 	Status      AttorneyStatus `json:"status"`
 }
 
+type TrustCorporation struct {
+	Name          string         `json:"name"`
+	CompanyNumber string         `json:"companyNumber"`
+	Email         string         `json:"email"`
+	Address       Address        `json:"address"`
+	Status        AttorneyStatus `json:"status"`
+}
+
 type PersonToNotify struct {
 	Person
 }

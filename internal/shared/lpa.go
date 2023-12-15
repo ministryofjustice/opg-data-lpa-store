@@ -6,6 +6,7 @@ type LpaInit struct {
 	LpaType                                     LpaType                 `json:"lpaType"`
 	Donor                                       Donor                   `json:"donor"`
 	Attorneys                                   []Attorney              `json:"attorneys"`
+	TrustCorporations                           []TrustCorporation      `json:"trustCorporations"`
 	CertificateProvider                         CertificateProvider     `json:"certificateProvider"`
 	PeopleToNotify                              []PersonToNotify        `json:"peopleToNotify"`
 	HowAttorneysMakeDecisions                   HowMakeDecisions        `json:"howAttorneysMakeDecisions"`
