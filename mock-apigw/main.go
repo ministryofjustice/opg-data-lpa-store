@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
 var LPAPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})$")
@@ -104,34 +106,58 @@ func handlePactState(r *http.Request) error {
 	re := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists$`)
 	if match := re.FindStringSubmatch(state.State); len(match) > 0 {
 		url := fmt.Sprintf("http://localhost:8080/lpas/%s", match[1])
-		body := `{
-			"donor": {
-				"firstNames": "Homer",
-				"surname": "Zoller",
-				"dateOfBirth": "1960-04-06",
-				"address": {
-					"line1": "79 Bury Rd",
-					"town": "Hampton Lovett",
-					"postcode": "WR9 2PF",
-					"country": "GB"
-				}
-			},
-			"attorneys": [
-				{
-					"firstNames": "Jake",
-					"surname": "Vallar",
-					"dateOfBirth": "2001-01-17",
-					"status": "active",
-					"address": {
-						"line1": "71 South Western Terrace",
-						"town": "Milton",
-						"country": "AU"
-					}
-				}
-			]
-		}`
 
-		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
+		lpa := shared.LpaInit{
+			LpaType: shared.LpaTypePersonalWelfare,
+			Donor: shared.Donor{
+				Person: shared.Person{
+					FirstNames: "Homer",
+					LastName:   "Zoller",
+					Address: shared.Address{
+						Line1:    "79 Bury Rd",
+						Town:     "Hampton Lovett",
+						Postcode: "WR9 2PF",
+						Country:  "GB",
+					},
+				},
+				DateOfBirth: shared.Date{Time: time.Date(1960, time.April, 6, 0, 0, 0, 0, time.UTC)},
+			},
+			Attorneys: []shared.Attorney{{
+				Person: shared.Person{
+					FirstNames: "Jake",
+					LastName:   "Vallar",
+					Address: shared.Address{
+						Line1:   "71 South Western Terrace",
+						Town:    "Milton",
+						Country: "AU",
+					},
+				},
+				DateOfBirth: shared.Date{Time: time.Date(2001, time.January, 17, 0, 0, 0, 0, time.UTC)},
+				Status:      shared.AttorneyStatusActive,
+			}},
+			CertificateProvider: shared.CertificateProvider{
+				Person: shared.Person{
+					FirstNames: "Some",
+					LastName:   "Provider",
+					Address: shared.Address{
+						Line1:   "71 South Western Terrace",
+						Town:    "Milton",
+						Country: "AU",
+					},
+				},
+				Email:   "some@example.com",
+				Channel: shared.ChannelOnline,
+			},
+			LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionA,
+			SignedAt:                      time.Date(2000, time.January, 2, 12, 13, 14, 0, time.UTC),
+		}
+
+		var buf bytes.Buffer
+		if err := json.NewEncoder(&buf).Encode(lpa); err != nil {
+			return err
+		}
+
+		req, err := http.NewRequest("PUT", url, &buf)
 		if err != nil {
 			return err
 		}
@@ -165,5 +191,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("running on port 8080\n")
+	log.Println("running on port 8080")
 }
