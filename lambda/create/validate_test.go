@@ -24,7 +24,7 @@ func newDate(date string, isMalformed bool) shared.Date {
 }
 
 func TestCountAttorneys(t *testing.T) {
-	actives, replacements := countAttorneys([]shared.Attorney{})
+	actives, replacements := countAttorneys([]shared.Attorney{}, []shared.TrustCorporation{})
 	assert.Equal(t, 0, actives)
 	assert.Equal(t, 0, replacements)
 
@@ -32,9 +32,12 @@ func TestCountAttorneys(t *testing.T) {
 		{Status: shared.AttorneyStatusReplacement},
 		{Status: shared.AttorneyStatusActive},
 		{Status: shared.AttorneyStatusReplacement},
+	}, []shared.TrustCorporation{
+		{Status: shared.AttorneyStatusReplacement},
+		{Status: shared.AttorneyStatusActive},
 	})
-	assert.Equal(t, 1, actives)
-	assert.Equal(t, 2, replacements)
+	assert.Equal(t, 2, actives)
+	assert.Equal(t, 3, replacements)
 }
 
 func TestFlatten(t *testing.T) {
@@ -179,6 +182,41 @@ func TestValidateAttorneyInvalidStatus(t *testing.T) {
 		Status:      "bad status",
 	}
 	errors := validateAttorney("/test", attorney)
+
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "invalid value"})
+}
+
+func TestValidateTrustCorporationEmpty(t *testing.T) {
+	trustCorporation := shared.TrustCorporation{}
+	errors := validateTrustCorporation("/test", trustCorporation)
+
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/name", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/companyNumber", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/email", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/town", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
+}
+
+func TestValidateTrustCorporationValid(t *testing.T) {
+	trustCorporation := shared.TrustCorporation{
+		Name:          "corp",
+		CompanyNumber: "5",
+		Email:         "corp@example.com",
+		Address:       validAddress,
+		Status:        shared.AttorneyStatusActive,
+	}
+	errors := validateTrustCorporation("/test", trustCorporation)
+
+	assert.Empty(t, errors)
+}
+
+func TestValidateTrustCorporationInvalidStatus(t *testing.T) {
+	trustCorporation := shared.TrustCorporation{
+		Status: "bad status",
+	}
+	errors := validateTrustCorporation("/test", trustCorporation)
 
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "invalid value"})
 }

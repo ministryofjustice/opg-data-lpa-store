@@ -11,7 +11,7 @@ import (
 var countryCodeRe = regexp.MustCompile("^[A-Z]{2}$")
 
 func Validate(lpa shared.LpaInit) []shared.FieldError {
-	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys)
+	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
 	return flatten(
 		validateIsValid("/lpaType", lpa.LpaType),
@@ -27,6 +27,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 			required("/certificateProvider/email", lpa.CertificateProvider.Email),
 			empty("/certificateProvider/email", lpa.CertificateProvider.Email)),
 		validateAttorneys("/attorneys", lpa.Attorneys),
+		validateTrustCorporations("/trustCorporations", lpa.TrustCorporations),
 		validateIfElse(activeAttorneyCount > 1,
 			validateIsValid("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions),
 			validateUnset("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions)),
@@ -54,9 +55,18 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 	)
 }
 
-func countAttorneys(as []shared.Attorney) (actives, replacements int) {
+func countAttorneys(as []shared.Attorney, ts []shared.TrustCorporation) (actives, replacements int) {
 	for _, a := range as {
 		switch a.Status {
+		case shared.AttorneyStatusActive:
+			actives++
+		case shared.AttorneyStatusReplacement:
+			replacements++
+		}
+	}
+
+	for _, t := range ts {
+		switch t.Status {
 		case shared.AttorneyStatusActive:
 			actives++
 		case shared.AttorneyStatusReplacement:
@@ -169,5 +179,27 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validateDate(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
 		validateAddress(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validateIsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
+	)
+}
+
+func validateTrustCorporations(prefix string, trustCorporations []shared.TrustCorporation) []shared.FieldError {
+	var errors []shared.FieldError
+
+	for i, trustCorporation := range trustCorporations {
+		if e := validateTrustCorporation(fmt.Sprintf("%s/%d", prefix, i), trustCorporation); e != nil {
+			errors = append(errors, e...)
+		}
+	}
+
+	return errors
+}
+
+func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorporation) []shared.FieldError {
+	return flatten(
+		required(fmt.Sprintf("%s/name", prefix), trustCorporation.Name),
+		required(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber),
+		required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
+		validateAddress(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
+		validateIsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
 	)
 }

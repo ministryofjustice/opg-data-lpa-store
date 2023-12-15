@@ -237,6 +237,10 @@ components:
           items:
             $ref: "#/components/schemas/Attorney"
           minLength: 1
+        trustCorporations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrustCorporation"
         certificateProvider:
           $ref: "#/components/schemas/CertificateProvider"
         peopleToNotify:
@@ -368,6 +372,30 @@ components:
         email:
           type: string
           x-faker: internet.email
+        status:
+          type: string
+          enum:
+            - active
+            - replacement
+            - removed
+    TrustCorporation:
+      type: object
+      required:
+        - name
+        - companyNumber
+        - email
+        - address
+        - status
+      properties:
+        name:
+          type: string
+        companyNumber:
+          type: string
+        email:
+          type: string
+          x-faker: internet.email
+        address:
+          $ref: "#/components/schemas/Address"
         status:
           type: string
           enum:
