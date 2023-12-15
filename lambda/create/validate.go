@@ -12,7 +12,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys)
 
 	return flatten(
-		validateIsValid("/type", lpa.Type),
+		validateIsValid("/lpaType", lpa.LpaType),
 		required("/donor/firstNames", lpa.Donor.FirstNames),
 		required("/donor/lastName", lpa.Donor.LastName),
 		validateDate("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
@@ -20,8 +20,8 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		required("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames),
 		required("/certificateProvider/lastName", lpa.CertificateProvider.LastName),
 		validateAddress("/certificateProvider/address", lpa.CertificateProvider.Address),
-		validateIsValid("/certificateProvider/carryOutBy", lpa.CertificateProvider.CarryOutBy),
-		validateIfElse(lpa.CertificateProvider.CarryOutBy == shared.CarryOutByOnline,
+		validateIsValid("/certificateProvider/channel", lpa.CertificateProvider.Channel),
+		validateIfElse(lpa.CertificateProvider.Channel == shared.ChannelOnline,
 			required("/certificateProvider/email", lpa.CertificateProvider.Email),
 			empty("/certificateProvider/email", lpa.CertificateProvider.Email)),
 		validateAttorneys("/attorneys", lpa.Attorneys),
@@ -42,10 +42,10 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validateIfElse(lpa.HowReplacementAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
 			required("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails),
 			empty("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails)),
-		validateIf(lpa.Type == "hw", flatten(
+		validateIf(lpa.LpaType == shared.LpaTypePersonalWelfare, flatten(
 			validateIsValid("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption),
 			validateUnset("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed))),
-		validateIf(lpa.Type == "pfa", flatten(
+		validateIf(lpa.LpaType == shared.LpaTypePropertyAndAffairs, flatten(
 			validateIsValid("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed),
 			validateUnset("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption))),
 		validateTime("/signedAt", lpa.SignedAt),
