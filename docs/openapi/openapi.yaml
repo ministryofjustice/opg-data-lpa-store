@@ -219,17 +219,17 @@ components:
     InitialLpa:
       type: object
       required:
-        - type
+        - lpaType
         - donor
         - attorneys
         - certificateProvider
         - signedAt
       properties:
-        type:
+        lpaType:
           type: string
           enum:
-            - pfa
-            - hw
+            - property-and-affairs
+            - personal-welfare
         donor:
           $ref: "#/components/schemas/Donor"
         attorneys:
@@ -248,7 +248,7 @@ components:
           enum:
             - jointly
             - jointly-and-severally
-            - mixed
+            - jointly-for-some-severally-for-others
         howAttorneysMakeDecisionsDetails:
           type: string
         howReplacementAttorneysMakeDecisions:
@@ -256,15 +256,15 @@ components:
           enum:
             - jointly
             - jointly-and-severally
-            - mixed
+            - jointly-for-some-severally-for-others
         howReplacementAttorneysMakeDecisionsDetails:
           type: string
         howReplacementAttorneysStepIn:
           type: string
           enum:
-            - all
-            - one
-            - other
+            - all-can-no-longer-act
+            - one-can-no-longer-act
+            - another-way
         howReplacementAttorneysStepInDetails:
           type: string
         whenTheLpaCanBeUsed:
@@ -382,12 +382,12 @@ components:
       type: object
       required:
         - email
-        - carryOutBy
+        - channel
       properties:
         email:
           type: string
           x-faker: internet.email
-        carryOutBy:
+        channel:
           type: string
           enum:
             - paper
