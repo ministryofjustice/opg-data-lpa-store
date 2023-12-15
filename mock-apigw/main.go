@@ -105,9 +105,10 @@ func handlePactState(r *http.Request) error {
 	if match := re.FindStringSubmatch(state.State); len(match) > 0 {
 		url := fmt.Sprintf("http://localhost:8080/lpas/%s", match[1])
 		body := `{
+			"lpaType": "personal-welfare",
 			"donor": {
 				"firstNames": "Homer",
-				"surname": "Zoller",
+				"lastName": "Zoller",
 				"dateOfBirth": "1960-04-06",
 				"address": {
 					"line1": "79 Bury Rd",
@@ -119,7 +120,7 @@ func handlePactState(r *http.Request) error {
 			"attorneys": [
 				{
 					"firstNames": "Jake",
-					"surname": "Vallar",
+					"lastName": "Vallar",
 					"dateOfBirth": "2001-01-17",
 					"status": "active",
 					"address": {
@@ -128,7 +129,20 @@ func handlePactState(r *http.Request) error {
 						"country": "AU"
 					}
 				}
-			]
+			],
+			"certificateProvider": {
+				"firstNames": "Some",
+				"lastName": "Provider",
+				"email": "some@example.com",
+				"channel": "online",
+				"address": {
+					"line1": "71 South Western Terrace",
+					"town": "Milton",
+					"country": "AU"
+				}
+			},
+			"lifeSustainingTreatmentOption": "option-a",
+			"signedAt": "2000-01-02T12:13:14Z"
 		}`
 
 		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
@@ -165,5 +179,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("running on port 8080\n")
+	log.Println("running on port 8080")
 }
