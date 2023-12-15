@@ -36,8 +36,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 	lpa, err := l.store.Get(ctx, event.PathParameters["uid"])
 
-	if err != nil {
-		l.logger.Print(err)
+    // If item can't be found in DynamoDB then it returns empty object hence 404 error returned if
+    // empty object returned
+	if lpa.Uid == "" {
+		l.logger.Print("Uid not found")
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
