@@ -232,9 +232,17 @@ components:
     InitialLpa:
       type: object
       required:
+        - lpaType
         - donor
         - attorneys
+        - certificateProvider
+        - signedAt
       properties:
+        lpaType:
+          type: string
+          enum:
+            - property-and-affairs
+            - personal-welfare
         donor:
           $ref: "#/components/schemas/Donor"
         attorneys:
@@ -242,6 +250,55 @@ components:
           items:
             $ref: "#/components/schemas/Attorney"
           minLength: 1
+        trustCorporations:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrustCorporation"
+        certificateProvider:
+          $ref: "#/components/schemas/CertificateProvider"
+        peopleToNotify:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonToNotify"
+        howAttorneysMakeDecisions:
+          type: string
+          enum:
+            - jointly
+            - jointly-and-severally
+            - jointly-for-some-severally-for-others
+        howAttorneysMakeDecisionsDetails:
+          type: string
+        howReplacementAttorneysMakeDecisions:
+          type: string
+          enum:
+            - jointly
+            - jointly-and-severally
+            - jointly-for-some-severally-for-others
+        howReplacementAttorneysMakeDecisionsDetails:
+          type: string
+        howReplacementAttorneysStepIn:
+          type: string
+          enum:
+            - all-can-no-longer-act
+            - one-can-no-longer-act
+            - another-way
+        howReplacementAttorneysStepInDetails:
+          type: string
+        whenTheLpaCanBeUsed:
+          type: string
+          enum:
+            - when-capacity-lost
+            - when-has-capacity
+        lifeSustainingTreatmentOption:
+          type: string
+          enum:
+            - option-a
+            - option-b
+        restrictions:
+          type: string
+        signedAt:
+          type: string
+          format: date-time
       additionalProperties: false
     Address:
       type: object
@@ -284,22 +341,15 @@ components:
       type: object
       required:
         - firstNames
-        - surname
-        - dateOfBirth
+        - lastName
         - address
       properties:
         firstNames:
           type: string
           x-faker: name.firstName
-        surname:
+        lastName:
           type: string
           x-faker: name.lastName
-        dateOfBirth:
-          type: string
-          format: date
-        email:
-          type: string
-          x-faker: internet.email
         address:
           $ref: "#/components/schemas/Address"
       additionalProperties: false
@@ -307,7 +357,16 @@ components:
       allOf:
         - $ref: "#/components/schemas/Person"
       type: object
+      required:
+        - dateOfBirth
+        - email
       properties:
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          x-faker: internet.email
         otherNamesKnownBy:
           type: string
           nullable: true
@@ -317,14 +376,67 @@ components:
       allOf:
         - $ref: "#/components/schemas/Person"
       type: object
+      required:
+        - dateOfBirth
+        - email
+        - status
       properties:
+        dateOfBirth:
+          type: string
+          format: date
+        email:
+          type: string
+          x-faker: internet.email
         status:
           type: string
           enum:
             - active
             - replacement
             - removed
-      additionalProperties: false
+    TrustCorporation:
+      type: object
+      required:
+        - name
+        - companyNumber
+        - email
+        - address
+        - status
+      properties:
+        name:
+          type: string
+        companyNumber:
+          type: string
+        email:
+          type: string
+          x-faker: internet.email
+        address:
+          $ref: "#/components/schemas/Address"
+        status:
+          type: string
+          enum:
+            - active
+            - replacement
+            - removed
+    CertificateProvider:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
+      required:
+        - email
+        - channel
+      properties:
+        email:
+          type: string
+          x-faker: internet.email
+        channel:
+          type: string
+          enum:
+            - paper
+            - online
+    PersonToNotify:
+      allOf:
+        - $ref: "#/components/schemas/Person"
+      type: object
     Update:
       type: object
       required:
