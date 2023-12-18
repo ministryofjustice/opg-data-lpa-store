@@ -34,7 +34,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validateIfElse(lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
 			required("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails),
 			empty("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails)),
-		validateIf(lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally,
+		validateIf(replacementAttorneyCount > 0 && lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally,
 			validateIsValid("/howReplacementAttorneysStepIn", lpa.HowReplacementAttorneysStepIn)),
 		validateIfElse(lpa.HowReplacementAttorneysStepIn == shared.HowStepInAnotherWay,
 			required("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails),
