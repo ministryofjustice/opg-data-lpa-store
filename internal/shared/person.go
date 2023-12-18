@@ -1,25 +1,42 @@
 package shared
 
 type Address struct {
-	Line1    string `json:"line1" dynamodbav:""`
-	Line2    string `json:"line2" dynamodbav:""`
-	Line3    string `json:"line3" dynamodbav:""`
-	Town     string `json:"town" dynamodbav:""`
-	Postcode string `json:"postcode" dynamodbav:""`
-	Country  string `json:"country" dynamodbav:""`
+	Line1    string `json:"line1"`
+	Line2    string `json:"line2"`
+	Line3    string `json:"line3"`
+	Town     string `json:"town"`
+	Postcode string `json:"postcode"`
+	Country  string `json:"country"`
 }
 
 type Person struct {
-	FirstNames  string  `json:"firstNames" dynamodbav:""`
-	Surname     string  `json:"surname" dynamodbav:""`
-	DateOfBirth Date    `json:"dateOfBirth" dynamodbav:""`
-	Email       string  `json:"email" dynamodbav:""`
-	Address     Address `json:"address" dynamodbav:""`
+	FirstNames string  `json:"firstNames"`
+	LastName   string  `json:"lastName"`
+	Address    Address `json:"address"`
 }
 
 type Donor struct {
 	Person
-	OtherNamesKnownBy string `json:"otherNamesKnownBy" dynamodbav:""`
+	DateOfBirth       Date   `json:"dateOfBirth"`
+	Email             string `json:"email"`
+	OtherNamesKnownBy string `json:"otherNamesKnownBy"`
+}
+
+type CertificateProvider struct {
+	Person
+	Email   string  `json:"email"`
+	Channel Channel `json:"channel"`
+}
+
+type Channel string
+
+const (
+	ChannelOnline = Channel("online")
+	ChannelPaper  = Channel("paper")
+)
+
+func (e Channel) IsValid() bool {
+	return e == ChannelOnline || e == ChannelPaper
 }
 
 type AttorneyStatus string
@@ -36,5 +53,81 @@ func (a AttorneyStatus) IsValid() bool {
 
 type Attorney struct {
 	Person
-	Status AttorneyStatus `json:"status" dynamodbav:""`
+	DateOfBirth Date           `json:"dateOfBirth"`
+	Email       string         `json:"email"`
+	Status      AttorneyStatus `json:"status"`
+}
+
+type TrustCorporation struct {
+	Name          string         `json:"name"`
+	CompanyNumber string         `json:"companyNumber"`
+	Email         string         `json:"email"`
+	Address       Address        `json:"address"`
+	Status        AttorneyStatus `json:"status"`
+}
+
+type PersonToNotify struct {
+	Person
+}
+
+type HowMakeDecisions string
+
+const (
+	HowMakeDecisionsUnset                            = HowMakeDecisions("")
+	HowMakeDecisionsJointly                          = HowMakeDecisions("jointly")
+	HowMakeDecisionsJointlyAndSeverally              = HowMakeDecisions("jointly-and-severally")
+	HowMakeDecisionsJointlyForSomeSeverallyForOthers = HowMakeDecisions("jointly-for-some-severally-for-others")
+)
+
+func (e HowMakeDecisions) IsValid() bool {
+	return e == HowMakeDecisionsJointly || e == HowMakeDecisionsJointlyAndSeverally || e == HowMakeDecisionsJointlyForSomeSeverallyForOthers
+}
+
+func (e HowMakeDecisions) Unset() bool {
+	return e == HowMakeDecisionsUnset
+}
+
+type HowStepIn string
+
+const (
+	HowStepInUnset             = HowStepIn("")
+	HowStepInAllCanNoLongerAct = HowStepIn("all-can-no-longer-act")
+	HowStepInOneCanNoLongerAct = HowStepIn("one-can-no-longer-act")
+	HowStepInAnotherWay        = HowStepIn("another-way")
+)
+
+func (e HowStepIn) IsValid() bool {
+	return e == HowStepInUnset || e == HowStepInAllCanNoLongerAct || e == HowStepInOneCanNoLongerAct || e == HowStepInAnotherWay
+}
+
+type CanUse string
+
+const (
+	CanUseUnset            = CanUse("")
+	CanUseWhenCapacityLost = CanUse("when-capacity-lost")
+	CanUseWhenHasCapacity  = CanUse("when-has-capacity")
+)
+
+func (e CanUse) IsValid() bool {
+	return e == CanUseWhenCapacityLost || e == CanUseWhenHasCapacity
+}
+
+func (e CanUse) Unset() bool {
+	return e == CanUseUnset
+}
+
+type LifeSustainingTreatment string
+
+const (
+	LifeSustainingTreatmentUnset   = LifeSustainingTreatment("")
+	LifeSustainingTreatmentOptionA = LifeSustainingTreatment("option-a")
+	LifeSustainingTreatmentOptionB = LifeSustainingTreatment("option-b")
+)
+
+func (e LifeSustainingTreatment) IsValid() bool {
+	return e == LifeSustainingTreatmentOptionA || e == LifeSustainingTreatmentOptionB
+}
+
+func (e LifeSustainingTreatment) Unset() bool {
+	return e == LifeSustainingTreatmentUnset
 }
