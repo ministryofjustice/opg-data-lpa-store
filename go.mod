@@ -3,10 +3,10 @@ module github.com/ministryofjustice/opg-data-lpa-store
 go 1.20
 
 require (
-	github.com/aws/aws-lambda-go v1.42.0
-	github.com/aws/aws-sdk-go v1.49.4
+	github.com/aws/aws-lambda-go v1.43.0
+	github.com/aws/aws-sdk-go v1.49.7
 	github.com/aws/aws-xray-sdk-go v1.8.3
-	github.com/go-openapi/jsonpointer v0.20.0
+	github.com/go-openapi/jsonpointer v0.20.1
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.5.0
 	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
@@ -16,7 +16,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-openapi/swag v0.22.5 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
