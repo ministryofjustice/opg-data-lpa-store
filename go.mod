@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/aws/aws-lambda-go v1.43.0
-	github.com/aws/aws-sdk-go v1.49.9
+	github.com/aws/aws-sdk-go v1.49.11
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/go-openapi/jsonpointer v0.20.2
 	github.com/golang-jwt/jwt/v5 v5.2.0
