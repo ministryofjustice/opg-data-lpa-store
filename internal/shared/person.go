@@ -9,6 +9,10 @@ type Address struct {
 	Country  string `json:"country"`
 }
 
+func (a Address) IsSet() bool {
+	return a.Line1 != "" || a.Line2 != "" || a.Line3 != "" || a.Town != "" || a.Postcode != "" || a.Country != ""
+}
+
 type Person struct {
 	FirstNames string  `json:"firstNames"`
 	LastName   string  `json:"lastName"`
