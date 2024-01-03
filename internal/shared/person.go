@@ -1,5 +1,7 @@
 package shared
 
+import "time"
+
 type Address struct {
 	Line1    string `json:"line1"`
 	Line2    string `json:"line2"`
@@ -7,6 +9,10 @@ type Address struct {
 	Town     string `json:"town"`
 	Postcode string `json:"postcode"`
 	Country  string `json:"country"`
+}
+
+func (a Address) IsZero() bool {
+	return a == Address{}
 }
 
 type Person struct {
@@ -24,8 +30,10 @@ type Donor struct {
 
 type CertificateProvider struct {
 	Person
-	Email   string  `json:"email"`
-	Channel Channel `json:"channel"`
+	Email                     string    `json:"email"`
+	Channel                   Channel   `json:"channel"`
+	SignedAt                  time.Time `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang      `json:"contactLanguagePreference,omitempty"`
 }
 
 type Channel string
