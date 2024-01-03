@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/go-openapi/jsonpointer"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -17,9 +16,18 @@ type Logger interface {
 	Print(...interface{})
 }
 
+type Store interface {
+	Put(ctx context.Context, data any) error
+	Get(ctx context.Context, uid string) (shared.Lpa, error)
+}
+
+type Verifier interface {
+	VerifyHeader(events.APIGatewayProxyRequest) bool
+}
+
 type Lambda struct {
-	store    shared.Client
-	verifier shared.JWTVerifier
+	store    Store
+	verifier Verifier
 	logger   Logger
 }
 
@@ -37,8 +45,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	var update shared.Update
-	err := json.Unmarshal([]byte(event.Body), &update)
-	if err != nil {
+	if err := json.Unmarshal([]byte(event.Body), &update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -48,29 +55,32 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
-
-	validationErrs, err := applyUpdate(&lpa, update)
-
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
+	if lpa.Uid == "" {
+		l.logger.Print("Uid not found")
+		return shared.ProblemNotFoundRequest.Respond()
 	}
 
-	if len(validationErrs) > 0 {
+	applyable, errors := validateUpdate(update)
+	if len(errors) > 0 {
 		problem := shared.ProblemInvalidRequest
-		problem.Errors = validationErrs
+		problem.Errors = errors
 
 		return problem.Respond()
 	}
 
-	err = l.store.Put(ctx, lpa)
-	if err != nil {
+	if errors := applyable.Apply(&lpa); len(errors) > 0 {
+		problem := shared.ProblemInvalidRequest
+		problem.Errors = errors
+
+		return problem.Respond()
+	}
+
+	if err := l.store.Put(ctx, lpa); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	body, err := json.Marshal(lpa)
-
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
@@ -82,39 +92,9 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	return response, nil
 }
 
-func applyUpdate(lpa *shared.Lpa, update shared.Update) ([]shared.FieldError, error) {
-	validationErrs := []shared.FieldError{}
-
-	for index, change := range update.Changes {
-		pointer, err := jsonpointer.New(change.Key)
-		if err != nil {
-			return validationErrs, err
-		}
-
-		current, _, err := pointer.Get(*lpa)
-		if err != nil {
-			return validationErrs, err
-		}
-
-		if current != change.Old {
-			validationErrs = append(validationErrs, shared.FieldError{
-				Source: fmt.Sprintf("/changes/%d/old", index),
-				Detail: "does not match existing value",
-			})
-		}
-
-		_, err = pointer.Set(lpa, change.New)
-		if err != nil {
-			return validationErrs, err
-		}
-	}
-
-	return validationErrs, nil
-}
-
 func main() {
 	l := &Lambda{
-		store:    shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}

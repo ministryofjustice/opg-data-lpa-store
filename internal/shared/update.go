@@ -1,9 +1,11 @@
 package shared
 
+import "encoding/json"
+
 type Change struct {
-	Key string      `json:"key"`
-	Old interface{} `json:"old"`
-	New interface{} `json:"new"`
+	Key string          `json:"key"`
+	Old json.RawMessage `json:"old"`
+	New json.RawMessage `json:"new"`
 }
 
 type Update struct {
