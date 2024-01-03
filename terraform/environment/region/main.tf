@@ -3,6 +3,7 @@ locals {
     "create",
     "get",
     "update",
+    "create-certificate-provider",
   ])
 }
 
