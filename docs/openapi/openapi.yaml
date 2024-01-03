@@ -119,7 +119,6 @@ paths:
         httpMethod: "POST"
         type: "aws_proxy"
         contentHandling: "CONVERT_TO_TEXT"
-
   /health-check:
     get:
       operationId: healthCheck
@@ -445,9 +444,7 @@ components:
       properties:
         type:
           enum:
-            - DONOR_ADDRESS_UPDATE
-            - ATTORNEY_ADDRESS_UPDATE
-            - SCANNING_CORRECTION
+            - CERTIFICATE_PROVIDER_SIGN
         changes:
           type: array
           items:
