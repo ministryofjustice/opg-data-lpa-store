@@ -8,19 +8,22 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
-
-type Response struct {
-}
 
 type Logger interface {
 	Print(...interface{})
 }
 
+type Store interface {
+	Put(ctx context.Context, data any) error
+	Get(ctx context.Context, uid string) (shared.Lpa, error)
+}
+
 type Lambda struct {
-	store    shared.Client
+	store    Store
 	verifier shared.JWTVerifier
 	logger   Logger
 }
@@ -84,22 +87,15 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	// respond
-	body, err := json.Marshal(Response{})
-
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
-	}
-
 	response.StatusCode = 201
-	response.Body = string(body)
+	response.Body = `{}`
 
 	return response, nil
 }
 
 func main() {
 	l := &Lambda{
-		store:    shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
