@@ -20,9 +20,19 @@ type Logger interface {
 	Print(...interface{})
 }
 
+type Store interface {
+	Get(ctx context.Context, uid string) (shared.Lpa, error)
+	Put(ctx context.Context, data any) error
+}
+
+type Verifier interface {
+	VerifyHeader(events.APIGatewayProxyRequest) bool
+}
+
 type Lambda struct {
-	store    shared.Client
-	verifier shared.JWTVerifier
+	now      func() time.Time
+	store    Store
+	verifier Verifier
 	logger   Logger
 }
 
@@ -34,7 +44,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 	l.logger.Print("Successfully parsed JWT from event header")
 
-	var input shared.LpaInit
 	uid := event.PathParameters["uid"]
 
 	response := events.APIGatewayProxyResponse{
@@ -43,21 +52,17 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	// check for existing Lpa
-	var existingLpa shared.Lpa
 	existingLpa, err := l.store.Get(ctx, uid)
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
-
-	if existingLpa.Uid == uid {
-		problem := shared.ProblemInvalidRequest
-		problem.Detail = "LPA with UID already exists"
-		return problem.Respond()
+	if existingLpa.Uid == "" {
+		return shared.ProblemNotFoundRequest.Respond()
 	}
 
-	err = json.Unmarshal([]byte(event.Body), &input)
-	if err != nil {
+	var input CertificateProvider
+	if err := json.Unmarshal([]byte(event.Body), &input); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -71,35 +76,24 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return problem.Respond()
 	}
 
-	data := shared.Lpa{LpaInit: input}
-	data.Uid = uid
-	data.Status = shared.LpaStatusProcessing
-	data.UpdatedAt = time.Now()
+	input.UpdatedAt = l.now()
 
 	// save
-	err = l.store.Put(ctx, data)
-
-	if err != nil {
+	if err := l.store.Put(ctx, input); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	// respond
-	body, err := json.Marshal(Response{})
-
-	if err != nil {
-		l.logger.Print(err)
-		return shared.ProblemInternalServerError.Respond()
-	}
-
 	response.StatusCode = 201
-	response.Body = string(body)
+	response.Body = `{}`
 
 	return response, nil
 }
 
 func main() {
 	l := &Lambda{
+		now:      time.Now,
 		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
