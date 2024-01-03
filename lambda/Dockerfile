@@ -6,7 +6,7 @@ COPY ./go.sum /app/go.sum
 
 RUN go mod download
 
-COPY ./internal/shared /app/internal/shared
+COPY ./internal /app/internal
 
 ARG DIR
 COPY ./lambda/$DIR /app/lambda/$DIR
