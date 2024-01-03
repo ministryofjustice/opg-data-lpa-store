@@ -4,6 +4,7 @@ locals {
     lambda_create_invoke_arn = module.lambda["create"].invoke_arn
     lambda_get_invoke_arn    = module.lambda["get"].invoke_arn
     lambda_update_invoke_arn = module.lambda["update"].invoke_arn
+    lambda_create_certificate_provider_invoke_arn = module.lambda["create-certificate-provider"].invoke_arn
   })
 }
 
