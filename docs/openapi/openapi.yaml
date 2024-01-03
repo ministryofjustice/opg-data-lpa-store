@@ -119,7 +119,33 @@ paths:
         httpMethod: "POST"
         type: "aws_proxy"
         contentHandling: "CONVERT_TO_TEXT"
-
+  /lpas/{uid}/certifcate-provider:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: The UID of the case
+        schema:
+          type: string
+          pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
+          example: M-789Q-P4DF-4UX3
+    put:
+      operationId: putCertificateProvider
+      summary: Store a certificate provider
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CertificateProviderRequest"
+      responses:
+        "201":
+          description: Certificate provider created
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
   /health-check:
     get:
       operationId: healthCheck
@@ -202,6 +228,22 @@ components:
           properties:
             code:
               enum: ["NOT_FOUND"]
+    CertificateProviderRequest:
+      type: object
+      required:
+        - contactLanguagePreference
+        - signedAt
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+        contactLanguagePreference:
+          enum:
+            - cy
+            - en
+        signedAt:
+          type: string
+          format: date-time
+      additionalProperties: false
     Lpa:
       allOf:
         - $ref: "#/components/schemas/InitialLpa"
