@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/go-openapi/jsonpointer"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -114,7 +115,7 @@ func applyUpdate(lpa *shared.Lpa, update shared.Update) ([]shared.FieldError, er
 
 func main() {
 	l := &Lambda{
-		store:    shared.NewDynamoDB(os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
