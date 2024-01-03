@@ -26,7 +26,7 @@ func createToken(claims jwt.MapClaims) string {
 }
 
 func TestVerifyEmptyJwt(t *testing.T) {
-	err := verifier.VerifyToken("")
+	err := verifier.verifyToken("")
 	assert.NotNil(t, err)
 }
 
@@ -38,7 +38,7 @@ func TestVerifyExpInPast(t *testing.T) {
 		"sub": "M-3467-89QW-ERTY",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -54,7 +54,7 @@ func TestVerifyIatInFuture(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -70,7 +70,7 @@ func TestVerifyIssuer(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -86,7 +86,7 @@ func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
 		"sub": "",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -102,7 +102,7 @@ func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
 		"sub": "",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -118,7 +118,7 @@ func TestVerifyGoodJwt(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.VerifyToken(token)
+	err := verifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
@@ -134,7 +134,7 @@ func TestNewJWTVerifier(t *testing.T) {
 	newVerifier := NewJWTVerifier()
 	os.Unsetenv("JWT_SECRET_KEY")
 
-	err := newVerifier.VerifyToken(token)
+	err := newVerifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
