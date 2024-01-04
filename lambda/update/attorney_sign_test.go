@@ -73,7 +73,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 		"missing all": {
 			update: shared.Update{Type: "ATTORNEY_SIGN"},
 			errors: []shared.FieldError{
-				{Source: "/changes", Detail: "must be specified"},
+				{Source: "/changes", Detail: "missing /attorneys/..."},
 			},
 		},
 		"extra fields": {
@@ -108,9 +108,9 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/2/old", Detail: "field must be null"},
-				{Source: "/changes/3", Detail: "change not allowed for type"},
-				{Source: "/changes/4", Detail: "change not allowed for type"},
+				{Source: "/changes/2/old", Detail: "must not be provided"},
+				{Source: "/changes/3", Detail: "unexpected change provided"},
+				{Source: "/changes/4", Detail: "unexpected change provided"},
 			},
 		},
 		"invalid contact language": {
@@ -160,7 +160,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/1/key", Detail: "must be for same attorney"},
+				{Source: "/changes/1/key", Detail: "index out of range"},
 				{Source: "/changes", Detail: "missing /attorneys/0/signedAt"},
 			},
 		},

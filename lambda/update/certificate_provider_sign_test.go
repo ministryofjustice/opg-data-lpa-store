@@ -95,7 +95,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: "must be a string"},
+				{Source: "/changes/0/new", Detail: "wrong type"},
 				{Source: "/changes", Detail: "missing /certificateProvider/address/line1"},
 				{Source: "/changes", Detail: "missing /certificateProvider/address/town"},
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
@@ -125,8 +125,8 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/1/old", Detail: "field must be null"},
-				{Source: "/changes/2", Detail: "change not allowed for type"},
+				{Source: "/changes/1/old", Detail: "must not be provided"},
+				{Source: "/changes/2", Detail: "unexpected change provided"},
 			},
 		},
 		"invalid contact language": {
