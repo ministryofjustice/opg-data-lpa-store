@@ -445,6 +445,8 @@ components:
         type:
           enum:
             - CERTIFICATE_PROVIDER_SIGN
+            - ATTORNEY_SIGN
+            - TRUST_CORPORATION_SIGN
         changes:
           type: array
           items:
