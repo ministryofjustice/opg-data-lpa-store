@@ -20,15 +20,3 @@ func validateUpdate(update shared.Update) (Applyable, []shared.FieldError) {
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
 }
-
-func errorMustBeString(errors []shared.FieldError, source string) []shared.FieldError {
-	return append(errors, shared.FieldError{Source: source, Detail: "must be a string"})
-}
-
-func errorMustBeDateTime(errors []shared.FieldError, source string) []shared.FieldError {
-	return append(errors, shared.FieldError{Source: source, Detail: "must be a datetime"})
-}
-
-func errorMissing(errors []shared.FieldError, key string) []shared.FieldError {
-	return append(errors, shared.FieldError{Source: "/changes", Detail: "missing " + key})
-}
