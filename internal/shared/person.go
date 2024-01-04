@@ -61,17 +61,34 @@ func (a AttorneyStatus) IsValid() bool {
 
 type Attorney struct {
 	Person
-	DateOfBirth Date           `json:"dateOfBirth"`
-	Email       string         `json:"email"`
-	Status      AttorneyStatus `json:"status"`
+	DateOfBirth               Date           `json:"dateOfBirth"`
+	Email                     string         `json:"email"`
+	Status                    AttorneyStatus `json:"status"`
+	Mobile                    string         `json:"mobile,omitempty"`
+	SignedAt                  time.Time      `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
 }
 
 type TrustCorporation struct {
-	Name          string         `json:"name"`
-	CompanyNumber string         `json:"companyNumber"`
-	Email         string         `json:"email"`
-	Address       Address        `json:"address"`
-	Status        AttorneyStatus `json:"status"`
+	Name                      string         `json:"name"`
+	CompanyNumber             string         `json:"companyNumber"`
+	Email                     string         `json:"email"`
+	Address                   Address        `json:"address"`
+	Status                    AttorneyStatus `json:"status"`
+	Mobile                    string         `json:"mobile,omitempty"`
+	Signatories               []Signatory    `json:"signatories,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
+}
+
+type Signatory struct {
+	FirstNames        string    `json:"firstNames"`
+	LastName          string    `json:"lastName"`
+	ProfessionalTitle string    `json:"professionalTitle"`
+	SignedAt          time.Time `json:"signedAt"`
+}
+
+func (s Signatory) IsZero() bool {
+	return s == Signatory{}
 }
 
 type PersonToNotify struct {
