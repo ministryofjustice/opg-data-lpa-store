@@ -94,7 +94,7 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 		"missing all": {
 			update: shared.Update{Type: "TRUST_CORPORATION_SIGN"},
 			errors: []shared.FieldError{
-				{Source: "/changes", Detail: "must be specified"},
+				{Source: "/changes", Detail: "missing /trustCorporations/..."},
 			},
 		},
 		"extra fields": {
@@ -144,9 +144,9 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/5/old", Detail: "field must be null"},
-				{Source: "/changes/6", Detail: "change not allowed for type"},
-				{Source: "/changes/7", Detail: "change not allowed for type"},
+				{Source: "/changes/5/old", Detail: "must be null"},
+				{Source: "/changes/6", Detail: "unexpected change provided"},
+				{Source: "/changes/7", Detail: "unexpected change provided"},
 			},
 		},
 		"invalid contact language": {
@@ -226,7 +226,7 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/1/key", Detail: "must be for same trust corporation"},
+				{Source: "/changes/1/key", Detail: "index out of range"},
 				{Source: "/changes", Detail: "missing /trustCorporations/0/signatories/0/firstNames"},
 			},
 		},
