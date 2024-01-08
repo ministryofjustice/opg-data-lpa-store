@@ -2,6 +2,9 @@ package shared
 
 import (
 	"time"
+
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 type Date struct {
@@ -9,15 +12,40 @@ type Date struct {
 	IsMalformed bool
 }
 
-func (m *Date) UnmarshalJSON(data []byte) error {
-	str := string(data)
-	time, err := time.Parse(`"2006-01-02"`, str)
+func (d *Date) UnmarshalJSON(data []byte) error {
+	end := len(data) - 1
+	if len(data) <= 2 || data[0] != '"' || data[end] != '"' {
+		d.IsMalformed = len(data) != 0 && len(data) != 2 && data[0] != '"' && data[end] != '"'
+		return nil
+	}
 
-	m.Time = time
-
-	if err != nil {
-		m.IsMalformed = str != "" && str != `""`
+	if err := d.UnmarshalText(data[1:end]); err != nil {
+		d.IsMalformed = true
 	}
 
 	return nil
+}
+
+func (d *Date) UnmarshalText(data []byte) error {
+	var err error
+	d.Time, err = time.Parse(time.DateOnly, string(data))
+	return err
+}
+
+func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
+	var s string
+	if err := attributevalue.Unmarshal(av, &s); err != nil {
+		return err
+	}
+
+	return d.UnmarshalText([]byte(s))
+}
+
+func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
+	text := ""
+	if !d.IsZero() {
+		text = d.Time.Format(time.DateOnly)
+	}
+
+	return attributevalue.Marshal(text)
 }
