@@ -3,8 +3,8 @@ module github.com/ministryofjustice/opg-data-lpa-store
 go 1.21
 
 require (
-	github.com/aws/aws-lambda-go v1.43.0
-	github.com/aws/aws-sdk-go v1.49.15
+	github.com/aws/aws-lambda-go v1.44.0
+	github.com/aws/aws-sdk-go v1.49.16
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.5.0
