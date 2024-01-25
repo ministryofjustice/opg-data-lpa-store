@@ -66,6 +66,18 @@ func TestDate(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field is required"}}, Date("a", shared.Date{}))
 }
 
+func TestTime(t *testing.T) {
+	assert.Nil(t, Time("a", time.Now()))
+	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field is required"}}, Time("a", time.Time{}))
+}
+
+func TestOptionalTime(t *testing.T) {
+	now := time.Now()
+	assert.Nil(t, OptionalTime("a", &now))
+	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field is required"}}, OptionalTime("a", &time.Time{}))
+	assert.Nil(t, OptionalTime("a", nil))
+}
+
 func TestAddressEmpty(t *testing.T) {
 	address := shared.Address{}
 	errors := Address("/test", address)
