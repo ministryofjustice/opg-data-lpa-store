@@ -58,6 +58,14 @@ func Time(source string, t time.Time) []shared.FieldError {
 	return If(t.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
 }
 
+func OptionalTime(source string, t *time.Time) []shared.FieldError {
+	if t == nil {
+		return nil
+	}
+
+	return If(t.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
+}
+
 func Address(prefix string, address shared.Address) []shared.FieldError {
 	return All(
 		Required(fmt.Sprintf("%s/line1", prefix), address.Line1),
