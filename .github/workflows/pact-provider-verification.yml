@@ -29,7 +29,7 @@ jobs:
             --publish \
             --user=admin \
             --password=${{ secrets.PACT_BROKER_PASSWORD }} \
-            --webhook-callback-url=${{ github.event.client_payload.pact_url }}
+            --url=${{ github.event.client_payload.pact_url }}
       - name: Verify pacts, including pending
         if: ${{ github.event_name == 'push' }}
         run: |
