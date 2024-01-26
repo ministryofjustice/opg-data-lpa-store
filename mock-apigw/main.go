@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"html"
@@ -16,6 +17,7 @@ import (
 
 var LPAPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})$")
 var UpdatePath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/updates$")
+var uidMap = map[string]string{}
 
 func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	lambdaName := ""
@@ -42,6 +44,10 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
 		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "update"
+	}
+
+	if newUID, ok := uidMap[uid]; ok {
+		uid = newUID
 	}
 
 	if lambdaName == "" {
@@ -102,8 +108,12 @@ func handlePactState(r *http.Request) error {
 	}
 
 	re := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists$`)
-	if match := re.FindStringSubmatch(state.State); len(match) > 0 {
-		url := fmt.Sprintf("http://localhost:8080/lpas/%s", match[1])
+	if matches := re.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+
+		url := fmt.Sprintf("http://localhost:8080/lpas/%s", oldUID)
 		body := `{
 			"lpaType": "personal-welfare",
 			"donor": {
@@ -163,7 +173,30 @@ func handlePactState(r *http.Request) error {
 		}
 	}
 
+	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)
+	if matches := doesNotExistRe.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+	}
+
 	return nil
+}
+
+func randomUID() string {
+	chunk := func() string {
+		bytes := make([]byte, 4)
+		_, err := rand.Read(bytes)
+		if err != nil {
+			panic(err)
+		}
+		for i, b := range bytes {
+			bytes[i] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[b%byte(36)]
+		}
+		return string(bytes)
+	}
+
+	return fmt.Sprintf("M-%s-%s-%s", chunk(), chunk(), chunk())
 }
 
 func main() {
