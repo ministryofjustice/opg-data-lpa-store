@@ -1,0 +1,30 @@
+{
+    "type": "CERTIFICATE_PROVIDER_SIGN",
+    "changes": [
+        {
+            "key": "/certificateProvider/address/line1",
+            "new": "98 CVVVV",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/address/town",
+            "new": "Murkkkk Town",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/address/country",
+            "new": "GB",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/signedAt",
+            "new": "2024-01-13T22:00:00Z",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/contactLanguagePreference",
+            "new": "en",
+            "old": null
+        }
+    ]
+}
