@@ -41,9 +41,9 @@ create-tables:
 		--key-schema AttributeName=uid,KeyType=HASH \
 		--billing-mode PAY_PER_REQUEST
 
-	docker compose run --rm aws dynamodb describe-table --table-name events || \
+	docker compose run --rm aws dynamodb describe-table --table-name changes || \
 	docker compose run --rm aws dynamodb create-table \
-		--table-name events \
+		--table-name changes \
 		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
 		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
 		--billing-mode PAY_PER_REQUEST
