@@ -3,8 +3,8 @@ module github.com/ministryofjustice/opg-data-lpa-store
 go 1.21
 
 require (
-	github.com/aws/aws-lambda-go v1.45.0
-	github.com/aws/aws-sdk-go v1.50.5
+	github.com/aws/aws-lambda-go v1.46.0
+	github.com/aws/aws-sdk-go v1.50.6
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.16
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.27.0
 	github.com/aws/aws-xray-sdk-go v1.8.3
