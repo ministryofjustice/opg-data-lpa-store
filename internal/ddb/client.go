@@ -12,8 +12,9 @@ import (
 )
 
 type Client struct {
-	ddb       *dynamodb.DynamoDB
-	tableName string
+	ddb              *dynamodb.DynamoDB
+	tableName        string
+	changesTableName string
 }
 
 func (c *Client) Put(ctx context.Context, data any) error {
@@ -63,13 +64,14 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 	return lpa, err
 }
 
-func New(endpoint, tableName string) *Client {
+func New(endpoint, tableName string, changesTableName string) *Client {
 	sess := session.Must(session.NewSession())
 	sess.Config.Endpoint = &endpoint
 
 	c := &Client{
-		ddb:       dynamodb.New(sess),
-		tableName: tableName,
+		ddb:              dynamodb.New(sess),
+		tableName:        tableName,
+		changesTableName: changesTableName,
 	}
 
 	xray.AWS(c.ddb.Client)
