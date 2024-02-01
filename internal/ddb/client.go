@@ -22,10 +22,19 @@ func (c *Client) Put(ctx context.Context, data any) error {
 		return err
 	}
 
-	_, err = c.ddb.PutItemWithContext(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(c.tableName),
-		Item:      item,
-	})
+	transactInput := &dynamodb.TransactWriteItemsInput{
+		TransactItems: []*dynamodb.TransactWriteItem{
+			// write the LPA to the deeds table
+			&dynamodb.TransactWriteItem{
+				Put: &dynamodb.Put{
+					TableName: aws.String(c.tableName),
+					Item:      item,
+				},
+			},
+		},
+	}
+
+	_, err = c.ddb.TransactWriteItemsWithContext(ctx, transactInput)
 
 	return err
 }
