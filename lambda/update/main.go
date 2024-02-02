@@ -22,7 +22,7 @@ type Store interface {
 }
 
 type Verifier interface {
-	VerifyHeader(events.APIGatewayProxyRequest) bool
+	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
 }
 
 type Lambda struct {
@@ -32,12 +32,14 @@ type Lambda struct {
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if !l.verifier.VerifyHeader(event) {
+	claims, err := l.verifier.VerifyHeader(event)
+	if err != nil {
 		l.logger.Print("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
 
 	l.logger.Print("Successfully parsed JWT from event header")
+	l.logger.Print(claims.GetSubject())
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
@@ -45,7 +47,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	var update shared.Update
-	if err := json.Unmarshal([]byte(event.Body), &update); err != nil {
+	if err = json.Unmarshal([]byte(event.Body), &update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
