@@ -20,14 +20,19 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
+type Verifier interface {
+	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
+}
+
 type Lambda struct {
 	store    Store
-	verifier shared.JWTVerifier
+	verifier Verifier
 	logger   Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if !l.verifier.VerifyHeader(event) {
+	_, err := l.verifier.VerifyHeader(event)
+	if err != nil {
 		l.logger.Print("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
