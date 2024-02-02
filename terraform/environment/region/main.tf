@@ -20,6 +20,11 @@ module "lambda" {
     JWT_SECRET_KEY = "secret"
   }
 
+  environment_variables = {
+    DDB_TABLE_NAME_CHANGES = var.dynamodb_name_changes
+    JWT_SECRET_KEY = "secret"
+  }
+
   providers = {
     aws = aws.region
   }
