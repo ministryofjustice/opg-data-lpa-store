@@ -26,7 +26,7 @@ func createToken(claims jwt.MapClaims) string {
 }
 
 func TestVerifyEmptyJwt(t *testing.T) {
-	err := verifier.verifyToken("")
+	_, err := verifier.verifyToken("")
 	assert.NotNil(t, err)
 }
 
@@ -38,7 +38,7 @@ func TestVerifyExpInPast(t *testing.T) {
 		"sub": "M-3467-89QW-ERTY",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -54,7 +54,7 @@ func TestVerifyIatInFuture(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -70,7 +70,7 @@ func TestVerifyIssuer(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -86,7 +86,7 @@ func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
 		"sub": "",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -102,7 +102,7 @@ func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
 		"sub": "",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 
 	assert.NotNil(t, err)
 	if err != nil {
@@ -118,7 +118,7 @@ func TestVerifyGoodJwt(t *testing.T) {
 		"sub": "someone@someplace.somewhere.com",
 	})
 
-	err := verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
@@ -134,7 +134,7 @@ func TestNewJWTVerifier(t *testing.T) {
 	newVerifier := NewJWTVerifier()
 	os.Unsetenv("JWT_SECRET_KEY")
 
-	err := newVerifier.verifyToken(token)
+	_, err := newVerifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
@@ -143,8 +143,8 @@ func TestVerifyHeaderNoJWTHeader(t *testing.T) {
 		MultiValueHeaders: map[string][]string{},
 	}
 
-	verified := verifier.VerifyHeader(event)
-	assert.False(t, verified)
+	_, err := verifier.VerifyHeader(event)
+	assert.NotNil(t, err)
 }
 
 func TestVerifyHeader(t *testing.T) {
@@ -163,6 +163,6 @@ func TestVerifyHeader(t *testing.T) {
 		},
 	}
 
-	verified := verifier.VerifyHeader(event)
-	assert.True(t, verified)
+	_, err := verifier.VerifyHeader(event)
+	assert.Nil(t, err)
 }

@@ -12,8 +12,48 @@ import (
 )
 
 type Client struct {
-	ddb       *dynamodb.DynamoDB
-	tableName string
+	ddb              *dynamodb.DynamoDB
+	tableName        string
+	changesTableName string
+}
+
+func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
+	changesItem, err := dynamodbattribute.MarshalMap(map[string]interface{}{
+		"uid": update.Uid,
+		"applied": update.Applied,
+		"author": update.Author,
+		"type": update.Type,
+		"change": update.Changes,
+	})
+
+	item, err := dynamodbattribute.MarshalMap(data)
+	if err != nil {
+		return err
+	}
+
+	transactInput := &dynamodb.TransactWriteItemsInput{
+		TransactItems: []*dynamodb.TransactWriteItem{
+			// write the LPA to the deeds table
+			&dynamodb.TransactWriteItem{
+				Put: &dynamodb.Put{
+					TableName: aws.String(c.tableName),
+					Item:      item,
+				},
+			},
+
+			// record the change
+			&dynamodb.TransactWriteItem{
+				Put: &dynamodb.Put{
+					TableName: aws.String(c.changesTableName),
+					Item:      changesItem,
+				},
+			},
+		},
+	}
+
+	_, err = c.ddb.TransactWriteItemsWithContext(ctx, transactInput)
+
+	return err
 }
 
 func (c *Client) Put(ctx context.Context, data any) error {
@@ -54,13 +94,14 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 	return lpa, err
 }
 
-func New(endpoint, tableName string) *Client {
+func New(endpoint, tableName string, changesTableName string) *Client {
 	sess := session.Must(session.NewSession())
 	sess.Config.Endpoint = &endpoint
 
 	c := &Client{
-		ddb:       dynamodb.New(sess),
-		tableName: tableName,
+		ddb:              dynamodb.New(sess),
+		tableName:        tableName,
+		changesTableName: changesTableName,
 	}
 
 	xray.AWS(c.ddb.Client)
