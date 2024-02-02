@@ -40,7 +40,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	l.logger.Print("Successfully parsed JWT from event header")
-	l.logger.Print(claims.GetSubject())
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
