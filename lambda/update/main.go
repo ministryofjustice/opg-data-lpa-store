@@ -17,7 +17,7 @@ type Logger interface {
 }
 
 type Store interface {
-	Put(ctx context.Context, data any) error
+	PutChanges(ctx context.Context, data any, update shared.Update) error
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
@@ -75,7 +75,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return problem.Respond()
 	}
 
-	if err := l.store.Put(ctx, lpa); err != nil {
+	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}

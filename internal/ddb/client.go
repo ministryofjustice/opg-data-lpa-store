@@ -17,6 +17,46 @@ type Client struct {
 	changesTableName string
 }
 
+
+func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
+	changesItem, err := dynamodbattribute.MarshalMap(map[string]interface{}{
+		"uid": "M-1-2-3-6",
+		"created": "M-1-2-3-6",
+		"author": "M-1-2-3-6",
+		"type": update.Type,
+		"change": update.Changes,
+	})
+
+	item, err := dynamodbattribute.MarshalMap(data)
+	if err != nil {
+		return err
+	}
+
+	transactInput := &dynamodb.TransactWriteItemsInput{
+		TransactItems: []*dynamodb.TransactWriteItem{
+			// write the LPA to the deeds table
+			&dynamodb.TransactWriteItem{
+				Put: &dynamodb.Put{
+					TableName: aws.String(c.tableName),
+					Item:      item,
+				},
+			},
+
+			// record the change
+			&dynamodb.TransactWriteItem{
+				Put: &dynamodb.Put{
+					TableName: aws.String(c.changesTableName),
+					Item:      changesItem,
+				},
+			},
+		},
+	}
+
+	_, err = c.ddb.TransactWriteItemsWithContext(ctx, transactInput)
+
+	return err
+}
+
 func (c *Client) Put(ctx context.Context, data any) error {
 	item, err := dynamodbattribute.MarshalMap(data)
 	if err != nil {
