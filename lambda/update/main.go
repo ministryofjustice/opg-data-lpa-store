@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -76,6 +77,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 		return problem.Respond()
 	}
+
+	update.Uid = lpa.Uid
+	update.Applied = time.Now().Format(time.RFC3339)
+	update.Author, _ = claims.GetSubject()
 
 	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
 		l.logger.Print(err)

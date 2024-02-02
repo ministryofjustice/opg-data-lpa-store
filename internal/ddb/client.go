@@ -19,9 +19,9 @@ type Client struct {
 
 func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
 	changesItem, err := dynamodbattribute.MarshalMap(map[string]interface{}{
-		"uid": "M-1-2-3-6",
-		"created": "M-1-2-3-6",
-		"author": "M-1-2-3-6",
+		"uid": update.Uid,
+		"applied": update.Applied,
+		"author": update.Author,
 		"type": update.Type,
 		"change": update.Changes,
 	})
