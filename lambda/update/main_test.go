@@ -27,16 +27,25 @@ func (m *mockStore) Put(ctx context.Context, data any) error {
 	m.put = data
 	return m.putErr
 }
+func (m *mockStore) PutChanges(ctx context.Context, data any, update shared.Update) error {
+	m.put = data
+	return m.putErr
+}
 
-type mockVerifier struct{ ok bool }
+type mockVerifier struct {
+	claims shared.LpaStoreClaims
+	err error
+}
 
-func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) bool { return m.ok }
+func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error) {
+	return &m.claims, m.err
+}
 
 func TestHandleEvent(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
 	l := Lambda{
 		store:    store,
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -61,7 +70,7 @@ func TestHandleEvent(t *testing.T) {
 func TestHandleEventWhenUnknownType(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -76,7 +85,7 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -91,7 +100,7 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -106,7 +115,7 @@ func TestHandleEventWhenLpaNotFound(t *testing.T) {
 func TestHandleEventWhenStoreGetError(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{getErr: expectedError},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -120,7 +129,7 @@ func TestHandleEventWhenStoreGetError(t *testing.T) {
 
 func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
 	l := Lambda{
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -132,7 +141,7 @@ func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
 
 func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
 	l := Lambda{
-		verifier: &mockVerifier{ok: false},
+		verifier: &mockVerifier{err: errors.New("Invalid JWT")},
 		logger:   logging.New(io.Discard, ""),
 	}
 
