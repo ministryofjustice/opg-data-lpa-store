@@ -21,12 +21,12 @@ var validIssuers []string = []string{
 	mrlpa,
 }
 
-type lpaStoreClaims struct {
+type LpaStoreClaims struct {
 	jwt.RegisteredClaims
 }
 
 // note that default validation for RegisteredClaims checks exp is in the future
-func (l lpaStoreClaims) Validate() error {
+func (l LpaStoreClaims) Validate() error {
 	// validate issued at (iat)
 	iat, err := l.GetIssuedAt()
 	if err != nil {
@@ -92,36 +92,37 @@ var bearerRegexp = regexp.MustCompile("^Bearer[ ]+")
 
 // verify JWT from event header
 // returns true if verified, false otherwise
-func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) bool {
+func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) (*LpaStoreClaims, error) {
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
 	if len(jwtHeaders) < 1 {
-		return false
+		return nil, fmt.Errorf("Invalid X-Jwt-Authorization header")
 	}
 
 	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
-	if v.verifyToken(tokenStr) != nil {
-		return false
+	claims, err := v.verifyToken(tokenStr)
+	if err != nil {
+		return nil, err
 	}
 
-	return true
+	return claims, nil
 }
 
 // tokenStr is the JWT token, minus any "Bearer: " prefix
-func (v JWTVerifier) verifyToken(tokenStr string) error {
-	lsc := lpaStoreClaims{}
+func (v JWTVerifier) verifyToken(tokenStr string) (*LpaStoreClaims, error) {
+	lsc := LpaStoreClaims{}
 
 	parsedToken, err := jwt.ParseWithClaims(tokenStr, &lsc, func(token *jwt.Token) (interface{}, error) {
 		return v.secretKey, nil
 	})
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !parsedToken.Valid {
-		return fmt.Errorf("Invalid JWT")
+		return nil, fmt.Errorf("Invalid JWT")
 	}
 
-	return nil
+	return &lsc, nil
 }

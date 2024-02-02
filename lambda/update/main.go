@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -17,12 +18,12 @@ type Logger interface {
 }
 
 type Store interface {
-	Put(ctx context.Context, data any) error
+	PutChanges(ctx context.Context, data any, update shared.Update) error
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
 type Verifier interface {
-	VerifyHeader(events.APIGatewayProxyRequest) bool
+	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
 }
 
 type Lambda struct {
@@ -32,12 +33,14 @@ type Lambda struct {
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if !l.verifier.VerifyHeader(event) {
+	claims, err := l.verifier.VerifyHeader(event)
+	if err != nil {
 		l.logger.Print("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
 
 	l.logger.Print("Successfully parsed JWT from event header")
+	l.logger.Print(claims.GetSubject())
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
@@ -45,7 +48,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	var update shared.Update
-	if err := json.Unmarshal([]byte(event.Body), &update); err != nil {
+	if err = json.Unmarshal([]byte(event.Body), &update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -75,7 +78,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return problem.Respond()
 	}
 
-	if err := l.store.Put(ctx, lpa); err != nil {
+	update.Uid = lpa.Uid
+	update.Applied = time.Now().Format(time.RFC3339)
+	update.Author, _ = claims.GetSubject()
+
+	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -94,7 +101,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 func main() {
 	l := &Lambda{
-		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		store:    ddb.New(
+			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
+			os.Getenv("DDB_TABLE_NAME_DEEDS"),
+			os.Getenv("DDB_TABLE_NAME_CHANGES"),
+		),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
