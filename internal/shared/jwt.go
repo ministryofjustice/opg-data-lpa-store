@@ -96,7 +96,7 @@ func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) (*LpaStor
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
 	if len(jwtHeaders) < 1 {
-		return nil, errors.New("Invalid X-Jwt-Authorization header")
+		return nil, fmt.Errorf("Invalid X-Jwt-Authorization header")
 	}
 
 	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
