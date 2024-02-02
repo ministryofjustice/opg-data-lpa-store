@@ -44,8 +44,8 @@ create-tables:
 	docker compose run --rm aws dynamodb describe-table --table-name changes || \
 	docker compose run --rm aws dynamodb create-table \
 		--table-name changes \
-		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
-		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
+		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=applied,AttributeType=S \
+		--key-schema AttributeName=uid,KeyType=HASH AttributeName=applied,KeyType=RANGE \
 		--billing-mode PAY_PER_REQUEST
 
 run-structurizr:

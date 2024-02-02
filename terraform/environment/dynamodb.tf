@@ -49,10 +49,10 @@ resource "aws_dynamodb_table" "changes_table" {
     type = "S"
   }
 
-  range_key = "created"
+  range_key = "applied"
 
   attribute {
-    name = "created"
+    name = "applied"
     type = "S"
   }
 
