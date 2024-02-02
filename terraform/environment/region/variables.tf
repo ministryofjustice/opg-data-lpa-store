@@ -18,6 +18,11 @@ variable "dynamodb_name" {
   type        = string
 }
 
+variable "dynamodb_arn_changes" {
+  description = "ARN of DynamoDB table for changes"
+  type        = string
+}
+
 variable "dynamodb_name_changes" {
   description = "Name of DynamoDB table for changes"
   type        = string
