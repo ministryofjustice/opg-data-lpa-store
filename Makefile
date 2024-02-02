@@ -29,7 +29,7 @@ test-api:
 	./api-test/tester -expectedStatus=401 REQUEST GET $(URL)/lpas/$(LPA_UID) '' && \
 	cat ./docs/example-lpa.json | ./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`" && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}' && \
-	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"CHANGE_NAME","changes":[{"key":"/donor/surname","old":"Zoller","new":"Kjar"}]}' && \
+	cat ./docs/certificate-provider-change.json | ./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`" && \
 	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 .PHONY: test-api
 
@@ -41,11 +41,11 @@ create-tables:
 		--key-schema AttributeName=uid,KeyType=HASH \
 		--billing-mode PAY_PER_REQUEST
 
-	docker compose run --rm aws dynamodb describe-table --table-name events || \
+	docker compose run --rm aws dynamodb describe-table --table-name changes || \
 	docker compose run --rm aws dynamodb create-table \
-		--table-name events \
-		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=created,AttributeType=S \
-		--key-schema AttributeName=uid,KeyType=HASH AttributeName=created,KeyType=RANGE \
+		--table-name changes \
+		--attribute-definitions AttributeName=uid,AttributeType=S AttributeName=applied,AttributeType=S \
+		--key-schema AttributeName=uid,KeyType=HASH AttributeName=applied,KeyType=RANGE \
 		--billing-mode PAY_PER_REQUEST
 
 run-structurizr:
