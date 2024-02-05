@@ -9,6 +9,10 @@ type Change struct {
 }
 
 type Update struct {
+	Id      string   `json:"id"`      // UUID for the update
+	Uid     string   `json:"uid"`     // UID of the changed LPA
+	Applied string   `json:"applied"` // RFC3339 datetime
+	Author  string   `json:"author"`
 	Type    string   `json:"type"`
 	Changes []Change `json:"changes"`
 }
