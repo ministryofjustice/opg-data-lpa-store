@@ -55,7 +55,7 @@ func TestHandleEvent(t *testing.T) {
 		store:    store,
 		verifier: &mockVerifier{
 			claims: shared.LpaStoreClaims{
-				jwt.RegisteredClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
 					Subject: "1234",
 				},
 			},
