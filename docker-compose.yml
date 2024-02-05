@@ -3,6 +3,9 @@ version: "3.6"
 services:
   ddb:
     image: amazon/dynamodb-local:latest
+    command: -jar DynamoDBLocal.jar -sharedDb -dbPath .
+    ports:
+      - "8000:8000"
 
   lambda-create:
     depends_on: [ddb]
@@ -17,6 +20,7 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
@@ -35,6 +39,7 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
@@ -53,6 +58,7 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
