@@ -9,7 +9,7 @@ type Change struct {
 }
 
 type Update struct {
-	Uid     string   `json:"author"`
+	Uid     string   `json:"uid"`
 	Applied string   `json:"applied"` // RFC3339 datetime
 	Author  string   `json:"author"`
 	Type    string   `json:"type"`
