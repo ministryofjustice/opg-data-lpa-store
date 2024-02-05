@@ -2,12 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
+	"regexp"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/google/uuid"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/stretchr/testify/assert"
@@ -20,6 +26,7 @@ type mockStore struct {
 	getErr error
 	put    any
 	putErr error
+	update shared.Update
 }
 
 func (m *mockStore) Get(context.Context, string) (shared.Lpa, error) { return m.get, m.getErr }
@@ -27,22 +34,39 @@ func (m *mockStore) Put(ctx context.Context, data any) error {
 	m.put = data
 	return m.putErr
 }
+func (m *mockStore) PutChanges(ctx context.Context, data any, update shared.Update) error {
+	m.put = data
+	m.update = update
+	return m.putErr
+}
 
-type mockVerifier struct{ ok bool }
+type mockVerifier struct {
+	claims shared.LpaStoreClaims
+	err error
+}
 
-func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) bool { return m.ok }
+func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error) {
+	return &m.claims, m.err
+}
 
 func TestHandleEvent(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
 	l := Lambda{
 		store:    store,
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{
+			claims: shared.LpaStoreClaims{
+				jwt.RegisteredClaims{
+					Subject: "1234",
+				},
+			},
+		},
 		logger:   logging.New(io.Discard, ""),
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
 		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"}]}`,
 	})
+
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.StatusCode)
 	assert.Contains(t, resp.Body, `"2022-01-02T12:13:14.000000006Z"`)
@@ -56,12 +80,37 @@ func TestHandleEvent(t *testing.T) {
 			},
 		},
 	}, store.put)
+
+	assert.NoError(t, uuid.Validate(store.update.Id))
+	assert.Regexp(t, regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`), store.update.Applied)
+
+	assert.True(t, cmp.Equal(
+		shared.Update{
+			Uid: "1",
+			Author: "1234",
+			Type: "CERTIFICATE_PROVIDER_SIGN",
+			Changes: []shared.Change{
+				shared.Change{
+					Key: "/certificateProvider/signedAt",
+					Old: json.RawMessage(`null`),
+					New: json.RawMessage(`"2022-01-02T12:13:14.000000006Z"`),
+				},
+				shared.Change{
+					Key: "/certificateProvider/contactLanguagePreference",
+					Old: json.RawMessage(`null`),
+					New: json.RawMessage(`"en"`),
+				},
+			},
+		},
+		store.update,
+		cmpopts.IgnoreFields(shared.Update{}, "Id", "Applied"),
+	))
 }
 
 func TestHandleEventWhenUnknownType(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -76,7 +125,7 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -91,7 +140,7 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -106,7 +155,7 @@ func TestHandleEventWhenLpaNotFound(t *testing.T) {
 func TestHandleEventWhenStoreGetError(t *testing.T) {
 	l := Lambda{
 		store:    &mockStore{getErr: expectedError},
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -120,7 +169,7 @@ func TestHandleEventWhenStoreGetError(t *testing.T) {
 
 func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
 	l := Lambda{
-		verifier: &mockVerifier{ok: true},
+		verifier: &mockVerifier{},
 		logger:   logging.New(io.Discard, ""),
 	}
 
@@ -132,7 +181,7 @@ func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
 
 func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
 	l := Lambda{
-		verifier: &mockVerifier{ok: false},
+		verifier: &mockVerifier{err: errors.New("Invalid JWT")},
 		logger:   logging.New(io.Discard, ""),
 	}
 

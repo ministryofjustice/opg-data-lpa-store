@@ -20,14 +20,19 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
+type Verifier interface {
+	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
+}
+
 type Lambda struct {
 	store    Store
-	verifier shared.JWTVerifier
+	verifier Verifier
 	logger   Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	if !l.verifier.VerifyHeader(event) {
+	_, err := l.verifier.VerifyHeader(event)
+	if err != nil {
 		l.logger.Print("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
@@ -68,7 +73,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 func main() {
 	l := &Lambda{
-		store:    ddb.New(os.Getenv("AWS_DYNAMODB_ENDPOINT"), os.Getenv("DDB_TABLE_NAME_DEEDS")),
+		store:    ddb.New(
+			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
+			os.Getenv("DDB_TABLE_NAME_DEEDS"),
+			os.Getenv("DDB_TABLE_NAME_CHANGES"),
+		),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
