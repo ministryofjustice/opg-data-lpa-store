@@ -18,22 +18,6 @@ data "aws_iam_policy_document" "s3_replication_role_assume_role" {
   }
 }
 
-module "s3_replica_kms_key" {
-  source = "../modules/s3_multi_region_replica_key"
-
-  bucket_arns = [
-    module.s3_lpa_store_static_eu_west_1.bucket.arn,
-    module.s3_lpa_store_static_eu_west_2.bucket.arn,
-  ]
-
-  environment_name    = local.environment_name
-  s3_replication_role = aws_iam_role.s3_replication_role
-  providers = {
-    aws.eu-west-1 = aws
-    aws.eu-west-2 = aws.eu_west_2
-  }
-}
-
 module "s3_lpa_store_static_eu_west_1" {
   source = "../modules/s3_multi_region_replica_bucket"
   # accounts_allowed_to_read = [local.backup_account]
@@ -43,17 +27,16 @@ module "s3_lpa_store_static_eu_west_1" {
     [{
       account_id  = data.aws_caller_identity.current.account_id,
       bucket      = module.s3_lpa_store_static_eu_west_2.bucket
-      kms_key_arn = module.s3_replica_kms_key.eu_west_2.arn
+      kms_key_arn = module.s3_lpa_store_static_eu_west_2.encryption_kms_key.arn
     }],
   local.cross_account_s3_replica_config)
   replication_kms_key_arns = [
-    module.s3_replica_kms_key.eu_west_1.arn,
-    module.s3_replica_kms_key.eu_west_2.arn
+    module.s3_lpa_store_static_eu_west_2.encryption_kms_key.arn
   ]
   s3_access_logging_bucket = "s3-access-logs-opg-lpa-store-${local.environment.account_name}-eu-west-1"
   s3_replication_role      = aws_iam_role.s3_replication_role
   providers = {
-    aws = aws
+    aws = aws.eu_west_1
   }
 }
 
@@ -66,12 +49,11 @@ module "s3_lpa_store_static_eu_west_2" {
     [{
       account_id  = data.aws_caller_identity.current.account_id,
       bucket      = module.s3_lpa_store_static_eu_west_1.bucket
-      kms_key_arn = module.s3_replica_kms_key.eu_west_1.arn
+      kms_key_arn = module.s3_lpa_store_static_eu_west_1.encryption_kms_key.arn
     }],
   local.cross_account_s3_replica_config)
   replication_kms_key_arns = [
-    module.s3_replica_kms_key.eu_west_1.arn,
-    module.s3_replica_kms_key.eu_west_2.arn
+    module.s3_lpa_store_static_eu_west_1.encryption_kms_key.arn
   ]
   s3_access_logging_bucket = "s3-access-logs-opg-lpa-store-${local.environment.account_name}-eu-west-2"
   s3_replication_role      = aws_iam_role.s3_replication_role

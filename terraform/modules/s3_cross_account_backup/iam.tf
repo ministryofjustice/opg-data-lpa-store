@@ -5,7 +5,7 @@ resource "aws_iam_role_policy_attachment" "cross_account_policy_attachment" {
 }
 
 resource "aws_iam_policy" "cross_account_backup_policy" {
-  name        = "cross-account-s3-backu-policy-${var.environment_name}"
+  name        = "cross-account-s3-backup-policy-${var.environment_name}"
   description = "IAM Policy for s3 replication in ${var.environment_name}"
   policy      = data.aws_iam_policy_document.cross_account_policy.json
   provider    = aws.source-account

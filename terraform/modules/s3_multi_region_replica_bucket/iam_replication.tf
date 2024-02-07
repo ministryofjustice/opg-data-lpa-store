@@ -51,8 +51,29 @@ data "aws_iam_policy_document" "replication_role_s3_permissions" {
     condition {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
-      values   = var.replication_kms_key_arns
+      values   = concat(var.replication_kms_key_arns, [aws_kms_key.s3.arn])
     }
     resources = ["${aws_s3_bucket.bucket.arn}/*"]
+  }
+  statement {
+    sid    = "AllowKeysEncryptDecryptForS3CrossRegion"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt",
+      "kms:Encrypt"
+    ]
+
+    condition {
+      test     = "StringLike"
+      variable = "kms:ViaService"
+
+      values = [
+        "s3.eu-west-1.amazonaws.com",
+        "s3.eu-west-2.amazonaws.com",
+      ]
+    }
+    resources = [
+      aws_kms_key.s3.arn
+    ]
   }
 }
