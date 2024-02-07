@@ -8,7 +8,7 @@ services:
       - "8000:8000"
 
   lambda-create:
-    depends_on: [ddb]
+    depends_on: [ ddb ]
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -27,7 +27,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-update:
-    depends_on: [ddb]
+    depends_on: [ ddb ]
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -46,7 +46,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-get:
-    depends_on: [ddb]
+    depends_on: [ ddb ]
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -65,7 +65,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get]
+    depends_on: [ lambda-create, lambda-update, lambda-get ]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
@@ -73,7 +73,7 @@ services:
       - 9000:8080
 
   aws:
-    depends_on: [ddb]
+    depends_on: [ ddb ]
     image: amazon/aws-cli:latest
     environment:
       AWS_ENDPOINT_URL: http://ddb:8000/
@@ -81,6 +81,19 @@ services:
       AWS_ACCESS_KEY_ID: X
       AWS_SECRET_ACCESS_KEY: X
       AWS_PAGER: ""
+
+  localstack:
+    image: localstack/localstack:3.0
+    volumes:
+      - "./localstack/init:/etc/localstack/init/ready.d"
+      - "./localstack/wait:/scripts/wait"
+    environment:
+      AWS_DEFAULT_REGION: eu-west-1
+    healthcheck:
+      test: bash /scripts/wait/healthcheck.sh
+      interval: 10s
+      timeout: 10s
+      retries: 50
 
   go-lint:
     image: golangci/golangci-lint:v1.55.2
