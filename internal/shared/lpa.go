@@ -17,7 +17,7 @@ type LpaInit struct {
 	HowReplacementAttorneysStepInDetails        string                  `json:"howReplacementAttorneysStepInDetails"`
 	WhenTheLpaCanBeUsed                         CanUse                  `json:"whenTheLpaCanBeUsed"`
 	LifeSustainingTreatmentOption               LifeSustainingTreatment `json:"lifeSustainingTreatmentOption"`
-	Restrictions                                string                  `json:"restrictions"`
+	RestrictionsAndConditions                   string                  `json:"restrictionsAndConditions"`
 	SignedAt                                    time.Time               `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time              `json:"certificateProviderNotRelatedConfirmedAt"`
 }
