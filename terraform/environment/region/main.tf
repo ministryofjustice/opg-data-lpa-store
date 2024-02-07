@@ -16,9 +16,9 @@ module "lambda" {
   cloudwatch_kms_key_id = aws_kms_key.cloudwatch.arn
 
   environment_variables = {
-    DDB_TABLE_NAME_DEEDS = var.dynamodb_name
+    DDB_TABLE_NAME_DEEDS   = var.dynamodb_name
     DDB_TABLE_NAME_CHANGES = var.dynamodb_name_changes
-    JWT_SECRET_KEY = "secret"
+    JWT_SECRET_KEY         = "secret"
   }
 
   providers = {

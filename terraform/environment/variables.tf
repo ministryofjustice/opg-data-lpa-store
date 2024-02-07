@@ -2,6 +2,8 @@ locals {
   environment_name = lower(replace(terraform.workspace, "_", "-"))
   environment      = contains(keys(var.environments), local.environment_name) ? var.environments[local.environment_name] : var.environments["default"]
 
+  is_ephemeral = !contains(keys(var.environments), local.environment_name)
+
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
   mandatory_moj_tags = {
     business-unit    = "OPG"
