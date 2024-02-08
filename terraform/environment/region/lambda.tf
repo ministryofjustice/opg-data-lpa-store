@@ -16,9 +16,9 @@ module "lambda" {
   cloudwatch_kms_key_id = aws_kms_key.cloudwatch.arn
 
   environment_variables = {
-    DDB_TABLE_NAME_DEEDS = var.dynamodb_name
+    DDB_TABLE_NAME_DEEDS   = var.dynamodb_name
     DDB_TABLE_NAME_CHANGES = var.dynamodb_name_changes
-    JWT_SECRET_KEY = "secret"
+    JWT_SECRET_KEY         = "secret"
   }
 
   providers = {
@@ -30,24 +30,4 @@ data "aws_ecr_repository" "lambda" {
   for_each = local.functions
   name     = "lpa-store/lambda/api-${each.key}"
   provider = aws.management
-}
-
-resource "aws_iam_role_policy" "lambda" {
-  for_each = local.functions
-  name     = "LambdaAllowDynamoDB"
-  role     = module.lambda[each.key].iam_role_id
-  policy   = data.aws_iam_policy_document.lambda_access_ddb.json
-  provider = aws.region
-}
-
-data "aws_iam_policy_document" "lambda_access_ddb" {
-  statement {
-    sid       = "allowDynamoDB"
-    effect    = "Allow"
-    resources = [var.dynamodb_arn]
-    actions = [
-      "dynamodb:PutItem",
-      "dynamodb:GetItem",
-    ]
-  }
 }
