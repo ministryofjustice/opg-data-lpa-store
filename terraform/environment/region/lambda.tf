@@ -31,23 +31,3 @@ data "aws_ecr_repository" "lambda" {
   name     = "lpa-store/lambda/api-${each.key}"
   provider = aws.management
 }
-
-resource "aws_iam_role_policy" "lambda" {
-  for_each = local.functions
-  name     = "LambdaAllowDynamoDB"
-  role     = module.lambda[each.key].iam_role_id
-  policy   = data.aws_iam_policy_document.lambda_access_ddb.json
-  provider = aws.region
-}
-
-data "aws_iam_policy_document" "lambda_access_ddb" {
-  statement {
-    sid       = "allowDynamoDB"
-    effect    = "Allow"
-    resources = [var.dynamodb_arn]
-    actions = [
-      "dynamodb:PutItem",
-      "dynamodb:GetItem",
-    ]
-  }
-}

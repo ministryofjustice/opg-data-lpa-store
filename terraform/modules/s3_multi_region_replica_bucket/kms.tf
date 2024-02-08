@@ -27,45 +27,20 @@ data "aws_iam_policy_document" "s3_kms" {
     }
   }
 
-  #   statement {
-  #     sid       = "Allow Key to be used for Encryption"
-  #     effect    = "Allow"
-  #     resources = ["*"]
-  #     actions = [
-  #       "kms:Encrypt",
-  #       "kms:Decrypt",
-  #       "kms:ReEncrypt*",
-  #       "kms:GenerateDataKey*",
-  #       "kms:DescribeKey",
-  #     ]
+  statement {
+    sid       = "Allow Key to be used for Encryption by Lambda"
+    effect    = "Allow"
+    resources = ["*"]
+    actions = [
+      "kms:Encrypt",
+      "kms:GenerateDataKey*",
+    ]
 
-  #     principals {
-  #       type = "Service"
-  #       identifiers = [
-  #         "rds.amazonaws.com",
-  #         "firehose.amazonaws.com",
-  #         "lambda.amazonaws.com"
-  #       ]
-  #     }
-  #   }
-
-  #   statement {
-  #     sid       = "Allow Key to be used for Encryption by Lambda"
-  #     effect    = "Allow"
-  #     resources = ["*"]
-  #     actions = [
-  #       "kms:Encrypt",
-  #       "kms:Decrypt",
-  #       "kms:ReEncrypt*",
-  #       "kms:GenerateDataKey*",
-  #       "kms:DescribeKey",
-  #     ]
-
-  #     principals {
-  #       type        = "AWS"
-  #       identifiers = [var.audit_iam_role.arn]
-  #     }
-  #   }
+    principals {
+      type        = "AWS"
+      identifiers = var.kms_allowed_iam_roles
+    }
+  }
 
   statement {
     sid       = "Key Administrator"

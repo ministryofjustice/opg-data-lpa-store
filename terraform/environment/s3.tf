@@ -23,6 +23,7 @@ module "s3_lpa_store_static_eu_west_1" {
   accounts_allowed_to_read = [local.backup_account_id]
   bucket_name              = "opg-lpa-store-static-${local.environment_name}-eu-west-1"
   force_destroy            = local.is_ephemeral
+  kms_allowed_iam_roles    = module.eu_west_1.lambda_iam_roles[*].arn
   replication_configuration = concat(
     [{
       account_id  = data.aws_caller_identity.current.account_id,
@@ -45,6 +46,7 @@ module "s3_lpa_store_static_eu_west_2" {
   accounts_allowed_to_read = [local.backup_account_id]
   bucket_name              = "opg-lpa-store-static-${local.environment_name}-eu-west-2"
   force_destroy            = local.is_ephemeral
+  kms_allowed_iam_roles    = module.eu_west_2.lambda_iam_roles[*].arn
   replication_configuration = concat(
     [{
       account_id  = data.aws_caller_identity.current.account_id,

@@ -22,6 +22,11 @@ variable "force_destroy" {
   default = false
 }
 
+variable "kms_allowed_iam_roles" {
+  default = []
+  type    = list(string)
+}
+
 variable "replication_configuration" {
   default = []
   type = list(object({
