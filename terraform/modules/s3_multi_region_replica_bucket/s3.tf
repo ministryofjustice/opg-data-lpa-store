@@ -99,12 +99,12 @@ resource "aws_s3_bucket_public_access_block" "public_access_policy" {
   restrict_public_buckets = true
 }
 
-# resource "aws_s3_bucket_logging" "bucket" {
-#   bucket = aws_s3_bucket.bucket.id
+resource "aws_s3_bucket_logging" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
 
-#   target_bucket = var.s3_access_logging_bucket
-#   target_prefix = "log/${aws_s3_bucket.bucket.id}/"
-# }
+  target_bucket = var.s3_access_logging_bucket
+  target_prefix = "log/${aws_s3_bucket.bucket.id}/"
+}
 
 resource "aws_s3_bucket_policy" "bucket" {
   depends_on = [aws_s3_bucket_public_access_block.public_access_policy]
