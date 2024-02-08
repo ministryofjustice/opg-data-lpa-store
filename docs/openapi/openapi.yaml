@@ -293,7 +293,7 @@ components:
           enum:
             - option-a
             - option-b
-        restrictions:
+        restrictionsAndConditions:
           type: string
         signedAt:
           type: string
