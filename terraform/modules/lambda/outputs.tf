@@ -1,6 +1,6 @@
-output "iam_role_id" {
-  description = "ID of IAM role created for lambda"
-  value       = aws_iam_role.lambda.id
+output "iam_role" {
+  description = "IAM role object created for lambda"
+  value       = aws_iam_role.lambda
 }
 
 output "invoke_arn" {

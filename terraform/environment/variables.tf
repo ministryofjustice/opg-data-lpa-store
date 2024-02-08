@@ -1,6 +1,11 @@
 locals {
-  environment_name = lower(replace(terraform.workspace, "_", "-"))
-  environment      = contains(keys(var.environments), local.environment_name) ? var.environments[local.environment_name] : var.environments["default"]
+  backup_account_id = 238302996107
+  environment_name  = lower(replace(terraform.workspace, "_", "-"))
+  environment       = contains(keys(var.environments), local.environment_name) ? var.environments[local.environment_name] : var.environments["default"]
+
+  is_ephemeral = !contains(keys(var.environments), local.environment_name)
+
+  cross_account_backup_enabled = true #!local.is_ephemeral
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
   mandatory_moj_tags = {
