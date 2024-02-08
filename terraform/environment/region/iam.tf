@@ -1,3 +1,8 @@
+moved {
+  from = aws_iam_role_policy.lambda
+  to   = aws_iam_role_policy.lambda_dynamodb
+}
+
 resource "aws_iam_role_policy" "lambda_dynamodb" {
   for_each = local.functions
   name     = "LambdaAllowDynamoDB"
