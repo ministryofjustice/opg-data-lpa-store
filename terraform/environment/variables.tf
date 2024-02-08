@@ -5,7 +5,7 @@ locals {
 
   is_ephemeral = !contains(keys(var.environments), local.environment_name)
 
-  cross_account_backup_enabled = true #!local.is_ephemeral
+  cross_account_backup_enabled = !local.is_ephemeral
 
   default_tags = merge(local.mandatory_moj_tags, local.optional_tags)
   mandatory_moj_tags = {
