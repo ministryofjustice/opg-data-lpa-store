@@ -29,25 +29,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
   }
 }
 
-# Clarify if we want this
-resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
-  depends_on = [aws_s3_bucket_versioning.bucket_versioning]
-  bucket     = aws_s3_bucket.bucket.id
-
-  rule {
-    id     = "ExpireNonCurrentVersionsAfter${var.expire_non_current_object_version_days}Days"
-    status = "Enabled"
-
-    expiration {
-      expired_object_delete_marker = true
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.expire_non_current_object_version_days
-    }
-  }
-}
-
 resource "aws_s3_bucket_replication_configuration" "bucket_replication" {
   depends_on = [aws_s3_bucket_versioning.bucket_versioning]
 

@@ -11,12 +11,6 @@ variable "bucket_name" {
   type = string
 }
 
-variable "expire_non_current_object_version_days" {
-  default     = 90
-  description = "How Many days to keep non current versions of objects for."
-  type        = number
-}
-
 variable "force_destroy" {
   type    = bool
   default = false

@@ -32,24 +32,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption
   provider = aws.backup-account
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
-
-  rule {
-    id     = "ExpireNonCurrentVersionsAfter${var.expire_non_current_object_version_days}Days"
-    status = "Enabled"
-
-    expiration {
-      expired_object_delete_marker = true
-    }
-
-    noncurrent_version_expiration {
-      noncurrent_days = var.expire_non_current_object_version_days
-    }
-  }
-  provider = aws.backup-account
-}
-
 resource "aws_s3_bucket_public_access_block" "public_access_policy" {
   bucket = aws_s3_bucket.bucket.id
 
