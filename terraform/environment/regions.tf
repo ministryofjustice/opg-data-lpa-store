@@ -1,14 +1,16 @@
 module "eu_west_1" {
   source = "./region"
 
-  app_version           = var.app_version
-  dynamodb_arn          = aws_dynamodb_table.deeds_table.arn
-  dynamodb_name         = aws_dynamodb_table.deeds_table.name
-  dynamodb_arn_changes  = aws_dynamodb_table.changes_table.arn
-  dynamodb_name_changes = aws_dynamodb_table.changes_table.name
-  environment_name      = local.environment_name
-  allowed_arns          = local.environment.allowed_arns
-  dns_weighting         = 100
+  allowed_arns                    = local.environment.allowed_arns
+  app_version                     = var.app_version
+  dns_weighting                   = 100
+  dynamodb_arn                    = aws_dynamodb_table.deeds_table.arn
+  dynamodb_arn_changes            = aws_dynamodb_table.changes_table.arn
+  dynamodb_name                   = aws_dynamodb_table.deeds_table.name
+  dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
+  environment_name                = local.environment_name
+  lpa_store_static_bucket         = module.s3_lpa_store_static_eu_west_1.bucket
+  lpa_store_static_bucket_kms_key = module.s3_lpa_store_static_eu_west_1.encryption_kms_key
 
   providers = {
     aws.region     = aws.eu_west_1
@@ -19,14 +21,16 @@ module "eu_west_1" {
 module "eu_west_2" {
   source = "./region"
 
-  app_version           = var.app_version
-  dynamodb_arn          = aws_dynamodb_table_replica.deeds_table.arn
-  dynamodb_name         = aws_dynamodb_table.deeds_table.name
-  dynamodb_arn_changes  = aws_dynamodb_table_replica.changes_table.arn
-  dynamodb_name_changes = aws_dynamodb_table.changes_table.name
-  environment_name      = local.environment_name
-  allowed_arns          = local.environment.allowed_arns
-  dns_weighting         = 0
+  allowed_arns                    = local.environment.allowed_arns
+  app_version                     = var.app_version
+  dns_weighting                   = 0
+  dynamodb_arn                    = aws_dynamodb_table_replica.deeds_table.arn
+  dynamodb_arn_changes            = aws_dynamodb_table_replica.changes_table.arn
+  dynamodb_name                   = aws_dynamodb_table.deeds_table.name
+  dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
+  environment_name                = local.environment_name
+  lpa_store_static_bucket         = module.s3_lpa_store_static_eu_west_2.bucket
+  lpa_store_static_bucket_kms_key = module.s3_lpa_store_static_eu_west_2.encryption_kms_key
 
   providers = {
     aws.region     = aws.eu_west_2
