@@ -60,6 +60,20 @@ provider "aws" {
 }
 
 provider "aws" {
+  alias  = "opg_backup"
+  region = "eu-west-2"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.backup_account_id}:role/${var.default_role}"
+    session_name = "terraform-session"
+  }
+
+  default_tags {
+    tags = local.default_tags
+  }
+}
+
+provider "aws" {
   alias  = "management_eu_west_1"
   region = "eu-west-1"
 
