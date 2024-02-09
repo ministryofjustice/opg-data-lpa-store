@@ -83,7 +83,7 @@ services:
       AWS_PAGER: ""
 
   localstack:
-    image: localstack/localstack:3.0
+    image: localstack/localstack:3.1
     volumes:
       - "./localstack/init:/etc/localstack/init/ready.d"
       - "./localstack/wait:/scripts/wait"
