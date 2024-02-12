@@ -19,7 +19,9 @@ import (
 // ./api-test/tester UID -> generate a UID
 // ./api-test/tester JWT -> generate a JWT
 // ./api-test/tester -jwtSecret=secret -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
+//
 //	-> make a test request with a JWT generated using secret "secret" and expected status 200
+//
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
@@ -60,12 +62,14 @@ func main() {
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
-	sess := session.Must(session.NewSession())
-	signer := v4.NewSigner(sess.Config.Credentials)
+	if !strings.HasPrefix(url, "http://localhost") {
+		sess := session.Must(session.NewSession())
+		signer := v4.NewSigner(sess.Config.Credentials)
 
-	_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
-	if err != nil {
-		panic(err)
+		_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	client := http.Client{}

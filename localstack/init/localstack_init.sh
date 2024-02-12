@@ -31,3 +31,16 @@ create_bucket() {
 
 # S3
 create_bucket "opg-lpa-store-static-eu-west-1"
+
+# DynamoDB
+awslocal dynamodb create-table \
+    --table-name deeds \
+    --attribute-definitions AttributeName=uid,AttributeType=S \
+    --key-schema AttributeName=uid,KeyType=HASH \
+    --billing-mode PAY_PER_REQUEST
+
+awslocal dynamodb create-table \
+    --table-name changes \
+    --attribute-definitions AttributeName=uid,AttributeType=S AttributeName=applied,AttributeType=S \
+    --key-schema AttributeName=uid,KeyType=HASH AttributeName=applied,KeyType=RANGE \
+    --billing-mode PAY_PER_REQUEST
