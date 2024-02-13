@@ -39,6 +39,10 @@ variable "environment_name" {
   type        = string
 }
 
+variable "event_bus" {
+  description = "Event bus to send events to"
+}
+
 variable "lpa_store_static_bucket" {
   description = "LPA Store Static bucket object for the region"
 }

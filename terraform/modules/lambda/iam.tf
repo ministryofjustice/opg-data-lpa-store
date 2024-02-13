@@ -29,7 +29,7 @@ resource "aws_iam_role_policy_attachment" "vpc_access_execution_role" {
 }
 
 resource "aws_iam_role_policy" "lambda" {
-  name   = "LambdaAllowLogging"
+  name   = "LambdaRolePermissions"
   role   = aws_iam_role.lambda.id
   policy = data.aws_iam_policy_document.lambda.json
 }
@@ -43,6 +43,15 @@ data "aws_iam_policy_document" "lambda" {
       "logs:CreateLogStream",
       "logs:PutLogEvents",
       "logs:DescribeLogStreams"
+    ]
+  }
+
+  statement {
+    sid       = "allowPutEvents"
+    effect    = "Allow"
+    resources = [var.event_bus_arn]
+    actions = [
+      "events:PutEvents"
     ]
   }
 }
