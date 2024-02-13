@@ -18,6 +18,7 @@ module "lambda" {
   environment_variables = {
     DDB_TABLE_NAME_DEEDS   = var.dynamodb_name
     DDB_TABLE_NAME_CHANGES = var.dynamodb_name_changes
+    EVENT_BUS_NAME         = var.event_bus_name
     JWT_SECRET_KEY         = "secret"
   }
 
