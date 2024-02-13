@@ -16,14 +16,14 @@ type eventBridgeClient interface {
 }
 
 type Client struct {
-	svc          eventBridgeClient
 	eventBusName string
+	svc          eventBridgeClient
 }
 
 func NewClient(cfg aws.Config, eventBusName string) *Client {
 	return &Client{
 		svc: eventbridge.NewFromConfig(cfg),
-		eventNusName: eventBusName,
+		eventBusName: eventBusName,
 	}
 }
 
@@ -31,7 +31,7 @@ func (c *Client) SendLpaUpdated(ctx context.Context, event LpaUpdated) error {
 	return c.send(ctx, "lpa-updated", event)
 }
 
-func (c *Client) send(ctx context.Context, eventType, detail) error {
+func (c *Client) send(ctx context.Context, eventType string, detail any) error {
 
 	v, err := json.Marshal(detail)
 	if err != nil {
@@ -47,6 +47,5 @@ func (c *Client) send(ctx context.Context, eventType, detail) error {
 		}},
 	})
 
-    // return the response?
 	return err
 }
