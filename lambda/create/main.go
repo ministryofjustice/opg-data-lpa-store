@@ -8,6 +8,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/eventbridge"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
@@ -30,6 +33,7 @@ type Lambda struct {
 	store    Store
 	verifier Verifier
 	logger   Logger
+	eb       *eventbridge.EventBridge
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -91,6 +95,21 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
+	_, err = l.eb.PutEvents(&eventbridge.PutEventsInput{
+		Entries: []*eventbridge.PutEventsRequestEntry{
+			{
+				EventBusName: aws.String(os.Getenv("EVENT_BUS_NAME")),
+				DetailType:   aws.String("test"),
+				Source:       aws.String("opg.poas.lpastore"),
+			},
+		},
+	})
+
+	if err != nil {
+		l.logger.Print(err)
+		return shared.ProblemInternalServerError.Respond()
+	}
+
 	// respond
 	response.StatusCode = 201
 	response.Body = `{}`
@@ -99,14 +118,19 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 }
 
 func main() {
+	sess := session.Must(session.NewSession())
+	// endpoint := "http://localstack:4566"
+	// sess.Config.Endpoint = &endpoint
+
 	l := &Lambda{
-		store:    ddb.New(
+		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
+		eb:       eventbridge.New(sess),
 	}
 
 	lambda.Start(l.HandleEvent)
