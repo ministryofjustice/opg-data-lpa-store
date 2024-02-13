@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "lambda_dynamodb_policy" {
   statement {
     sid       = "allowDynamoDB"
     effect    = "Allow"
-    resources = [var.dynamodb_arn]
+    resources = [var.dynamodb_arn, var.dynamodb_arn_changes]
     actions = [
       "dynamodb:PutItem",
       "dynamodb:GetItem",
@@ -67,4 +67,3 @@ data "aws_iam_policy_document" "lambda_s3_policy" {
     }
   }
 }
-
