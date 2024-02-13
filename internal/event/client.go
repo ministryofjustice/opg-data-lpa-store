@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
 const source = "opg.poas.lpastore"

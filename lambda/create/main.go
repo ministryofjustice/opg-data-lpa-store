@@ -8,7 +8,9 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -89,6 +91,19 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
+	}
+
+	// send lpa-updated event
+	// TODO: need endpoint and credentials to be loaded into the config
+	awsConfig := config.loadDefaultConfig(ctx)
+	eventBusClient := event.NewClient(awsConfig, "lpa-store-event-bus")
+	err = eventBusClient.SendLpaUpdated(ctx, event.LpaUpdated{
+		uid: uid,
+		changeType: "CREATED",
+	})
+
+	if err != nil {
+		l.logger.Print(err)
 	}
 
 	// respond
