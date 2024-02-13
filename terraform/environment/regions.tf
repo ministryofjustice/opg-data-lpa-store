@@ -9,7 +9,7 @@ module "eu_west_1" {
   dynamodb_name                   = aws_dynamodb_table.deeds_table.name
   dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
   environment_name                = local.environment_name
-  event_bus_name                  = aws_cloudwatch_event_bus.main.name
+  event_bus                       = aws_cloudwatch_event_bus.main
   lpa_store_static_bucket         = module.s3_lpa_store_static_eu_west_1.bucket
   lpa_store_static_bucket_kms_key = module.s3_lpa_store_static_eu_west_1.encryption_kms_key
 
@@ -30,7 +30,7 @@ module "eu_west_2" {
   dynamodb_name                   = aws_dynamodb_table.deeds_table.name
   dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
   environment_name                = local.environment_name
-  event_bus_name                  = aws_cloudwatch_event_bus.main.name
+  event_bus                       = aws_cloudwatch_event_bus.main
   lpa_store_static_bucket         = module.s3_lpa_store_static_eu_west_2.bucket
   lpa_store_static_bucket_kms_key = module.s3_lpa_store_static_eu_west_2.encryption_kms_key
 
