@@ -94,7 +94,7 @@ services:
     command: golangci-lint run --timeout 5m --out-format=github-actions ./lambda/get/... ./lambda/create/... ./lambda/update/...
 
   gosec:
-    image: securego/gosec:2.18.2
+    image: securego/gosec:2.19.0
     working_dir: /app
     volumes:
       - .:/app
