@@ -1,14 +1,10 @@
 version: "3.6"
 
 services:
-  ddb:
-    image: amazon/dynamodb-local:latest
-    command: -jar DynamoDBLocal.jar -sharedDb -dbPath .
-    ports:
-      - "8000:8000"
-
   lambda-create:
-    depends_on: [ ddb ]
+    depends_on:
+      localstack:
+        condition: service_healthy
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -16,9 +12,9 @@ services:
         - DIR=create
     environment:
       AWS_REGION: eu-west-1
-      AWS_DYNAMODB_ENDPOINT: http://ddb:8000
-      AWS_ACCESS_KEY_ID: X
-      AWS_SECRET_ACCESS_KEY: X
+      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
@@ -27,7 +23,9 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-update:
-    depends_on: [ ddb ]
+    depends_on:
+      localstack:
+        condition: service_healthy
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -35,9 +33,9 @@ services:
         - DIR=update
     environment:
       AWS_REGION: eu-west-1
-      AWS_DYNAMODB_ENDPOINT: http://ddb:8000
-      AWS_ACCESS_KEY_ID: X
-      AWS_SECRET_ACCESS_KEY: X
+      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
@@ -46,7 +44,9 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-get:
-    depends_on: [ ddb ]
+    depends_on:
+      localstack:
+        condition: service_healthy
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
@@ -54,9 +54,9 @@ services:
         - DIR=get
     environment:
       AWS_REGION: eu-west-1
-      AWS_DYNAMODB_ENDPOINT: http://ddb:8000
-      AWS_ACCESS_KEY_ID: X
-      AWS_SECRET_ACCESS_KEY: X
+      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
@@ -71,16 +71,6 @@ services:
       dockerfile: ./mock-apigw/Dockerfile
     ports:
       - 9000:8080
-
-  aws:
-    depends_on: [ ddb ]
-    image: amazon/aws-cli:latest
-    environment:
-      AWS_ENDPOINT_URL: http://ddb:8000/
-      AWS_REGION: eu-west-1
-      AWS_ACCESS_KEY_ID: X
-      AWS_SECRET_ACCESS_KEY: X
-      AWS_PAGER: ""
 
   localstack:
     image: localstack/localstack:3.0
