@@ -13,6 +13,11 @@ variable "ecr_image_uri" {
   type        = string
 }
 
+variable "event_bus_arn" {
+  description = "The ARN of the event bus to send update events to"
+  type        = string
+}
+
 variable "cloudwatch_kms_key_id" {
   description = "KMS key used to encrypt CloudWatch logs"
   type        = string
