@@ -18,7 +18,7 @@ type Client struct {
 }
 
 func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
-	changesItem, err := dynamodbattribute.MarshalMap(map[string]interface{}{
+	changesItem, _ := dynamodbattribute.MarshalMap(map[string]interface{}{
 		"uid": update.Uid,
 		"applied": update.Applied,
 		"author": update.Author,
@@ -94,7 +94,7 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 	return lpa, err
 }
 
-func New(endpoint, tableName string, changesTableName string) *Client {
+func New(endpoint, tableName, changesTableName string) *Client {
 	sess := session.Must(session.NewSession())
 	sess.Config.Endpoint = &endpoint
 
