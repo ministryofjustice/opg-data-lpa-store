@@ -10,11 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type Client interface {
-	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
-	Get(objectKey string) (*s3.GetObjectOutput, error)
-}
-
 type S3Client struct {
 	bucketName string
 	awsClient  *s3.Client
@@ -26,7 +21,6 @@ func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
         return &s3.PutObjectOutput{}, err
     }
 
-	// first return value is output
 	return c.awsClient.PutObject(
 		context.Background(),
 		&s3.PutObjectInput{
@@ -56,7 +50,7 @@ func (er *endpointResolver) ResolveEndpoint(service, region string) (aws.Endpoin
 }
 
 // set endpoint to "" outside dev to use default resolver
-func New(endpointURL string) Client {
+func NewS3Client(bucketName, endpointURL string) *S3Client {
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
 		config.WithEndpointResolver(&endpointResolver{ URL: endpointURL }),
@@ -69,7 +63,7 @@ func New(endpointURL string) Client {
 	awsClient := s3.NewFromConfig(cfg)
 
 	return &S3Client{
-		bucketName: "opg-lpa-store-static-eu-west-1",
+		bucketName: bucketName,
 		awsClient: awsClient,
 	}
 }
