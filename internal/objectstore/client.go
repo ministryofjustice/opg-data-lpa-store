@@ -1,58 +1,75 @@
 package objectstore
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-xray-sdk-go/instrumentation/awsv2"
 )
 
 type Client interface {
-	Put(name string, obj any) error
-	Get(name string) (StoredObject, error)
-}
-
-type StoredObject struct {
-	name string
+	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
+	Get(objectKey string) (*s3.GetObjectOutput, error)
 }
 
 type S3Client struct {
-	awsClient *s3.Client
+	bucketName string
+	awsClient  *s3.Client
 }
 
-func (c *S3Client) Put(name string, obj any) error {
-	/*c.awsClient.PutObject(context.TODO(), &s3.PutObjectInput{
-		Bucket: aws.String(bucketName),
-		Key:    aws.String(objectKey),
-		Body:   file,
-	})*/
+func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
+    b, err := json.Marshal(obj)
+    if err != nil {
+        return &s3.PutObjectOutput{}, err
+    }
 
-	return nil
+	// first return value is output
+	return c.awsClient.PutObject(
+		context.Background(),
+		&s3.PutObjectInput{
+			Bucket: aws.String(c.bucketName),
+			Key:    aws.String(objectKey),
+			Body:   bytes.NewReader(b),
+		},
+	)
 }
 
-func (c *S3Client) Get(name string) (StoredObject, error) {
-	return StoredObject{}, nil
+func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
+	return c.awsClient.GetObject(
+		context.Background(),
+		&s3.GetObjectInput{
+			Bucket: aws.String(c.bucketName),
+			Key:    aws.String(objectKey),
+		},
+	)
 }
 
-func New(endpoint string) Client {
-	cfg, err := config.LoadDefaultConfig(context.Background())
+type endpointResolver struct {
+	URL string
+}
+
+func (er *endpointResolver) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
+	return aws.Endpoint{ URL: er.URL, HostnameImmutable: true, }, nil
+}
+
+// set endpoint to "" outside dev to use default resolver
+func New(endpointURL string) Client {
+	cfg, err := config.LoadDefaultConfig(
+		context.Background(),
+		config.WithEndpointResolver(&endpointResolver{ URL: endpointURL }),
+	)
+
 	if err != nil {
 		panic(err)
 	}
 
-	// xray instrumentation
-	awsv2.AWSV2Instrumentor(&cfg.APIOptions)
-
-	awsClient := s3.NewFromConfig(
-		cfg,
-		func (o *s3.Options) {
-		    o.BaseEndpoint = aws.String(endpoint)
-		},
-	)
+	awsClient := s3.NewFromConfig(cfg)
 
 	return &S3Client{
+		bucketName: "opg-lpa-store-static-eu-west-1",
 		awsClient: awsClient,
 	}
 }
