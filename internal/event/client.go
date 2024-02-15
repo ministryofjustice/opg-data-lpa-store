@@ -7,18 +7,17 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge/types"
-	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
 const source = "opg.poas.lpastore"
 
-type eventBridgeClient interface {
+type EventbridgeClient interface {
 	PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)
 }
 
 type Client struct {
 	eventBusName string
-	svc          eventBridgeClient
+	svc          EventbridgeClient
 }
 
 func NewClient(cfg aws.Config, eventBusName string) *Client {

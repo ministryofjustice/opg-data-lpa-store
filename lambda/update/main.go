@@ -8,11 +8,17 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
+
+type EventbridgeClientWrapper interface {
+	SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error
+}
 
 type Logger interface {
 	Print(...interface{})
@@ -28,13 +34,14 @@ type Verifier interface {
 }
 
 type Lambda struct {
-	store    Store
-	verifier Verifier
-	logger   Logger
+	eventbusClient EventbridgeClientWrapper
+	store          Store
+	verifier       Verifier
+	logger         Logger
 }
 
-func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	claims, err := l.verifier.VerifyHeader(event)
+func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	claims, err := l.verifier.VerifyHeader(req)
 	if err != nil {
 		l.logger.Print("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
@@ -48,12 +55,12 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	var update shared.Update
-	if err = json.Unmarshal([]byte(event.Body), &update); err != nil {
+	if err = json.Unmarshal([]byte(req.Body), &update); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	lpa, err := l.store.Get(ctx, event.PathParameters["uid"])
+	lpa, err := l.store.Get(ctx, req.PathParameters["uid"])
 	if err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
@@ -94,6 +101,16 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
+	// send lpa-updated event
+	err = l.eventbusClient.SendLpaUpdated(ctx, event.LpaUpdated{
+		Uid: lpa.Uid,
+		ChangeType: "UPDATED",
+	})
+
+	if err != nil {
+		l.logger.Print(err)
+	}
+
 	response.StatusCode = 201
 	response.Body = string(body)
 
@@ -101,14 +118,22 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 }
 
 func main() {
+	logger := logging.New(os.Stdout, "opg-data-lpa-store")
+	ctx := context.Background()
+	awsConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+	  logger.Print("failed to load configuration, %v", err)
+	}
+
 	l := &Lambda{
+		eventbusClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
 		store:    ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
 		verifier: shared.NewJWTVerifier(),
-		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
+		logger:   logger,
 	}
 
 	lambda.Start(l.HandleEvent)

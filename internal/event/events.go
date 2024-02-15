@@ -1,6 +1,6 @@
 package event
 
 type LpaUpdated struct {
-	uid  string
-	changeType string
+	Uid  string
+	ChangeType string
 }
