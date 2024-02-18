@@ -4,9 +4,9 @@ go 1.21
 
 require (
 	github.com/aws/aws-lambda-go v1.46.0
-	github.com/aws/aws-sdk-go v1.50.15
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.12.17
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.27.1
+	github.com/aws/aws-sdk-go v1.50.19
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.13.1
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.28.1
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/go-cmp v0.6.0
@@ -17,8 +17,8 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.6 // indirect
-	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.18.7 // indirect
-	github.com/aws/smithy-go v1.19.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.19.1 // indirect
+	github.com/aws/smithy-go v1.20.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
