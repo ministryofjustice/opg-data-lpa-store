@@ -107,7 +107,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	_, err = l.s3client.Get(objectKey)
 	if err == nil {
 		// 200 => bad (object already exists)
-		err = errors.New(fmt.Sprintf("Could not save donor executed LPA as key %s already exists", objectKey))
+		err = fmt.Errorf("Could not save donor executed LPA as key %s already exists", objectKey)
 		l.logger.Print(err)
 		return shared.ProblemInvalidRequest.Respond()
 	}
