@@ -15,7 +15,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
 
-type EventbridgeClientWrapper interface {
+type EventBridgeClientWrapper interface {
 	SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error
 }
 
@@ -33,10 +33,10 @@ type Verifier interface {
 }
 
 type Lambda struct {
-	eventbusClient EventbridgeClientWrapper
-	store          Store
-	verifier       Verifier
-	logger         Logger
+	eventBridgeClient EventBridgeClientWrapper
+	store             Store
+	verifier          Verifier
+	logger            Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -99,7 +99,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// send lpa-updated event
-	err = l.eventbusClient.SendLpaUpdated(ctx, event.LpaUpdated{
+	err = l.eventBridgeClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid: uid,
 		ChangeType: "CREATED",
 	})
@@ -120,11 +120,11 @@ func main() {
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-	  logger.Print("failed to load configuration, %v", err)
+	  logger.Print("Failed to load configuration:", err)
 	}
 
 	l := &Lambda{
-		eventbusClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
+		eventBridgeClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
 		store:    ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),

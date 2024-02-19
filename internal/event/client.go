@@ -11,13 +11,13 @@ import (
 
 const source = "opg.poas.lpastore"
 
-type EventbridgeClient interface {
+type EventBridgeClient interface {
 	PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)
 }
 
 type Client struct {
 	eventBusName string
-	svc          EventbridgeClient
+	svc          EventBridgeClient
 }
 
 func NewClient(cfg aws.Config, eventBusName string) *Client {

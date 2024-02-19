@@ -14,12 +14,31 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("expected")
+
+type mockLogger struct {
+	mock.Mock
+}
+
+func (m *mockLogger) Print(v ...interface{}) {
+	m.Called(v...)
+}
+
+type mockEventBridgeClient struct {
+	mock.Mock
+}
+
+func (m *mockEventBridgeClient) SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error {
+	args := m.Called(ctx, event)
+	return args.Error(0)
+}
 
 type mockStore struct {
 	get    shared.Lpa
@@ -51,9 +70,12 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 
 func TestHandleEvent(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
+	client := mockEventBridgeClient{}
+	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(nil)
 	l := Lambda{
-		store:    store,
-		verifier: &mockVerifier{
+		eventBridgeClient: &client,
+		store:             store,
+		verifier:          &mockVerifier{
 			claims: shared.LpaStoreClaims{
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject: "1234",
@@ -105,13 +127,14 @@ func TestHandleEvent(t *testing.T) {
 		store.update,
 		cmpopts.IgnoreFields(shared.Update{}, "Id", "Applied"),
 	))
+	client.AssertExpectations(t)
 }
 
 func TestHandleEventWhenUnknownType(t *testing.T) {
 	l := Lambda{
-		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		store:             &mockStore{get: shared.Lpa{Uid: "1"}},
+		verifier:          &mockVerifier{},
+		logger:            logging.New(io.Discard, ""),
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -124,9 +147,9 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 
 func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	l := Lambda{
-		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		store:             &mockStore{get: shared.Lpa{Uid: "1"}},
+		verifier:          &mockVerifier{},
+		logger:            logging.New(io.Discard, ""),
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{

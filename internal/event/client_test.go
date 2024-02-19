@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockEventbridgeClient struct {
+type mockEventBridgeClient struct {
 	mock.Mock
 }
 
-func (_m *mockEventbridgeClient) PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error) {
+func (_m *mockEventBridgeClient) PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error) {
 	var r0 *eventbridge.PutEventsOutput
 	var r1 error = errors.New("err")
 
@@ -34,7 +34,7 @@ func TestClientSendEvent(t *testing.T) {
 
 	data, _ := json.Marshal(event)
 
-	mockClient := &mockEventbridgeClient{}
+	mockClient := &mockEventBridgeClient{}
 	mockClient.On("PutEvents", mock.Anything, &eventbridge.PutEventsInput{
 			Entries: []types.PutEventsRequestEntry{{
 				EventBusName: aws.String("my-bus"),
