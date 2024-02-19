@@ -10,9 +10,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+type AwsS3Client interface {
+	PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+	GetObject(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options)) (*s3.GetObjectOutput, error)
+}
+
 type S3Client struct {
 	bucketName string
-	awsClient  *s3.Client
+	awsClient  AwsS3Client
 }
 
 func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
