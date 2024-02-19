@@ -3,15 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
@@ -27,9 +23,8 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
-type S3Client interface {
-	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
-	Get(objectKey string) (*s3.GetObjectOutput, error)
+type StaticLpaStorage interface {
+	Save(lpa *shared.Lpa) error
 }
 
 type Verifier interface {
@@ -38,7 +33,7 @@ type Verifier interface {
 
 type Lambda struct {
 	store    Store
-	s3client S3Client
+	staticLpaStorage StaticLpaStorage
 	verifier Verifier
 	logger   Logger
 }
@@ -101,22 +96,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	// save a copy of the original to permanent storage,
-	// but only if the key doesn't already exist
-	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
-	_, err = l.s3client.Get(objectKey)
-	if err == nil {
-		// 200 => bad (object already exists)
-		err = fmt.Errorf("Could not save donor executed LPA as key %s already exists", objectKey)
-		l.logger.Print(err)
-		return shared.ProblemInvalidRequest.Respond()
-	}
-
-	// 404 => good (object should not already exist)
-	var nsk *types.NoSuchKey
-	if errors.As(err, &nsk) {
-		_, err = l.s3client.Put(objectKey, data)
-    }
+	// save to static storage as JSON
+	err = l.staticLpaStorage.Save(&data)
 
 	if err != nil {
 		l.logger.Print(err)
@@ -132,17 +113,19 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 func main() {
 	l := &Lambda{
-		store:    ddb.New(
+		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		s3client: objectstore.NewS3Client(
-			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
-			os.Getenv("AWS_S3_ENDPOINT"),
+		staticLpaStorage: objectstore.NewStaticLpaStorage(
+			objectstore.NewS3Client(
+				os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
+				os.Getenv("AWS_S3_ENDPOINT"),
+			),
 		),
 		verifier: shared.NewJWTVerifier(),
-		logger:   logging.New(os.Stdout, "opg-data-lpa-store"),
+		logger: logging.New(os.Stdout, "opg-data-lpa-store"),
 	}
 
 	lambda.Start(l.HandleEvent)
