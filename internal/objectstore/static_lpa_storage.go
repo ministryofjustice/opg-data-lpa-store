@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
@@ -11,8 +12,13 @@ import (
 /**
  * For saving static copy of original LPA to S3
  */
+type s3Client interface {
+	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
+	Get(objectKey string) (*s3.GetObjectOutput, error)
+}
+
 type StaticLpaStorage struct {
-	client *S3Client
+	client s3Client
 }
 
 func (sls *StaticLpaStorage) Save(lpa *shared.Lpa) error {
@@ -35,7 +41,7 @@ func (sls *StaticLpaStorage) Save(lpa *shared.Lpa) error {
     return err
 }
 
-func NewStaticLpaStorage(client *S3Client) *StaticLpaStorage {
+func NewStaticLpaStorage(client s3Client) *StaticLpaStorage {
 	return &StaticLpaStorage{
 		client: client,
 	}
