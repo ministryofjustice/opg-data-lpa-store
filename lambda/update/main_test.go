@@ -213,3 +213,36 @@ func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
 	assert.Equal(t, 401, resp.StatusCode)
 	assert.JSONEq(t, `{"code":"UNAUTHORISED","detail":"Invalid JWT"}`, resp.Body)
 }
+
+func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
+	store := &mockStore{get: shared.Lpa{Uid: "1"}}
+	client := mockEventBridgeClient{}
+	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(errors.New("Update failed"))
+
+	logger := mockLogger{}
+	logger.On("Print", "Successfully parsed JWT from event header")
+	logger.On("Print", errors.New("Update failed"))
+
+	l := Lambda{
+		eventBridgeClient: &client,
+		store:             store,
+		verifier:          &mockVerifier{
+			claims: shared.LpaStoreClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject: "1234",
+				},
+			},
+		},
+		logger:   &logger,
+	}
+
+	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"}]}`,
+	})
+
+	client.AssertExpectations(t)
+	logger.AssertExpectations(t)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 201, resp.StatusCode)
+}
