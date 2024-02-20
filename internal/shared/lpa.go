@@ -1,6 +1,10 @@
 package shared
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
 type LpaInit struct {
 	LpaType                                     LpaType                 `json:"lpaType"`
@@ -47,3 +51,7 @@ const (
 	LpaStatusProcessing = LpaStatus("processing")
 	LpaStatusRegistered = LpaStatus("registered")
 )
+
+func (l *Lpa) FromJSON(reader io.Reader) error {
+	return json.NewDecoder(reader).Decode(l)
+}
