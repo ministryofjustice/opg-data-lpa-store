@@ -35,7 +35,7 @@ func TestVerifyExpInPast(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * -24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.makeregister",
-		"sub": "M-3467-89QW-ERTY",
+		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
 	})
 
 	_, err := verifier.verifyToken(token)
