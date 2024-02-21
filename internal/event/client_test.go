@@ -29,9 +29,6 @@ func TestClientSendEvent(t *testing.T) {
 	expectedError := errors.New("err")
 
 	event := LpaUpdated{ Uid: "M-1234-1234-1234", ChangeType: "CREATED" }
-
-	fn, event := func(client *Client) error { return client.SendLpaUpdated(ctx, event) }, event
-
 	data, _ := json.Marshal(event)
 
 	mockClient := &mockEventBridgeClient{}
@@ -46,7 +43,7 @@ func TestClientSendEvent(t *testing.T) {
 		Return(nil, expectedError)
 
 	svc := &Client{svc: mockClient, eventBusName: "my-bus"}
-	err := fn(svc)
+	err := svc.SendLpaUpdated(ctx, event)
 
 	assert.Equal(t, expectedError, err)
 }

@@ -16,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
 
-type EventBridgeClientWrapper interface {
+type EventClient interface {
 	SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error
 }
 
@@ -34,7 +34,7 @@ type Verifier interface {
 }
 
 type Lambda struct {
-	eventBridgeClient EventBridgeClientWrapper
+	eventClient       EventClient
 	store             Store
 	verifier          Verifier
 	logger            Logger
@@ -102,7 +102,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// send lpa-updated event
-	err = l.eventBridgeClient.SendLpaUpdated(ctx, event.LpaUpdated{
+	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid: lpa.Uid,
 		ChangeType: "UPDATED",
 	})
@@ -126,7 +126,7 @@ func main() {
 	}
 
 	l := &Lambda{
-		eventBridgeClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
+		eventClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
 		store:    ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),

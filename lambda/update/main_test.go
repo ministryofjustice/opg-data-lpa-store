@@ -31,11 +31,11 @@ func (m *mockLogger) Print(v ...interface{}) {
 	m.Called(v...)
 }
 
-type mockEventBridgeClient struct {
+type mockEventClient struct {
 	mock.Mock
 }
 
-func (m *mockEventBridgeClient) SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error {
+func (m *mockEventClient) SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error {
 	args := m.Called(ctx, event)
 	return args.Error(0)
 }
@@ -70,10 +70,10 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 
 func TestHandleEvent(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
-	client := mockEventBridgeClient{}
+	client := mockEventClient{}
 	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(nil)
 	l := Lambda{
-		eventBridgeClient: &client,
+		eventClient: &client,
 		store:             store,
 		verifier:          &mockVerifier{
 			claims: shared.LpaStoreClaims{
@@ -216,7 +216,7 @@ func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
 
 func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
-	client := mockEventBridgeClient{}
+	client := mockEventClient{}
 	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(errors.New("Update failed"))
 
 	logger := mockLogger{}
@@ -224,7 +224,7 @@ func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	logger.On("Print", errors.New("Update failed"))
 
 	l := Lambda{
-		eventBridgeClient: &client,
+		eventClient: &client,
 		store:             store,
 		verifier:          &mockVerifier{
 			claims: shared.LpaStoreClaims{
