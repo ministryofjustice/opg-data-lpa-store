@@ -20,7 +20,7 @@ module "lambda" {
     DDB_TABLE_NAME_DEEDS    = var.dynamodb_name
     DDB_TABLE_NAME_CHANGES  = var.dynamodb_name_changes
     EVENT_BUS_NAME          = var.event_bus.name
-    S3_BUCKET_NAME_ORIGINAL = var.lpa_store_static_bucket.name
+    S3_BUCKET_NAME_ORIGINAL = var.lpa_store_static_bucket.bucket_name
     JWT_SECRET_KEY          = "secret"
   }
 
