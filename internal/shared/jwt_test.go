@@ -35,7 +35,7 @@ func TestVerifyExpInPast(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * -24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.makeregister",
-		"sub": "M-3467-89QW-ERTY",
+		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -78,7 +78,7 @@ func TestVerifyIssuer(t *testing.T) {
 	}
 }
 
-func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
+func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
@@ -90,11 +90,11 @@ func TestVerifyBadEmailForSiriusIssuer(t *testing.T) {
 
 	assert.NotNil(t, err)
 	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid email", "")
+		assert.Containsf(t, err.Error(), "Subject is not a valid email or URN", "")
 	}
 }
 
-func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
+func TestVerifyBadSubForMRLPAIssuer(t *testing.T) {
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
@@ -106,16 +106,38 @@ func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
 
 	assert.NotNil(t, err)
 	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid UID", "")
+		assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
 	}
 }
 
-func TestVerifyGoodJwt(t *testing.T) {
+func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
 		"sub": "someone@someplace.somewhere.com",
+	})
+
+	_, err := verifier.verifyToken(token)
+	assert.Nil(t, err)
+
+	token = createToken(jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().Add(time.Hour * -24).Unix(),
+		"iss": "opg.poas.sirius",
+		"sub": "urn:opg:sirius:users:34",
+	})
+
+	_, err = verifier.verifyToken(token)
+	assert.Nil(t, err)
+}
+
+func TestVerifyGoodJwtMRLPASubs(t *testing.T) {
+	token := createToken(jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().Add(time.Hour * -24).Unix(),
+		"iss": "opg.poas.makeregister",
+		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
 	})
 
 	_, err := verifier.verifyToken(token)
