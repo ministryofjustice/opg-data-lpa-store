@@ -14,12 +14,31 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var expectedError = errors.New("expected")
+
+type mockLogger struct {
+	mock.Mock
+}
+
+func (m *mockLogger) Print(v ...interface{}) {
+	m.Called(v...)
+}
+
+type mockEventClient struct {
+	mock.Mock
+}
+
+func (m *mockEventClient) SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error {
+	args := m.Called(ctx, event)
+	return args.Error(0)
+}
 
 type mockStore struct {
 	get    shared.Lpa
@@ -51,9 +70,12 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 
 func TestHandleEvent(t *testing.T) {
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
+	client := mockEventClient{}
+	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(nil)
 	l := Lambda{
-		store:    store,
-		verifier: &mockVerifier{
+		eventClient: &client,
+		store:             store,
+		verifier:          &mockVerifier{
 			claims: shared.LpaStoreClaims{
 				RegisteredClaims: jwt.RegisteredClaims{
 					Subject: "1234",
@@ -105,13 +127,14 @@ func TestHandleEvent(t *testing.T) {
 		store.update,
 		cmpopts.IgnoreFields(shared.Update{}, "Id", "Applied"),
 	))
+	client.AssertExpectations(t)
 }
 
 func TestHandleEventWhenUnknownType(t *testing.T) {
 	l := Lambda{
-		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		store:             &mockStore{get: shared.Lpa{Uid: "1"}},
+		verifier:          &mockVerifier{},
+		logger:            logging.New(io.Discard, ""),
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -124,9 +147,9 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 
 func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	l := Lambda{
-		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		store:             &mockStore{get: shared.Lpa{Uid: "1"}},
+		verifier:          &mockVerifier{},
+		logger:            logging.New(io.Discard, ""),
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -189,4 +212,37 @@ func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 401, resp.StatusCode)
 	assert.JSONEq(t, `{"code":"UNAUTHORISED","detail":"Invalid JWT"}`, resp.Body)
+}
+
+func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
+	store := &mockStore{get: shared.Lpa{Uid: "1"}}
+	client := mockEventClient{}
+	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(errors.New("Update failed"))
+
+	logger := mockLogger{}
+	logger.On("Print", "Successfully parsed JWT from event header")
+	logger.On("Print", errors.New("Update failed"))
+
+	l := Lambda{
+		eventClient: &client,
+		store:             store,
+		verifier:          &mockVerifier{
+			claims: shared.LpaStoreClaims{
+				RegisteredClaims: jwt.RegisteredClaims{
+					Subject: "1234",
+				},
+			},
+		},
+		logger:   &logger,
+	}
+
+	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"}]}`,
+	})
+
+	client.AssertExpectations(t)
+	logger.AssertExpectations(t)
+
+	assert.Nil(t, err)
+	assert.Equal(t, 201, resp.StatusCode)
 }
