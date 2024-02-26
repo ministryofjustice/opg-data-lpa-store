@@ -56,16 +56,20 @@ func (er *endpointResolver) ResolveEndpoint(service, region string) (aws.Endpoin
 
 // set endpoint to "" outside dev to use default resolver
 func NewS3Client(bucketName, endpointURL string) *S3Client {
-	cfg, err := config.LoadDefaultConfig(
-		context.Background(),
-		config.WithEndpointResolver(&endpointResolver{ URL: endpointURL }),
-	)
+	cfg, err := config.LoadDefaultConfig(context.Background())
 
 	if err != nil {
 		panic(err)
 	}
 
-	awsClient := s3.NewFromConfig(cfg)
+	var awsClient *s3.Client
+	if endpointURL != "" {
+		awsClient = s3.NewFromConfig(cfg, func (o *s3.Options) {
+		    o.BaseEndpoint = aws.String(endpointURL)
+		})
+	} else {
+		awsClient = s3.NewFromConfig(cfg)
+	}
 
 	return &S3Client{
 		bucketName: bucketName,
