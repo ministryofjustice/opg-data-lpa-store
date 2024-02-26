@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "lambda_dynamodb_policy" {
   }
 }
 
-resource "aws_iam_role_policy" "lambda_s3" {
+resource "aws_iam_role_policy" "lambda_s3_policy" {
   for_each = local.functions
   name     = "LambdaAllowS3"
   role     = module.lambda[each.key].iam_role.id
