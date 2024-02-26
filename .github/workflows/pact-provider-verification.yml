@@ -17,6 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: make build up
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
       - run: go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester
       - run: echo "JWT=$(./api-test/tester -jwtSecret=secret JWT)" >> "$GITHUB_ENV"
       - name: Verify specified Pact

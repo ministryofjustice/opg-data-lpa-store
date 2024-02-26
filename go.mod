@@ -1,6 +1,8 @@
 module github.com/ministryofjustice/opg-data-lpa-store
 
-go 1.21
+go 1.22
+
+toolchain go1.22.0
 
 require (
 	github.com/aws/aws-lambda-go v1.46.0
@@ -14,7 +16,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/ministryofjustice/opg-go-common v0.0.0-20231128145056-24628fba649c
+	github.com/ministryofjustice/opg-go-common v0.0.0-20240223111039-066f4e682b9b
 	github.com/stretchr/testify v1.8.4
 )
 
