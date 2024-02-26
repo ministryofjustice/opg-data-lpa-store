@@ -41,6 +41,7 @@ data "aws_iam_policy_document" "lambda_s3_policy" {
     ]
     actions = [
       "s3:PutObject",
+      "s3:GetObject",
     ]
   }
   statement {
