@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	smithyendpoints "github.com/aws/smithy-go/endpoints"
 )
 
 type awsS3Client interface {
@@ -29,9 +32,10 @@ func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
 	return c.awsClient.PutObject(
 		context.Background(),
 		&s3.PutObjectInput{
-			Bucket: aws.String(c.bucketName),
-			Key:    aws.String(objectKey),
-			Body:   bytes.NewReader(b),
+			Bucket:               aws.String(c.bucketName),
+			Key:                  aws.String(objectKey),
+			Body:                 bytes.NewReader(b),
+			ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 		},
 	)
 }
@@ -46,30 +50,34 @@ func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
 	)
 }
 
-type endpointResolver struct {
-	URL string
+type resolverV2 struct {
+    URL string
 }
 
-func (er *endpointResolver) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
-	return aws.Endpoint{ URL: er.URL, HostnameImmutable: true, }, nil
+func (r *resolverV2) ResolveEndpoint(ctx context.Context, params s3.EndpointParameters) (smithyendpoints.Endpoint, error) {
+    if r.URL != "" {
+        u, err := url.Parse(r.URL)
+        if err != nil {
+        	return smithyendpoints.Endpoint{}, err
+        }
+        return smithyendpoints.Endpoint{ URI: *u }, nil
+    }
+
+    return s3.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
 }
 
 // set endpoint to "" outside dev to use default resolver
 func NewS3Client(bucketName, endpointURL string) *S3Client {
 	cfg, err := config.LoadDefaultConfig(context.Background())
-
 	if err != nil {
 		panic(err)
 	}
 
-	var awsClient *s3.Client
-	if endpointURL != "" {
-		awsClient = s3.NewFromConfig(cfg, func (o *s3.Options) {
-		    o.BaseEndpoint = aws.String(endpointURL)
-		})
-	} else {
-		awsClient = s3.NewFromConfig(cfg)
-	}
+	awsClient := s3.NewFromConfig(cfg, func (o *s3.Options) {
+		o.EndpointResolverV2 = &resolverV2{
+			URL: endpointURL,
+		}
+	})
 
 	return &S3Client{
 		bucketName: bucketName,
