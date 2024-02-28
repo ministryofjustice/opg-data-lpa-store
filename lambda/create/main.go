@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -28,15 +30,20 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
+type StaticLpaStorage interface {
+	Save(lpa *shared.Lpa) error
+}
+
 type Verifier interface {
 	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
 }
 
 type Lambda struct {
-	eventClient       EventClient
-	store             Store
-	verifier          Verifier
-	logger            Logger
+	eventClient      EventClient
+	staticLpaStorage StaticLpaStorage
+	store            Store
+	verifier         Verifier
+	logger           Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -77,10 +84,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// validation
-	errors := Validate(input)
-	if len(errors) > 0 {
+	errs := Validate(input)
+	if len(errs) > 0 {
 		problem := shared.ProblemInvalidRequest
-		problem.Errors = errors
+		problem.Errors = errs
 
 		return problem.Respond()
 	}
@@ -92,6 +99,14 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// save
 	err = l.store.Put(ctx, data)
+	if err != nil {
+		l.logger.Print(err)
+		return shared.ProblemInternalServerError.Respond()
+	}
+
+	// save to static storage as JSON
+	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", lpa.Uid)
+	_, err := l.staticLpaStorage.Put(objectKey, data)
 
 	if err != nil {
 		l.logger.Print(err)
@@ -125,13 +140,17 @@ func main() {
 
 	l := &Lambda{
 		eventClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
-		store:    ddb.New(
+		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
+		staticLpaStorage: objectstore.NewS3Client(
+			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
+			os.Getenv("AWS_S3_ENDPOINT"),
+		),
 		verifier: shared.NewJWTVerifier(),
-		logger:   logger,
+		logger: logger,
 	}
 
 	lambda.Start(l.HandleEvent)
