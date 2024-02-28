@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
@@ -30,8 +31,8 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
-type StaticLpaStorage interface {
-	Save(lpa *shared.Lpa) error
+type S3Client interface {
+	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
 }
 
 type Verifier interface {
@@ -40,7 +41,7 @@ type Verifier interface {
 
 type Lambda struct {
 	eventClient      EventClient
-	staticLpaStorage StaticLpaStorage
+	staticLpaStorage S3Client
 	store            Store
 	verifier         Verifier
 	logger           Logger
@@ -105,8 +106,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// save to static storage as JSON
-	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", lpa.Uid)
-	_, err := l.staticLpaStorage.Put(objectKey, data)
+	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
+	_, err = l.staticLpaStorage.Put(objectKey, data)
 
 	if err != nil {
 		l.logger.Print(err)
