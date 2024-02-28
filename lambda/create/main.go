@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
@@ -104,7 +105,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// save to static storage as JSON
-	err = l.staticLpaStorage.Save(&data)
+	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", lpa.Uid)
+	_, err := l.staticLpaStorage.Put(objectKey, data)
 
 	if err != nil {
 		l.logger.Print(err)
@@ -143,11 +145,9 @@ func main() {
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		staticLpaStorage: objectstore.NewStaticLpaStorage(
-			objectstore.NewS3Client(
-				os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
-				os.Getenv("AWS_S3_ENDPOINT"),
-			),
+		staticLpaStorage: objectstore.NewS3Client(
+			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
+			os.Getenv("AWS_S3_ENDPOINT"),
 		),
 		verifier: shared.NewJWTVerifier(),
 		logger: logger,
