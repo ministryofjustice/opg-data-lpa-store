@@ -24,10 +24,10 @@ type S3Client struct {
 }
 
 func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
-    b, err := json.Marshal(obj)
-    if err != nil {
-        return &s3.PutObjectOutput{}, err
-    }
+	b, err := json.Marshal(obj)
+	if err != nil {
+		return &s3.PutObjectOutput{}, err
+	}
 
 	return c.awsClient.PutObject(
 		context.Background(),
@@ -51,19 +51,19 @@ func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
 }
 
 type resolverV2 struct {
-    URL string
+	URL string
 }
 
 func (r *resolverV2) ResolveEndpoint(ctx context.Context, params s3.EndpointParameters) (smithyendpoints.Endpoint, error) {
-    if r.URL != "" {
-        u, err := url.Parse(r.URL)
-        if err != nil {
-        	return smithyendpoints.Endpoint{}, err
-        }
-        return smithyendpoints.Endpoint{ URI: *u }, nil
-    }
+	if r.URL != "" {
+		u, err := url.Parse(r.URL)
+		if err != nil {
+			return smithyendpoints.Endpoint{}, err
+		}
+		return smithyendpoints.Endpoint{ URI: *u }, nil
+	}
 
-    return s3.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
+	return s3.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
 }
 
 // set endpoint to "" outside dev to use default resolver
