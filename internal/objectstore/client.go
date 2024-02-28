@@ -48,34 +48,19 @@ func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
 	)
 }
 
-type resolverV2 struct {
+type resolver struct {
 	URL string
 }
 
-func (r *resolverV2) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
+func (r *resolver) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
 	return aws.Endpoint{ URL: r.URL, HostnameImmutable: true, }, nil
 }
-
-/*
-func (r *resolverV2) ResolveEndpoint(ctx context.Context, params s3.EndpointParameters) (smithyendpoints.Endpoint, error) {
-	if r.URL != "" {
-		u, err := url.Parse(r.URL)
-		if err != nil {
-			return smithyendpoints.Endpoint{}, err
-		}
-		return smithyendpoints.Endpoint{ URI: *u }, nil
-	}
-
-	return s3.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
-}
-*/
 
 // set endpoint to "" outside dev to use default resolver
 func NewS3Client(bucketName, endpointURL string) *S3Client {
 	var (
 		cfg aws.Config
 		err error
-		awsClient *s3.Client
 	)
 
 	if endpointURL == "" {
@@ -83,7 +68,7 @@ func NewS3Client(bucketName, endpointURL string) *S3Client {
 	} else {
 		cfg, err = config.LoadDefaultConfig(
 			context.Background(),
-			config.WithEndpointResolver(&resolverV2{ URL: endpointURL }),
+			config.WithEndpointResolver(&resolver{ URL: endpointURL }),
 		)
 	}
 
@@ -91,7 +76,7 @@ func NewS3Client(bucketName, endpointURL string) *S3Client {
 		panic(err)
 	}
 
-	awsClient = s3.NewFromConfig(cfg)
+	awsClient := s3.NewFromConfig(cfg)
 
 	return &S3Client{
 		bucketName: bucketName,
