@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/golang-jwt/jwt/v5"
+	jwt "github.com/golang-jwt/jwt/v5"
+	urn "github.com/leodido/go-urn"
 )
 
 const (
@@ -61,17 +62,17 @@ func (l LpaStoreClaims) Validate() error {
 		return err
 	}
 
-	if iss == sirius {
-		emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if !emailRegex.MatchString(sub) {
-			return errors.New("Subject is not a valid email")
-		}
-	}
+	_, isUrn := urn.Parse([]byte(sub))
 
-	if iss == mrlpa {
-		uidRegex := regexp.MustCompile("^.+$")
-		if !uidRegex.MatchString(sub) {
-			return errors.New("Subject is not a valid UID")
+	if !isUrn {
+		switch iss {
+		case mrlpa:
+			return errors.New("Subject is not a valid URN")
+		case sirius:
+			emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+			if !emailRegex.MatchString(sub) {
+				return errors.New("Subject is not a valid email or URN")
+			}
 		}
 	}
 
