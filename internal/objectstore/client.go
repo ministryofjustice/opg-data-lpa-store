@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
-	smithyendpoints "github.com/aws/smithy-go/endpoints"
 )
 
 type awsS3Client interface {
@@ -54,6 +52,11 @@ type resolverV2 struct {
 	URL string
 }
 
+func (r *resolverV2) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
+	return aws.Endpoint{ URL: r.URL, HostnameImmutable: true, }, nil
+}
+
+/*
 func (r *resolverV2) ResolveEndpoint(ctx context.Context, params s3.EndpointParameters) (smithyendpoints.Endpoint, error) {
 	if r.URL != "" {
 		u, err := url.Parse(r.URL)
@@ -65,19 +68,30 @@ func (r *resolverV2) ResolveEndpoint(ctx context.Context, params s3.EndpointPara
 
 	return s3.NewDefaultEndpointResolverV2().ResolveEndpoint(ctx, params)
 }
+*/
 
 // set endpoint to "" outside dev to use default resolver
 func NewS3Client(bucketName, endpointURL string) *S3Client {
-	cfg, err := config.LoadDefaultConfig(context.Background())
+	var (
+		cfg aws.Config
+		err error
+		awsClient *s3.Client
+	)
+
+	if endpointURL == "" {
+		cfg, err = config.LoadDefaultConfig(context.Background())
+	} else {
+		cfg, err = config.LoadDefaultConfig(
+			context.Background(),
+			config.WithEndpointResolver(&resolverV2{ URL: endpointURL }),
+		)
+	}
+
 	if err != nil {
 		panic(err)
 	}
 
-	awsClient := s3.NewFromConfig(cfg, func (o *s3.Options) {
-		o.EndpointResolverV2 = &resolverV2{
-			URL: endpointURL,
-		}
-	})
+	awsClient = s3.NewFromConfig(cfg)
 
 	return &S3Client{
 		bucketName: bucketName,
