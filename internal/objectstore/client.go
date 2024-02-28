@@ -48,29 +48,24 @@ func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
 	)
 }
 
-type resolver struct {
-	URL string
-}
-
-func (r *resolver) ResolveEndpoint(service, region string) (aws.Endpoint, error) {
-	return aws.Endpoint{ URL: r.URL, HostnameImmutable: true, }, nil
-}
-
 // set endpoint to "" outside dev to use default resolver
 func NewS3Client(bucketName, endpointURL string) *S3Client {
-	var (
-		cfg aws.Config
-		err error
-	)
-
-	if endpointURL == "" {
-		cfg, err = config.LoadDefaultConfig(context.Background())
-	} else {
-		cfg, err = config.LoadDefaultConfig(
-			context.Background(),
-			config.WithEndpointResolver(&resolver{ URL: endpointURL }),
+	var endpointResolverWithOptions aws.EndpointResolverWithOptions
+	if endpointURL != "" {
+		endpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{ URL: endpointURL, HostnameImmutable: true, }, nil
+			},
 		)
 	}
+
+	cfg, err := config.LoadDefaultConfig(
+		context.Background(),
+		func (o *config.LoadOptions) error {
+			o.EndpointResolverWithOptions = endpointResolverWithOptions
+			return nil
+		},
+	)
 
 	if err != nil {
 		panic(err)
