@@ -28,18 +28,18 @@ func TestClientSendEvent(t *testing.T) {
 	ctx := context.Background()
 	expectedError := errors.New("err")
 
-	event := LpaUpdated{ Uid: "M-1234-1234-1234", ChangeType: "CREATED" }
+	event := LpaUpdated{Uid: "M-1234-1234-1234", ChangeType: "CREATED"}
 	data, _ := json.Marshal(event)
 
 	mockClient := &mockEventBridgeClient{}
 	mockClient.On("PutEvents", mock.Anything, &eventbridge.PutEventsInput{
-			Entries: []types.PutEventsRequestEntry{{
-				EventBusName: aws.String("my-bus"),
-				Source:       aws.String("opg.poas.lpastore"),
-				DetailType:   aws.String("lpa-updated"),
-				Detail:       aws.String(string(data)),
-			}},
-		}).
+		Entries: []types.PutEventsRequestEntry{{
+			EventBusName: aws.String("my-bus"),
+			Source:       aws.String("opg.poas.lpastore"),
+			DetailType:   aws.String("lpa-updated"),
+			Detail:       aws.String(string(data)),
+		}},
+	}).
 		Return(nil, expectedError)
 
 	svc := &Client{svc: mockClient, eventBusName: "my-bus"}
