@@ -1,8 +1,6 @@
 package shared
 
 import (
-	"encoding/json"
-	"io"
 	"time"
 )
 
@@ -51,7 +49,3 @@ const (
 	LpaStatusProcessing = LpaStatus("processing")
 	LpaStatusRegistered = LpaStatus("registered")
 )
-
-func (l *Lpa) FromJSON(reader io.Reader) error {
-	return json.NewDecoder(reader).Decode(l)
-}

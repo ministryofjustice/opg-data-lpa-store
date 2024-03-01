@@ -29,10 +29,10 @@ func TestPut(t *testing.T) {
 
 	c := S3Client{
 		bucketName: "bucket1",
-		awsClient: &client,
+		awsClient:  &client,
 	}
 
-	_, err := c.Put("anobject", struct{ID int}{ID: 1})
+	_, err := c.Put("anobject", struct{ ID int }{ID: 1})
 
 	assert.Equal(t, nil, err)
 	client.AssertExpectations(t)
@@ -44,7 +44,7 @@ func TestGet(t *testing.T) {
 
 	c := S3Client{
 		bucketName: "bucket1",
-		awsClient: &client,
+		awsClient:  &client,
 	}
 
 	_, err := c.Get("anotherobject")

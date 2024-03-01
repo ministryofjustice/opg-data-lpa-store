@@ -85,8 +85,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// validation
-	errs := Validate(input)
-	if len(errs) > 0 {
+	if errs := Validate(input); len(errs) > 0 {
 		problem := shared.ProblemInvalidRequest
 		problem.Errors = errs
 
@@ -99,8 +98,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	data.UpdatedAt = time.Now()
 
 	// save
-	err = l.store.Put(ctx, data)
-	if err != nil {
+	if err = l.store.Put(ctx, data); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -116,7 +114,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// send lpa-updated event
 	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
-		Uid: uid,
+		Uid:        uid,
 		ChangeType: "CREATED",
 	})
 
@@ -136,7 +134,7 @@ func main() {
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-	  logger.Print("Failed to load configuration:", err)
+		logger.Print("Failed to load configuration:", err)
 	}
 
 	l := &Lambda{
@@ -151,7 +149,7 @@ func main() {
 			os.Getenv("AWS_S3_ENDPOINT"),
 		),
 		verifier: shared.NewJWTVerifier(),
-		logger: logger,
+		logger:   logger,
 	}
 
 	lambda.Start(l.HandleEvent)

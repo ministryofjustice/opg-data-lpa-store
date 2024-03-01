@@ -24,7 +24,7 @@ type S3Client struct {
 func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
 	b, err := json.Marshal(obj)
 	if err != nil {
-		return &s3.PutObjectOutput{}, err
+		return nil, err
 	}
 
 	return c.awsClient.PutObject(
@@ -54,14 +54,14 @@ func NewS3Client(bucketName, endpointURL string) *S3Client {
 	if endpointURL != "" {
 		endpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
 			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-				return aws.Endpoint{ URL: endpointURL, HostnameImmutable: true, }, nil
+				return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
 			},
 		)
 	}
 
 	cfg, err := config.LoadDefaultConfig(
 		context.Background(),
-		func (o *config.LoadOptions) error {
+		func(o *config.LoadOptions) error {
 			o.EndpointResolverWithOptions = endpointResolverWithOptions
 			return nil
 		},
@@ -75,6 +75,6 @@ func NewS3Client(bucketName, endpointURL string) *S3Client {
 
 	return &S3Client{
 		bucketName: bucketName,
-		awsClient: awsClient,
+		awsClient:  awsClient,
 	}
 }

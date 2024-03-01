@@ -16,9 +16,9 @@ type FieldError struct {
 }
 
 type Problem struct {
-	StatusCode int     `json:"-"`
-	Code       string  `json:"code"`
-	Detail     string  `json:"detail"`
+	StatusCode int          `json:"-"`
+	Code       string       `json:"code"`
+	Detail     string       `json:"detail"`
 	Errors     []FieldError `json:"errors,omitempty"`
 }
 
