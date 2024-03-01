@@ -32,7 +32,7 @@ type Store interface {
 }
 
 type S3Client interface {
-	Put(objectKey string, obj any) (*s3.PutObjectOutput, error)
+	Put(objectKey string, obj any) error
 }
 
 type Verifier interface {
@@ -105,9 +105,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// save to static storage as JSON
 	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
-	_, err = l.staticLpaStorage.Put(objectKey, data)
 
-	if err != nil {
+	if err = l.staticLpaStorage.Put(objectKey, data); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}

@@ -13,7 +13,6 @@ import (
 
 type awsS3Client interface {
 	PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error)
-	GetObject(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 type S3Client struct {
@@ -21,13 +20,13 @@ type S3Client struct {
 	awsClient  awsS3Client
 }
 
-func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
+func (c *S3Client) Put(objectKey string, obj any) error {
 	b, err := json.Marshal(obj)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return c.awsClient.PutObject(
+	_, err = c.awsClient.PutObject(
 		context.Background(),
 		&s3.PutObjectInput{
 			Bucket:               aws.String(c.bucketName),
@@ -36,16 +35,8 @@ func (c *S3Client) Put(objectKey string, obj any) (*s3.PutObjectOutput, error) {
 			ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 		},
 	)
-}
 
-func (c *S3Client) Get(objectKey string) (*s3.GetObjectOutput, error) {
-	return c.awsClient.GetObject(
-		context.Background(),
-		&s3.GetObjectInput{
-			Bucket: aws.String(c.bucketName),
-			Key:    aws.String(objectKey),
-		},
-	)
+	return err
 }
 
 // set endpoint to "" outside dev to use default resolver
