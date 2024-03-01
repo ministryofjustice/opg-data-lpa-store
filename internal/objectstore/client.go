@@ -19,14 +19,14 @@ type S3Client struct {
 	awsClient  awsS3Client
 }
 
-func (c *S3Client) Put(objectKey string, obj any) error {
+func (c *S3Client) Put(ctx context.Context, objectKey string, obj any) error {
 	b, err := json.Marshal(obj)
 	if err != nil {
 		return err
 	}
 
 	_, err = c.awsClient.PutObject(
-		context.Background(),
+		ctx,
 		&s3.PutObjectInput{
 			Bucket:               aws.String(c.bucketName),
 			Key:                  aws.String(objectKey),
@@ -38,7 +38,6 @@ func (c *S3Client) Put(objectKey string, obj any) error {
 	return err
 }
 
-// set endpoint to "" outside dev to use default resolver
 func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
 	awsClient := s3.NewFromConfig(awsConfig)
 

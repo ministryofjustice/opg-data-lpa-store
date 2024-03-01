@@ -32,7 +32,7 @@ type Store interface {
 }
 
 type S3Client interface {
-	Put(objectKey string, obj any) error
+	Put(ctx context.Context, objectKey string, obj any) error
 }
 
 type Verifier interface {
@@ -106,7 +106,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	// save to static storage as JSON
 	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
 
-	if err = l.staticLpaStorage.Put(objectKey, data); err != nil {
+	if err = l.staticLpaStorage.Put(ctx, objectKey, data); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -130,6 +130,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 func main() {
 	logger := logging.New(os.Stdout, "opg-data-lpa-store")
+
+	// set endpoint to "" outside dev to use default AWS resolver
 	endpointURL := os.Getenv("AWS_S3_ENDPOINT")
 
 	var endpointResolverWithOptions aws.EndpointResolverWithOptions
