@@ -143,27 +143,33 @@ func main() {
 		)
 	}
 
-	awsConfig, err := config.LoadDefaultConfig(
-		context.Background(),
+	ctx := context.Background()
+
+	eventClientConfig, err := config.LoadDefaultConfig(ctx)
+	if err != nil {
+		logger.Print("Failed to load event client configuration:", err)
+	}
+
+	s3Config, err := config.LoadDefaultConfig(
+		ctx,
 		func(o *config.LoadOptions) error {
 			o.EndpointResolverWithOptions = endpointResolverWithOptions
 			return nil
 		},
 	)
-
 	if err != nil {
-		logger.Print("Failed to load configuration:", err)
+		logger.Print("Failed to load S3 configuration:", err)
 	}
 
 	l := &Lambda{
-		eventClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
+		eventClient: event.NewClient(eventClientConfig, os.Getenv("EVENT_BUS_NAME")),
 		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
 		staticLpaStorage: objectstore.NewS3Client(
-			awsConfig,
+			s3Config,
 			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
 		verifier: shared.NewJWTVerifier(),
