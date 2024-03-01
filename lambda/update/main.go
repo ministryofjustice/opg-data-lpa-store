@@ -34,10 +34,10 @@ type Verifier interface {
 }
 
 type Lambda struct {
-	eventClient       EventClient
-	store             Store
-	verifier          Verifier
-	logger            Logger
+	eventClient EventClient
+	store       Store
+	verifier    Verifier
+	logger      Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -103,7 +103,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// send lpa-updated event
 	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
-		Uid: lpa.Uid,
+		Uid:        lpa.Uid,
 		ChangeType: "UPDATED",
 	})
 
@@ -122,12 +122,12 @@ func main() {
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-	  logger.Print("Failed to load configuration:", err)
+		logger.Print("Failed to load configuration:", err)
 	}
 
 	l := &Lambda{
 		eventClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
-		store:    ddb.New(
+		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),

@@ -1,6 +1,8 @@
 package shared
 
-import "time"
+import (
+	"time"
+)
 
 type LpaInit struct {
 	LpaType                                     LpaType                 `json:"lpaType"`
