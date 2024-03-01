@@ -9,8 +9,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
@@ -130,8 +130,25 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 func main() {
 	logger := logging.New(os.Stdout, "opg-data-lpa-store")
-	ctx := context.Background()
-	awsConfig, err := config.LoadDefaultConfig(ctx)
+	endpointURL := os.Getenv("AWS_S3_ENDPOINT")
+
+	var endpointResolverWithOptions aws.EndpointResolverWithOptions
+	if endpointURL != "" {
+		endpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
+			},
+		)
+	}
+
+	awsConfig, err := config.LoadDefaultConfig(
+		context.Background(),
+		func(o *config.LoadOptions) error {
+			o.EndpointResolverWithOptions = endpointResolverWithOptions
+			return nil
+		},
+	)
+
 	if err != nil {
 		logger.Print("Failed to load configuration:", err)
 	}
@@ -144,8 +161,8 @@ func main() {
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
 		staticLpaStorage: objectstore.NewS3Client(
+			awsConfig,
 			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
-			os.Getenv("AWS_S3_ENDPOINT"),
 		),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logger,
