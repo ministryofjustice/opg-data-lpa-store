@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/logging"
 )
@@ -28,15 +31,20 @@ type Store interface {
 	Get(ctx context.Context, uid string) (shared.Lpa, error)
 }
 
+type S3Client interface {
+	Put(ctx context.Context, objectKey string, obj any) error
+}
+
 type Verifier interface {
 	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
 }
 
 type Lambda struct {
-	eventClient       EventClient
-	store             Store
-	verifier          Verifier
-	logger            Logger
+	eventClient      EventClient
+	staticLpaStorage S3Client
+	store            Store
+	verifier         Verifier
+	logger           Logger
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -77,10 +85,9 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// validation
-	errors := Validate(input)
-	if len(errors) > 0 {
+	if errs := Validate(input); len(errs) > 0 {
 		problem := shared.ProblemInvalidRequest
-		problem.Errors = errors
+		problem.Errors = errs
 
 		return problem.Respond()
 	}
@@ -91,16 +98,22 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	data.UpdatedAt = time.Now()
 
 	// save
-	err = l.store.Put(ctx, data)
+	if err = l.store.Put(ctx, data); err != nil {
+		l.logger.Print(err)
+		return shared.ProblemInternalServerError.Respond()
+	}
 
-	if err != nil {
+	// save to static storage as JSON
+	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
+
+	if err = l.staticLpaStorage.Put(ctx, objectKey, data); err != nil {
 		l.logger.Print(err)
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	// send lpa-updated event
 	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
-		Uid: uid,
+		Uid:        uid,
 		ChangeType: "CREATED",
 	})
 
@@ -117,18 +130,47 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 func main() {
 	logger := logging.New(os.Stdout, "opg-data-lpa-store")
+
+	// set endpoint to "" outside dev to use default AWS resolver
+	endpointURL := os.Getenv("AWS_S3_ENDPOINT")
+
+	var endpointResolverWithOptions aws.EndpointResolverWithOptions
+	if endpointURL != "" {
+		endpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
+			},
+		)
+	}
+
 	ctx := context.Background()
-	awsConfig, err := config.LoadDefaultConfig(ctx)
+
+	eventClientConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-	  logger.Print("Failed to load configuration:", err)
+		logger.Print("Failed to load event client configuration:", err)
+	}
+
+	s3Config, err := config.LoadDefaultConfig(
+		ctx,
+		func(o *config.LoadOptions) error {
+			o.EndpointResolverWithOptions = endpointResolverWithOptions
+			return nil
+		},
+	)
+	if err != nil {
+		logger.Print("Failed to load S3 configuration:", err)
 	}
 
 	l := &Lambda{
-		eventClient: event.NewClient(awsConfig, os.Getenv("EVENT_BUS_NAME")),
-		store:    ddb.New(
+		eventClient: event.NewClient(eventClientConfig, os.Getenv("EVENT_BUS_NAME")),
+		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
+		),
+		staticLpaStorage: objectstore.NewS3Client(
+			s3Config,
+			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
 		verifier: shared.NewJWTVerifier(),
 		logger:   logger,
