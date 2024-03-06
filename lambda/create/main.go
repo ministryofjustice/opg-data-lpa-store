@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
-	"github.com/ministryofjustice/opg-go-common/logging"
+	"github.com/ministryofjustice/opg-go-common/telemetry"
 )
 
 type EventClient interface {
@@ -23,7 +24,9 @@ type EventClient interface {
 }
 
 type Logger interface {
-	Print(...interface{})
+	Error(string, ...any)
+	Info(string, ...any)
+	Debug(string, ...any)
 }
 
 type Store interface {
@@ -50,11 +53,11 @@ type Lambda struct {
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	_, err := l.verifier.VerifyHeader(req)
 	if err != nil {
-		l.logger.Print("Unable to verify JWT from header")
+		l.logger.Info("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
 
-	l.logger.Print("Successfully parsed JWT from event header")
+	l.logger.Debug("Successfully parsed JWT from event header")
 
 	var input shared.LpaInit
 	uid := req.PathParameters["uid"]
@@ -68,7 +71,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	var existingLpa shared.Lpa
 	existingLpa, err = l.store.Get(ctx, uid)
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error fetching LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
@@ -80,7 +83,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	err = json.Unmarshal([]byte(req.Body), &input)
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error unmarshalling request", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
@@ -99,7 +102,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// save
 	if err = l.store.Put(ctx, data); err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error saving LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
@@ -107,7 +110,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
 
 	if err = l.staticLpaStorage.Put(ctx, objectKey, data); err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error saving static record", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
@@ -118,7 +121,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	})
 
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("unexpected error occurred", slog.Any("err", err))
 	}
 
 	// respond
@@ -129,7 +132,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 }
 
 func main() {
-	logger := logging.New(os.Stdout, "opg-data-lpa-store")
+	logger := telemetry.NewLogger("opg-data-lpa-store/create")
 
 	// set endpoint to "" outside dev to use default AWS resolver
 	endpointURL := os.Getenv("AWS_S3_ENDPOINT")
@@ -147,7 +150,7 @@ func main() {
 
 	eventClientConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		logger.Print("Failed to load event client configuration:", err)
+		logger.Error("Failed to load event client configuration", slog.Any("err", err))
 	}
 
 	s3Config, err := config.LoadDefaultConfig(
@@ -158,7 +161,7 @@ func main() {
 		},
 	)
 	if err != nil {
-		logger.Print("Failed to load S3 configuration:", err)
+		logger.Error("Failed to load S3 configuration", slog.Any("err", err))
 	}
 
 	l := &Lambda{
