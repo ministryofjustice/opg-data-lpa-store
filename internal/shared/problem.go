@@ -3,6 +3,7 @@ package shared
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -23,8 +24,10 @@ type Problem struct {
 }
 
 type LogEvent struct {
+	Timestamp   time.Time `json:"time"`
+	Level       string    `json:"level"`
+	Message     string    `json:"msg"`
 	ServiceName string    `json:"service_name"`
-	Timestamp   time.Time `json:"timestamp"`
 	Status      int       `json:"status"`
 	Problem     Problem   `json:"problem"`
 	ErrorString string    `json:"error_string,omitempty"`
@@ -62,6 +65,8 @@ func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 
 	_ = json.NewEncoder(os.Stdout).Encode(LogEvent{
 		ServiceName: "opg-data-lpa-store",
+		Level:       slog.LevelInfo.String(),
+		Message:     problem.Detail,
 		Timestamp:   time.Now(),
 		Status:      problem.StatusCode,
 		Problem:     problem,

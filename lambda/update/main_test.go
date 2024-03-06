@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
+	"log/slog"
 	"regexp"
 	"testing"
 	"time"
@@ -16,19 +16,26 @@ import (
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
-	"github.com/ministryofjustice/opg-go-common/logging"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-var expectedError = errors.New("expected")
+var errExpected = errors.New("expected")
 
 type mockLogger struct {
 	mock.Mock
 }
 
-func (m *mockLogger) Print(v ...interface{}) {
-	m.Called(v...)
+func (m *mockLogger) Error(msg string, v ...any) {
+	m.Called(msg, v)
+}
+
+func (m *mockLogger) Info(msg string, v ...any) {
+	m.Called(msg, v)
+}
+
+func (m *mockLogger) Debug(msg string, v ...any) {
+	m.Called(msg, v)
 }
 
 type mockEventClient struct {
@@ -69,6 +76,9 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 }
 
 func TestHandleEvent(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
 	client := mockEventClient{}
 	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(nil)
@@ -82,7 +92,7 @@ func TestHandleEvent(t *testing.T) {
 				},
 			},
 		},
-		logger: logging.New(io.Discard, ""),
+		logger: logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -131,10 +141,13 @@ func TestHandleEvent(t *testing.T) {
 }
 
 func TestHandleEventWhenUnknownType(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
 		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -146,10 +159,13 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 }
 
 func TestHandleEventWhenUpdateInvalid(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+
 	l := Lambda{
 		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
 		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -161,10 +177,14 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 }
 
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+	logger.On("Debug", "Uid not found", mock.Anything)
+
 	l := Lambda{
 		store:    &mockStore{},
 		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -176,10 +196,14 @@ func TestHandleEventWhenLpaNotFound(t *testing.T) {
 }
 
 func TestHandleEventWhenStoreGetError(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+	logger.On("Error", "error fetching LPA", []interface{}{slog.Any("err", errExpected)})
+
 	l := Lambda{
-		store:    &mockStore{getErr: expectedError},
+		store:    &mockStore{getErr: errExpected},
 		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
@@ -191,9 +215,13 @@ func TestHandleEventWhenStoreGetError(t *testing.T) {
 }
 
 func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+	logger.On("Error", "error unmarshalling request", mock.Anything)
+
 	l := Lambda{
 		verifier: &mockVerifier{},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{})
@@ -203,9 +231,12 @@ func TestHandleEventWhenRequestBodyNotJSON(t *testing.T) {
 }
 
 func TestHandleEventWhenHeaderNotVerified(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Info", "Unable to verify JWT from header", mock.Anything)
+
 	l := Lambda{
 		verifier: &mockVerifier{err: errors.New("Invalid JWT")},
-		logger:   logging.New(io.Discard, ""),
+		logger:   logger,
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{})
@@ -220,8 +251,8 @@ func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(errors.New("Update failed"))
 
 	logger := mockLogger{}
-	logger.On("Print", "Successfully parsed JWT from event header")
-	logger.On("Print", errors.New("Update failed"))
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+	logger.On("Error", "unexpected error occurred", []interface{}{slog.Any("err", errors.New("Update failed"))})
 
 	l := Lambda{
 		eventClient: &client,
