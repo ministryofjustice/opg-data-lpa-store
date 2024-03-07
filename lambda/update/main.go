@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"os"
 	"time"
 
@@ -13,7 +14,7 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
-	"github.com/ministryofjustice/opg-go-common/logging"
+	"github.com/ministryofjustice/opg-go-common/telemetry"
 )
 
 type EventClient interface {
@@ -21,7 +22,9 @@ type EventClient interface {
 }
 
 type Logger interface {
-	Print(...interface{})
+	Error(string, ...any)
+	Info(string, ...any)
+	Debug(string, ...any)
 }
 
 type Store interface {
@@ -43,11 +46,11 @@ type Lambda struct {
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	claims, err := l.verifier.VerifyHeader(req)
 	if err != nil {
-		l.logger.Print("Unable to verify JWT from header")
+		l.logger.Info("Unable to verify JWT from header")
 		return shared.ProblemUnauthorisedRequest.Respond()
 	}
 
-	l.logger.Print("Successfully parsed JWT from event header")
+	l.logger.Debug("Successfully parsed JWT from event header")
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
@@ -56,17 +59,17 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	var update shared.Update
 	if err = json.Unmarshal([]byte(req.Body), &update); err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error unmarshalling request", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	lpa, err := l.store.Get(ctx, req.PathParameters["uid"])
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error fetching LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 	if lpa.Uid == "" {
-		l.logger.Print("Uid not found")
+		l.logger.Debug("Uid not found")
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
@@ -91,13 +94,13 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	update.Author, _ = claims.GetSubject()
 
 	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error saving changes", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	body, err := json.Marshal(lpa)
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("error marshalling LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
@@ -108,7 +111,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	})
 
 	if err != nil {
-		l.logger.Print(err)
+		l.logger.Error("unexpected error occurred", slog.Any("err", err))
 	}
 
 	response.StatusCode = 201
@@ -118,11 +121,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 }
 
 func main() {
-	logger := logging.New(os.Stdout, "opg-data-lpa-store")
+	logger := telemetry.NewLogger("opg-data-lpa-store/update")
 	ctx := context.Background()
 	awsConfig, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		logger.Print("Failed to load configuration:", err)
+		logger.Error("Failed to load configuration", slog.Any("err", err))
 	}
 
 	l := &Lambda{
