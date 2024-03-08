@@ -28,7 +28,7 @@ func TestClientSendEvent(t *testing.T) {
 	ctx := context.Background()
 	expectedError := errors.New("err")
 
-	event := LpaUpdated{Uid: "M-1234-1234-1234", ChangeType: "CREATED"}
+	event := LpaUpdated{Uid: "M-1234-1234-1234", ChangeType: "CREATE"}
 	data, _ := json.Marshal(event)
 
 	mockClient := &mockEventBridgeClient{}

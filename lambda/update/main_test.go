@@ -81,7 +81,10 @@ func TestHandleEvent(t *testing.T) {
 
 	store := &mockStore{get: shared.Lpa{Uid: "1"}}
 	client := mockEventClient{}
-	client.On("SendLpaUpdated", mock.Anything, mock.Anything).Return(nil)
+	client.On("SendLpaUpdated", mock.Anything, event.LpaUpdated{
+		Uid:        "1",
+		ChangeType: "CERTIFICATE_PROVIDER_SIGN",
+	}).Return(nil)
 	l := Lambda{
 		eventClient: &client,
 		store:       store,

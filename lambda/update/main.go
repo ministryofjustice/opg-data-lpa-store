@@ -107,7 +107,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	// send lpa-updated event
 	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid:        lpa.Uid,
-		ChangeType: "UPDATED",
+		ChangeType: update.Type,
 	})
 
 	if err != nil {
