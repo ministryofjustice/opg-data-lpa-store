@@ -46,3 +46,6 @@ gosec: ## Scan Go code for security flaws
 	docker compose run --rm gosec
 
 check-code: go-lint gosec test
+
+up-fixtures: ## Bring up fixtures UI locally
+	docker compose up -d --build fixtures
