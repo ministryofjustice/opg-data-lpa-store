@@ -46,3 +46,10 @@ gosec: ## Scan Go code for security flaws
 	docker compose run --rm gosec
 
 check-code: go-lint gosec test
+
+up-fixtures: ## Bring up fixtures UI locally
+	docker compose up -d --build fixtures
+
+test-gt:
+	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
+	./api-test/tester -jwtSecret=$(JWT_SECRET_KEY) -expectedStatus=200 REQUEST GET http://localhost:9000/lpas/M-E888-MJTJ-B6G6 ''
