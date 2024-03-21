@@ -119,3 +119,13 @@ services:
       - --broker-url=https://pact-broker.api.opg.service.justice.gov.uk/
       - --provider-name=data-lpa-store
       - --state-change-url=http://apigw:8080/_pact_state
+
+  fixtures:
+    build:
+      context: ./fixtures
+      dockerfile: ./Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - SKIP_AUTH=1
+      - BASE_URL=http://apigw:8080/
