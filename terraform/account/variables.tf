@@ -13,11 +13,12 @@ locals {
   account      = var.accounts[local.account_name]
 
   mandatory_moj_tags = {
-    business-unit = "OPG"
-    application   = "opg-data-lpa-store"
-    account       = local.account.account_name
-    is-production = local.account.is_production
-    owner         = "opgteam@digital.justice.gov.uk"
+    business-unit    = "OPG"
+    application      = "opg-data-lpa-store"
+    account          = local.account.account_name
+    environment-name = local.account.account_name
+    is-production    = local.account.is_production
+    owner            = "opgteam@digital.justice.gov.uk"
   }
 
   optional_tags = {
