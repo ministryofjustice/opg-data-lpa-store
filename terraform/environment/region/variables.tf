@@ -48,6 +48,12 @@ variable "event_bus" {
   description = "Event bus to send events to"
 }
 
+variable "has_fixtures" {
+  description = "Whether the environment should have a fixtures container"
+  type        = bool
+  default     = false
+}
+
 variable "lpa_store_static_bucket" {
   description = "LPA Store Static bucket object for the region"
 }
