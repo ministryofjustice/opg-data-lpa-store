@@ -21,6 +21,6 @@ COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/govuk-frontend.m
 COPY static static
 COPY templates templates
 
-EXPOSE 5000
+EXPOSE 80
 
-CMD [ "flask", "run","--host","0.0.0.0","--debug"]
+CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "80"]
