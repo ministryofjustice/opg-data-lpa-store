@@ -15,6 +15,8 @@ module "lambda" {
   ecr_image_uri         = "${data.aws_ecr_repository.lambda[each.key].repository_url}:${var.app_version}"
   event_bus_arn         = var.event_bus.arn
   cloudwatch_kms_key_id = aws_kms_key.cloudwatch.arn
+  subnet_ids            = data.aws_subnets.application.ids
+  vpc_id                = data.aws_vpc.main.id
 
   environment_variables = {
     DDB_TABLE_NAME_DEEDS    = var.dynamodb_name
