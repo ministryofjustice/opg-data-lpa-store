@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "vpc_endpoints_application_subnet_ingress" {
   security_group_id = aws_security_group.vpc_endpoints_application.id
   type              = "ingress"
   cidr_blocks       = module.vpc.application_subnets[*].cidr_block
-  description       = "Allow Services in Private Subnets of ${data.aws_region.current.name} to connect to VPC Interface Endpoints"
+  description       = "Allow Services in Application Subnets of ${data.aws_region.current.name} to connect to VPC Interface Endpoints"
 
   provider = aws.region
 }
