@@ -15,6 +15,11 @@ resource "aws_lambda_function" "main" {
     mode = "Active"
   }
 
+  vpc_config {
+    subnet_ids         = var.subnet_ids
+    security_group_ids = [aws_security_group.lambda.id]
+  }
+
   dynamic "environment" {
     for_each = length(keys(var.environment_variables)) == 0 ? [] : [true]
     content {
