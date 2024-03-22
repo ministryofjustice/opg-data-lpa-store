@@ -28,3 +28,13 @@ variable "environment_variables" {
   type        = map(string)
   default     = {}
 }
+
+variable "subnet_ids" {
+  description = "IDs of the subnets the Lambda Function will sit in"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "ID of VPC the Lambda Function will sit in"
+  type        = string
+}

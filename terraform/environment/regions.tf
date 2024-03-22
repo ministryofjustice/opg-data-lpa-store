@@ -2,6 +2,7 @@ module "eu_west_1" {
   source = "./region"
 
   allowed_arns                    = local.environment.allowed_arns
+  account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 100
   dynamodb_arn                    = aws_dynamodb_table.deeds_table.arn
@@ -23,6 +24,7 @@ module "eu_west_2" {
   source = "./region"
 
   allowed_arns                    = local.environment.allowed_arns
+  account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 0
   dynamodb_arn                    = aws_dynamodb_table_replica.deeds_table.arn

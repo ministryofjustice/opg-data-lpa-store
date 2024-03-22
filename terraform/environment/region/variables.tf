@@ -3,6 +3,11 @@ variable "allowed_arns" {
   type        = list(string)
 }
 
+variable "account_name" {
+  description = "Name of AWS account"
+  type        = string
+}
+
 variable "app_version" {
   description = "Version of application to deploy"
   type        = string
