@@ -16,11 +16,11 @@ resource "aws_ecs_service" "fixtures" {
   propagate_tags        = "SERVICE"
   launch_type           = "FARGATE"
 
-  # load_balancer {
-  #   target_group_arn = aws_lb_target_group.foo.arn
-  #   container_name   = "mongo"
-  #   container_port   = 8080
-  # }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.fixtures.arn
+    container_name   = "fixtures"
+    container_port   = 80
+  }
 
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]
