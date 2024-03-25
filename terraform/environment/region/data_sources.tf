@@ -7,6 +7,20 @@ data "aws_vpc" "main" {
   provider = aws.region
 }
 
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.main.id]
+  }
+
+  filter {
+    name   = "tag:Name"
+    values = ["public-*"]
+  }
+
+  provider = aws.region
+}
+
 data "aws_subnets" "application" {
   filter {
     name   = "vpc-id"

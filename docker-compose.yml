@@ -2,6 +2,7 @@ version: "3.6"
 
 services:
   lambda-create:
+    image: lpa-store/lambda/api-create
     depends_on:
       localstack:
         condition: service_healthy
@@ -27,6 +28,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-update:
+    image: lpa-store/lambda/api-update
     depends_on:
       localstack:
         condition: service_healthy
@@ -50,6 +52,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   lambda-get:
+    image: lpa-store/lambda/api-get
     depends_on:
       localstack:
         condition: service_healthy
@@ -72,7 +75,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   apigw:
-    depends_on: [ lambda-create, lambda-update, lambda-get ]
+    depends_on: [lambda-create, lambda-update, lambda-get]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
@@ -119,3 +122,14 @@ services:
       - --broker-url=https://pact-broker.api.opg.service.justice.gov.uk/
       - --provider-name=data-lpa-store
       - --state-change-url=http://apigw:8080/_pact_state
+
+  fixtures:
+    image: lpa-store/fixtures
+    build:
+      context: ./fixtures
+      dockerfile: ./Dockerfile
+    ports:
+      - "5000:80"
+    environment:
+      - SKIP_AUTH=1
+      - BASE_URL=http://apigw:8080
