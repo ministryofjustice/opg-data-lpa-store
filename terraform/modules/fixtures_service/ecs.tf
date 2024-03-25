@@ -24,7 +24,7 @@ resource "aws_ecs_service" "fixtures" {
 
   network_configuration {
     security_groups  = [aws_security_group.ecs.id]
-    subnets          = var.subnet_ids
+    subnets          = var.application_subnet_ids
     assign_public_ip = false
   }
 

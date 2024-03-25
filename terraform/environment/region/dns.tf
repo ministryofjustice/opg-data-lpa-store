@@ -43,5 +43,3 @@ resource "aws_api_gateway_domain_name" "lpa_store" {
 
   provider = aws.region
 }
-
-# record for ECS
