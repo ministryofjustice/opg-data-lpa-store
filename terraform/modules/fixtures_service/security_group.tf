@@ -35,14 +35,17 @@ data "aws_security_group" "vpc_endpoints_application" {
   provider = aws.region
 }
 
-# Required to pull image from ECR
-resource "aws_security_group_rule" "ecs_to_global" {
+resource "aws_security_group_rule" "lambda_to_vpc_gateways" {
   type              = "egress"
   protocol          = "tcp"
   from_port         = 443
   to_port           = 443
   security_group_id = aws_security_group.ecs.id
-  cidr_blocks       = ["0.0.0.0/0"]
+  prefix_list_ids   = [data.aws_prefix_list.s3.id]
 
   provider = aws.region
+}
+
+data "aws_prefix_list" "s3" {
+  name = "com.amazonaws.${data.aws_region.current.name}.s3"
 }
