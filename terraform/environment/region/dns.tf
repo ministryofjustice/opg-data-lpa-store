@@ -29,7 +29,7 @@ resource "aws_route53_record" "environment_record" {
     zone_id                = aws_api_gateway_domain_name.lpa_store.regional_zone_id
   }
 
-  provider = aws.management
+  provider = aws.region
 }
 
 resource "aws_api_gateway_domain_name" "lpa_store" {
@@ -43,5 +43,3 @@ resource "aws_api_gateway_domain_name" "lpa_store" {
 
   provider = aws.region
 }
-
-# record for ECS
