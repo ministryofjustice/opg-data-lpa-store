@@ -26,7 +26,7 @@ def health_check():
 def health_check_dependencies():
     try:
         aws_auth = AwsAuth()
-        url = os.environ["BASE_URL"] + "health-check"
+        url = os.environ["BASE_URL"] + "/health-check"
 
         if aws_auth.is_authed:
             headers = aws_auth.get_headers(method="GET", url=url)
@@ -67,7 +67,7 @@ def index():
         return render_template("index.html", **template_data)
 
     if request.method == "POST":
-        url = base_url + "lpas/" + uid
+        url = base_url + "/lpas/" + uid
 
         if aws_auth.is_authed:
             headers = aws_auth.get_headers(method="PUT", url=url, data=json_data)
