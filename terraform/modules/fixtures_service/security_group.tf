@@ -13,6 +13,8 @@ resource "aws_security_group_rule" "alb_ingress" {
   source_security_group_id = aws_security_group.loadbalancer_gov_wifi.id
   security_group_id        = aws_security_group.ecs.id
   description              = "Inbound from the ALB"
+
+  provider = aws.region
 }
 
 resource "aws_security_group_rule" "ecs_to_vpc_endpoint" {
