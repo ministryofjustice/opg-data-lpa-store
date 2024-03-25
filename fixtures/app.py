@@ -2,7 +2,7 @@ import requests, os, logging, sys
 from lib.aws_auth import AwsAuth
 from lib.jwt import generate_jwt
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__, static_url_path="/assets")
 
@@ -16,8 +16,41 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+@app.route("/health-check", methods=["GET"])
+def health_check():
+    return jsonify({"ok": True})
+
+
+@app.route("/health-check/service", methods=["GET"])
+@app.route("/health-check/dependencies", methods=["GET"])
+def health_check_dependencies():
+    try:
+        aws_auth = AwsAuth()
+        url = os.environ["BASE_URL"] + "health-check"
+
+        if aws_auth.is_authed:
+            headers = aws_auth.get_headers(method="GET", url=url)
+        else:
+            headers = {}
+
+        requests.get(
+            url,
+            headers={
+                **headers,
+                "Content-Type": "application/json",
+            },
+        )
+
+        return jsonify({"ok": True})
+
+    except Exception as e:
+        logger.error("healthcheck failed: " + e.__class__.__name__, {"exception": e})
+
+        return jsonify({"ok": False})
+
+
 @app.route("/", methods=["GET", "POST"])
-def gt_test():
+def index():
     aws_auth = AwsAuth()
 
     uid = request.form.get("uid", "")

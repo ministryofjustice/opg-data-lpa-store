@@ -1,3 +1,8 @@
+variable "application_subnet_ids" {
+  description = "Application subnet IDs in VPC"
+  type        = list(string)
+}
+
 variable "environment_name" {
   description = "The name of the environment the fixtures container is deployed to"
   type        = string
@@ -13,14 +18,14 @@ variable "ecr_image_uri" {
   type        = string
 }
 
+variable "public_subnet_ids" {
+  description = "Public subnet IDs in VPC"
+  type        = list(string)
+}
+
 variable "service_url" {
   description = "URL of the LPA Store service in this environment"
   type        = string
-}
-
-variable "subnet_ids" {
-  description = "IDs of the subnets the ECS Container will sit in"
-  type        = list(string)
 }
 
 variable "vpc_id" {
