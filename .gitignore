@@ -17,6 +17,7 @@ env/
 # built items
 api-test/tester
 **/coverage.out
+node_modules
 # structurizr
 .structurizr
 docs/architecture/dsl/**/workspace.json

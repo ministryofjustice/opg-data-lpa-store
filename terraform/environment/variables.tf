@@ -29,6 +29,7 @@ variable "environments" {
       account_id         = string
       account_name       = string
       is_production      = bool
+      has_fixtures       = bool
       allowed_arns       = list(string)
       target_event_buses = list(string)
     })
