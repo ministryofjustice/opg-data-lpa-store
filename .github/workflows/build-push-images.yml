@@ -14,10 +14,10 @@ on:
         type: string
     secrets:
       aws_access_key_id:
-        description: 'AWS Access Key ID'
+        description: "AWS Access Key ID"
         required: true
       aws_secret_access_key:
-        description: 'AWS Secret Access Key'
+        description: "AWS Secret Access Key"
         required: true
 
 defaults:
@@ -36,11 +36,13 @@ jobs:
       matrix:
         include:
           - ecr_repository: lpa-store/lambda/api-create
-            dir: create
+            container: lambda-create
           - ecr_repository: lpa-store/lambda/api-get
-            dir: get
+            container: lambda-get
           - ecr_repository: lpa-store/lambda/api-update
-            dir: update
+            container: lambda-update
+          - ecr_repository: lpa-store/fixtures
+            container: fixtures
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
@@ -50,7 +52,7 @@ jobs:
       - name: Build ${{ matrix.ecr_repository }} Image
         id: build_image
         run: |
-          docker build -f ./lambda/Dockerfile -t ${{ matrix.ecr_repository }} --build-arg DIR=${{ matrix.dir }} .
+          docker compose build ${{ matrix.container }}
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
         uses: aquasecurity/trivy-action@0.18.0
