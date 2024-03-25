@@ -36,6 +36,18 @@ resource "aws_security_group" "loadbalancer_gov_wifi" {
   provider = aws.region
 }
 
+resource "aws_security_group_rule" "loadbalancer_egress" {
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.loadbalancer_gov_wifi.id
+  description       = "Loadbalancer outbound access"
+
+  provider = aws.region
+}
+
 resource "aws_security_group_rule" "loadbalancer_ingress_http_gov_wifi" {
   for_each          = local.gov_wifi_allow_lists
   type              = "ingress"

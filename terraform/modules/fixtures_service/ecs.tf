@@ -30,6 +30,7 @@ resource "aws_ecs_service" "fixtures" {
 
   timeouts {
     create = "5m"
+    update = "5m"
   }
 
   provider = aws.region
