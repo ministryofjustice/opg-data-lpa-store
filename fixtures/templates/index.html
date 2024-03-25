@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="assets/govuk-frontend.min.css" />
+    <title>Store</title>
+  </head>
+  <body class="govuk-template__body">
+    <script>
+      document.body.className +=
+        " js-enabled" +
+        ("noModule" in HTMLScriptElement.prototype
+          ? " govuk-frontend-supported"
+          : "");
+    </script>
+
+    <div class="govuk-width-container">
+      <main class="govuk-main-wrapper" id="main-content" role="main">
+        <h1 class="govuk-heading-xl">Scan a new LPA</h1>
+
+        {% if success is defined %} {% if success == True %}
+        <div
+          class="govuk-notification-banner govuk-notification-banner--success"
+          role="alert"
+          aria-labelledby="govuk-notification-banner-title"
+          data-module="govuk-notification-banner"
+        >
+          <div class="govuk-notification-banner__header">
+            <h2
+              class="govuk-notification-banner__title"
+              id="govuk-notification-banner-title"
+            >
+              Success
+            </h2>
+          </div>
+          <div class="govuk-notification-banner__content">
+            <p class="govuk-body">LPA {{ uid }} was created</p>
+          </div>
+        </div>
+        {% else %}
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+          <div role="alert">
+            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                <li>{{ error }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %} {% endif %}
+
+        <form method="post">
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="f-uid"> UID </label>
+            <input
+              class="govuk-input govuk-input--width-20"
+              id="f-uid"
+              name="uid"
+              type="text"
+              value="{{ uid }}"
+              required
+              data-module="uid-generator"
+            />
+          </div>
+
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="f-json-data">
+              LPA content
+            </label>
+            <textarea
+              class="govuk-textarea"
+              name="json-data"
+              id="f-json-data"
+              required
+              rows="10"
+            >
+              {{- json_data -}}
+            </textarea>
+        </div>
+
+          <button type="submit" class="govuk-button" data-module="govuk-button">
+            Send
+          </button>
+        </form>
+      </main>
+    </div>
+
+    <script type="module">
+      import { initAll as govukInitAll } from "./assets/govuk-frontend.min.js";
+      import { initAll as appInitAll } from "./assets/js/main.mjs";
+
+      govukInitAll();
+      appInitAll();
+    </script>
+  </body>
+</html>
