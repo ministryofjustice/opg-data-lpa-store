@@ -44,6 +44,7 @@ jobs:
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -78,6 +79,7 @@ jobs:
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -102,6 +104,7 @@ jobs:
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
@@ -115,6 +118,7 @@ jobs:
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
