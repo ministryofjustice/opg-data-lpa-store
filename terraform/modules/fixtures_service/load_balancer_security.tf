@@ -36,6 +36,17 @@ resource "aws_security_group" "loadbalancer_gov_wifi" {
   provider = aws.region
 }
 
+resource "aws_security_group_rule" "loadbalancer_egress_to_ecs" {
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 80
+  to_port                  = 80
+  security_group_id        = aws_security_group.loadbalancer_gov_wifi.id
+  source_security_group_id = aws_security_group.ecs.id
+
+  provider = aws.region
+}
+
 resource "aws_security_group_rule" "loadbalancer_ingress_http_gov_wifi" {
   for_each          = local.gov_wifi_allow_lists
   type              = "ingress"
