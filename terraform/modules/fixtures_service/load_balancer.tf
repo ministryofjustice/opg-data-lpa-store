@@ -12,6 +12,12 @@ resource "aws_lb" "load_balancer" {
     aws_security_group.loadbalancer_ingress_route53.id,
   ])
 
+  access_logs {
+    bucket  = "gt-test.alb-logs.${data.aws_region.current.name}"
+    prefix  = var.environment_name
+    enabled = true
+  }
+
   tags = { "Name" = "lb-${var.environment_name}" }
 
   provider = aws.region
@@ -82,15 +88,15 @@ resource "aws_lb_target_group" "fixtures" {
   deregistration_delay = 0
   depends_on           = [aws_lb.load_balancer]
 
-  health_check {
-    protocol            = "HTTP"
-    path                = "/health-check"
-    interval            = 15
-    timeout             = 10
-    healthy_threshold   = 2
-    unhealthy_threshold = 5
-    matcher             = "200"
-  }
+  # health_check {
+  #   protocol            = "HTTP"
+  #   path                = "/health-check"
+  #   interval            = 15
+  #   timeout             = 10
+  #   healthy_threshold   = 2
+  #   unhealthy_threshold = 5
+  #   matcher             = "200"
+  # }
 
   lifecycle {
     create_before_destroy = true
