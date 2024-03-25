@@ -33,7 +33,7 @@ locals {
   interface_endpoint = toset([
     "ecr.api",
     "ecr.dkr",
-    "execute-api",
+    "events",
     "logs",
     "secretsmanager",
     "xray",
