@@ -12,6 +12,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 
 	return validate.All(
 		validate.IsValid("/lpaType", lpa.LpaType),
+		validate.IsValid("/channel", lpa.Channel),
 		validate.Required("/donor/firstNames", lpa.Donor.FirstNames),
 		validate.Required("/donor/lastName", lpa.Donor.LastName),
 		validate.Date("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
