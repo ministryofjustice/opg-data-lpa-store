@@ -18,7 +18,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/leodido/go-urn v1.4.0
-	github.com/ministryofjustice/opg-go-common v0.0.0-20240227144553-d506200e53d5
+	github.com/ministryofjustice/opg-go-common v0.0.0-20240326094508-d16a21564abf
 	github.com/stretchr/testify v1.9.0
 )
 
