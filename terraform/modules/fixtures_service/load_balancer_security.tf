@@ -47,19 +47,6 @@ resource "aws_security_group_rule" "loadbalancer_egress_to_ecs" {
   provider = aws.region
 }
 
-resource "aws_security_group_rule" "loadbalancer_ingress_http_gov_wifi" {
-  for_each          = local.gov_wifi_allow_lists
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = each.value.list
-  security_group_id = aws_security_group.loadbalancer_gov_wifi.id
-  description       = "Loadbalancer HTTP inbound from ${each.value.label}"
-
-  provider = aws.region
-}
-
 resource "aws_security_group_rule" "loadbalancer_ingress_https_gov_wifi" {
   for_each          = local.gov_wifi_allow_lists
   type              = "ingress"
@@ -88,18 +75,6 @@ resource "aws_security_group" "loadbalancer_moj_sites_access" {
   provider = aws.region
 }
 
-resource "aws_security_group_rule" "loadbalancer_ingress_http_moj_sites_access" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = local.moj_sites_access
-  security_group_id = aws_security_group.loadbalancer_moj_sites_access.id
-  description       = "Loadbalancer HTTP inbound from MOJ Sites"
-
-  provider = aws.region
-}
-
 resource "aws_security_group_rule" "loadbalancer_ingress_https_moj_sites_access" {
   type              = "ingress"
   from_port         = 443
@@ -108,18 +83,6 @@ resource "aws_security_group_rule" "loadbalancer_ingress_https_moj_sites_access"
   cidr_blocks       = local.moj_sites_access
   security_group_id = aws_security_group.loadbalancer_moj_sites_access.id
   description       = "Loadbalancer HTTPS inbound from MOJ Sites"
-
-  provider = aws.region
-}
-
-resource "aws_security_group_rule" "loadbalancer_ingress_http_palo_alto_prisma_access" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  cidr_blocks       = local.palo_alto_prisma_access
-  security_group_id = aws_security_group.loadbalancer_moj_sites_access.id
-  description       = "Loadbalancer HTTP inbound from Palo Alto Prisma"
 
   provider = aws.region
 }
