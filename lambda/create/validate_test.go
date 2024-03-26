@@ -134,168 +134,272 @@ func TestValidateTrustCorporationInvalidStatus(t *testing.T) {
 }
 
 func TestValidateLpaInvalid(t *testing.T) {
+	attorney := shared.Attorney{
+		Person: shared.Person{
+			FirstNames: "Sharonda",
+			LastName:   "Graciani",
+			Address:    validAddress,
+		},
+		DateOfBirth: newDate("1977-10-30", false),
+		Status:      shared.AttorneyStatusActive,
+	}
+
+	replacementAttorney := shared.Attorney{
+		Person: shared.Person{
+			FirstNames: "Sharonda",
+			LastName:   "Graciani",
+			Address:    validAddress,
+		},
+		DateOfBirth: newDate("1977-10-30", false),
+		Status:      shared.AttorneyStatusReplacement,
+	}
+
+	certificateProvider := shared.CertificateProvider{
+		Person: shared.Person{
+			FirstNames: "Some",
+			LastName:   "Person",
+			Address:    validAddress,
+		},
+		Email:   "some@example.com",
+		Channel: shared.ChannelOnline,
+	}
+
+	lpaWithDonorAndActors := shared.LpaInit{
+		LpaType: shared.LpaTypePropertyAndAffairs,
+		Channel: shared.ChannelOnline,
+		Donor: shared.Donor{
+			Person: shared.Person{
+				FirstNames: "Otto",
+				LastName:   "Boudreau",
+				Address:    validAddress,
+			},
+			DateOfBirth: newDate("1956-08-08", false),
+		},
+		CertificateProvider: certificateProvider,
+		Attorneys:           []shared.Attorney{attorney},
+		SignedAt:            time.Now(),
+		WhenTheLpaCanBeUsed: shared.CanUseWhenHasCapacity,
+	}
+
 	testcases := map[string]struct {
-		lpa      shared.LpaInit
-		contains []shared.FieldError
+		lpa            func() shared.LpaInit
+		expectedErrors []shared.FieldError
 	}{
 		"empty": {
-			contains: []shared.FieldError{
+			lpa: func() shared.LpaInit { return shared.LpaInit{} },
+			expectedErrors: []shared.FieldError{
 				{Source: "/lpaType", Detail: "field is required"},
+				{Source: "/channel", Detail: "field is required"},
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
+				{Source: "/donor/address/line1", Detail: "field is required"},
+				{Source: "/donor/address/town", Detail: "field is required"},
+				{Source: "/donor/address/country", Detail: "field is required"},
+				{Source: "/donor/address/country", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/certificateProvider/firstNames", Detail: "field is required"},
+				{Source: "/certificateProvider/lastName", Detail: "field is required"},
+				{Source: "/certificateProvider/address/line1", Detail: "field is required"},
+				{Source: "/certificateProvider/address/town", Detail: "field is required"},
+				{Source: "/certificateProvider/address/country", Detail: "field is required"},
+				{Source: "/certificateProvider/address/country", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/certificateProvider/channel", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
+				{Source: "/signedAt", Detail: "field is required"},
 			},
 		},
 		"online certificate provider missing email": {
-			lpa: shared.LpaInit{
-				CertificateProvider: shared.CertificateProvider{
-					Channel: shared.ChannelOnline,
-				},
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.CertificateProvider.Email = ""
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/certificateProvider/email", Detail: "field is required"},
 			},
 		},
 		"paper certificate provider with email": {
-			lpa: shared.LpaInit{
-				CertificateProvider: shared.CertificateProvider{
-					Channel: shared.ChannelPaper,
-					Email:   "something",
-				},
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{attorney}
+				lpa.CertificateProvider.Channel = shared.ChannelPaper
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/certificateProvider/email", Detail: "field must not be provided"},
 			},
 		},
 		"single attorney with decisions": {
-			lpa: shared.LpaInit{
-				Attorneys:                 []shared.Attorney{{Status: shared.AttorneyStatusActive}},
-				HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howAttorneysMakeDecisions", Detail: "field must not be provided"},
 			},
 		},
 		"multiple attorneys without decisions": {
-			lpa: shared.LpaInit{
-				Attorneys: []shared.Attorney{{Status: shared.AttorneyStatusActive}, {Status: shared.AttorneyStatusActive}},
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{attorney, attorney}
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howAttorneysMakeDecisions", Detail: "field is required"},
 			},
 		},
 		"multiple attorneys mixed without details": {
-			lpa: shared.LpaInit{
-				Attorneys:                 []shared.Attorney{{Status: shared.AttorneyStatusActive}, {Status: shared.AttorneyStatusActive}},
-				HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howAttorneysMakeDecisionsDetails", Detail: "field is required"},
 			},
 		},
 		"multiple attorneys not mixed with details": {
-			lpa: shared.LpaInit{
-				Attorneys:                        []shared.Attorney{{Status: shared.AttorneyStatusActive}, {Status: shared.AttorneyStatusActive}},
-				HowAttorneysMakeDecisions:        shared.HowMakeDecisionsJointly,
-				HowAttorneysMakeDecisionsDetails: "something",
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
+				lpa.HowAttorneysMakeDecisionsDetails = "something"
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howAttorneysMakeDecisionsDetails", Detail: "field must not be provided"},
 			},
 		},
 		"single replacement attorney with decisions": {
-			lpa: shared.LpaInit{
-				Attorneys:                            []shared.Attorney{{Status: shared.AttorneyStatusReplacement}},
-				HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney}
+				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisions", Detail: "field must not be provided"},
 			},
 		},
 		"multiple replacement attorneys without decisions": {
-			lpa: shared.LpaInit{
-				Attorneys: []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney}
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisions", Detail: "field is required"},
 			},
 		},
 		"attorneys jointly and severally multiple replacement attorneys without step in": {
-			lpa: shared.LpaInit{
-				Attorneys:                 []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney, attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyAndSeverally
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysStepIn", Detail: "field is required"},
 			},
 		},
 		"attorneys jointly and severally multiple replacement attorneys with step in another way no details": {
-			lpa: shared.LpaInit{
-				Attorneys:                     []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowAttorneysMakeDecisions:     shared.HowMakeDecisionsJointlyAndSeverally,
-				HowReplacementAttorneysStepIn: shared.HowStepInAnotherWay,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney, attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyAndSeverally
+				lpa.HowReplacementAttorneysStepIn = shared.HowStepInAnotherWay
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysStepInDetails", Detail: "field is required"},
 			},
 		},
 		"attorneys jointly and severally multiple replacement attorneys with step in all no decisions": {
-			lpa: shared.LpaInit{
-				Attorneys:                     []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowAttorneysMakeDecisions:     shared.HowMakeDecisionsJointlyAndSeverally,
-				HowReplacementAttorneysStepIn: shared.HowStepInAllCanNoLongerAct,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney, attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyAndSeverally
+				lpa.HowReplacementAttorneysStepIn = shared.HowStepInAllCanNoLongerAct
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisions", Detail: "field is required"},
 			},
 		},
 		"attorneys jointly and severally multiple replacement attorneys with step in one with decisions": {
-			lpa: shared.LpaInit{
-				Attorneys:                            []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowAttorneysMakeDecisions:            shared.HowMakeDecisionsJointlyAndSeverally,
-				HowReplacementAttorneysStepIn:        shared.HowStepInOneCanNoLongerAct,
-				HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney, attorney, attorney}
+				lpa.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyAndSeverally
+				lpa.HowReplacementAttorneysStepIn = shared.HowStepInOneCanNoLongerAct
+				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisions", Detail: "field must not be provided"},
 			},
 		},
 		"multiple replacement attorneys mixed without details": {
-			lpa: shared.LpaInit{
-				Attorneys:                            []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney}
+				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisionsDetails", Detail: "field is required"},
 			},
 		},
 		"multiple replacement attorneys not mixed with details": {
-			lpa: shared.LpaInit{
-				Attorneys:                                   []shared.Attorney{{Status: shared.AttorneyStatusReplacement}, {Status: shared.AttorneyStatusReplacement}},
-				HowReplacementAttorneysMakeDecisions:        shared.HowMakeDecisionsJointly,
-				HowReplacementAttorneysMakeDecisionsDetails: "something",
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.Attorneys = []shared.Attorney{replacementAttorney, replacementAttorney}
+				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
+				lpa.HowReplacementAttorneysMakeDecisionsDetails = "something"
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/howReplacementAttorneysMakeDecisionsDetails", Detail: "field must not be provided"},
 			},
 		},
 		"health welfare with when can be used": {
-			lpa: shared.LpaInit{
-				LpaType:             shared.LpaTypePersonalWelfare,
-				WhenTheLpaCanBeUsed: shared.CanUseWhenHasCapacity,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.LpaType = shared.LpaTypePersonalWelfare
+				lpa.WhenTheLpaCanBeUsed = shared.CanUseWhenHasCapacity
+
+				return lpa
 			},
-			contains: []shared.FieldError{
-				{Source: "/whenTheLpaCanBeUsed", Detail: "field must not be provided"},
+			expectedErrors: []shared.FieldError{
 				{Source: "/lifeSustainingTreatmentOption", Detail: "field is required"},
+				{Source: "/whenTheLpaCanBeUsed", Detail: "field must not be provided"},
 			},
 		},
 		"property finance with life sustaining treatment": {
-			lpa: shared.LpaInit{
-				LpaType:                       shared.LpaTypePropertyAndAffairs,
-				LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionA,
+			lpa: func() shared.LpaInit {
+				lpa := lpaWithDonorAndActors
+				lpa.WhenTheLpaCanBeUsed = shared.CanUseUnset
+				lpa.LifeSustainingTreatmentOption = shared.LifeSustainingTreatmentOptionA
+
+				return lpa
 			},
-			contains: []shared.FieldError{
+			expectedErrors: []shared.FieldError{
 				{Source: "/whenTheLpaCanBeUsed", Detail: "field is required"},
 				{Source: "/lifeSustainingTreatmentOption", Detail: "field must not be provided"},
 			},
@@ -304,10 +408,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			errors := Validate(tc.lpa)
-			for _, e := range tc.contains {
-				assert.Contains(t, errors, e)
-			}
+			assert.Equal(t, tc.expectedErrors, Validate(tc.lpa()))
 		})
 	}
 }
@@ -315,6 +416,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 func TestValidateLpaValid(t *testing.T) {
 	lpa := shared.LpaInit{
 		LpaType: shared.LpaTypePersonalWelfare,
+		Channel: shared.ChannelOnline,
 		Donor: shared.Donor{
 			Person: shared.Person{
 				FirstNames: "Otto",
