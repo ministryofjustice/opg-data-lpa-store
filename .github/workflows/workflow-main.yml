@@ -58,6 +58,7 @@ jobs:
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
 
   deploy-preproduction-account:
     needs: [test-dev-env]
