@@ -10,6 +10,7 @@ module "lambda" {
   for_each = local.functions
   source   = "../../modules/lambda"
 
+  account_name          = var.account_name
   environment_name      = var.environment_name
   lambda_name           = each.key
   ecr_image_uri         = "${data.aws_ecr_repository.lambda[each.key].repository_url}:${var.app_version}"
@@ -23,7 +24,7 @@ module "lambda" {
     DDB_TABLE_NAME_CHANGES  = var.dynamodb_name_changes
     EVENT_BUS_NAME          = var.event_bus.name
     S3_BUCKET_NAME_ORIGINAL = var.lpa_store_static_bucket.bucket
-    JWT_SECRET_KEY          = "secret"
+    JWT_SECRET_KEY_ID       = "${var.account_name}/jwt-key"
   }
 
   providers = {
