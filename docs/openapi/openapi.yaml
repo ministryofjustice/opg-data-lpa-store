@@ -242,6 +242,11 @@ components:
           enum:
             - property-and-affairs
             - personal-welfare
+        channel:
+          type: string
+          enum:
+            - paper
+            - online
         donor:
           $ref: "#/components/schemas/Donor"
         attorneys:
