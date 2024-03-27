@@ -22,7 +22,7 @@ services:
       DDB_TABLE_NAME_CHANGES: changes
       S3_BUCKET_NAME_ORIGINAL: opg-lpa-store-static-eu-west-1
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
+      JWT_SECRET_KEY_ID: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -46,7 +46,7 @@ services:
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
+      JWT_SECRET_KEY_ID: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -69,7 +69,7 @@ services:
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-secret}
+      JWT_SECRET_KEY_ID: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -133,3 +133,4 @@ services:
     environment:
       - SKIP_AUTH=1
       - BASE_URL=http://apigw:8080
+      - JWT_SECRET_KEY=secret
