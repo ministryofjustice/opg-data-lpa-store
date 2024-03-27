@@ -13,6 +13,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.31.0
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.30.3
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.53.0
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.28.4
 	github.com/aws/aws-xray-sdk-go v1.8.3
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/go-cmp v0.6.0
