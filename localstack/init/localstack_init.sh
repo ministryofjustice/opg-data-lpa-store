@@ -44,3 +44,8 @@ awslocal dynamodb create-table \
     --attribute-definitions AttributeName=uid,AttributeType=S AttributeName=applied,AttributeType=S \
     --key-schema AttributeName=uid,KeyType=HASH AttributeName=applied,KeyType=RANGE \
     --billing-mode PAY_PER_REQUEST
+
+# Secrets Manager
+awslocal secretsmanager create-secret --name local/jwt-key \
+    --description "JWT secret for service authentication" \
+    --secret-string "secret"

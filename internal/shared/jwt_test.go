@@ -2,7 +2,6 @@ package shared
 
 import (
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -141,22 +140,6 @@ func TestVerifyGoodJwtMRLPASubs(t *testing.T) {
 	})
 
 	_, err := verifier.verifyToken(token)
-	assert.Nil(t, err)
-}
-
-func TestNewJWTVerifier(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
-	})
-
-	os.Setenv("JWT_SECRET_KEY", string(secretKey))
-	newVerifier := NewJWTVerifier()
-	os.Unsetenv("JWT_SECRET_KEY")
-
-	_, err := newVerifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
