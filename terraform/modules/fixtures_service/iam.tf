@@ -93,5 +93,13 @@ data "aws_iam_policy_document" "execution_role" {
     ]
   }
 
+  statement {
+    effect    = "Allow"
+    resources = [aws_secretsmanager_secret.jwt_secret_key.arn]
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+  }
+
   provider = aws.region
 }

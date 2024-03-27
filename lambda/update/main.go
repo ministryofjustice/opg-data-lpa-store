@@ -135,7 +135,7 @@ func main() {
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		verifier: shared.NewJWTVerifier(),
+		verifier: shared.NewJWTVerifier(logger),
 		logger:   logger,
 	}
 
