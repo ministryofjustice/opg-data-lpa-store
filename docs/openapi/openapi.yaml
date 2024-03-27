@@ -232,7 +232,6 @@ components:
       type: object
       required:
         - lpaType
-        - channel
         - donor
         - attorneys
         - certificateProvider
