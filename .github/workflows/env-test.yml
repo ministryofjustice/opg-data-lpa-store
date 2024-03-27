@@ -46,6 +46,8 @@ jobs:
           role-to-assume: arn:aws:iam::493907465011:role/lpa-store-ci
           role-duration-seconds: 3600
           role-session-name: GitHubActions
+      - name: Get signing key
+        run: echo "JWT_SECRET_KEY=$(aws secretsmanager get-secret-value --secret-id=development/jwt-key --output=text --query=SecretString)" >> $GITHUB_ENV
       - name: Run test suite
         env:
           URL: ${{ inputs.base_url }}

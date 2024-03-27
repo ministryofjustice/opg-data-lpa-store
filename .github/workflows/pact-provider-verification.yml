@@ -21,7 +21,7 @@ jobs:
         with:
           go-version: 'stable'
       - run: go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester
-      - run: echo "JWT=$(./api-test/tester -jwtSecret=secret JWT)" >> "$GITHUB_ENV"
+      - run: echo "JWT=$(JWT_SECRET_KEY=secret ./api-test/tester JWT)" >> "$GITHUB_ENV"
       - name: Verify specified Pact
         if: ${{ github.event_name == 'repository_dispatch' }}
         run: |
