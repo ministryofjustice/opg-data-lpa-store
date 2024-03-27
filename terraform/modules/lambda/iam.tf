@@ -54,6 +54,15 @@ data "aws_iam_policy_document" "lambda" {
       "events:PutEvents"
     ]
   }
+
+  statement {
+    sid       = "allowReadJwtSecret"
+    effect    = "Allow"
+    resources = ["${var.account_name}/jwt-key"]
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+  }
 }
 
 resource "aws_lambda_permission" "allow_lambda_execution_operator" {
