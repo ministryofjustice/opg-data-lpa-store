@@ -18,17 +18,17 @@ import (
 
 // ./api-test/tester UID -> generate a UID
 // ./api-test/tester JWT -> generate a JWT
-// ./api-test/tester -jwtSecret=secret -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
+// JWT_SECRET_KEY=secret ./api-test/tester -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
 //
 //	-> make a test request with a JWT generated using secret "secret" and expected status 200
 //
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
-	jwtSecret := flag.String("jwtSecret", "", "Add JWT Authorization header signed with this secret")
 	flag.Parse()
-
 	args := flag.Args()
+
+	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 
 	// early exit if we're just generating a UID or JWT
 	if args[0] == "UID" {
@@ -37,7 +37,7 @@ func main() {
 	}
 
 	if args[0] == "JWT" {
-		fmt.Print(makeJwt([]byte(*jwtSecret)))
+		fmt.Print(makeJwt([]byte(jwtSecret)))
 		os.Exit(0)
 	}
 
@@ -56,8 +56,8 @@ func main() {
 
 	req.Header.Add("Content-type", "application/json")
 
-	if *jwtSecret != "" {
-		tokenString := makeJwt([]byte(*jwtSecret))
+	if jwtSecret != "" {
+		tokenString := makeJwt([]byte(jwtSecret))
 
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}

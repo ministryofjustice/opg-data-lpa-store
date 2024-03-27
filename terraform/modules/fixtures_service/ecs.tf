@@ -74,6 +74,12 @@ locals {
           awslogs-stream-prefix = var.environment_name
         }
       },
+      secrets = [
+        {
+          name      = "JWT_SECRET_KEY",
+          valueFrom = data.aws_secretsmanager_secret.jwt_secret_key.arn
+        }
+      ],
       environment = [
         {
           name  = "BASE_URL",
