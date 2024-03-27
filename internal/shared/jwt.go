@@ -1,13 +1,18 @@
 package shared
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	jwt "github.com/golang-jwt/jwt/v5"
 	urn "github.com/leodido/go-urn"
 )
@@ -83,9 +88,30 @@ type JWTVerifier struct {
 	secretKey []byte
 }
 
-func NewJWTVerifier() JWTVerifier {
+type logger interface {
+	Error(string, ...any)
+}
+
+func NewJWTVerifier(logger logger) JWTVerifier {
+	cfg, err := config.LoadDefaultConfig(context.Background())
+	if err != nil {
+		logger.Error("Failed to load secretsmanager configuration", slog.Any("err", err))
+	}
+
+	client := secretsmanager.NewFromConfig(cfg, func(o *secretsmanager.Options) {
+		o.BaseEndpoint = aws.String(os.Getenv("AWS_DYNAMODB_ENDPOINT"))
+	})
+
+	secretKey, err := client.GetSecretValue(context.Background(), &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(os.Getenv("JWT_SECRET_KEY_ID")),
+	})
+
+	if err != nil {
+		logger.Error("Failed to fetch JWT signing secret", slog.Any("err", err))
+	}
+
 	return JWTVerifier{
-		secretKey: []byte(os.Getenv("JWT_SECRET_KEY")),
+		secretKey: []byte(*secretKey.SecretString),
 	}
 }
 

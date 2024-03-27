@@ -1,3 +1,8 @@
+variable "account_name" {
+  description = "Name of AWS account"
+  type        = string
+}
+
 variable "environment_name" {
   description = "The name of the environment the lambda is deployed to"
   type        = string
