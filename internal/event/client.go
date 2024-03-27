@@ -24,7 +24,9 @@ type Client struct {
 func NewClient(cfg aws.Config, eventBusName string) *Client {
 	return &Client{
 		svc: eventbridge.NewFromConfig(cfg, func(o *eventbridge.Options) {
-			o.BaseEndpoint = aws.String(os.Getenv("AWS_EVENTBRIDGE_ENDPOINT"))
+			if os.Getenv("AWS_DYNAMODB_ENDPOINT") != "" {
+				o.BaseEndpoint = aws.String(os.Getenv("AWS_EVENTBRIDGE_ENDPOINT"))
+			}
 		}),
 		eventBusName: eventBusName,
 	}
