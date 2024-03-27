@@ -1,3 +1,8 @@
+variable "account_name" {
+  description = "Name of AWS account"
+  type        = string
+}
+
 variable "application_subnet_ids" {
   description = "Application subnet IDs in VPC"
   type        = list(string)
