@@ -74,7 +74,7 @@ def index():
         else:
             headers = {}
 
-        token = generate_jwt("secret")
+        token = generate_jwt(os.environ["JWT_SECRET_KEY"])
 
         resp = requests.put(
             url,
