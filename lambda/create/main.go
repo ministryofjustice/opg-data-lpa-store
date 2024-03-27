@@ -175,7 +175,7 @@ func main() {
 			s3Config,
 			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
-		verifier: shared.NewJWTVerifier(),
+		verifier: shared.NewJWTVerifier(logger),
 		logger:   logger,
 	}
 

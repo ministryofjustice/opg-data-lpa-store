@@ -75,14 +75,16 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 }
 
 func main() {
+	logger := telemetry.NewLogger("opg-data-lpa-store/get")
+
 	l := &Lambda{
 		store: ddb.New(
 			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		verifier: shared.NewJWTVerifier(),
-		logger:   telemetry.NewLogger("opg-data-lpa-store/get"),
+		verifier: shared.NewJWTVerifier(logger),
+		logger:   logger,
 	}
 
 	lambda.Start(l.HandleEvent)
