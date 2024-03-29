@@ -98,7 +98,7 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v1.57.1
+    image: golangci/golangci-lint:v1.57.2
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
