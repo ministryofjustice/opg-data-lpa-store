@@ -19,7 +19,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/leodido/go-urn v1.4.0
-	github.com/ministryofjustice/opg-go-common v0.0.0-20240227144553-d506200e53d5
+	github.com/ministryofjustice/opg-go-common v0.0.0-20240327113448-b9fa41e2a2f9
 	github.com/stretchr/testify v1.9.0
 )
 
@@ -69,7 +69,7 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
-	google.golang.org/grpc v1.62.0 // indirect
+	google.golang.org/grpc v1.62.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
