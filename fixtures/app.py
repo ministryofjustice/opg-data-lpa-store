@@ -74,6 +74,9 @@ def index():
         else:
             headers = {}
 
+        logger.info(aws_auth)
+        logger.info(headers)
+
         token = generate_jwt(os.environ["JWT_SECRET_KEY"])
 
         resp = requests.put(
