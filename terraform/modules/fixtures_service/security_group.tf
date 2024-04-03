@@ -35,7 +35,18 @@ data "aws_security_group" "vpc_endpoints_application" {
   provider = aws.region
 }
 
-resource "aws_security_group_rule" "lambda_to_vpc_gateways" {
+resource "aws_security_group_rule" "ecs_to_public_web" {
+  type              = "egress"
+  protocol          = "tcp"
+  from_port         = 443
+  to_port           = 443
+  security_group_id = aws_security_group.ecs.id
+  cidr_blocks       = "0.0.0.0/0"
+
+  provider = aws.region
+}
+
+resource "aws_security_group_rule" "ecs_to_vpc_gateways" {
   type              = "egress"
   protocol          = "tcp"
   from_port         = 443
