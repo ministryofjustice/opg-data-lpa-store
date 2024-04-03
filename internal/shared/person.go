@@ -31,6 +31,7 @@ type Donor struct {
 type CertificateProvider struct {
 	Person
 	Email                     string    `json:"email"`
+	Phone                     string    `json:"phone"`
 	Channel                   Channel   `json:"channel"`
 	SignedAt                  time.Time `json:"signedAt,omitempty"`
 	ContactLanguagePreference Lang      `json:"contactLanguagePreference,omitempty"`
