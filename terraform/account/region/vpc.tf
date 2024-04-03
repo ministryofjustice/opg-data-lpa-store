@@ -34,6 +34,7 @@ locals {
     "ecr.api",
     "ecr.dkr",
     "events",
+    "execute-api",
     "logs",
     "secretsmanager",
     "xray",
