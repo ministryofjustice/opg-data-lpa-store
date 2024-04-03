@@ -74,7 +74,10 @@ def index():
         else:
             headers = {}
 
-        token = generate_jwt(os.environ["JWT_SECRET_KEY"])
+        key = os.environ["JWT_SECRET_KEY"]
+        logger.info('key length: {}'.format(len(key)))
+
+        token = generate_jwt(key)
 
         resp = requests.put(
             url,

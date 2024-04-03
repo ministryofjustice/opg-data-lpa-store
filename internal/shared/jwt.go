@@ -90,6 +90,7 @@ type JWTVerifier struct {
 
 type logger interface {
 	Error(string, ...any)
+	Info(string, ...any)
 }
 
 func NewJWTVerifier(logger logger) JWTVerifier {
@@ -112,8 +113,11 @@ func NewJWTVerifier(logger logger) JWTVerifier {
 		logger.Error("Failed to fetch JWT signing secret", slog.Any("err", err))
 	}
 
+	key := []byte(*secretKey.SecretString)
+	logger.Info(fmt.Sprintf("key length: %d", len(key)))
+
 	return JWTVerifier{
-		secretKey: []byte(*secretKey.SecretString),
+		secretKey: key,
 	}
 }
 
