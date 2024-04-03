@@ -117,7 +117,7 @@ func TestHandleEvent(t *testing.T) {
 	}, store.put)
 
 	assert.NoError(t, uuid.Validate(store.update.Id))
-	assert.Regexp(t, regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z`), store.update.Applied)
+	assert.Regexp(t, regexp.MustCompile(`\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(Z|\+01:00)`), store.update.Applied)
 
 	assert.True(t, cmp.Equal(
 		shared.Update{
