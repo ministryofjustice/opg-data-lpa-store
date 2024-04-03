@@ -422,11 +422,15 @@ components:
       type: object
       required:
         - email
+        - phone
         - channel
       properties:
         email:
           type: string
           x-faker: internet.email
+        phone:
+          type: string
+          x-faker: phone.number
         channel:
           type: string
           enum:

@@ -144,6 +144,7 @@ func handlePactState(r *http.Request) error {
 				"firstNames": "Some",
 				"lastName": "Provider",
 				"email": "some@example.com",
+        "phone": "070009000",
 				"channel": "online",
 				"address": {
 					"line1": "71 South Western Terrace",
