@@ -145,6 +145,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
+				{Source: "/certificateProvider/phone", Detail: "field is required"},
 			},
 		},
 		"online certificate provider missing email": {
@@ -340,6 +341,7 @@ func TestValidateLpaValid(t *testing.T) {
 				LastName:   "Person",
 				Address:    validAddress,
 			},
+			Phone:   "070009000",
 			Email:   "some@example.com",
 			Channel: shared.ChannelOnline,
 		},

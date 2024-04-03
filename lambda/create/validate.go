@@ -23,6 +23,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.IfElse(lpa.CertificateProvider.Channel == shared.ChannelOnline,
 			validate.Required("/certificateProvider/email", lpa.CertificateProvider.Email),
 			validate.Empty("/certificateProvider/email", lpa.CertificateProvider.Email)),
+		validate.Required("/certificateProvider/phone", lpa.CertificateProvider.Phone),
 		validateAttorneys("/attorneys", lpa.Attorneys),
 		validateTrustCorporations("/trustCorporations", lpa.TrustCorporations),
 		validate.IfElse(activeAttorneyCount > 1,
