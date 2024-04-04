@@ -90,7 +90,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	update.Id = uuid.NewString()
 	update.Uid = lpa.Uid
-	update.Applied = time.Now().Format(time.RFC3339)
+	update.Applied = time.Now().UTC().Format(time.RFC3339)
 	update.Author, _ = claims.GetSubject()
 
 	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
