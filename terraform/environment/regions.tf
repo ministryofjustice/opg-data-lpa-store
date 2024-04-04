@@ -2,6 +2,7 @@ module "eu_west_1" {
   source = "./region"
 
   allowed_arns                    = local.environment.allowed_arns
+  allowed_wildcard_arns           = local.environment.allowed_wildcard_arns
   account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 100
@@ -26,6 +27,7 @@ module "eu_west_2" {
   source = "./region"
 
   allowed_arns                    = local.environment.allowed_arns
+  allowed_wildcard_arns           = local.environment.allowed_wildcard_arns
   account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 0
