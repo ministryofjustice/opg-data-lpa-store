@@ -34,7 +34,8 @@ resource "aws_api_gateway_deployment" "lpa_store" {
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_rest_api.lpa_store.body,
-      var.allowed_arns
+      var.allowed_arns,
+      var.allowed_wildcard_arns,
     ]))
   }
 
@@ -115,7 +116,8 @@ resource "aws_api_gateway_account" "api_gateway" {
 
 
 data "aws_iam_policy_document" "lpa_store" {
-  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-resource-policy"
+  policy_id                 = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-resource-policy"
+  override_policy_documents = length(var.allowed_wildcard_arns) > 0 ? [data.aws_iam_policy_document.lpa_store_wildcard.json] : null
 
   statement {
     sid    = "AllowExecutionFromAllowedARNs"
@@ -141,6 +143,28 @@ data "aws_iam_policy_document" "lpa_store" {
 
     actions   = ["execute-api:Invoke"]
     resources = ["execute-api:/${local.stage_name}/GET/health-check"]
+  }
+}
+
+data "aws_iam_policy_document" "lpa_store_wildcard" {
+  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-wildcard-resource-policy"
+
+  statement {
+    sid    = "AllowExecutionFromWildcards"
+    effect = "Allow"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions   = ["execute-api:Invoke"]
+    resources = ["*"]
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:PrincipalArn"
+      values   = var.allowed_wildcard_arns
+    }
   }
 }
 

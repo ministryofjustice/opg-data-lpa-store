@@ -3,6 +3,11 @@ variable "allowed_arns" {
   type        = list(string)
 }
 
+variable "allowed_wildcard_arns" {
+  description = "List of wildcard-containing external ARNs allowed to access the API Gateway"
+  type        = list(string)
+}
+
 variable "account_name" {
   description = "Name of AWS account"
   type        = string
