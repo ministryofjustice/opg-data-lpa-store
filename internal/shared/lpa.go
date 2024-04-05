@@ -8,20 +8,20 @@ type LpaInit struct {
 	LpaType                                     LpaType                 `json:"lpaType"`
 	Donor                                       Donor                   `json:"donor"`
 	Attorneys                                   []Attorney              `json:"attorneys"`
-	TrustCorporations                           []TrustCorporation      `json:"trustCorporations"`
+	TrustCorporations                           []TrustCorporation      `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider     `json:"certificateProvider"`
-	PeopleToNotify                              []PersonToNotify        `json:"peopleToNotify"`
-	HowAttorneysMakeDecisions                   HowMakeDecisions        `json:"howAttorneysMakeDecisions"`
-	HowAttorneysMakeDecisionsDetails            string                  `json:"howAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysMakeDecisions        HowMakeDecisions        `json:"howReplacementAttorneysMakeDecisions"`
-	HowReplacementAttorneysMakeDecisionsDetails string                  `json:"howReplacementAttorneysMakeDecisionsDetails"`
-	HowReplacementAttorneysStepIn               HowStepIn               `json:"howReplacementAttorneysStepIn"`
-	HowReplacementAttorneysStepInDetails        string                  `json:"howReplacementAttorneysStepInDetails"`
-	WhenTheLpaCanBeUsed                         CanUse                  `json:"whenTheLpaCanBeUsed"`
-	LifeSustainingTreatmentOption               LifeSustainingTreatment `json:"lifeSustainingTreatmentOption"`
-	RestrictionsAndConditions                   string                  `json:"restrictionsAndConditions"`
+	PeopleToNotify                              []PersonToNotify        `json:"peopleToNotify,omitempty"`
+	HowAttorneysMakeDecisions                   HowMakeDecisions        `json:"howAttorneysMakeDecisions,omitempty"`
+	HowAttorneysMakeDecisionsDetails            string                  `json:"howAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysMakeDecisions        HowMakeDecisions        `json:"howReplacementAttorneysMakeDecisions,omitempty"`
+	HowReplacementAttorneysMakeDecisionsDetails string                  `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
+	HowReplacementAttorneysStepIn               HowStepIn               `json:"howReplacementAttorneysStepIn,omitempty"`
+	HowReplacementAttorneysStepInDetails        string                  `json:"howReplacementAttorneysStepInDetails,omitempty"`
+	WhenTheLpaCanBeUsed                         CanUse                  `json:"whenTheLpaCanBeUsed,omitempty"`
+	LifeSustainingTreatmentOption               LifeSustainingTreatment `json:"lifeSustainingTreatmentOption,omitempty"`
+	RestrictionsAndConditions                   string                  `json:"restrictionsAndConditions,omitempty"`
 	SignedAt                                    time.Time               `json:"signedAt"`
-	CertificateProviderNotRelatedConfirmedAt    *time.Time              `json:"certificateProviderNotRelatedConfirmedAt"`
+	CertificateProviderNotRelatedConfirmedAt    *time.Time              `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
 type Lpa struct {
