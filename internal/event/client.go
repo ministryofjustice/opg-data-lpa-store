@@ -3,7 +3,6 @@ package event
 import (
 	"context"
 	"encoding/json"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eventbridge"
@@ -23,11 +22,7 @@ type Client struct {
 
 func NewClient(cfg aws.Config, eventBusName string) *Client {
 	return &Client{
-		svc: eventbridge.NewFromConfig(cfg, func(o *eventbridge.Options) {
-			if os.Getenv("AWS_DYNAMODB_ENDPOINT") != "" {
-				o.BaseEndpoint = aws.String(os.Getenv("AWS_EVENTBRIDGE_ENDPOINT"))
-			}
-		}),
+		svc:          eventbridge.NewFromConfig(cfg),
 		eventBusName: eventBusName,
 	}
 }
