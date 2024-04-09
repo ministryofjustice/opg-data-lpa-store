@@ -70,6 +70,8 @@ func main() {
 	}
 
 	if !strings.HasPrefix(url, "http://localhost") {
+		oldreq := req.Clone(ctx)
+
 		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
 			panic(err)
@@ -94,11 +96,12 @@ func main() {
 		_ = req.Clone(ctx).Write(&buf)
 		log.Println(buf.String())
 
-		oldreq := req.Clone(ctx)
-
+		contentLength := req.Header.Get("Content-Length")
+		req.Header.Del("Content-Length")
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
+		req.Header.Add("Content-Length", contentLength)
 
 		buf.Reset()
 		log.Println("-- SIGNED REQUEST --")
