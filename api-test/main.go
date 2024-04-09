@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -15,6 +16,8 @@ import (
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go/aws/session"
+	v4old "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -86,9 +89,32 @@ func main() {
 
 		encodedBody := hex.EncodeToString(hash.Sum(nil))
 
+		var buf bytes.Buffer
+		log.Println("-- UNSIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
+
+		oldreq := req.Clone(ctx)
+
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
+
+		buf.Reset()
+		log.Println("-- SIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
+
+		// OLD style
+		oldsess := session.Must(session.NewSession())
+		oldsigner := v4old.NewSigner(oldsess.Config.Credentials)
+
+		_, err = oldsigner.Sign(oldreq, body, "execute-api", "eu-west-1", time.Now())
+
+		buf.Reset()
+		log.Println("-- OLD SIGNED REQUEST --")
+		_ = oldreq.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
 	}
 
 	client := http.Client{}
