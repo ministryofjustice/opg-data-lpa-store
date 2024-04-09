@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -10,8 +14,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -24,6 +28,7 @@ import (
 //
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
+	ctx := context.Background()
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
 	flag.Parse()
 	args := flag.Args()
@@ -47,14 +52,20 @@ func main() {
 
 	method := args[1]
 	url := args[2]
-	body := strings.NewReader(args[3])
+
+	var body io.ReadSeeker
+	if method != http.MethodGet {
+		body = strings.NewReader(args[3])
+	}
 
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		panic(err)
 	}
 
-	req.Header.Add("Content-type", "application/json")
+	if body != nil {
+		req.Header.Add("Content-type", "application/json")
+	}
 
 	if jwtSecret != "" {
 		tokenString := makeJwt([]byte(jwtSecret))
@@ -63,23 +74,40 @@ func main() {
 	}
 
 	if !strings.HasPrefix(url, "http://localhost") {
-		sess := session.Must(session.NewSession())
-		signer := v4.NewSigner(sess.Config.Credentials)
-
-		_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
+			panic(err)
+		}
+
+		signer := v4.NewSigner()
+
+		credentials, err := cfg.Credentials.Retrieve(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		hash := sha256.New()
+		if body != nil {
+			if _, err := io.Copy(hash, body); err != nil {
+				panic(err)
+			}
+			_, _ = body.Seek(0, 0)
+		}
+
+		encodedBody := hex.EncodeToString(hash.Sum(nil))
+
+		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", cfg.Region, time.Now()); err != nil {
 			panic(err)
 		}
 	}
 
-	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
 
-	buf := new(strings.Builder)
-	_, _ = io.Copy(buf, resp.Body)
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, resp.Body)
 
 	log.Printf("*******************")
 
