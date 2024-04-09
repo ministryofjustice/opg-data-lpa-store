@@ -16,8 +16,6 @@ import (
 
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go/aws/session"
-	v4old "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -54,11 +52,9 @@ func main() {
 
 	method := args[1]
 	url := args[2]
-	var body, oldbody io.ReadSeeker
+	var body io.ReadSeeker
 	if method != http.MethodGet {
-		log.Printf("BODY IS $%s$, len=%d", args[3], len(args[3]))
 		body = strings.NewReader(args[3])
-		oldbody = strings.NewReader(args[3])
 	}
 
 	req, err := http.NewRequest(method, url, body)
@@ -66,21 +62,14 @@ func main() {
 		panic(err)
 	}
 
-	oldreq, err := http.NewRequest(method, url, oldbody)
-	if err != nil {
-		panic(err)
-	}
-
 	if body != nil {
 		req.Header.Add("Content-type", "application/json")
-		oldreq.Header.Add("Content-type", "application/json")
 	}
 
 	if jwtSecret != "" {
 		tokenString := makeJwt([]byte(jwtSecret))
 
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
-		oldreq.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
 	if !strings.HasPrefix(url, "http://localhost") {
@@ -109,32 +98,15 @@ func main() {
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", cfg.Region, time.Now()); err != nil {
 			panic(err)
 		}
-
-		var buf bytes.Buffer
-		log.Println("-- SIGNED REQUEST --")
-		_ = req.Clone(ctx).Write(&buf)
-		log.Println(buf.String())
-
-		// OLD style
-		oldsess := session.Must(session.NewSession())
-		oldsigner := v4old.NewSigner(oldsess.Config.Credentials)
-
-		_, err = oldsigner.Sign(oldreq, oldbody, "execute-api", "eu-west-1", time.Now())
-
-		// buf.Reset()
-		// log.Println("-- OLD SIGNED REQUEST --")
-		// _ = oldreq.Clone(ctx).Write(&buf)
-		// log.Println(buf.String())
 	}
 
-	client := http.Client{}
-	resp, err := client.Do(oldreq)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		panic(err)
 	}
 
-	buf := new(strings.Builder)
-	_, _ = io.Copy(buf, resp.Body)
+	var buf bytes.Buffer
+	_, _ = io.Copy(&buf, resp.Body)
 
 	log.Printf("*******************")
 
