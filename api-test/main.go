@@ -86,9 +86,15 @@ func main() {
 
 		encodedBody := hex.EncodeToString(hash.Sum(nil))
 
+		log.Println("-- UNSIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(os.Stdout)
+
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
+
+		log.Println("-- SIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(os.Stdout)
 	}
 
 	client := http.Client{}
