@@ -61,12 +61,19 @@ func main() {
 		panic(err)
 	}
 
+	oldreq, err := http.NewRequest(method, url, body)
+	if err != nil {
+		panic(err)
+	}
+
 	req.Header.Add("Content-type", "application/json")
+	oldreq.Header.Add("Content-type", "application/json")
 
 	if jwtSecret != "" {
 		tokenString := makeJwt([]byte(jwtSecret))
 
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
+		oldreq.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
 	if !strings.HasPrefix(url, "http://localhost") {
@@ -89,18 +96,11 @@ func main() {
 
 		encodedBody := hex.EncodeToString(hash.Sum(nil))
 
-		var buf bytes.Buffer
-		log.Println("-- UNSIGNED REQUEST --")
-		_ = req.Clone(ctx).Write(&buf)
-		log.Println(buf.String())
-
-		oldreq := req.Clone(ctx)
-
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
 
-		buf.Reset()
+		var buf bytes.Buffer
 		log.Println("-- SIGNED REQUEST --")
 		_ = req.Clone(ctx).Write(&buf)
 		log.Println(buf.String())
@@ -118,7 +118,7 @@ func main() {
 	}
 
 	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(oldreq)
 	if err != nil {
 		panic(err)
 	}
