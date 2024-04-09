@@ -3,22 +3,29 @@ package ddb
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/aws/aws-xray-sdk-go/xray"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
 type Client struct {
-	ddb              *dynamodb.DynamoDB
+	ddb              *dynamodb.Client
 	tableName        string
 	changesTableName string
 }
 
+func New(cfg aws.Config, tableName, changesTableName string) *Client {
+	return &Client{
+		ddb:              dynamodb.NewFromConfig(cfg),
+		tableName:        tableName,
+		changesTableName: changesTableName,
+	}
+}
+
 func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
-	changesItem, _ := dynamodbattribute.MarshalMap(map[string]interface{}{
+	changesItem, _ := attributevalue.MarshalMap(map[string]interface{}{
 		"uid":     update.Uid,
 		"applied": update.Applied,
 		"author":  update.Author,
@@ -26,24 +33,24 @@ func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update)
 		"change":  update.Changes,
 	})
 
-	item, err := dynamodbattribute.MarshalMap(data)
+	item, err := attributevalue.MarshalMapWithOptions(data, encoderOptions)
 	if err != nil {
 		return err
 	}
 
 	transactInput := &dynamodb.TransactWriteItemsInput{
-		TransactItems: []*dynamodb.TransactWriteItem{
+		TransactItems: []types.TransactWriteItem{
 			// write the LPA to the deeds table
-			&dynamodb.TransactWriteItem{
-				Put: &dynamodb.Put{
+			{
+				Put: &types.Put{
 					TableName: aws.String(c.tableName),
 					Item:      item,
 				},
 			},
 
 			// record the change
-			&dynamodb.TransactWriteItem{
-				Put: &dynamodb.Put{
+			{
+				Put: &types.Put{
 					TableName: aws.String(c.changesTableName),
 					Item:      changesItem,
 				},
@@ -51,18 +58,18 @@ func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update)
 		},
 	}
 
-	_, err = c.ddb.TransactWriteItemsWithContext(ctx, transactInput)
+	_, err = c.ddb.TransactWriteItems(ctx, transactInput)
 
 	return err
 }
 
 func (c *Client) Put(ctx context.Context, data any) error {
-	item, err := dynamodbattribute.MarshalMap(data)
+	item, err := attributevalue.MarshalMapWithOptions(data, encoderOptions)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.ddb.PutItemWithContext(ctx, &dynamodb.PutItemInput{
+	_, err = c.ddb.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.tableName),
 		Item:      item,
 	})
@@ -73,14 +80,14 @@ func (c *Client) Put(ctx context.Context, data any) error {
 func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 	lpa := shared.Lpa{}
 
-	marshalledUid, err := dynamodbattribute.Marshal(uid)
+	marshalledUid, err := attributevalue.Marshal(uid)
 	if err != nil {
 		return lpa, err
 	}
 
-	getItemOutput, err := c.ddb.GetItemWithContext(ctx, &dynamodb.GetItemInput{
+	getItemOutput, err := c.ddb.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.tableName),
-		Key: map[string]*dynamodb.AttributeValue{
+		Key: map[string]types.AttributeValue{
 			"uid": marshalledUid,
 		},
 	})
@@ -89,22 +96,15 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 		return lpa, err
 	}
 
-	err = dynamodbattribute.UnmarshalMap(getItemOutput.Item, &lpa)
+	err = attributevalue.UnmarshalMapWithOptions(getItemOutput.Item, &lpa, decoderOptions)
 
 	return lpa, err
 }
 
-func New(endpoint, tableName, changesTableName string) *Client {
-	sess := session.Must(session.NewSession())
-	sess.Config.Endpoint = &endpoint
+func decoderOptions(opts *attributevalue.DecoderOptions) {
+	opts.TagKey = "json"
+}
 
-	c := &Client{
-		ddb:              dynamodb.New(sess),
-		tableName:        tableName,
-		changesTableName: changesTableName,
-	}
-
-	xray.AWS(c.ddb.Client)
-
-	return c
+func encoderOptions(opts *attributevalue.EncoderOptions) {
+	opts.TagKey = "json"
 }

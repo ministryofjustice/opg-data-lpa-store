@@ -132,50 +132,39 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 }
 
 func main() {
+	ctx := context.Background()
 	logger := telemetry.NewLogger("opg-data-lpa-store/create")
 
 	// set endpoint to "" outside dev to use default AWS resolver
-	endpointURL := os.Getenv("AWS_S3_ENDPOINT")
+	endpointURL := os.Getenv("AWS_BASE_URL")
 
-	var endpointResolverWithOptions aws.EndpointResolverWithOptions
-	if endpointURL != "" {
-		endpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
-			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-				return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
-			},
-		)
-	}
+	cfg, err := config.LoadDefaultConfig(ctx, func(o *config.LoadOptions) error {
+		if endpointURL != "" {
+			o.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
+				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+					return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
+				},
+			)
+		}
 
-	ctx := context.Background()
-
-	eventClientConfig, err := config.LoadDefaultConfig(ctx)
+		return nil
+	})
 	if err != nil {
-		logger.Error("Failed to load event client configuration", slog.Any("err", err))
-	}
-
-	s3Config, err := config.LoadDefaultConfig(
-		ctx,
-		func(o *config.LoadOptions) error {
-			o.EndpointResolverWithOptions = endpointResolverWithOptions
-			return nil
-		},
-	)
-	if err != nil {
-		logger.Error("Failed to load S3 configuration", slog.Any("err", err))
+		logger.Error("failed to load aws config", slog.Any("err", err))
 	}
 
 	l := &Lambda{
-		eventClient: event.NewClient(eventClientConfig, os.Getenv("EVENT_BUS_NAME")),
+		eventClient: event.NewClient(cfg, os.Getenv("EVENT_BUS_NAME")),
 		store: ddb.New(
-			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
+			cfg,
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
 		staticLpaStorage: objectstore.NewS3Client(
-			s3Config,
+			cfg,
 			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
-		verifier: shared.NewJWTVerifier(logger),
+		verifier: shared.NewJWTVerifier(cfg, logger),
 		logger:   logger,
 	}
 

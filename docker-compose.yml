@@ -13,9 +13,7 @@ services:
         - DIR=create
     environment:
       AWS_REGION: eu-west-1
-      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
-      AWS_EVENTBRIDGE_ENDPOINT: http://localstack:4566
-      AWS_S3_ENDPOINT: http://localstack:4566
+      AWS_BASE_URL: http://localstack:4566
       AWS_ACCESS_KEY_ID: localstack
       AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
@@ -39,9 +37,8 @@ services:
         - DIR=update
     environment:
       AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
       AWS_ACCESS_KEY_ID: localstack
-      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
-      AWS_EVENTBRIDGE_ENDPOINT: http://localstack:4566
       AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
@@ -63,8 +60,8 @@ services:
         - DIR=get
     environment:
       AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
       AWS_ACCESS_KEY_ID: localstack
-      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
       AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
