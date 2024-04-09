@@ -69,6 +69,8 @@ func main() {
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
+	oldreq := req.Clone(ctx)
+
 	if !strings.HasPrefix(url, "http://localhost") {
 		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
@@ -94,11 +96,12 @@ func main() {
 		_ = req.Clone(ctx).Write(&buf)
 		log.Println(buf.String())
 
-		oldreq := req.Clone(ctx)
-
+		contentLength := req.Header.Get("Content-Length")
+		req.Header.Del("Content-Length")
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
+		req.Header.Add("Content-Length", contentLength)
 
 		buf.Reset()
 		log.Println("-- SIGNED REQUEST --")
@@ -118,7 +121,7 @@ func main() {
 	}
 
 	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(oldreq)
 	if err != nil {
 		panic(err)
 	}
