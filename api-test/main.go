@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -10,8 +14,10 @@ import (
 	"strings"
 	"time"
 
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go/aws/session"
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	v4old "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -24,6 +30,7 @@ import (
 //
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
+	ctx := context.Background()
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
 	flag.Parse()
 	args := flag.Args()
@@ -62,18 +69,59 @@ func main() {
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
 
-	if !strings.HasPrefix(url, "http://localhost") {
-		sess := session.Must(session.NewSession())
-		signer := v4.NewSigner(sess.Config.Credentials)
+	oldreq := req.Clone(ctx)
 
-		_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+	if !strings.HasPrefix(url, "http://localhost") {
+		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
 			panic(err)
 		}
+
+		signer := v4.NewSigner()
+
+		credentials, err := cfg.Credentials.Retrieve(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		hash := sha256.New()
+		if _, err := io.Copy(hash, body); err != nil {
+			panic(err)
+		}
+
+		encodedBody := hex.EncodeToString(hash.Sum(nil))
+
+		var buf bytes.Buffer
+		log.Println("-- UNSIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
+
+		contentLength := req.Header.Get("Content-Length")
+		req.Header.Del("Content-Length")
+		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
+			panic(err)
+		}
+		req.Header.Add("Content-Length", contentLength)
+
+		buf.Reset()
+		log.Println("-- SIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
+
+		// OLD style
+		oldsess := session.Must(session.NewSession())
+		oldsigner := v4old.NewSigner(oldsess.Config.Credentials)
+
+		_, err = oldsigner.Sign(oldreq, body, "execute-api", "eu-west-1", time.Now())
+
+		buf.Reset()
+		log.Println("-- OLD SIGNED REQUEST --")
+		_ = oldreq.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
 	}
 
 	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(oldreq)
 	if err != nil {
 		panic(err)
 	}
