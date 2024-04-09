@@ -11,7 +11,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 	jwt "github.com/golang-jwt/jwt/v5"
 	urn "github.com/leodido/go-urn"
@@ -92,17 +91,8 @@ type logger interface {
 	Error(string, ...any)
 }
 
-func NewJWTVerifier(logger logger) JWTVerifier {
-	cfg, err := config.LoadDefaultConfig(context.Background())
-	if err != nil {
-		logger.Error("Failed to load secretsmanager configuration", slog.Any("err", err))
-	}
-
-	client := secretsmanager.NewFromConfig(cfg, func(o *secretsmanager.Options) {
-		if os.Getenv("AWS_DYNAMODB_ENDPOINT") != "" {
-			o.BaseEndpoint = aws.String(os.Getenv("AWS_DYNAMODB_ENDPOINT"))
-		}
-	})
+func NewJWTVerifier(cfg aws.Config, logger logger) JWTVerifier {
+	client := secretsmanager.NewFromConfig(cfg)
 
 	secretKey, err := client.GetSecretValue(context.Background(), &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(os.Getenv("JWT_SECRET_KEY_ID")),
