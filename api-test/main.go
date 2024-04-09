@@ -1,6 +1,9 @@
 package main
 
 import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"io"
@@ -10,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
-	v4 "github.com/aws/aws-sdk-go/aws/signer/v4"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
@@ -24,6 +27,7 @@ import (
 //
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
+	ctx := context.Background()
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
 	flag.Parse()
 	args := flag.Args()
@@ -63,13 +67,34 @@ func main() {
 	}
 
 	if !strings.HasPrefix(url, "http://localhost") {
-		sess := session.Must(session.NewSession())
-		signer := v4.NewSigner(sess.Config.Credentials)
-
-		_, err = signer.Sign(req, body, "execute-api", "eu-west-1", time.Now())
+		cfg, err := config.LoadDefaultConfig(ctx)
 		if err != nil {
 			panic(err)
 		}
+
+		signer := v4.NewSigner()
+
+		credentials, err := cfg.Credentials.Retrieve(ctx)
+		if err != nil {
+			panic(err)
+		}
+
+		hash := sha256.New()
+		if _, err := io.Copy(hash, body); err != nil {
+			panic(err)
+		}
+
+		encodedBody := hex.EncodeToString(hash.Sum(nil))
+
+		log.Println("-- UNSIGNED REQUEST --")
+		req.Clone(ctx).Write(os.Stdout)
+
+		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
+			panic(err)
+		}
+
+		log.Println("-- SIGNED REQUEST --")
+		req.Clone(ctx).Write(os.Stdout)
 	}
 
 	client := http.Client{}
