@@ -8,6 +8,8 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/telemetry"
@@ -75,15 +77,34 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 }
 
 func main() {
+	ctx := context.Background()
 	logger := telemetry.NewLogger("opg-data-lpa-store/get")
+
+	// set endpoint to "" outside dev to use default AWS resolver
+	endpointURL := os.Getenv("AWS_BASE_URL")
+
+	cfg, err := config.LoadDefaultConfig(ctx, func(o *config.LoadOptions) error {
+		if endpointURL != "" {
+			o.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
+				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+					return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
+				},
+			)
+		}
+
+		return nil
+	})
+	if err != nil {
+		logger.Error("failed to load aws config", slog.Any("err", err))
+	}
 
 	l := &Lambda{
 		store: ddb.New(
-			os.Getenv("AWS_DYNAMODB_ENDPOINT"),
+			cfg,
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		verifier: shared.NewJWTVerifier(logger),
+		verifier: shared.NewJWTVerifier(cfg, logger),
 		logger:   logger,
 	}
 
