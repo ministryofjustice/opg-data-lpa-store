@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -86,9 +87,19 @@ func main() {
 
 		encodedBody := hex.EncodeToString(hash.Sum(nil))
 
+		var buf bytes.Buffer
+		log.Println("-- UNSIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
+
 		if err := signer.SignHTTP(ctx, credentials, req, encodedBody, "execute-api", "eu-west-1", time.Now()); err != nil {
 			panic(err)
 		}
+
+		buf.Reset()
+		log.Println("-- SIGNED REQUEST --")
+		_ = req.Clone(ctx).Write(&buf)
+		log.Println(buf.String())
 	}
 
 	client := http.Client{}
