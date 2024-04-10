@@ -60,8 +60,14 @@ func TestUnmarshalDate(t *testing.T) {
 			err := json.Unmarshal([]byte(tc.in), &date)
 
 			assert.Nil(t, err)
-			assert.Equal(t, tc.expectFormatted, date.Time.Format("2 January 2006"))
+			assert.Equal(t, tc.expectFormatted, date.t.Format("2 January 2006"))
 			assert.Equal(t, tc.expectIsMalformed, date.IsMalformed)
+
+			if !tc.expectIsMalformed {
+				marshal, err := json.Marshal(date)
+				assert.Nil(t, err)
+				assert.Equal(t, tc.in, string(marshal))
+			}
 		})
 	}
 }
@@ -73,10 +79,10 @@ func TestDateDynamoDB(t *testing.T) {
 	}{
 		"value": {
 			dynamo: "2000-01-02",
-			date:   Date{Time: time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)},
+			date:   Date{t: time.Date(2000, time.January, 2, 0, 0, 0, 0, time.UTC)},
 		},
 		"zero": {
-			dynamo: "0001-01-01",
+			dynamo: "",
 			date:   Date{},
 		},
 	}
