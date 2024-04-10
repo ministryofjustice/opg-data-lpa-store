@@ -15,12 +15,12 @@ type CertificateProviderSign struct {
 }
 
 func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !lpa.CertificateProvider.SignedAt.IsZero() {
+	if lpa.CertificateProvider.SignedAt != nil && !lpa.CertificateProvider.SignedAt.IsZero() {
 		return []shared.FieldError{{Source: "/type", Detail: "certificate provider cannot sign again"}}
 	}
 
 	lpa.CertificateProvider.Address = c.Address
-	lpa.CertificateProvider.SignedAt = c.SignedAt
+	lpa.CertificateProvider.SignedAt = &c.SignedAt
 	lpa.CertificateProvider.ContactLanguagePreference = c.ContactLanguagePreference
 
 	return nil

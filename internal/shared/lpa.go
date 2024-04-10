@@ -26,10 +26,10 @@ type LpaInit struct {
 
 type Lpa struct {
 	LpaInit
-	Uid              string    `json:"uid"`
-	Status           LpaStatus `json:"status"`
-	RegistrationDate time.Time `json:"registrationDate"`
-	UpdatedAt        time.Time `json:"updatedAt"`
+	Uid              string     `json:"uid"`
+	Status           LpaStatus  `json:"status"`
+	RegistrationDate *time.Time `json:"registrationDate,omitempty"`
+	UpdatedAt        time.Time  `json:"updatedAt"`
 }
 
 type LpaType string
