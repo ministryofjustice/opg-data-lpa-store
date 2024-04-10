@@ -32,6 +32,23 @@ func (d *Date) UnmarshalText(data []byte) error {
 	return err
 }
 
+func (d Date) MarshalJSON() ([]byte, error) {
+	bytes, err := d.MarshalText()
+	if err != nil {
+		return nil, err
+	}
+
+	return append(append([]byte{'"'}, bytes...), '"'), nil
+}
+
+func (d Date) MarshalText() ([]byte, error) {
+	if d.IsZero() {
+		return []byte{}, nil
+	}
+
+	return []byte(d.Time.Format(time.DateOnly)), nil
+}
+
 func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 	var s string
 	if err := attributevalue.Unmarshal(av, &s); err != nil {
@@ -42,7 +59,10 @@ func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 }
 
 func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
-	text := d.Time.Format(time.DateOnly)
+	bytes, err := d.MarshalText()
+	if err != nil {
+		return nil, err
+	}
 
-	return attributevalue.Marshal(text)
+	return attributevalue.Marshal(string(bytes))
 }

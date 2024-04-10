@@ -4,10 +4,10 @@ import "time"
 
 type Address struct {
 	Line1    string `json:"line1"`
-	Line2    string `json:"line2"`
-	Line3    string `json:"line3"`
+	Line2    string `json:"line2,omitempty"`
+	Line3    string `json:"line3,omitempty"`
 	Town     string `json:"town"`
-	Postcode string `json:"postcode"`
+	Postcode string `json:"postcode,omitempty"`
 	Country  string `json:"country"`
 }
 
@@ -16,6 +16,7 @@ func (a Address) IsZero() bool {
 }
 
 type Person struct {
+	UID        string  `json:"uid"`
 	FirstNames string  `json:"firstNames"`
 	LastName   string  `json:"lastName"`
 	Address    Address `json:"address"`
@@ -25,16 +26,16 @@ type Donor struct {
 	Person
 	DateOfBirth       Date   `json:"dateOfBirth"`
 	Email             string `json:"email"`
-	OtherNamesKnownBy string `json:"otherNamesKnownBy"`
+	OtherNamesKnownBy string `json:"otherNamesKnownBy,omitempty"`
 }
 
 type CertificateProvider struct {
 	Person
-	Email                     string    `json:"email"`
-	Phone                     string    `json:"phone"`
-	Channel                   Channel   `json:"channel"`
-	SignedAt                  time.Time `json:"signedAt,omitempty"`
-	ContactLanguagePreference Lang      `json:"contactLanguagePreference,omitempty"`
+	Email                     string     `json:"email"`
+	Phone                     string     `json:"phone"`
+	Channel                   Channel    `json:"channel"`
+	SignedAt                  *time.Time `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang       `json:"contactLanguagePreference,omitempty"`
 }
 
 type Channel string
@@ -66,7 +67,7 @@ type Attorney struct {
 	Email                     string         `json:"email"`
 	Status                    AttorneyStatus `json:"status"`
 	Mobile                    string         `json:"mobile,omitempty"`
-	SignedAt                  time.Time      `json:"signedAt,omitempty"`
+	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
 	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
 }
 
