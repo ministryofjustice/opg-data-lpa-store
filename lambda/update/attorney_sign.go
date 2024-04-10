@@ -16,12 +16,12 @@ type AttorneySign struct {
 }
 
 func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !lpa.Attorneys[*a.Index].SignedAt.IsZero() {
+	if lpa.Attorneys[*a.Index].SignedAt != nil && !lpa.Attorneys[*a.Index].SignedAt.IsZero() {
 		return []shared.FieldError{{Source: "/type", Detail: "attorney cannot sign again"}}
 	}
 
 	lpa.Attorneys[*a.Index].Mobile = a.Mobile
-	lpa.Attorneys[*a.Index].SignedAt = a.SignedAt
+	lpa.Attorneys[*a.Index].SignedAt = &a.SignedAt
 	lpa.Attorneys[*a.Index].ContactLanguagePreference = a.ContactLanguagePreference
 
 	return nil

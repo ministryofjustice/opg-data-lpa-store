@@ -14,13 +14,10 @@ var validAddress = shared.Address{
 	Country: "GB",
 }
 
-func newDate(date string, isMalformed bool) shared.Date {
-	t, _ := time.Parse("2006-01-02", date)
-
-	return shared.Date{
-		Time:        t,
-		IsMalformed: isMalformed,
-	}
+func newDate(date string) shared.Date {
+	d := shared.Date{}
+	d.UnmarshalText([]byte(date))
+	return d
 }
 
 func TestAll(t *testing.T) {
@@ -61,7 +58,7 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestDate(t *testing.T) {
-	assert.Nil(t, Date("a", shared.Date{Time: time.Now()}))
+	assert.Nil(t, Date("a", newDate("2010-01-02")))
 	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "invalid format"}}, Date("a", shared.Date{IsMalformed: true}))
 	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field is required"}}, Date("a", shared.Date{}))
 }
