@@ -131,3 +131,5 @@ services:
       - SKIP_AUTH=1
       - BASE_URL=http://apigw:8080
       - JWT_SECRET_KEY=secret
+    volumes:
+      - ./fixtures/static/js:/app/static/js
