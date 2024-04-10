@@ -30,23 +30,23 @@ import (
 func main() {
 	ctx := context.Background()
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
+	writeBody := flag.Bool("write", false, "Write the response body to STDOUT")
 	flag.Parse()
 	args := flag.Args()
 
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 
-	// early exit if we're just generating a UID or JWT
-	if args[0] == "UID" {
+	switch args[0] {
+	case "UID":
 		fmt.Print("M-" + strings.ToUpper(uuid.NewString()[9:23]))
 		os.Exit(0)
-	}
-
-	if args[0] == "JWT" {
+	case "JWT":
 		fmt.Print(makeJwt([]byte(jwtSecret)))
 		os.Exit(0)
-	}
+	case "REQUEST":
+		// continue
 
-	if args[0] != "REQUEST" {
+	default:
 		panic("Unrecognised command")
 	}
 
@@ -110,6 +110,10 @@ func main() {
 	_, _ = io.Copy(&buf, resp.Body)
 
 	log.Printf("*******************")
+
+	if *writeBody {
+		fmt.Print(buf.String())
+	}
 
 	if resp.StatusCode != *expectedStatusCode {
 		log.Printf("! TEST FAILED - %s to %s", method, url)

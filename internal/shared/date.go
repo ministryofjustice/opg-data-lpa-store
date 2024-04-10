@@ -8,8 +8,12 @@ import (
 )
 
 type Date struct {
-	time.Time
+	t           time.Time
 	IsMalformed bool
+}
+
+func (d Date) IsZero() bool {
+	return d.t.IsZero()
 }
 
 func (d *Date) UnmarshalJSON(data []byte) error {
@@ -28,8 +32,16 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 
 func (d *Date) UnmarshalText(data []byte) error {
 	var err error
-	d.Time, err = time.Parse(time.DateOnly, string(data))
+	d.t, err = time.Parse(time.DateOnly, string(data))
 	return err
+}
+
+func (d Date) MarshalText() ([]byte, error) {
+	if d.t.IsZero() {
+		return nil, nil
+	}
+
+	return []byte(d.t.Format(time.DateOnly)), nil
 }
 
 func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
@@ -42,7 +54,10 @@ func (d *Date) UnmarshalDynamoDBAttributeValue(av types.AttributeValue) error {
 }
 
 func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
-	text := d.Time.Format(time.DateOnly)
+	bytes, err := d.MarshalText()
+	if err != nil {
+		return nil, err
+	}
 
-	return attributevalue.Marshal(text)
+	return attributevalue.Marshal(string(bytes))
 }
