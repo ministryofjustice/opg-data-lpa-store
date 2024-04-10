@@ -26,13 +26,14 @@ func TestAttorneySignApply(t *testing.T) {
 	errors := a.Apply(lpa)
 	assert.Empty(t, errors)
 	assert.Equal(t, a.Mobile, lpa.Attorneys[attorneyIndex].Mobile)
-	assert.Equal(t, a.SignedAt, lpa.Attorneys[attorneyIndex].SignedAt)
+	assert.Equal(t, a.SignedAt, *lpa.Attorneys[attorneyIndex].SignedAt)
 	assert.Equal(t, a.ContactLanguagePreference, lpa.Attorneys[attorneyIndex].ContactLanguagePreference)
 }
 
 func TestAttorneySignApplyWhenAlreadySigned(t *testing.T) {
 	attorneyIndex := 0
-	lpa := &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{{SignedAt: time.Now()}}}}
+	signedAt := time.Now()
+	lpa := &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{{SignedAt: &signedAt}}}}
 	a := AttorneySign{
 		Index: &attorneyIndex,
 	}
