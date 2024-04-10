@@ -5,6 +5,11 @@
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="assets/govuk-frontend.min.css" />
     <title>Add a new LPA</title>
+    <style>
+      .govuk-form-group .govuk-form-group:last-of-type {
+        margin-bottom: 30px;
+      }
+    </style>
   </head>
   <body class="govuk-template__body">
     <script>
@@ -41,10 +46,16 @@
         {% else %}
         <div class="govuk-error-summary" data-module="govuk-error-summary">
           <div role="alert">
-            <h2 class="govuk-error-summary__title">There is a problem</h2>
+            <h2 class="govuk-error-summary__title">{{ error.detail }}</h2>
             <div class="govuk-error-summary__body">
               <ul class="govuk-list govuk-error-summary__list">
-                <li>{{ error }}</li>
+                {% for err in error.errors %}
+                <li>
+                  <a href="#f-{{err.source}}"
+                    >{{ err.source }}: {{ err.detail }}</a
+                  >
+                </li>
+                {% endfor %}
               </ul>
             </div>
           </div>
@@ -75,10 +86,12 @@
               id="f-json-data"
               required
               rows="10"
+              data-module="json-schema-editor"
+              data-module-json-schema-editor-url="assets/json/lpa-schema.json"
             >
               {{- json_data -}}
             </textarea>
-        </div>
+          </div>
 
           <button type="submit" class="govuk-button" data-module="govuk-button">
             Send
@@ -87,6 +100,7 @@
       </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/json-schema-library@9.3.1/dist/jsonSchemaLibrary.min.js"></script>
     <script type="module">
       import { initAll as govukInitAll } from "./assets/govuk-frontend.min.js";
       import { initAll as appInitAll } from "./assets/js/main.mjs";
