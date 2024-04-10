@@ -20,12 +20,13 @@ func TestCertificateProviderSignApply(t *testing.T) {
 	errors := c.Apply(lpa)
 	assert.Empty(t, errors)
 	assert.Equal(t, c.Address, lpa.CertificateProvider.Address)
-	assert.Equal(t, c.SignedAt, lpa.CertificateProvider.SignedAt)
+	assert.Equal(t, c.SignedAt, *lpa.CertificateProvider.SignedAt)
 	assert.Equal(t, c.ContactLanguagePreference, lpa.CertificateProvider.ContactLanguagePreference)
 }
 
 func TestCertificateProviderSignApplyWhenAlreadySigned(t *testing.T) {
-	lpa := &shared.Lpa{LpaInit: shared.LpaInit{CertificateProvider: shared.CertificateProvider{SignedAt: time.Now()}}}
+	signedAt := time.Now()
+	lpa := &shared.Lpa{LpaInit: shared.LpaInit{CertificateProvider: shared.CertificateProvider{SignedAt: &signedAt}}}
 	c := CertificateProviderSign{}
 
 	errors := c.Apply(lpa)
