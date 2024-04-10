@@ -1,4 +1,4 @@
-import requests, os, logging, sys
+import requests, os, logging, sys, json
 from lib.aws_auth import AwsAuth
 from lib.jwt import generate_jwt
 
@@ -90,7 +90,7 @@ def index():
             "index.html",
             **template_data,
             success=resp.status_code < 400,
-            error=resp.text,
+            error=json.loads(resp.text),
         )
 
     return "error"
