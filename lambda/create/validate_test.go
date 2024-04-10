@@ -14,13 +14,10 @@ var validAddress = shared.Address{
 	Country: "GB",
 }
 
-func newDate(date string, isMalformed bool) shared.Date {
-	t, _ := time.Parse("2006-01-02", date)
-
-	return shared.Date{
-		Time:        t,
-		IsMalformed: isMalformed,
-	}
+func newDate(date string) shared.Date {
+	d := shared.Date{}
+	_ = d.UnmarshalText([]byte(date))
+	return d
 }
 
 func TestCountAttorneys(t *testing.T) {
@@ -60,7 +57,7 @@ func TestValidateAttorneyValid(t *testing.T) {
 			LastName:   "Lathim",
 			Address:    validAddress,
 		},
-		DateOfBirth: newDate("1928-01-18", false),
+		DateOfBirth: newDate("1928-01-18"),
 		Status:      shared.AttorneyStatusActive,
 	}
 	errors := validateAttorney("/test", attorney)
@@ -75,7 +72,7 @@ func TestValidateAttorneyMalformedDateOfBirth(t *testing.T) {
 			LastName:   "Lathim",
 			Address:    validAddress,
 		},
-		DateOfBirth: newDate("bad date", true),
+		DateOfBirth: shared.Date{IsMalformed: true},
 		Status:      shared.AttorneyStatusActive,
 	}
 	errors := validateAttorney("/test", attorney)
@@ -90,7 +87,7 @@ func TestValidateAttorneyInvalidStatus(t *testing.T) {
 			LastName:   "Lathim",
 			Address:    validAddress,
 		},
-		DateOfBirth: newDate("1928-01-18", false),
+		DateOfBirth: newDate("1928-01-18"),
 		Status:      "bad status",
 	}
 	errors := validateAttorney("/test", attorney)
@@ -322,7 +319,7 @@ func TestValidateLpaValid(t *testing.T) {
 				LastName:   "Boudreau",
 				Address:    validAddress,
 			},
-			DateOfBirth: newDate("1956-08-08", false),
+			DateOfBirth: newDate("1956-08-08"),
 		},
 		Attorneys: []shared.Attorney{
 			{
@@ -331,7 +328,7 @@ func TestValidateLpaValid(t *testing.T) {
 					LastName:   "Graciani",
 					Address:    validAddress,
 				},
-				DateOfBirth: newDate("1977-10-30", false),
+				DateOfBirth: newDate("1977-10-30"),
 				Status:      shared.AttorneyStatusActive,
 			},
 		},

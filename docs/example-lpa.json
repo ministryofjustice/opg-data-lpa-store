@@ -1,6 +1,7 @@
 {
   "lpaType": "personal-welfare",
   "donor": {
+    "uid": "eda719db-8880-4dda-8c5d-bb9ea12c236f",
     "firstNames": "Feeg",
     "lastName": "Bundlaaaa",
     "address": {
@@ -13,6 +14,7 @@
   },
   "attorneys": [
     {
+      "uid": "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
       "firstNames": "Herman",
       "lastName": "Seakrest",
       "address": {
@@ -26,6 +28,7 @@
     }
   ],
   "certificateProvider": {
+    "uid": "6808960d-12cf-47c5-a2bc-3177deb8599c",
     "firstNames": "Vone",
     "lastName": "Spust",
     "address": {

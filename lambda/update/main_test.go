@@ -76,6 +76,8 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 }
 
 func TestHandleEvent(t *testing.T) {
+	signedAt := time.Date(2022, time.January, 2, 12, 13, 14, 6, time.UTC)
+
 	logger := &mockLogger{}
 	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
 
@@ -110,7 +112,7 @@ func TestHandleEvent(t *testing.T) {
 		Uid: "1",
 		LpaInit: shared.LpaInit{
 			CertificateProvider: shared.CertificateProvider{
-				SignedAt:                  time.Date(2022, time.January, 2, 12, 13, 14, 6, time.UTC),
+				SignedAt:                  &signedAt,
 				ContactLanguagePreference: shared.LangEn,
 			},
 		},
