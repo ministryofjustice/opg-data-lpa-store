@@ -359,6 +359,7 @@ components:
       required:
         - dateOfBirth
         - email
+        - contactLanguagePreference
       properties:
         dateOfBirth:
           type: string
@@ -370,6 +371,11 @@ components:
           type: string
           nullable: true
           x-faker: name.findName
+        contactLanguagePreference:
+          type: string
+          enum:
+            - en
+            - cy
       additionalProperties: false
     Attorney:
       allOf:

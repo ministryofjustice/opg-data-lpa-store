@@ -125,7 +125,8 @@ func handlePactState(r *http.Request) error {
 					"town": "Hampton Lovett",
 					"postcode": "WR9 2PF",
 					"country": "GB"
-				}
+				},
+				"contactLanguagePreference": "en"
 			},
 			"attorneys": [
 				{
