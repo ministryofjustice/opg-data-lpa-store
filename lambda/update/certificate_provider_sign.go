@@ -12,6 +12,7 @@ type CertificateProviderSign struct {
 	Address                   shared.Address
 	SignedAt                  time.Time
 	ContactLanguagePreference shared.Lang
+	Email                     string
 }
 
 func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
@@ -22,6 +23,9 @@ func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.CertificateProvider.Address = c.Address
 	lpa.CertificateProvider.SignedAt = &c.SignedAt
 	lpa.CertificateProvider.ContactLanguagePreference = c.ContactLanguagePreference
+	lpa.CertificateProvider.Email = c.Email
+	// to account for paper to online moves
+	lpa.CertificateProvider.Channel = shared.ChannelOnline
 
 	return nil
 }
@@ -47,6 +51,9 @@ func validateCertificateProviderSign(changes []shared.Change) (CertificateProvid
 		})).
 		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 			return validate.IsValid("", data.ContactLanguagePreference)
+		})).
+		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
+			return validate.Required("", data.Email)
 		})).
 		Consumed()
 

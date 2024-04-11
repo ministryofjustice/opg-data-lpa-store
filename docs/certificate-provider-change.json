@@ -25,6 +25,11 @@
             "key": "/certificateProvider/contactLanguagePreference",
             "new": "en",
             "old": null
+        },
+        {
+            "key": "/certificateProvider/email",
+            "new": "a@example.com",
+            "old": null
         }
     ]
 }
