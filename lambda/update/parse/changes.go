@@ -83,7 +83,7 @@ func Validate(fn func() []shared.FieldError) Option {
 	}
 }
 
-// UpdateExisting stops [Parser.Field] or [Parser.Prefix] from adding an error when the old value is something other than null.
+// UpdateExisting stops [Parser.Field] from adding an error when the old value is something other than null.
 func UpdateExisting() func(fieldOpts) fieldOpts {
 	return func(f fieldOpts) fieldOpts {
 		f.updateExisting = true
