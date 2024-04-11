@@ -101,7 +101,7 @@ func TestHandleEvent(t *testing.T) {
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"}]}`,
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"},{"key":"/certificateProvider/channel","old":"paper","new":"online"}]}`,
 	})
 
 	assert.Nil(t, err)
@@ -114,6 +114,8 @@ func TestHandleEvent(t *testing.T) {
 			CertificateProvider: shared.CertificateProvider{
 				SignedAt:                  &signedAt,
 				ContactLanguagePreference: shared.LangEn,
+				Channel:                   shared.ChannelOnline,
+				Email:                     "b@example.com",
 			},
 		},
 	}, store.put)
@@ -127,15 +129,25 @@ func TestHandleEvent(t *testing.T) {
 			Author: "1234",
 			Type:   "CERTIFICATE_PROVIDER_SIGN",
 			Changes: []shared.Change{
-				shared.Change{
+				{
 					Key: "/certificateProvider/signedAt",
 					Old: json.RawMessage(`null`),
 					New: json.RawMessage(`"2022-01-02T12:13:14.000000006Z"`),
 				},
-				shared.Change{
+				{
 					Key: "/certificateProvider/contactLanguagePreference",
 					Old: json.RawMessage(`null`),
 					New: json.RawMessage(`"en"`),
+				},
+				{
+					Key: "/certificateProvider/email",
+					Old: json.RawMessage(`"a@example.com"`),
+					New: json.RawMessage(`"b@example.com"`),
+				},
+				{
+					Key: "/certificateProvider/channel",
+					Old: json.RawMessage(`"paper"`),
+					New: json.RawMessage(`"online"`),
 				},
 			},
 		},
@@ -273,7 +285,7 @@ func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"}]}`,
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":null,"new":"a@example.com"}]}`,
 	})
 
 	client.AssertExpectations(t)
