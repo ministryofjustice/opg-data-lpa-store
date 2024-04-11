@@ -141,6 +141,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
+				{Source: "/donor/contactLanguagePreference", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
 				{Source: "/certificateProvider/phone", Detail: "field is required"},
 			},
@@ -319,7 +320,8 @@ func TestValidateLpaValid(t *testing.T) {
 				LastName:   "Boudreau",
 				Address:    validAddress,
 			},
-			DateOfBirth: newDate("1956-08-08"),
+			DateOfBirth:               newDate("1956-08-08"),
+			ContactLanguagePreference: shared.LangEn,
 		},
 		Attorneys: []shared.Attorney{
 			{
