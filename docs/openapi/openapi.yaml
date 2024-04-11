@@ -339,10 +339,14 @@ components:
     Person:
       type: object
       required:
+        - uid
         - firstNames
         - lastName
         - address
       properties:
+        uid:
+          type: string
+          format: uuid
         firstNames:
           type: string
           x-faker: name.firstName
@@ -359,6 +363,7 @@ components:
       required:
         - dateOfBirth
         - email
+        - contactLanguagePreference
       properties:
         dateOfBirth:
           type: string
@@ -370,6 +375,11 @@ components:
           type: string
           nullable: true
           x-faker: name.findName
+        contactLanguagePreference:
+          type: string
+          enum:
+            - en
+            - cy
       additionalProperties: false
     Attorney:
       allOf:

@@ -53,6 +53,7 @@ func TestValidateAttorneyEmpty(t *testing.T) {
 func TestValidateAttorneyValid(t *testing.T) {
 	attorney := shared.Attorney{
 		Person: shared.Person{
+			UID:        "0a266ff6-1c7b-49b7-acd0-047f1dcda2ce",
 			FirstNames: "Lesia",
 			LastName:   "Lathim",
 			Address:    validAddress,
@@ -110,6 +111,7 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 
 func TestValidateTrustCorporationValid(t *testing.T) {
 	trustCorporation := shared.TrustCorporation{
+		UID:           "af2f7aa6-2f8e-4311-af2a-4855c4686d30",
 		Name:          "corp",
 		CompanyNumber: "5",
 		Email:         "corp@example.com",
@@ -141,6 +143,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
+				{Source: "/donor/contactLanguagePreference", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
 				{Source: "/certificateProvider/phone", Detail: "field is required"},
 			},
@@ -315,15 +318,18 @@ func TestValidateLpaValid(t *testing.T) {
 		LpaType: shared.LpaTypePersonalWelfare,
 		Donor: shared.Donor{
 			Person: shared.Person{
+				UID:        "e0f311fd-fe38-40c9-8e82-8263d0f578d9",
 				FirstNames: "Otto",
 				LastName:   "Boudreau",
 				Address:    validAddress,
 			},
-			DateOfBirth: newDate("1956-08-08"),
+			DateOfBirth:               newDate("1956-08-08"),
+			ContactLanguagePreference: shared.LangEn,
 		},
 		Attorneys: []shared.Attorney{
 			{
 				Person: shared.Person{
+					UID:        "b99af83d-5b6c-44f7-8c03-14004699bdb9",
 					FirstNames: "Sharonda",
 					LastName:   "Graciani",
 					Address:    validAddress,
@@ -334,6 +340,7 @@ func TestValidateLpaValid(t *testing.T) {
 		},
 		CertificateProvider: shared.CertificateProvider{
 			Person: shared.Person{
+				UID:        "613d3e2c-4091-42d6-97b3-21bd76f4ffed",
 				FirstNames: "Some",
 				LastName:   "Person",
 				Address:    validAddress,
