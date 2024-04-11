@@ -16,6 +16,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.Required("/donor/lastName", lpa.Donor.LastName),
 		validate.Date("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
 		validate.Address("/donor/address", lpa.Donor.Address),
+		validate.IsValid("/donor/contactLanguagePreference", lpa.Donor.ContactLanguagePreference),
 		validate.Required("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames),
 		validate.Required("/certificateProvider/lastName", lpa.CertificateProvider.LastName),
 		validate.Address("/certificateProvider/address", lpa.CertificateProvider.Address),
