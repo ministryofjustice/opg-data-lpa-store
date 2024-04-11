@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
@@ -40,6 +41,18 @@ func Required(source string, value string) []shared.FieldError {
 
 func Empty(source string, value string) []shared.FieldError {
 	return If(value != "", []shared.FieldError{{Source: source, Detail: "field must not be provided"}})
+}
+
+func UUID(source string, value string) []shared.FieldError {
+	if value == "" {
+		return []shared.FieldError{{Source: source, Detail: "field is required"}}
+	}
+
+	if uuid.Validate(value) != nil {
+		return []shared.FieldError{{Source: source, Detail: "invalid format"}}
+	}
+
+	return nil
 }
 
 func Date(source string, date shared.Date) []shared.FieldError {
