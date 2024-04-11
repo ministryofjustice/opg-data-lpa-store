@@ -28,8 +28,13 @@
         },
         {
             "key": "/certificateProvider/email",
-            "new": "a@example.com",
-            "old": null
+            "new": "b@example.com",
+            "old": "a@example.com"
+        },
+        {
+            "key": "/certificateProvider/channel",
+            "new": "online",
+            "old": "paper"
         }
     ]
 }

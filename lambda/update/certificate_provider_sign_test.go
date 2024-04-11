@@ -71,8 +71,8 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/email",
-						New: json.RawMessage(`"a@example.com"`),
-						Old: jsonNull,
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
 					},
 				},
 			},
