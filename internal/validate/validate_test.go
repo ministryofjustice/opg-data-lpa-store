@@ -57,6 +57,12 @@ func TestEmpty(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field must not be provided"}}, Empty("a", "a"))
 }
 
+func TestUUID(t *testing.T) {
+	assert.Nil(t, UUID("a", "dc487ebb-b39d-45ed-bb6a-7f950fd355c9"))
+	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "invalid format"}}, UUID("a", "dc487ebb-b39d-45ed-bb6a-7f950fd355c"))
+	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "field is required"}}, UUID("a", ""))
+}
+
 func TestDate(t *testing.T) {
 	assert.Nil(t, Date("a", newDate("2010-01-02")))
 	assert.Equal(t, []shared.FieldError{{Source: "a", Detail: "invalid format"}}, Date("a", shared.Date{IsMalformed: true}))

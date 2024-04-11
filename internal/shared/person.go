@@ -24,9 +24,10 @@ type Person struct {
 
 type Donor struct {
 	Person
-	DateOfBirth       Date   `json:"dateOfBirth"`
-	Email             string `json:"email"`
-	OtherNamesKnownBy string `json:"otherNamesKnownBy,omitempty"`
+	DateOfBirth               Date   `json:"dateOfBirth"`
+	Email                     string `json:"email"`
+	OtherNamesKnownBy         string `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference Lang   `json:"contactLanguagePreference"`
 }
 
 type CertificateProvider struct {
@@ -72,6 +73,7 @@ type Attorney struct {
 }
 
 type TrustCorporation struct {
+	UID                       string         `json:"uid"`
 	Name                      string         `json:"name"`
 	CompanyNumber             string         `json:"companyNumber"`
 	Email                     string         `json:"email"`

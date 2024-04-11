@@ -12,10 +12,13 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 
 	return validate.All(
 		validate.IsValid("/lpaType", lpa.LpaType),
+		validate.UUID("/donor/uid", lpa.Donor.UID),
 		validate.Required("/donor/firstNames", lpa.Donor.FirstNames),
 		validate.Required("/donor/lastName", lpa.Donor.LastName),
 		validate.Date("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
 		validate.Address("/donor/address", lpa.Donor.Address),
+		validate.IsValid("/donor/contactLanguagePreference", lpa.Donor.ContactLanguagePreference),
+		validate.UUID("/certificateProvider/uid", lpa.CertificateProvider.UID),
 		validate.Required("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames),
 		validate.Required("/certificateProvider/lastName", lpa.CertificateProvider.LastName),
 		validate.Address("/certificateProvider/address", lpa.CertificateProvider.Address),
@@ -94,6 +97,7 @@ func validateAttorneys(prefix string, attorneys []shared.Attorney) []shared.Fiel
 
 func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldError {
 	return validate.All(
+		validate.UUID(fmt.Sprintf("%s/uid", prefix), attorney.UID),
 		validate.Required(fmt.Sprintf("%s/firstNames", prefix), attorney.FirstNames),
 		validate.Required(fmt.Sprintf("%s/lastName", prefix), attorney.LastName),
 		validate.Required(fmt.Sprintf("%s/status", prefix), string(attorney.Status)),
@@ -117,6 +121,7 @@ func validateTrustCorporations(prefix string, trustCorporations []shared.TrustCo
 
 func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorporation) []shared.FieldError {
 	return validate.All(
+		validate.UUID(fmt.Sprintf("%s/uid", prefix), trustCorporation.UID),
 		validate.Required(fmt.Sprintf("%s/name", prefix), trustCorporation.Name),
 		validate.Required(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber),
 		validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),

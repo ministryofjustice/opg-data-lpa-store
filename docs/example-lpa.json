@@ -10,7 +10,8 @@
       "country": "GB"
     },
     "dateOfBirth": "1970-01-24",
-    "email": "nobody@not.a.real.domain"
+    "email": "nobody@not.a.real.domain",
+    "contactLanguagePreference": "en"
   },
   "attorneys": [
     {
@@ -44,4 +45,3 @@
   "signedAt": "2024-01-10T23:00:00Z",
   "certificateProviderNotRelatedConfirmedAt": "2024-01-11T22:00:00Z"
 }
-
