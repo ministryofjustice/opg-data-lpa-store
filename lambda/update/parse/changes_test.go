@@ -87,6 +87,18 @@ func TestFieldValidateWhenInvalid(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "invalid"}}, errors)
 }
 
+func TestUpdateExisting(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"val"`), Old: json.RawMessage(`"existing"`)},
+	}
+
+	var v string
+	errors := Changes(changes).Field("/thing", &v, UpdateExisting()).Errors()
+
+	assert.Equal(t, "val", v)
+	assert.Nil(t, errors)
+}
+
 func TestConsumed(t *testing.T) {
 	changes := []shared.Change{}
 	errors := Changes(changes).Consumed()
