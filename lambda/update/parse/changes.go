@@ -62,8 +62,9 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional  bool
-	validator func() []shared.FieldError
+	optional       bool
+	updateExisting bool
+	validator      func() []shared.FieldError
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
@@ -78,6 +79,14 @@ func Optional() func(fieldOpts) fieldOpts {
 func Validate(fn func() []shared.FieldError) Option {
 	return func(f fieldOpts) fieldOpts {
 		f.validator = fn
+		return f
+	}
+}
+
+// UpdateExisting stops [Parser.Field] from adding an error when the old value is something other than null.
+func UpdateExisting() func(fieldOpts) fieldOpts {
+	return func(f fieldOpts) fieldOpts {
+		f.updateExisting = true
 		return f
 	}
 }
@@ -100,7 +109,7 @@ func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			if !bytes.Equal(change.Old, []byte("null")) {
+			if !bytes.Equal(change.Old, []byte("null")) && !options.updateExisting {
 				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "must be null"})
 			}
 
