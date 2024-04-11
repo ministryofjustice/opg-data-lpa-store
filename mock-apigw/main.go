@@ -117,6 +117,7 @@ func handlePactState(r *http.Request) error {
 		body := `{
 			"lpaType": "personal-welfare",
 			"donor": {
+				"uid": "34cd75eb-17bc-434a-b922-4772ce3e0439",
 				"firstNames": "Homer",
 				"lastName": "Zoller",
 				"dateOfBirth": "1960-04-06",
@@ -130,6 +131,7 @@ func handlePactState(r *http.Request) error {
 			},
 			"attorneys": [
 				{
+					"uid": "cbb60db5-b450-4811-b0af-bca9f789fcfa",
 					"firstNames": "Jake",
 					"lastName": "Vallar",
 					"dateOfBirth": "2001-01-17",
@@ -142,6 +144,7 @@ func handlePactState(r *http.Request) error {
 				}
 			],
 			"certificateProvider": {
+				"uid": "4fe2ac67-17cc-4e9b-a9d6-ce30b5f9c82e",
 				"firstNames": "Some",
 				"lastName": "Provider",
 				"email": "some@example.com",
