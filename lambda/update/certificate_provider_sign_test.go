@@ -69,6 +69,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 		},
@@ -77,6 +82,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			errors: []shared.FieldError{
 				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
 				{Source: "/changes", Detail: "missing /certificateProvider/contactLanguagePreference"},
+				{Source: "/changes", Detail: "missing /certificateProvider/email"},
 			},
 		},
 		"bad address": {
@@ -102,6 +108,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
 				{Source: "/changes", Detail: "missing /certificateProvider/contactLanguagePreference"},
+				{Source: "/changes", Detail: "missing /certificateProvider/email"},
 			},
 		},
 		"extra fields": {
@@ -123,6 +130,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -142,6 +154,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					{
 						Key: "/certificateProvider/contactLanguagePreference",
 						New: json.RawMessage(`"xy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
 				},
