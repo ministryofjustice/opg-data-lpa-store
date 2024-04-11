@@ -54,7 +54,7 @@ func validateCertificateProviderSign(changes []shared.Change) (CertificateProvid
 		})).
 		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
 			return validate.Required("", data.Email)
-		})).
+		}), parse.Optional()).
 		Consumed()
 
 	return data, errors
