@@ -1,0 +1,96 @@
+openapi: "3.0.3"
+info:
+  title: LPA Store
+  version: "1.0"
+security:
+  - {}
+paths:
+  /lpas/{uid}:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: The UID of the case
+        schema:
+          type: string
+          pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
+          example: M-789Q-P4DF-4UX3
+    put:
+      operationId: putLpa
+      summary: Store an LPA
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_create_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+    get:
+      operationId: getLpa
+      summary: Retrieve an LPA
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_get_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+  /lpas/{uid}/updates:
+    parameters:
+      - name: uid
+        in: path
+        required: true
+        description: The UID of the case
+        schema:
+          type: string
+          pattern: "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})"
+          example: M-789Q-P4DF-4UX3
+    post:
+      operationId: createUpdate
+      summary: Update an LPA
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_update_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
+  /health-check:
+    get:
+      operationId: healthCheck
+      summary: Health check endpoint for external services to consume
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+                additionalProperties: false
+        "503":
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: Unhealthy
+                additionalProperties: false
+      x-amazon-apigateway-auth:
+        type: "NONE"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"status":"ok", "statusCode":200}'
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "when_no_templates"

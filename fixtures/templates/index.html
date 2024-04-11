@@ -87,7 +87,7 @@
               required
               rows="10"
               data-module="json-schema-editor"
-              data-module-json-schema-editor-url="assets/json/lpa-schema.json"
+              data-module-json-schema-editor-url="assets/schemas/2024-04/lpa.json"
             >
               {{- json_data -}}
             </textarea>
@@ -100,7 +100,7 @@
       </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/json-schema-library@9.3.1/dist/jsonSchemaLibrary.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/json-schema-library@9.3.4/dist/jsonSchemaLibrary.min.js"></script>
     <script type="module">
       import { initAll as govukInitAll } from "./assets/govuk-frontend.min.js";
       import { initAll as appInitAll } from "./assets/js/main.mjs";
