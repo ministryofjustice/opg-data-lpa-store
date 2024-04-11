@@ -69,6 +69,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 		},
@@ -123,6 +128,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -142,6 +152,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					{
 						Key: "/certificateProvider/contactLanguagePreference",
 						New: json.RawMessage(`"xy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
 				},
