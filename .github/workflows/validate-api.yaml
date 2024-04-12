@@ -19,4 +19,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - run: npx @redocly/cli lint ./docs/openapi/openapi.yaml --skip-rule no-empty-servers
+      - run: npx @redocly/cli lint ./docs/openapi/openapi.yaml

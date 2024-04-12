@@ -1,0 +1,7 @@
+openapi: "3.0.3"
+components:
+  schemas:
+    InitialLpa:
+      $ref: "#/components/schemas/Empty"
+    Empty:
+      type: object
