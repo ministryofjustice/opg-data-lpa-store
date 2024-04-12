@@ -45,6 +45,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_create_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
     get:
       operationId: getLpa
       summary: Retrieve an LPA
@@ -67,6 +74,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/NotFoundError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_get_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
   /lpas/{uid}/updates:
     parameters:
       - name: uid
@@ -98,6 +112,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_update_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
   /health-check:
     get:
       operationId: healthCheck
@@ -125,6 +146,18 @@ paths:
                     type: string
                     example: Unhealthy
                 additionalProperties: false
+      x-amazon-apigateway-auth:
+        type: "NONE"
+      x-amazon-apigateway-integration:
+        type: "mock"
+        responses:
+          default:
+            statusCode: 200
+            responseTemplates:
+              application/json: '{"status":"ok", "statusCode":200}'
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        passthroughBehavior: "when_no_templates"
 
 components:
   schemas:

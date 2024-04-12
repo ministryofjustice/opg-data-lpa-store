@@ -18,6 +18,7 @@ env/
 api-test/tester
 **/coverage.out
 node_modules
+*.compiled.yaml
 # structurizr
 .structurizr
 docs/architecture/dsl/**/workspace.json
