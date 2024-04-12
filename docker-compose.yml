@@ -133,3 +133,4 @@ services:
       - JWT_SECRET_KEY=secret
     volumes:
       - ./fixtures/static/js:/app/static/js
+      - ./docs/schemas:/app/static/schemas

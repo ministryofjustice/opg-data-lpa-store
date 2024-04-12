@@ -53,3 +53,6 @@ check-code: go-lint gosec test
 
 up-fixtures: ## Bring up fixtures UI locally
 	docker compose up -d --build fixtures
+
+build-apigw-openapi-spec:
+	yq -n 'load("./docs/openapi/openapi.yaml") * load("./docs/openapi/openapi-aws.override.yaml")' > ./docs/openapi/openapi-aws.compiled.yaml
