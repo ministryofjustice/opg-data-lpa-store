@@ -77,6 +77,7 @@ func TestVerifyIssuer(t *testing.T) {
 	}
 }
 
+<<<<<<< Updated upstream
 func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -94,6 +95,9 @@ func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
 }
 
 func TestVerifyBadSubForMRLPAIssuer(t *testing.T) {
+=======
+func TestVerifyBadUIDForMRLPAIssuer(t *testing.T) {
+>>>>>>> Stashed changes
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
@@ -114,7 +118,7 @@ func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -124,7 +128,11 @@ func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
+<<<<<<< Updated upstream
 		"sub": "urn:opg:sirius:users:34",
+=======
+		"sub": "someone",
+>>>>>>> Stashed changes
 	})
 
 	_, err = verifier.verifyToken(token)
@@ -157,7 +165,7 @@ func TestVerifyHeader(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	event := events.APIGatewayProxyRequest{

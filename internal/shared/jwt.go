@@ -66,6 +66,7 @@ func (l LpaStoreClaims) Validate() error {
 		return err
 	}
 
+<<<<<<< Updated upstream
 	_, isUrn := urn.Parse([]byte(sub))
 
 	if !isUrn {
@@ -77,6 +78,12 @@ func (l LpaStoreClaims) Validate() error {
 			if !emailRegex.MatchString(sub) {
 				return errors.New("Subject is not a valid email or URN")
 			}
+=======
+	if iss == mrlpa {
+		uidRegex := regexp.MustCompile("^.+$")
+		if !uidRegex.MatchString(sub) {
+			return errors.New("Subject is not a valid UID")
+>>>>>>> Stashed changes
 		}
 	}
 
