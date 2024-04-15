@@ -50,7 +50,7 @@ func TestVerifyIatInFuture(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * 24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -66,7 +66,7 @@ func TestVerifyIssuer(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "daadsdaadsadsads",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -74,22 +74,6 @@ func TestVerifyIssuer(t *testing.T) {
 	assert.NotNil(t, err)
 	if err != nil {
 		assert.Containsf(t, err.Error(), "Invalid Issuer", "")
-	}
-}
-
-func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.sirius",
-		"sub": "",
-	})
-
-	_, err := verifier.verifyToken(token)
-
-	assert.NotNil(t, err)
-	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid email or URN", "")
 	}
 }
 
@@ -114,7 +98,7 @@ func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -157,7 +141,7 @@ func TestVerifyHeader(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone@someplace.somewhere.com",
+		"sub": "someone",
 	})
 
 	event := events.APIGatewayProxyRequest{

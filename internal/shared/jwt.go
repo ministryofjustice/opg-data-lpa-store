@@ -72,11 +72,6 @@ func (l LpaStoreClaims) Validate() error {
 		switch iss {
 		case mrlpa:
 			return errors.New("Subject is not a valid URN")
-		case sirius:
-			emailRegex := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-			if !emailRegex.MatchString(sub) {
-				return errors.New("Subject is not a valid email or URN")
-			}
 		}
 	}
 
