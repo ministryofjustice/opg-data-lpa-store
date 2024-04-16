@@ -128,8 +128,8 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 					},
 					{
 						Key: "/trustCorporations/1/contactLanguagePreference",
-						Old: json.RawMessage(`"` + shared.LangEn + `"`),
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
 					},
 					{
 						Key: "/donor/firstNames",
@@ -144,7 +144,6 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/5/old", Detail: "must be null"},
 				{Source: "/changes/6", Detail: "unexpected change provided"},
 				{Source: "/changes/7", Detail: "unexpected change provided"},
 			},
@@ -234,7 +233,7 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update)
+			_, errors := validateUpdate(tc.update, &shared.Lpa{})
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}

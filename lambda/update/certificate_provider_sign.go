@@ -31,8 +31,17 @@ func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateCertificateProviderSign(changes []shared.Change) (CertificateProviderSign, []shared.FieldError) {
-	var data CertificateProviderSign
+func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (CertificateProviderSign, []shared.FieldError) {
+	data := CertificateProviderSign{
+		Address:                   lpa.LpaInit.CertificateProvider.Address,
+		ContactLanguagePreference: lpa.LpaInit.CertificateProvider.ContactLanguagePreference,
+		Email:                     lpa.LpaInit.CertificateProvider.Email,
+		Channel:                   lpa.LpaInit.CertificateProvider.Channel,
+	}
+
+	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
+		data.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
+	}
 
 	errors := parse.Changes(changes).
 		Prefix("/certificateProvider/address", func(p *parse.Parser) []shared.FieldError {
@@ -55,10 +64,10 @@ func validateCertificateProviderSign(changes []shared.Change) (CertificateProvid
 		})).
 		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
 			return validate.Required("", data.Email)
-		}), parse.Optional(), parse.UpdateExisting()).
+		}), parse.Optional()).
 		Field("/certificateProvider/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
 			return validate.IsValid("", data.Channel)
-		}), parse.Optional(), parse.UpdateExisting()).
+		}), parse.Optional()).
 		Consumed()
 
 	return data, errors

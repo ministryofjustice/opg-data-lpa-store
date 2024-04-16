@@ -1,12 +1,12 @@
 package parse
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
@@ -24,6 +24,7 @@ type Parser struct {
 	root    string
 	changes []changeWithPosition
 	errors  []shared.FieldError
+	lpa     *shared.Lpa
 }
 
 // Changes constructs a new [Parser] for a set of changes.
@@ -83,16 +84,8 @@ func Validate(fn func() []shared.FieldError) Option {
 	}
 }
 
-// UpdateExisting stops [Parser.Field] from adding an error when the old value is something other than null.
-func UpdateExisting() func(fieldOpts) fieldOpts {
-	return func(f fieldOpts) fieldOpts {
-		f.updateExisting = true
-		return f
-	}
-}
-
-// Field will JSON unmarshal the specified key into v. It will add an error if
-// the key does not exist or if the old field was specified other than null.
+// Field will JSON unmarshal the specified key into existing. It will add an error if
+// the key does not exist or if the old field does not match the current value in the LPA.
 //
 // Consider the change:
 //
@@ -101,7 +94,7 @@ func UpdateExisting() func(fieldOpts) fieldOpts {
 // Then to parse to a string s do:
 //
 //	parser.Field("/thing", &s)
-func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
+func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 	options := fieldOpts{}
 	for _, opt := range opts {
 		options = opt(options)
@@ -109,11 +102,18 @@ func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			if !bytes.Equal(change.Old, []byte("null")) && !options.updateExisting {
-				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "must be null"})
+			var old any
+			if err := json.Unmarshal(change.Old, &old); err != nil {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
 			}
 
-			if err := json.Unmarshal(change.New, v); err != nil {
+			if !oldEqualsExisting(old, existing) {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
+
+				return p
+			}
+
+			if err := json.Unmarshal(change.New, existing); err != nil {
 				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
 			} else if options.validator != nil {
 				for _, error := range options.validator() {
@@ -130,6 +130,43 @@ func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
 		p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + key})
 	}
 	return p
+}
+
+func oldEqualsExisting(old any, existing any) bool {
+	if v, ok := existing.(*string); ok {
+		if old == nil {
+			return *v == ""
+		}
+
+		return old.(string) == *v
+	}
+
+	if v, ok := existing.(*time.Time); ok {
+		if old == nil {
+			return v.IsZero()
+		}
+
+		RFC3339local := "2006-01-02T15:04:05Z"
+		return old.(string) == v.Format(RFC3339local)
+	}
+
+	if v, ok := existing.(*shared.Lang); ok {
+		if old == nil {
+			return *v == shared.LangNotSet
+		}
+
+		return shared.Lang(old.(string)) == *v
+	}
+
+	if v, ok := existing.(*shared.Channel); ok {
+		if old == nil {
+			return *v == shared.ChannelNotSet
+		}
+
+		return shared.Channel(old.(string)) == *v
+	}
+
+	return false
 }
 
 // Each will run fn with a [Parser] for any indexed keys. If required is specified

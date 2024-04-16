@@ -76,17 +76,28 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 }
 
 func TestHandleEvent(t *testing.T) {
+	jsonNull := json.RawMessage("null")
 	signedAt := time.Date(2022, time.January, 2, 12, 13, 14, 6, time.UTC)
 
 	logger := &mockLogger{}
 	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
 
-	store := &mockStore{get: shared.Lpa{Uid: "1"}}
+	store := &mockStore{get: shared.Lpa{
+		Uid: "1",
+		LpaInit: shared.LpaInit{
+			CertificateProvider: shared.CertificateProvider{
+				Email:   "a@example.com",
+				Channel: shared.ChannelPaper,
+			},
+		},
+	}}
+
 	client := mockEventClient{}
 	client.On("SendLpaUpdated", mock.Anything, event.LpaUpdated{
 		Uid:        "1",
 		ChangeType: "CERTIFICATE_PROVIDER_SIGN",
 	}).Return(nil)
+
 	l := Lambda{
 		eventClient: &client,
 		store:       store,
@@ -131,12 +142,12 @@ func TestHandleEvent(t *testing.T) {
 			Changes: []shared.Change{
 				{
 					Key: "/certificateProvider/signedAt",
-					Old: json.RawMessage(`null`),
+					Old: jsonNull,
 					New: json.RawMessage(`"2022-01-02T12:13:14.000000006Z"`),
 				},
 				{
 					Key: "/certificateProvider/contactLanguagePreference",
-					Old: json.RawMessage(`null`),
+					Old: jsonNull,
 					New: json.RawMessage(`"en"`),
 				},
 				{

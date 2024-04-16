@@ -8,7 +8,7 @@ import (
 )
 
 func TestValidateUpdate(t *testing.T) {
-	applyable, errors := validateUpdate(shared.Update{Type: "what"})
+	applyable, errors := validateUpdate(shared.Update{Type: "what"}, &shared.Lpa{})
 	assert.Nil(t, applyable)
 	assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}, errors)
 }
