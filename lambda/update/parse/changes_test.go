@@ -38,7 +38,7 @@ func TestFieldWhenWrongType(t *testing.T) {
 	var v int
 	errors := Changes(changes).Field("/thing", &v).Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "unexpected type"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
 }
 
 func TestFieldOptional(t *testing.T) {
@@ -76,15 +76,35 @@ func TestFieldValidate(t *testing.T) {
 
 func TestFieldValidateWhenInvalid(t *testing.T) {
 	changes := []shared.Change{
-		{Key: "/thing", New: json.RawMessage(`"what"`), Old: jsonNull},
+		{Key: "/thing", New: json.RawMessage(`"what"`), Old: json.RawMessage(`"why"`)},
 	}
 
-	var v string
+	v := "why"
 	errors := Changes(changes).Field("/thing", &v, Validate(func() []shared.FieldError {
 		return []shared.FieldError{{Source: "/rewritten", Detail: "invalid"}}
 	})).Errors()
 
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "invalid"}}, errors)
+}
+
+func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
+	testcases := map[string]json.RawMessage{
+		"string": json.RawMessage(`"not same as existing"`),
+		"null":   jsonNull,
+	}
+
+	for name, oldValue := range testcases {
+		t.Run(name, func(t *testing.T) {
+			changes := []shared.Change{
+				{Key: "/thing", New: json.RawMessage(`"val"`), Old: oldValue},
+			}
+
+			v := "existing"
+			errors := Changes(changes).Field("/thing", &v).Errors()
+
+			assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
+		})
+	}
 }
 
 func TestConsumed(t *testing.T) {
