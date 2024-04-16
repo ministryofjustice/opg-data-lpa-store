@@ -93,8 +93,8 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 					},
 					{
 						Key: "/attorneys/1/contactLanguagePreference",
-						Old: json.RawMessage(`"` + shared.LangEn + `"`),
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
 					},
 					{
 						Key: "/donor/firstNames",
@@ -109,7 +109,6 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/2/old", Detail: "must be null"},
 				{Source: "/changes/3", Detail: "unexpected change provided"},
 				{Source: "/changes/4", Detail: "unexpected change provided"},
 			},
@@ -169,7 +168,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update)
+			_, errors := validateUpdate(tc.update, &shared.Lpa{})
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}
