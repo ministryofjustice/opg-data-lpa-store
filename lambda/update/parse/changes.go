@@ -24,7 +24,6 @@ type Parser struct {
 	root    string
 	changes []changeWithPosition
 	errors  []shared.FieldError
-	lpa     *shared.Lpa
 }
 
 // Changes constructs a new [Parser] for a set of changes.

@@ -43,8 +43,6 @@ func TestAttorneySignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateAttorneySign(t *testing.T) {
-	jsonNull := json.RawMessage("null")
-
 	testcases := map[string]struct {
 		update shared.Update
 		errors []shared.FieldError

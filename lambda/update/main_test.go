@@ -21,6 +21,7 @@ import (
 )
 
 var errExpected = errors.New("expected")
+var jsonNull = json.RawMessage("null")
 
 type mockLogger struct {
 	mock.Mock
@@ -76,7 +77,6 @@ func (m *mockVerifier) VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaS
 }
 
 func TestHandleEvent(t *testing.T) {
-	jsonNull := json.RawMessage("null")
 	signedAt := time.Date(2022, time.January, 2, 12, 13, 14, 6, time.UTC)
 
 	logger := &mockLogger{}

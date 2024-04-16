@@ -34,8 +34,6 @@ func TestCertificateProviderSignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateCertificateProviderSign(t *testing.T) {
-	jsonNull := json.RawMessage("null")
-
 	now := time.Now().UTC()
 	yesterday := time.Now().Add(-24 * time.Hour).UTC()
 	RFC3339local := "2006-01-02T15:04:05Z"

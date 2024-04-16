@@ -48,8 +48,6 @@ func TestTrustCorporationSignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateTrustCorporationSign(t *testing.T) {
-	jsonNull := json.RawMessage("null")
-
 	testcases := map[string]struct {
 		update shared.Update
 		errors []shared.FieldError
