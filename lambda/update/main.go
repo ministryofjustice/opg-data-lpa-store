@@ -74,7 +74,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
-	applyable, errors := validateUpdate(update)
+	applyable, errors := validateUpdate(update, &lpa)
 	if len(errors) > 0 {
 		problem := shared.ProblemInvalidRequest
 		problem.Errors = errors

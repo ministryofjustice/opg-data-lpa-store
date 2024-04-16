@@ -34,13 +34,21 @@ func TestCertificateProviderSignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateCertificateProviderSign(t *testing.T) {
-	jsonNull := json.RawMessage("null")
+	now := time.Now().UTC()
+	yesterday := time.Now().Add(-24 * time.Hour).UTC()
+	RFC3339local := "2006-01-02T15:04:05Z"
 
 	testcases := map[string]struct {
 		update shared.Update
+		lpa    *shared.Lpa
 		errors []shared.FieldError
 	}{
-		"valid": {
+		"valid - no previous values": {
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					CertificateProvider: shared.CertificateProvider{},
+				},
+			},
 			update: shared.Update{
 				Type: "CERTIFICATE_PROVIDER_SIGN",
 				Changes: []shared.Change{
@@ -61,7 +69,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
 						Old: jsonNull,
 					},
 					{
@@ -69,10 +77,91 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/channel",
+						New: json.RawMessage(`"online"`),
+						Old: jsonNull,
+					},
+				},
+			},
+		},
+		"valid - with previous values": {
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					CertificateProvider: shared.CertificateProvider{
+						Person: shared.Person{Address: shared.Address{
+							Line1:    "Line 1",
+							Line2:    "Line 2",
+							Line3:    "Line 3",
+							Town:     "Town",
+							Postcode: "ABC 123",
+							Country:  "GB",
+						}},
+						SignedAt:                  &yesterday,
+						ContactLanguagePreference: shared.LangEn,
+						Email:                     "a@example.com",
+						Channel:                   shared.ChannelOnline,
+					},
+				},
+			},
+			update: shared.Update{
+				Type: "CERTIFICATE_PROVIDER_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"New Line 1"`),
+						Old: json.RawMessage(`"Line 1"`),
+					},
+					{
+						Key: "/certificateProvider/address/line2",
+						New: json.RawMessage(`"New Line 2"`),
+						Old: json.RawMessage(`"Line 2"`),
+					},
+					{
+						Key: "/certificateProvider/address/line3",
+						New: json.RawMessage(`"New Line 3"`),
+						Old: json.RawMessage(`"Line 3"`),
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"New Town"`),
+						Old: json.RawMessage(`"Town"`),
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"FR"`),
+						Old: json.RawMessage(`"GB"`),
+					},
+					{
+						Key: "/certificateProvider/signedAt",
+						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(RFC3339local) + `"`),
+					},
+					{
+						Key: "/certificateProvider/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: json.RawMessage(`"en"`),
+					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
+					},
+					{
+						Key: "/certificateProvider/channel",
+						New: json.RawMessage(`"paper"`),
+						Old: json.RawMessage(`"online"`),
+					},
 				},
 			},
 		},
 		"missing all": {
+			lpa:    &shared.Lpa{},
 			update: shared.Update{Type: "CERTIFICATE_PROVIDER_SIGN"},
 			errors: []shared.FieldError{
 				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
@@ -80,6 +169,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			},
 		},
 		"bad address": {
+			lpa: &shared.Lpa{},
 			update: shared.Update{
 				Type: "CERTIFICATE_PROVIDER_SIGN",
 				Changes: []shared.Change{
@@ -105,32 +195,38 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			},
 		},
 		"extra fields": {
+			lpa: &shared.Lpa{},
 			update: shared.Update{
 				Type: "CERTIFICATE_PROVIDER_SIGN",
 				Changes: []shared.Change{
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
 						Old: jsonNull,
 					},
 					{
 						Key: "/certificateProvider/contactLanguagePreference",
-						Old: json.RawMessage(`"` + shared.LangEn + `"`),
-						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						New: json.RawMessage(`"` + shared.LangEn + `"`),
+						Old: jsonNull,
 					},
 					{
 						Key: "/donor/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/1/old", Detail: "must be null"},
 				{Source: "/changes/2", Detail: "unexpected change provided"},
 			},
 		},
 		"invalid contact language": {
+			lpa: &shared.Lpa{},
 			update: shared.Update{
 				Type: "CERTIFICATE_PROVIDER_SIGN",
 				Changes: []shared.Change{
@@ -144,6 +240,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"xy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -154,7 +255,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update)
+			_, errors := validateUpdate(tc.update, tc.lpa)
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}
