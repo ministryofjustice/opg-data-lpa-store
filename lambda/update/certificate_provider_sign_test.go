@@ -160,6 +160,43 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				},
 			},
 		},
+		"valid - can exclude optional fields": {
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					CertificateProvider: shared.CertificateProvider{},
+				},
+			},
+			update: shared.Update{
+				Type: "CERTIFICATE_PROVIDER_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"123 Main St"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"Homeland"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"GB"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/signedAt",
+						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+				},
+			},
+		},
 		"missing all": {
 			lpa:    &shared.Lpa{},
 			update: shared.Update{Type: "CERTIFICATE_PROVIDER_SIGN"},
