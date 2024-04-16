@@ -62,12 +62,8 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 			return validate.IsValid("", data.ContactLanguagePreference)
 		})).
-		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
-			return validate.Required("", data.Email)
-		}), parse.Optional()).
-		Field("/certificateProvider/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
-			return validate.IsValid("", data.Channel)
-		}), parse.Optional()).
+		Field("/certificateProvider/email", &data.Email, parse.Optional()).
+		Field("/certificateProvider/channel", &data.Channel, parse.Optional()).
 		Consumed()
 
 	return data, errors
