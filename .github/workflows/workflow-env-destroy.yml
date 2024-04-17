@@ -1,0 +1,25 @@
+name: Environment Destroy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      workspace_name:
+        description: Environment name
+        required: true
+        type: environment
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  destroy-pr-env:
+    name: Destroy PR Environment
+    needs: check
+    uses: ./.github/workflows/env-destroy.yml
+    with:
+      workspace_name: ${{ inputs.workspace_name }}
+    secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
