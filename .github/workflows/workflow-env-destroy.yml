@@ -15,7 +15,6 @@ defaults:
 jobs:
   destroy-pr-env:
     name: Destroy PR Environment
-    needs: check
     uses: ./.github/workflows/env-destroy.yml
     with:
       workspace_name: ${{ inputs.workspace_name }}
