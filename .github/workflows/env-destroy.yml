@@ -19,8 +19,19 @@ on:
         required: true
 
 jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Error if protected
+        if: ${{ contains(fromJSON('["development", "preproduction", "production", "demo"]'), inputs.workspace_name) }}
+        run: |
+          echo "Cannot destroy protected Environment"
+          exit 1
+
   terraform_environment_workflow:
     runs-on: ubuntu-latest
+    needs: check
     steps:
       - uses: actions/checkout@v4
         with:
