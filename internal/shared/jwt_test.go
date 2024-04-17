@@ -50,7 +50,7 @@ func TestVerifyIatInFuture(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * 24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone",
+		"sub": "urn:opg:sirius:users:34",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -66,7 +66,7 @@ func TestVerifyIssuer(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "daadsdaadsadsads",
-		"sub": "someone",
+		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
 	})
 
 	_, err := verifier.verifyToken(token)
@@ -74,6 +74,22 @@ func TestVerifyIssuer(t *testing.T) {
 	assert.NotNil(t, err)
 	if err != nil {
 		assert.Containsf(t, err.Error(), "Invalid Issuer", "")
+	}
+}
+
+func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
+	token := createToken(jwt.MapClaims{
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"iat": time.Now().Add(time.Hour * -24).Unix(),
+		"iss": "opg.poas.sirius",
+		"sub": "",
+	})
+
+	_, err := verifier.verifyToken(token)
+
+	assert.NotNil(t, err)
+	if err != nil {
+		assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
 	}
 }
 
@@ -98,20 +114,10 @@ func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone",
-	})
-
-	_, err := verifier.verifyToken(token)
-	assert.Nil(t, err)
-
-	token = createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.sirius",
 		"sub": "urn:opg:sirius:users:34",
 	})
 
-	_, err = verifier.verifyToken(token)
+	_, err := verifier.verifyToken(token)
 	assert.Nil(t, err)
 }
 
@@ -141,7 +147,7 @@ func TestVerifyHeader(t *testing.T) {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "someone",
+		"sub": "urn:opg:sirius:users:34",
 	})
 
 	event := events.APIGatewayProxyRequest{

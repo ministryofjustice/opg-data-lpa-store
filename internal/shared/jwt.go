@@ -69,10 +69,7 @@ func (l LpaStoreClaims) Validate() error {
 	_, isUrn := urn.Parse([]byte(sub))
 
 	if !isUrn {
-		switch iss {
-		case mrlpa:
-			return errors.New("Subject is not a valid URN")
-		}
+		return errors.New("Subject is not a valid URN")
 	}
 
 	return nil
