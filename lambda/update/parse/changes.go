@@ -101,15 +101,18 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			var old any
-			if err := json.Unmarshal(change.Old, &old); err != nil {
-				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
-			}
+			// Adding optional for expand phase - will be removed once consumers are updated
+			if !options.optional {
+				var old any
+				if err := json.Unmarshal(change.Old, &old); err != nil {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
+				}
 
-			if !oldEqualsExisting(old, existing) {
-				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
+				if !oldEqualsExisting(old, existing) {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
 
-				return p
+					return p
+				}
 			}
 
 			if err := json.Unmarshal(change.New, existing); err != nil {

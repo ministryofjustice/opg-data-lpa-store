@@ -143,9 +143,8 @@ func handlePactState(r *http.Request) error {
 			"certificateProvider": {
 				"firstNames": "Some",
 				"lastName": "Provider",
-				"email": "some@example.com",
 				"phone": "070009000",
-				"channel": "online",
+				"channel": "paper",
 				"address": {
 					"line1": "71 South Western Terrace",
 					"town": "Milton",
