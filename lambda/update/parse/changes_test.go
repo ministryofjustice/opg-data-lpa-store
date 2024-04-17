@@ -3,6 +3,7 @@ package parse
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,7 @@ func TestFieldWhenWrongType(t *testing.T) {
 	var v int
 	errors := Changes(changes).Field("/thing", &v).Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "unexpected type"}}, errors)
 }
 
 func TestFieldOptional(t *testing.T) {
@@ -87,6 +88,53 @@ func TestFieldValidateWhenInvalid(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "invalid"}}, errors)
 }
 
+func TestFieldMustMatchExistingString(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"new val"`), Old: json.RawMessage(`"old val"`)},
+	}
+
+	v := "old val"
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
+
+	assert.Equal(t, "new val", v)
+}
+
+func TestFieldMustMatchExistingTime(t *testing.T) {
+	now := time.Now().UTC()
+	yesterday := time.Now().UTC().Add(-24 * time.Hour)
+	RFC3339local := "2006-01-02T15:04:05Z"
+
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`), Old: json.RawMessage(`"` + yesterday.Format(RFC3339local) + `"`)},
+	}
+
+	Changes(changes).Field("/thing", &yesterday, MustMatchExisting())
+
+	assert.WithinDuration(t, now, yesterday, time.Second)
+}
+
+func TestFieldMustMatchExistingLang(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"cy"`), Old: json.RawMessage(`"en"`)},
+	}
+
+	v := shared.LangEn
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
+
+	assert.Equal(t, shared.LangCy, v)
+}
+
+func TestFieldMustMatchExistingChannel(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"online"`), Old: json.RawMessage(`"paper"`)},
+	}
+
+	v := shared.ChannelPaper
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
+
+	assert.Equal(t, shared.ChannelOnline, v)
+}
+
 func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 	testcases := map[string]json.RawMessage{
 		"string": json.RawMessage(`"not same as existing"`),
@@ -100,7 +148,7 @@ func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 			}
 
 			v := "existing"
-			errors := Changes(changes).Field("/thing", &v).Errors()
+			errors := Changes(changes).Field("/thing", &v, MustMatchExisting()).Errors()
 
 			assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
 		})

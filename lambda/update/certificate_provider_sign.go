@@ -46,22 +46,22 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 	errors := parse.Changes(changes).
 		Prefix("/certificateProvider/address", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Field("/line1", &data.Address.Line1, parse.Optional()).
+				Field("/line1", &data.Address.Line1).
 				Field("/line2", &data.Address.Line2, parse.Optional()).
 				Field("/line3", &data.Address.Line3, parse.Optional()).
-				Field("/town", &data.Address.Town, parse.Optional()).
+				Field("/town", &data.Address.Town).
 				Field("/postcode", &data.Address.Postcode, parse.Optional()).
 				Field("/country", &data.Address.Country, parse.Validate(func() []shared.FieldError {
 					return validate.Country("", data.Address.Country)
-				}), parse.Optional()).
+				})).
 				Consumed()
 		}, parse.Optional()).
 		Field("/certificateProvider/signedAt", &data.SignedAt, parse.Validate(func() []shared.FieldError {
 			return validate.Time("", data.SignedAt)
-		}), parse.Optional()).
+		})).
 		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 			return validate.IsValid("", data.ContactLanguagePreference)
-		}), parse.Optional()).
+		})).
 		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
 			return validate.Required("", data.Email)
 		}), parse.Optional()).

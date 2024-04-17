@@ -62,14 +62,23 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional  bool
-	validator func() []shared.FieldError
+	optional          bool
+	mustMatchExisting bool
+	validator         func() []shared.FieldError
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
 func Optional() func(fieldOpts) fieldOpts {
 	return func(f fieldOpts) fieldOpts {
 		f.optional = true
+		return f
+	}
+}
+
+// MustMatchExisting [Parser.Field] will add an error when the old value does not match the existing value.
+func MustMatchExisting() func(fieldOpts) fieldOpts {
+	return func(f fieldOpts) fieldOpts {
+		f.mustMatchExisting = true
 		return f
 	}
 }
@@ -100,8 +109,8 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			// Adding optional for expand phase - will be removed once consumers are updated
-			if !options.optional {
+			// Adding for expand phase - will be removed once consumers are updated
+			if options.mustMatchExisting {
 				var old any
 				if err := json.Unmarshal(change.Old, &old); err != nil {
 					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
@@ -134,14 +143,6 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 }
 
 func oldEqualsExisting(old any, existing any) bool {
-	if v, ok := existing.(*string); ok {
-		if old == nil {
-			return *v == ""
-		}
-
-		return old.(string) == *v
-	}
-
 	if v, ok := existing.(*time.Time); ok {
 		if old == nil {
 			return v.IsZero()
@@ -165,6 +166,14 @@ func oldEqualsExisting(old any, existing any) bool {
 		}
 
 		return shared.Channel(old.(string)) == *v
+	}
+
+	if v, ok := existing.(*string); ok {
+		if old == nil {
+			return *v == ""
+		}
+
+		return old.(string) == *v
 	}
 
 	return false
