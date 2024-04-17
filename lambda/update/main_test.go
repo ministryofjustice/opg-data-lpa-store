@@ -186,23 +186,23 @@ func TestHandleEventWhenUnknownType(t *testing.T) {
 	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/type","detail":"invalid value"}]}`, resp.Body)
 }
 
-//func TestHandleEventWhenUpdateInvalid(t *testing.T) {
-//	logger := &mockLogger{}
-//	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
-//
-//	l := Lambda{
-//		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
-//		verifier: &mockVerifier{},
-//		logger:   logger,
-//	}
-//
-//	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-//		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[]}`,
-//	})
-//	assert.Nil(t, err)
-//	assert.Equal(t, 400, resp.StatusCode)
-//	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"missing /certificateProvider/signedAt"},{"source":"/changes","detail":"missing /certificateProvider/contactLanguagePreference"}]}`, resp.Body)
-//}
+func TestHandleEventWhenUpdateInvalid(t *testing.T) {
+	logger := &mockLogger{}
+	logger.On("Debug", "Successfully parsed JWT from event header", mock.Anything)
+
+	l := Lambda{
+		store:    &mockStore{get: shared.Lpa{Uid: "1"}},
+		verifier: &mockVerifier{},
+		logger:   logger,
+	}
+
+	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[]}`,
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, 400, resp.StatusCode)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"missing /certificateProvider/signedAt"},{"source":"/changes","detail":"missing /certificateProvider/contactLanguagePreference"}]}`, resp.Body)
+}
 
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
 	logger := &mockLogger{}
