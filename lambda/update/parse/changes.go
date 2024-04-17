@@ -92,7 +92,7 @@ func Validate(fn func() []shared.FieldError) Option {
 }
 
 // Field will JSON unmarshal the specified key into existing. It will add an error if
-// the key does not exist or if the old field does not match the current value in the LPA.
+// the key does not exist.
 //
 // Consider the change:
 //
