@@ -62,9 +62,8 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional       bool
-	updateExisting bool
-	validator      func() []shared.FieldError
+	optional  bool
+	validator func() []shared.FieldError
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
