@@ -34,6 +34,13 @@ test-api:
 	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 .PHONY: test-api
 
+test-pact:
+	$(eval JWT := "$(shell JWT_SECRET_KEY=secret ./api-test/tester JWT)")
+
+	docker compose run --rm pact-verifier \
+      --header="X-Jwt-Authorization=Bearer $(JWT)" \
+      --consumer-version-selectors='{"mainBranch": true}'
+
 run-structurizr:
 	docker pull structurizr/lite
 	docker run -it --rm -p 4080:8080 -v $(PWD)/docs/architecture/dsl/local:/usr/local/structurizr structurizr/lite
