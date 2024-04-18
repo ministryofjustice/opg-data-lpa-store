@@ -143,39 +143,38 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 }
 
 func oldEqualsExisting(old any, existing any) bool {
-	if v, ok := existing.(*time.Time); ok {
+	switch v := existing.(type) {
+	case *time.Time:
 		if old == nil {
 			return v.IsZero()
 		}
 
 		return old.(string) == v.Format(time.RFC3339)
-	}
 
-	if v, ok := existing.(*shared.Lang); ok {
+	case *shared.Lang:
 		if old == nil {
 			return *v == ""
 		}
 
 		return shared.Lang(old.(string)) == *v
-	}
 
-	if v, ok := existing.(*shared.Channel); ok {
+	case *shared.Channel:
 		if old == nil {
 			return *v == ""
 		}
 
 		return shared.Channel(old.(string)) == *v
-	}
 
-	if v, ok := existing.(*string); ok {
+	case *string:
 		if old == nil {
 			return *v == ""
 		}
 
 		return old.(string) == *v
-	}
 
-	return false
+	default:
+		return false
+	}
 }
 
 // Each will run fn with a [Parser] for any indexed keys. If required is specified
