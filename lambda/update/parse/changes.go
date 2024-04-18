@@ -1,12 +1,12 @@
 package parse
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
@@ -62,14 +62,23 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional  bool
-	validator func() []shared.FieldError
+	optional          bool
+	mustMatchExisting bool
+	validator         func() []shared.FieldError
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
 func Optional() func(fieldOpts) fieldOpts {
 	return func(f fieldOpts) fieldOpts {
 		f.optional = true
+		return f
+	}
+}
+
+// MustMatchExisting [Parser.Field] will add an error when the old value does not match the existing value.
+func MustMatchExisting() func(fieldOpts) fieldOpts {
+	return func(f fieldOpts) fieldOpts {
+		f.mustMatchExisting = true
 		return f
 	}
 }
@@ -82,8 +91,8 @@ func Validate(fn func() []shared.FieldError) Option {
 	}
 }
 
-// Field will JSON unmarshal the specified key into v. It will add an error if
-// the key does not exist or if the old field was specified other than null.
+// Field will JSON unmarshal the specified key into existing. It will add an error if
+// the key does not exist.
 //
 // Consider the change:
 //
@@ -92,7 +101,7 @@ func Validate(fn func() []shared.FieldError) Option {
 // Then to parse to a string s do:
 //
 //	parser.Field("/thing", &s)
-func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
+func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 	options := fieldOpts{}
 	for _, opt := range opts {
 		options = opt(options)
@@ -100,11 +109,21 @@ func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			if !bytes.Equal(change.Old, []byte("null")) {
-				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "must be null"})
+			// Adding for expand phase - will be removed once consumers are updated
+			if options.mustMatchExisting {
+				var old any
+				if err := json.Unmarshal(change.Old, &old); err != nil {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
+				}
+
+				if !oldEqualsExisting(old, existing) {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
+
+					return p
+				}
 			}
 
-			if err := json.Unmarshal(change.New, v); err != nil {
+			if err := json.Unmarshal(change.New, existing); err != nil {
 				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
 			} else if options.validator != nil {
 				for _, error := range options.validator() {
@@ -121,6 +140,41 @@ func (p *Parser) Field(key string, v any, opts ...Option) *Parser {
 		p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + key})
 	}
 	return p
+}
+
+func oldEqualsExisting(old any, existing any) bool {
+	switch v := existing.(type) {
+	case *time.Time:
+		if old == nil {
+			return v.IsZero()
+		}
+
+		return old.(string) == v.Format(time.RFC3339)
+
+	case *shared.Lang:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.Lang(old.(string)) == *v
+
+	case *shared.Channel:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.Channel(old.(string)) == *v
+
+	case *string:
+		if old == nil {
+			return *v == ""
+		}
+
+		return old.(string) == *v
+
+	default:
+		return false
+	}
 }
 
 // Each will run fn with a [Parser] for any indexed keys. If required is specified

@@ -25,6 +25,16 @@
             "key": "/certificateProvider/contactLanguagePreference",
             "new": "en",
             "old": null
+        },
+        {
+            "key": "/certificateProvider/email",
+            "new": "b@example.com",
+            "old": "a@example.com"
+        },
+        {
+            "key": "/certificateProvider/channel",
+            "new": "online",
+            "old": "paper"
         }
     ]
 }
