@@ -149,7 +149,12 @@ func oldEqualsExisting(old any, existing any) bool {
 			return v.IsZero()
 		}
 
-		return old.(string) == v.Format(time.RFC3339)
+		oldTime, err := time.Parse(time.RFC3339, old.(string))
+		if err != nil {
+			return false
+		}
+
+		return oldTime.Equal(*v)
 
 	case *shared.Lang:
 		if old == nil {
