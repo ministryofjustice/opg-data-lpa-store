@@ -25,7 +25,6 @@ func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.CertificateProvider.SignedAt = &c.SignedAt
 	lpa.CertificateProvider.ContactLanguagePreference = c.ContactLanguagePreference
 	lpa.CertificateProvider.Email = c.Email
-	// to account for paper to online moves
 	lpa.CertificateProvider.Channel = c.Channel
 
 	return nil
