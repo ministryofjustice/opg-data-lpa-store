@@ -16,6 +16,8 @@ func validateUpdate(update shared.Update) (Applyable, []shared.FieldError) {
 		return validateAttorneySign(update.Changes)
 	case "TRUST_CORPORATION_SIGN":
 		return validateTrustCorporationSign(update.Changes)
+	case "REGISTER":
+		return validateRegister(update.Changes)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
