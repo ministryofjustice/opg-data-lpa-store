@@ -148,8 +148,7 @@ func oldEqualsExisting(old any, existing any) bool {
 			return v.IsZero()
 		}
 
-		RFC3339local := "2006-01-02T15:04:05Z"
-		return old.(string) == v.Format(RFC3339local)
+		return old.(string) == v.Format(time.RFC3339)
 	}
 
 	if v, ok := existing.(*shared.Lang); ok {

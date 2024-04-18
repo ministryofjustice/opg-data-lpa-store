@@ -34,9 +34,8 @@ func TestCertificateProviderSignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateCertificateProviderSign(t *testing.T) {
-	now := time.Now().UTC()
-	yesterday := time.Now().Add(-24 * time.Hour).UTC()
-	RFC3339local := "2006-01-02T15:04:05Z"
+	now := time.Now()
+	yesterday := time.Now().Add(-24 * time.Hour)
 
 	testcases := map[string]struct {
 		update shared.Update
@@ -69,7 +68,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
@@ -139,8 +138,8 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
-						Old: json.RawMessage(`"` + yesterday.Format(RFC3339local) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339) + `"`),
 					},
 					{
 						Key: "/certificateProvider/contactLanguagePreference",
@@ -186,7 +185,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
@@ -238,7 +237,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				Changes: []shared.Change{
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(RFC3339local) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
