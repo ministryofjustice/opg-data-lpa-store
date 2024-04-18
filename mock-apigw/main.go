@@ -147,9 +147,8 @@ func handlePactState(r *http.Request) error {
 				"uid": "4fe2ac67-17cc-4e9b-a9d6-ce30b5f9c82e",
 				"firstNames": "Some",
 				"lastName": "Provider",
-				"email": "some@example.com",
 				"phone": "070009000",
-				"channel": "online",
+				"channel": "paper",
 				"address": {
 					"line1": "71 South Western Terrace",
 					"town": "Milton",
