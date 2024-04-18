@@ -100,8 +100,8 @@ func TestFieldMustMatchExistingString(t *testing.T) {
 }
 
 func TestFieldMustMatchExistingTime(t *testing.T) {
-	now := time.Now().UTC()
-	yesterday := time.Now().UTC().Add(-24 * time.Hour)
+	now := time.Now()
+	yesterday := time.Now().Add(-24 * time.Hour)
 	RFC3339local := "2006-01-02T15:04:05Z"
 
 	changes := []shared.Change{

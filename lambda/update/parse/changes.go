@@ -154,7 +154,7 @@ func oldEqualsExisting(old any, existing any) bool {
 
 	if v, ok := existing.(*shared.Lang); ok {
 		if old == nil {
-			return *v == shared.LangNotSet
+			return *v == ""
 		}
 
 		return shared.Lang(old.(string)) == *v
@@ -162,7 +162,7 @@ func oldEqualsExisting(old any, existing any) bool {
 
 	if v, ok := existing.(*shared.Channel); ok {
 		if old == nil {
-			return *v == shared.ChannelNotSet
+			return *v == ""
 		}
 
 		return shared.Channel(old.(string)) == *v

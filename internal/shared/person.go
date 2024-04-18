@@ -41,7 +41,6 @@ type CertificateProvider struct {
 type Channel string
 
 const (
-	ChannelNotSet = Channel("")
 	ChannelOnline = Channel("online")
 	ChannelPaper  = Channel("paper")
 )
