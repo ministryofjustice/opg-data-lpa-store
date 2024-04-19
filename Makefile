@@ -32,6 +32,7 @@ test-api:
 	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}'
 	cat ./docs/certificate-provider-change.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
+	./api-test/tester -expectedStatus=200 REQUEST POST $(URL)/lpas '{"uids": [$(LPA_UID)]}'
 .PHONY: test-api
 
 test-pact:
