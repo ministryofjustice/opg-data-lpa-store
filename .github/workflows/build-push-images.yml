@@ -41,6 +41,8 @@ jobs:
             container: lambda-get
           - ecr_repository: lpa-store/lambda/api-update
             container: lambda-update
+          - ecr_repository: lpa-store/lambda/api-getlist
+            container: lambda-getlist
           - ecr_repository: lpa-store/fixtures
             container: fixtures
     runs-on: ubuntu-latest
