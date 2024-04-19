@@ -18,6 +18,35 @@ x-json-schema-faker:
   alwaysFakeOptionals: false
   optionalsProbability: 0.5
 paths:
+  /lpas:
+    post:
+      operationId: getLpas
+      summary: Retrieve multiple LPAs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetLpas"
+      responses:
+        "200":
+          description: Cases retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetLpasResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
+      x-amazon-apigateway-auth:
+        type: "AWS_IAM"
+      x-amazon-apigateway-integration:
+        uri: ${lambda_getall_invoke_arn}
+        httpMethod: "POST"
+        type: "aws_proxy"
+        contentHandling: "CONVERT_TO_TEXT"
   /lpas/{uid}:
     parameters:
       - name: uid
@@ -201,6 +230,26 @@ components:
           properties:
             code:
               enum: ["NOT_FOUND"]
+    GetLpas:
+      type: object
+      required:
+        - uids
+      properties:
+        uids:
+          type: array
+          items:
+            type: string
+            pattern: M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})
+            example: M-789Q-P4DF-4UX3
+    GetLpasResponse:
+      type: object
+      required:
+        - lpas
+      properties:
+        lpas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lpa"
     Lpa:
       allOf:
         - $ref: "#/components/schemas/InitialLpa"
