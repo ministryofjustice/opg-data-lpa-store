@@ -104,7 +104,7 @@ func TestFieldMustMatchExistingTime(t *testing.T) {
 	yesterday := time.Now().Add(-24 * time.Hour)
 
 	changes := []shared.Change{
-		{Key: "/thing", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`)},
+		{Key: "/thing", New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`), Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339) + `"`)},
 	}
 
 	Changes(changes).Field("/thing", &yesterday, MustMatchExisting())
