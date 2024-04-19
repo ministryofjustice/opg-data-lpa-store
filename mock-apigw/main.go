@@ -44,6 +44,8 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
 		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "update"
+	} else if r.URL.Path == "/lpas" && r.Method == http.MethodPost {
+		lambdaName = "getlist"
 	}
 
 	if newUID, ok := uidMap[uid]; ok {
@@ -61,13 +63,16 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = io.Copy(reqBody, r.Body)
 
 	body := events.APIGatewayProxyRequest{
-		Body: reqBody.String(),
-		Path: r.URL.Path,
-		PathParameters: map[string]string{
-			"uid": uid,
-		},
+		Body:              reqBody.String(),
+		Path:              r.URL.Path,
 		HTTPMethod:        r.Method,
 		MultiValueHeaders: r.Header,
+	}
+
+	if uid != "" {
+		body.PathParameters = map[string]string{
+			"uid": uid,
+		}
 	}
 
 	encodedBody, _ := json.Marshal(body)
