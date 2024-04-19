@@ -101,6 +101,33 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 	return lpa, err
 }
 
+func (c *Client) GetAll(ctx context.Context, uids []string) ([]shared.Lpa, error) {
+	keys := make([]map[string]types.AttributeValue, len(uids))
+	for i, uid := range uids {
+		keys[i] = map[string]types.AttributeValue{
+			"uid": &types.AttributeValueMemberS{Value: uid},
+		}
+	}
+
+	output, err := c.ddb.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
+		RequestItems: map[string]types.KeysAndAttributes{
+			c.tableName: {
+				Keys: keys,
+			},
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var v []shared.Lpa
+	if err := attributevalue.UnmarshalListOfMaps(output.Responses[c.tableName], &v); err != nil {
+		return nil, err
+	}
+
+	return v, nil
+}
+
 func decoderOptions(opts *attributevalue.DecoderOptions) {
 	opts.TagKey = "json"
 }
