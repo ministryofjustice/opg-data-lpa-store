@@ -154,7 +154,7 @@ func oldEqualsExisting(old any, existing any) bool {
 			return false
 		}
 
-		return oldTime.Equal(*v)
+		return oldTime.Equal(v.Truncate(time.Second))
 
 	case *shared.Lang:
 		if old == nil {
