@@ -49,12 +49,12 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 				Field("/line2", &data.Address.Line2, parse.Optional(), parse.MustMatchExisting()).
 				Field("/line3", &data.Address.Line3, parse.Optional(), parse.MustMatchExisting()).
 				Field("/town", &data.Address.Town, parse.MustMatchExisting()).
-				Field("/postcode", &data.Address.Postcode, parse.Optional()).
+				Field("/postcode", &data.Address.Postcode, parse.Optional(), parse.MustMatchExisting()).
 				Field("/country", &data.Address.Country, parse.Validate(func() []shared.FieldError {
 					return validate.Country("", data.Address.Country)
-				})).
+				}), parse.MustMatchExisting()).
 				Consumed()
-		}, parse.Optional(), parse.MustMatchExisting()).
+		}, parse.Optional()).
 		Field("/certificateProvider/signedAt", &data.SignedAt, parse.Validate(func() []shared.FieldError {
 			return validate.Time("", data.SignedAt)
 		}), parse.MustMatchExisting()).

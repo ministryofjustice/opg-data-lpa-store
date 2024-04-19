@@ -4,17 +4,17 @@
         {
             "key": "/certificateProvider/address/line1",
             "new": "98 CVVVV",
-            "old": null
+            "old": "122111 Zonnington Way"
         },
         {
             "key": "/certificateProvider/address/town",
             "new": "Murkkkk Town",
-            "old": null
+            "old": "Mahhhhhhhhhh"
         },
         {
             "key": "/certificateProvider/address/country",
             "new": "GB",
-            "old": null
+            "old": "GB"
         },
         {
             "key": "/certificateProvider/signedAt",
@@ -34,7 +34,7 @@
         {
             "key": "/certificateProvider/channel",
             "new": "online",
-            "old": "paper"
+            "old": "online"
         }
     ]
 }
