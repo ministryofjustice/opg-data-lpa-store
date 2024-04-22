@@ -75,6 +75,8 @@ def index():
             headers = {}
 
         token = generate_jwt(os.environ["JWT_SECRET_KEY"])
+        print(len(os.environ["JWT_SECRET_KEY"]))
+        print(token)
 
         resp = requests.put(
             url,
