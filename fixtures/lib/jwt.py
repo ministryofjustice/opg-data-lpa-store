@@ -1,7 +1,7 @@
 import jwt, math, time
 
 
-def generate_jwt(secret, sub="someone@someplace.somewhere.com"):
+def generate_jwt(secret, sub="urn:opg:sirius:users:100"):
     return jwt.encode(
         {
             "exp": math.floor(time.time() + 60 * 5),
