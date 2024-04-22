@@ -33,7 +33,7 @@
     },
     "updatedAt": {
       "type": "string",
-      "format": "date"
+      "format": "date-time"
     },
     "attorneys": {
       "type": "array",

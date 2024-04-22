@@ -1,5 +1,5 @@
 {
-  "terms": [
+  "donorTerms": [
     "Rwyf wedi darllen fy LPA neu wedi cael rhywun i’w darllen i fi. Mae hyn yn cynnwys fy hawliau a’m cyfrifoldebau cyfreithiol.",
     "Rwy’n rhoi awdurdod i’m hatwrneiod wneud penderfyniadau am fy {{ .LpaType }}, gan gynnwys pan na allaf weithredu drosof fy hun oherwydd nad oes gennyf alluedd meddyliol.",
     "Gall y wybodaeth a ddarparwyd gennyf gael ei defnyddio gan Swyddfa’r Gwarcheidwad Cyhoeddus wrth gyflawni ei dyletswyddau.",
