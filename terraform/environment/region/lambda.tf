@@ -2,6 +2,7 @@ locals {
   functions = toset([
     "create",
     "get",
+    "getlist",
     "update",
   ])
 }
