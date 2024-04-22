@@ -3,5 +3,7 @@ components:
   schemas:
     InitialLpa:
       $ref: "#/components/schemas/Empty"
+    Lpa:
+      $ref: "#/components/schemas/Empty"
     Empty:
       type: object
