@@ -68,7 +68,7 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
 						Old: jsonNull,
 					},
 					{
@@ -138,8 +138,8 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					},
 					{
 						Key: "/certificateProvider/signedAt",
-						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
-						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339) + `"`),
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`),
 					},
 					{
 						Key: "/certificateProvider/contactLanguagePreference",

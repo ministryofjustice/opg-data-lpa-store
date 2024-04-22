@@ -149,7 +149,7 @@ func oldEqualsExisting(old any, existing any) bool {
 			return v.IsZero()
 		}
 
-		oldTime, err := time.Parse(time.RFC3339, old.(string))
+		oldTime, err := time.Parse(time.RFC3339Nano, old.(string))
 		if err != nil {
 			return false
 		}

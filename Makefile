@@ -26,10 +26,13 @@ test-api:
 	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}'
 	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}'
 	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
+
 	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
 	./api-test/tester -expectedStatus=200 -write REQUEST GET $(URL)/lpas/$(LPA_UID) '' > $(TMPFILE)
+
 	diff <(jq --sort-keys 'del(.status,.uid,.updatedAt)' < $(TMPFILE)) <(jq --sort-keys . < docs/example-lpa.json)
 	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}'
+
 	cat ./docs/certificate-provider-change.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 	./api-test/tester -expectedStatus=200 REQUEST POST $(URL)/lpas '{"uids": [$(LPA_UID)]}'
