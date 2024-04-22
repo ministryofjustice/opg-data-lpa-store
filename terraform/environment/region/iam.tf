@@ -19,6 +19,7 @@ data "aws_iam_policy_document" "lambda_dynamodb_policy" {
     actions = [
       "dynamodb:PutItem",
       "dynamodb:GetItem",
+      "dynamodb:BatchGetItem",
     ]
   }
 }
