@@ -2,24 +2,25 @@ FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY fixtures/package.json package.json
+COPY fixtures/package-lock.json package-lock.json
 RUN npm ci
 
 FROM python:3-alpine3.17
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+COPY fixtures/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY app.py app.py
-COPY lib lib
+COPY fixtures/app.py app.py
+COPY fixtures/lib lib
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/assets static
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.css static
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.js static
-COPY static static
-COPY templates templates
+COPY fixtures/static static
+COPY fixtures/templates templates
+COPY docs/schemas static/schemas
 
 EXPOSE 80
 
