@@ -4,7 +4,7 @@
   "description": "A lasting power of attorney document",
   "allOf": [
     {
-      "$ref": "./submitted-lpa.json"
+      "$ref": "./donor-details.json"
     }
   ],
   "type": "object",

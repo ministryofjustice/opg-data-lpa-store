@@ -35,7 +35,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/InitialLpa"
+              $ref: "#/components/schemas/DonorDetails"
       responses:
         "201":
           description: Case created
@@ -203,8 +203,8 @@ components:
               enum: ["NOT_FOUND"]
     Lpa:
       $ref: "../schemas/2024-04/lpa.json"
-    InitialLpa:
-      $ref: "../schemas/2024-04/submitted-lpa.json"
+    DonorDetails:
+      $ref: "../schemas/2024-04/donor-details.json"
     Update:
       type: object
       required:
