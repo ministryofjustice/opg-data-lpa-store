@@ -62,7 +62,16 @@
         }
       ],
       "type": "object",
-      "required": ["email", "phone", "channel"],
+      "required": ["phone", "channel"],
+      "if": {
+        "required": ["channel"],
+        "properties": {
+          "channel": { "const": "online" }
+        }
+      },
+      "then": {
+        "required": ["email"]
+      },
       "properties": {
         "email": {
           "type": "string",
@@ -194,8 +203,7 @@
         "address": {
           "$ref": "#/$defs/Address"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "Attorney": {
       "allOf": [
