@@ -35,6 +35,14 @@ type Lambda struct {
 	logger   Logger
 }
 
+type lpasRequest struct {
+	UIDs []string `json:"uids"`
+}
+
+type lpasResponse struct {
+	Lpas []shared.Lpa `json:"lpas"`
+}
+
 func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	_, err := l.verifier.VerifyHeader(event)
 	if err != nil {
@@ -49,9 +57,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	var req struct {
-		UIDs []string `json:"uids"`
-	}
+	var req lpasRequest
 	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
 		l.logger.Error("error unmarshalling request", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
@@ -63,7 +69,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	body, err := json.Marshal(lpas)
+	body, err := json.Marshal(lpasResponse{Lpas: lpas})
 	if err != nil {
 		l.logger.Error("error marshalling LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
