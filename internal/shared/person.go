@@ -70,6 +70,7 @@ type Attorney struct {
 	Mobile                    string         `json:"mobile,omitempty"`
 	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
 	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
+	Channel                   Channel        `json:"channel"`
 }
 
 type TrustCorporation struct {

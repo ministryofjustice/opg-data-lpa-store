@@ -212,7 +212,16 @@
         }
       ],
       "type": "object",
-      "required": ["dateOfBirth", "email", "status"],
+      "required": ["dateOfBirth", "email", "status", "channel"],
+      "if": {
+        "required": ["channel"],
+        "properties": {
+          "channel": { "const": "online" }
+        }
+      },
+      "then": {
+        "required": ["email"]
+      },
       "properties": {
         "dateOfBirth": {
           "type": "string",
@@ -225,6 +234,10 @@
         "status": {
           "type": "string",
           "enum": ["active", "replacement", "removed"]
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["paper", "online"]
         }
       }
     },
