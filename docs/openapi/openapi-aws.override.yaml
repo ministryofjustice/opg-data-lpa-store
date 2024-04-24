@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 components:
   schemas:
-    InitialLpa:
+    DonorDetails:
       $ref: "#/components/schemas/Empty"
     Lpa:
       $ref: "#/components/schemas/Empty"
