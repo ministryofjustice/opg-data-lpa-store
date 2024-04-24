@@ -54,7 +54,7 @@ func validateAttorneySign(changes []shared.Change) (AttorneySign, []shared.Field
 						Field("/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.Channel)
 						}), parse.Optional()).
-						Field("/email", &data.Email).
+						Field("/email", &data.Email, parse.Optional()).
 						Consumed()
 				}).
 				Consumed()
