@@ -1,0 +1,30 @@
+{
+    "type": "ATTORNEY_SIGN",
+    "changes": [
+        {
+            "key": "/attorneys/0/mobile",
+            "new": "07700900000",
+            "old": null
+        },
+        {
+            "key": "/attorneys/0/signedAt",
+            "new": "2024-01-13T22:00:00Z",
+            "old": null
+        },
+        {
+            "key": "/attorneys/0/contactLanguagePreference",
+            "new": "en",
+            "old": null
+        },
+        {
+            "key": "/attorneys/0/channel",
+            "new": "online",
+            "old": "paper"
+        },
+        {
+            "key": "/attorneys/0/email",
+            "new": "b@example.com",
+            "old": "a@example.com"
+        }
+    ]
+}

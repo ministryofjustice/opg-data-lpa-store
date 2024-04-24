@@ -151,7 +151,8 @@ func handlePactState(r *http.Request) error {
 						"line1": "71 South Western Terrace",
 						"town": "Milton",
 						"country": "AU"
-					}
+					},
+					"channel": "paper"
 				}
 			],
 			"certificateProvider": {
