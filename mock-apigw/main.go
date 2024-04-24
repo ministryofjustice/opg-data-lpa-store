@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
@@ -35,6 +36,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var reqBody bytes.Buffer
+	_, _ = io.Copy(&reqBody, r.Body)
+
 	if LPAPath.MatchString(r.URL.Path) && r.Method == http.MethodPut {
 		uid = LPAPath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "create"
@@ -46,6 +50,11 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 		lambdaName = "update"
 	} else if r.URL.Path == "/lpas" && r.Method == http.MethodPost {
 		lambdaName = "getlist"
+		bs := reqBody.Bytes()
+		for oldUID, newUID := range uidMap {
+			bs = bytes.ReplaceAll(bs, []byte(oldUID), []byte(newUID))
+		}
+		reqBody = *bytes.NewBuffer(bs)
 	}
 
 	if newUID, ok := uidMap[uid]; ok {
@@ -58,9 +67,6 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := fmt.Sprintf("http://lambda-%s:8080/2015-03-31/functions/function/invocations", lambdaName)
-
-	reqBody := new(strings.Builder)
-	_, _ = io.Copy(reqBody, r.Body)
 
 	body := events.APIGatewayProxyRequest{
 		Body:              reqBody.String(),
