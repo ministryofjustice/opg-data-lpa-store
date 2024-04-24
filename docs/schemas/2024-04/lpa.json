@@ -203,7 +203,7 @@
         }
       ],
       "type": "object",
-      "required": ["dateOfBirth", "email", "status"],
+      "required": ["dateOfBirth", "email", "status", "channel"],
       "properties": {
         "dateOfBirth": {
           "type": "string",
@@ -216,6 +216,10 @@
         "status": {
           "type": "string",
           "enum": ["active", "replacement", "removed"]
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["paper", "online"]
         }
       }
     },

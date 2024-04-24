@@ -13,6 +13,8 @@ type AttorneySign struct {
 	Mobile                    string
 	SignedAt                  time.Time
 	ContactLanguagePreference shared.Lang
+	Channel                   shared.Channel
+	Email                     string
 }
 
 func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
@@ -23,6 +25,8 @@ func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.Attorneys[*a.Index].Mobile = a.Mobile
 	lpa.Attorneys[*a.Index].SignedAt = &a.SignedAt
 	lpa.Attorneys[*a.Index].ContactLanguagePreference = a.ContactLanguagePreference
+	lpa.Attorneys[*a.Index].Channel = a.Channel
+	lpa.Attorneys[*a.Index].Email = a.Email
 
 	return nil
 }
@@ -47,6 +51,10 @@ func validateAttorneySign(changes []shared.Change) (AttorneySign, []shared.Field
 						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.ContactLanguagePreference)
 						})).
+						Field("/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
+							return validate.IsValid("", data.Channel)
+						}), parse.Optional()).
+						Field("/email", &data.Email).
 						Consumed()
 				}).
 				Consumed()

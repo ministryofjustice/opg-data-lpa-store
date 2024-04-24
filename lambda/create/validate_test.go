@@ -60,6 +60,7 @@ func TestValidateAttorneyValid(t *testing.T) {
 		},
 		DateOfBirth: newDate("1928-01-18"),
 		Status:      shared.AttorneyStatusActive,
+		Channel:     shared.ChannelOnline,
 	}
 	errors := validateAttorney("/test", attorney)
 
@@ -336,6 +337,7 @@ func TestValidateLpaValid(t *testing.T) {
 				},
 				DateOfBirth: newDate("1977-10-30"),
 				Status:      shared.AttorneyStatusActive,
+				Channel:     shared.ChannelOnline,
 			},
 		},
 		CertificateProvider: shared.CertificateProvider{
