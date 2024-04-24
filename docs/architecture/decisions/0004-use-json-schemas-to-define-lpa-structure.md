@@ -30,6 +30,8 @@ The JSON schema associated with the LPA will be stored inside the LPA (JSON) doc
 
 As validation is currently done manually, there is a risk that the structure of the LPA will not match the JSON schema. We should introduce schema validation when storing an LPA to ensure this is not the case.
 
-We need to ensure that any changes to the structure of the data are properly updated in the schema. An exception to this is before the start of private beta, since we will only be working with test data and can more easily change the schema.
+We need to ensure that any changes to the structure of the data are properly updated in the schema, managed through pull requests to this repository that need cross-team ratification. Non essential changes will likely be delayed and grouped to minimise the number of active schemas. An exception to this is before the start of private beta, since we will only be working with test data and can more easily change the schema.
 
 Services that display an LPA may need to pull content from the translation files to ensure they are presenting accurate information.
+
+The JSON schemas will need to be kept (and preferably be resolvable at their URI) for as long as we have any LPAs using them. This could be mitigated in the future by migrating older LPAs to a future structure.
