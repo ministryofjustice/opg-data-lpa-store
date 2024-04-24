@@ -104,7 +104,6 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validate.Date(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
 		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
-		validate.Required(fmt.Sprintf("%s/channel", prefix), string(attorney.Channel)),
 	)
 }
 
