@@ -12,20 +12,7 @@ func TestRegisterApply(t *testing.T) {
 	now := time.Now()
 
 	lpa := &shared.Lpa{
-		LpaInit: shared.LpaInit{
-			SignedAt: now,
-			CertificateProvider: shared.CertificateProvider{
-				SignedAt: &now,
-			},
-			Attorneys: []shared.Attorney{{
-				SignedAt: &now,
-			}},
-			TrustCorporations: []shared.TrustCorporation{{
-				Signatories: []shared.Signatory{{
-					SignedAt: now,
-				}},
-			}},
-		},
+		Status: shared.LpaStatusPerfect,
 	}
 
 	errors := Register{}.Apply(lpa)
@@ -34,83 +21,13 @@ func TestRegisterApply(t *testing.T) {
 	assert.Equal(t, shared.LpaStatusRegistered, lpa.Status)
 }
 
-func TestRegisterApplyWhenUnsigned(t *testing.T) {
-	now := time.Now()
-
-	testcases := map[string]struct {
-		lpa    *shared.Lpa
-		errors []shared.FieldError
-	}{
-		"lpa": {
-			lpa: &shared.Lpa{
-				LpaInit: shared.LpaInit{
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{SignedAt: now}},
-					}},
-				},
-			},
-			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must be signed"}},
-		},
-		"certificate provider": {
-			lpa: &shared.Lpa{
-				LpaInit: shared.LpaInit{
-					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{SignedAt: now}},
-					}},
-				},
-			},
-			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must have a certificate"}},
-		},
-		"attorney": {
-			lpa: &shared.Lpa{
-				LpaInit: shared.LpaInit{
-					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}, {}},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{SignedAt: now}},
-					}},
-				},
-			},
-			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by attorneys"}},
-		},
-		"trust corporation": {
-			lpa: &shared.Lpa{
-				LpaInit: shared.LpaInit{
-					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{SignedAt: now}, {}},
-					}},
-				},
-			},
-			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by trust corporations"}},
-		},
-	}
-
-	for name, tc := range testcases {
-		t.Run(name, func(t *testing.T) {
-			errors := Register{}.Apply(tc.lpa)
-			assert.Equal(t, tc.errors, errors)
+func TestRegisterApplyWhenNotPerfect(t *testing.T) {
+	for _, status := range []shared.LpaStatus{shared.LpaStatusProcessing, shared.LpaStatusRegistered} {
+		t.Run(string(status), func(t *testing.T) {
+			errors := Register{}.Apply(&shared.Lpa{Status: status})
+			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be perfect to register"}}, errors)
 		})
 	}
-}
-
-func TestRegisterApplyWhenAlreadyRegistered(t *testing.T) {
-	now := time.Now()
-
-	lpa := &shared.Lpa{
-		RegistrationDate: &now,
-	}
-
-	errors := Register{}.Apply(lpa)
-	assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "lpa already registered"}}, errors)
 }
 
 func TestValidateRegister(t *testing.T) {
