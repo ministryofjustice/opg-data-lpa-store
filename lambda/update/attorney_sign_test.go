@@ -21,6 +21,7 @@ func TestAttorneySignApply(t *testing.T) {
 		Mobile:                    "0777",
 		SignedAt:                  time.Now(),
 		ContactLanguagePreference: shared.LangCy,
+		Channel:                   shared.ChannelOnline,
 	}
 
 	errors := a.Apply(lpa)
@@ -28,6 +29,7 @@ func TestAttorneySignApply(t *testing.T) {
 	assert.Equal(t, a.Mobile, lpa.Attorneys[attorneyIndex].Mobile)
 	assert.Equal(t, a.SignedAt, *lpa.Attorneys[attorneyIndex].SignedAt)
 	assert.Equal(t, a.ContactLanguagePreference, lpa.Attorneys[attorneyIndex].ContactLanguagePreference)
+	assert.Equal(t, a.Channel, lpa.Attorneys[attorneyIndex].Channel)
 }
 
 func TestAttorneySignApplyWhenAlreadySigned(t *testing.T) {
@@ -43,11 +45,14 @@ func TestAttorneySignApplyWhenAlreadySigned(t *testing.T) {
 }
 
 func TestValidateUpdateAttorneySign(t *testing.T) {
+	now := time.Now()
+	yesterday := time.Now()
+
 	testcases := map[string]struct {
 		update shared.Update
 		errors []shared.FieldError
 	}{
-		"valid": {
+		"valid - no previous values": {
 			update: shared.Update{
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
@@ -65,6 +70,48 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						Key: "/attorneys/1/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/1/channel",
+						New: json.RawMessage(`"online"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/1/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
+				},
+			},
+		},
+		"valid - with previous values": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/1/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: json.RawMessage(`"06666"`),
+					},
+					{
+						Key: "/attorneys/1/signedAt",
+						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339) + `"`),
+					},
+					{
+						Key: "/attorneys/1/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/1/channel",
+						New: json.RawMessage(`"online"`),
+						Old: json.RawMessage(`"paper"`),
+					},
+					{
+						Key: "/attorneys/1/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
 					},
 				},
 			},
@@ -104,6 +151,11 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/attorneys/1/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -111,7 +163,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				{Source: "/changes/4", Detail: "unexpected change provided"},
 			},
 		},
-		"invalid contact language": {
+		"invalid contact language and channel": {
 			update: shared.Update{
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
@@ -130,10 +182,21 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						New: json.RawMessage(`"xy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/attorneys/1/channel",
+						New: json.RawMessage(`"digital"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/1/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/2/new", Detail: "invalid value"},
+				{Source: "/changes/3/new", Detail: "invalid value"},
 			},
 		},
 		"multiple attorneys": {
@@ -153,6 +216,11 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 					{
 						Key: "/attorneys/0/contactLanguagePreference",
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/0/email",
+						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
 				},
