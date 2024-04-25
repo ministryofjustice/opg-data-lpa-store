@@ -16,6 +16,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateAttorneySign(update.Changes)
 	case "TRUST_CORPORATION_SIGN":
 		return validateTrustCorporationSign(update.Changes)
+	case "PERFECT":
+		return validatePerfect(update.Changes)
 	case "REGISTER":
 		return validateRegister(update.Changes)
 	default:

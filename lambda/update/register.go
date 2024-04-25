@@ -9,30 +9,8 @@ import (
 type Register struct{}
 
 func (r Register) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if lpa.RegistrationDate != nil && !lpa.RegistrationDate.IsZero() {
-		return []shared.FieldError{{Source: "/type", Detail: "lpa already registered"}}
-	}
-
-	if lpa.SignedAt.IsZero() {
-		return []shared.FieldError{{Source: "/type", Detail: "lpa must be signed"}}
-	}
-
-	if lpa.CertificateProvider.SignedAt == nil || lpa.CertificateProvider.SignedAt.IsZero() {
-		return []shared.FieldError{{Source: "/type", Detail: "lpa must have a certificate"}}
-	}
-
-	for _, a := range lpa.Attorneys {
-		if a.SignedAt == nil || a.SignedAt.IsZero() {
-			return []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by attorneys"}}
-		}
-	}
-
-	for _, t := range lpa.TrustCorporations {
-		for _, s := range t.Signatories {
-			if s.SignedAt.IsZero() {
-				return []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by trust corporations"}}
-			}
-		}
+	if lpa.Status != shared.LpaStatusPerfect {
+		return []shared.FieldError{{Source: "/type", Detail: "status must be perfect to register"}}
 	}
 
 	now := time.Now().UTC()

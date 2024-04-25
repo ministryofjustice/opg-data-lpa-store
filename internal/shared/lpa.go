@@ -47,5 +47,6 @@ type LpaStatus string
 
 const (
 	LpaStatusProcessing = LpaStatus("processing")
+	LpaStatusPerfect    = LpaStatus("perfect")
 	LpaStatusRegistered = LpaStatus("registered")
 )
