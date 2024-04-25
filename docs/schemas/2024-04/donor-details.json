@@ -212,16 +212,7 @@
         }
       ],
       "type": "object",
-      "required": ["dateOfBirth", "email", "status", "channel"],
-      "if": {
-        "required": ["channel"],
-        "properties": {
-          "channel": { "const": "online" }
-        }
-      },
-      "then": {
-        "required": ["email"]
-      },
+      "required": ["dateOfBirth", "email", "status"],
       "properties": {
         "dateOfBirth": {
           "type": "string",
