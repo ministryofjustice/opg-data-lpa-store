@@ -42,7 +42,7 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 		data.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
 	}
 
-	errors := parse.Changes(changes).
+	errors := parse.Changes(changes, lpa).
 		Prefix("/certificateProvider/address", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Field("/line1", &data.Address.Line1, parse.MustMatchExisting()).
