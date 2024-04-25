@@ -24,8 +24,9 @@
         "country": "GB"
       },
       "dateOfBirth": "1982-07-24",
-      "email": "nobody2@not.a.real.domain",
-      "status": "active"
+      "email": "a@example.com",
+      "status": "active",
+      "channel": "paper"
     }
   ],
   "certificateProvider": {
