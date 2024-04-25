@@ -50,6 +50,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 
 	testcases := map[string]struct {
 		update shared.Update
+		lpa    *shared.Lpa
 		errors []shared.FieldError
 	}{
 		"valid - no previous values": {
@@ -57,64 +58,70 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/attorneys/1/mobile",
+						Key: "/attorneys/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/signedAt",
-						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Key: "/attorneys/0/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/contactLanguagePreference",
+						Key: "/attorneys/0/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/channel",
+						Key: "/attorneys/0/channel",
 						New: json.RawMessage(`"online"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/email",
+						Key: "/attorneys/0/email",
 						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
 				},
 			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{},
+			}}},
 		},
 		"valid - with previous values": {
 			update: shared.Update{
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/attorneys/1/mobile",
+						Key: "/attorneys/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: json.RawMessage(`"06666"`),
 					},
 					{
-						Key: "/attorneys/1/signedAt",
-						New: json.RawMessage(`"` + now.Format(time.RFC3339) + `"`),
-						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339) + `"`),
+						Key: "/attorneys/0/signedAt",
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`),
 					},
 					{
-						Key: "/attorneys/1/contactLanguagePreference",
+						Key: "/attorneys/0/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/channel",
+						Key: "/attorneys/0/channel",
 						New: json.RawMessage(`"online"`),
 						Old: json.RawMessage(`"paper"`),
 					},
 					{
-						Key: "/attorneys/1/email",
+						Key: "/attorneys/0/email",
 						New: json.RawMessage(`"b@example.com"`),
 						Old: json.RawMessage(`"a@example.com"`),
 					},
 				},
 			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+			}}},
 		},
 		"missing all": {
 			update: shared.Update{Type: "ATTORNEY_SIGN"},
@@ -127,17 +134,17 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/attorneys/1/mobile",
+						Key: "/attorneys/0/mobile",
 						New: json.RawMessage(`"0777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/signedAt",
+						Key: "/attorneys/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/contactLanguagePreference",
+						Key: "/attorneys/0/contactLanguagePreference",
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
 						Old: jsonNull,
 					},
@@ -147,17 +154,25 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/firstNames",
+						Key: "/attorneys/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/email",
+						Key: "/attorneys/0/email",
 						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/0/channel",
+						New: json.RawMessage(`"paper"`),
 						Old: jsonNull,
 					},
 				},
 			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{},
+			}}},
 			errors: []shared.FieldError{
 				{Source: "/changes/3", Detail: "unexpected change provided"},
 				{Source: "/changes/4", Detail: "unexpected change provided"},
@@ -168,32 +183,35 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/attorneys/1/mobile",
+						Key: "/attorneys/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/signedAt",
+						Key: "/attorneys/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/contactLanguagePreference",
+						Key: "/attorneys/0/contactLanguagePreference",
 						New: json.RawMessage(`"xy"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/channel",
+						Key: "/attorneys/0/channel",
 						New: json.RawMessage(`"digital"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/attorneys/1/email",
+						Key: "/attorneys/0/email",
 						New: json.RawMessage(`"b@example.com"`),
 						Old: jsonNull,
 					},
 				},
 			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{},
+			}}},
 			errors: []shared.FieldError{
 				{Source: "/changes/2/new", Detail: "invalid value"},
 				{Source: "/changes/3/new", Detail: "invalid value"},
@@ -223,8 +241,16 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/attorneys/0/channel",
+						New: json.RawMessage(`"online"`),
+						Old: jsonNull,
+					},
 				},
 			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{}, {},
+			}}},
 			errors: []shared.FieldError{
 				{Source: "/changes/1/key", Detail: "index out of range"},
 				{Source: "/changes", Detail: "missing /attorneys/0/signedAt"},
@@ -234,7 +260,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update, &shared.Lpa{})
+			_, errors := validateUpdate(tc.update, tc.lpa)
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}

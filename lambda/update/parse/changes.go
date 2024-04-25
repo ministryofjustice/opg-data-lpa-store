@@ -24,16 +24,17 @@ type Parser struct {
 	root    string
 	changes []changeWithPosition
 	errors  []shared.FieldError
+	Lpa     *shared.Lpa
 }
 
 // Changes constructs a new [Parser] for a set of changes.
-func Changes(changes []shared.Change) *Parser {
+func Changes(changes []shared.Change, lpa *shared.Lpa) *Parser {
 	cs := make([]changeWithPosition, len(changes))
 	for i, change := range changes {
 		cs[i] = changeWithPosition{Change: change, pos: i}
 	}
 
-	return &Parser{changes: cs}
+	return &Parser{changes: cs, Lpa: lpa}
 }
 
 // Consumed checks the [Parser] has used all of the changes. It adds an error for any unparsed changes.
@@ -236,7 +237,7 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 
 	for _, idx := range indexes {
 		changes := indexedChanges[idx]
-		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), changes: changes}
+		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), changes: changes, Lpa: p.Lpa}
 		fn(idx, subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}
@@ -286,7 +287,7 @@ func (p *Parser) Prefix(prefix string, fn func(*Parser) []shared.FieldError, opt
 			p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + prefix + "/..."})
 		}
 	} else {
-		subParser := &Parser{root: p.root + prefix, changes: matching}
+		subParser := &Parser{root: p.root + prefix, changes: matching, Lpa: p.Lpa}
 		fn(subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}
