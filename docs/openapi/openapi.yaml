@@ -265,6 +265,7 @@ components:
             - CERTIFICATE_PROVIDER_SIGN
             - ATTORNEY_SIGN
             - TRUST_CORPORATION_SIGN
+            - PERFECT
             - REGISTER
         changes:
           type: array
