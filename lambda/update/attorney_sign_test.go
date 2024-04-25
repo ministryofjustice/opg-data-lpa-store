@@ -217,7 +217,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				{Source: "/changes/3/new", Detail: "invalid value"},
 			},
 		},
-		"multiple attorneys": {
+		"multiple attorneys - multiple attorney changes": {
 			update: shared.Update{
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
@@ -255,6 +255,41 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				{Source: "/changes/1/key", Detail: "index out of range"},
 				{Source: "/changes", Detail: "missing /attorneys/0/signedAt"},
 			},
+		},
+		"multiple attorneys - single attorney change": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/1/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: json.RawMessage(`"06666"`),
+					},
+					{
+						Key: "/attorneys/1/signedAt",
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`),
+					},
+					{
+						Key: "/attorneys/1/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/1/channel",
+						New: json.RawMessage(`"online"`),
+						Old: json.RawMessage(`"paper"`),
+					},
+					{
+						Key: "/attorneys/1/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{}, {Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+			}}},
 		},
 	}
 
