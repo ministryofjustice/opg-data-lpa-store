@@ -17,7 +17,7 @@ func TestField(t *testing.T) {
 	}
 
 	var v string
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v)
+	Changes(changes).Field("/thing", &v)
 
 	assert.Equal(t, "val", v)
 }
@@ -26,7 +26,7 @@ func TestFieldWhenMissing(t *testing.T) {
 	changes := []shared.Change{}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v).Errors()
+	errors := Changes(changes).Field("/thing", &v).Errors()
 
 	assert.Equal(t, []shared.FieldError{{Source: "/changes", Detail: "missing /thing"}}, errors)
 }
@@ -37,7 +37,7 @@ func TestFieldWhenWrongType(t *testing.T) {
 	}
 
 	var v int
-	errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v).Errors()
+	errors := Changes(changes).Field("/thing", &v).Errors()
 
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "unexpected type"}}, errors)
 }
@@ -48,7 +48,7 @@ func TestFieldOptional(t *testing.T) {
 	}
 
 	var v string
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v, Optional())
+	Changes(changes).Field("/thing", &v, Optional())
 
 	assert.Equal(t, "val", v)
 }
@@ -57,7 +57,7 @@ func TestFieldOptionalWhenMissing(t *testing.T) {
 	changes := []shared.Change{}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v, Optional()).Errors()
+	errors := Changes(changes).Field("/thing", &v, Optional()).Errors()
 
 	assert.Empty(t, errors)
 }
@@ -68,7 +68,7 @@ func TestFieldValidate(t *testing.T) {
 	}
 
 	var v string
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v, Validate(func() []shared.FieldError {
+	Changes(changes).Field("/thing", &v, Validate(func() []shared.FieldError {
 		return nil
 	}))
 
@@ -81,7 +81,7 @@ func TestFieldValidateWhenInvalid(t *testing.T) {
 	}
 
 	v := "why"
-	errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v, Validate(func() []shared.FieldError {
+	errors := Changes(changes).Field("/thing", &v, Validate(func() []shared.FieldError {
 		return []shared.FieldError{{Source: "/rewritten", Detail: "invalid"}}
 	})).Errors()
 
@@ -94,7 +94,7 @@ func TestFieldMustMatchExistingString(t *testing.T) {
 	}
 
 	v := "old val"
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
 
 	assert.Equal(t, "new val", v)
 }
@@ -107,7 +107,7 @@ func TestFieldMustMatchExistingTime(t *testing.T) {
 		{Key: "/thing", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`)},
 	}
 
-	Changes(changes, &shared.Lpa{}).Field("/thing", &yesterday, MustMatchExisting())
+	Changes(changes).Field("/thing", &yesterday, MustMatchExisting())
 
 	assert.WithinDuration(t, now, yesterday, time.Second)
 }
@@ -118,7 +118,7 @@ func TestFieldMustMatchExistingLang(t *testing.T) {
 	}
 
 	v := shared.LangEn
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
 
 	assert.Equal(t, shared.LangCy, v)
 }
@@ -129,7 +129,7 @@ func TestFieldMustMatchExistingChannel(t *testing.T) {
 	}
 
 	v := shared.ChannelPaper
-	Changes(changes, &shared.Lpa{}).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v, MustMatchExisting())
 
 	assert.Equal(t, shared.ChannelOnline, v)
 }
@@ -147,7 +147,7 @@ func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 			}
 
 			v := "existing"
-			errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v, MustMatchExisting()).Errors()
+			errors := Changes(changes).Field("/thing", &v, MustMatchExisting()).Errors()
 
 			assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
 		})
@@ -156,7 +156,7 @@ func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 
 func TestConsumed(t *testing.T) {
 	changes := []shared.Change{}
-	errors := Changes(changes, &shared.Lpa{}).Consumed()
+	errors := Changes(changes).Consumed()
 
 	assert.Empty(t, errors)
 }
@@ -166,7 +166,7 @@ func TestConsumedWhenNot(t *testing.T) {
 		{Key: "/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes, &shared.Lpa{}).Consumed()
+	errors := Changes(changes).Consumed()
 
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0", Detail: "unexpected change provided"}}, errors)
 }
@@ -177,7 +177,7 @@ func TestConsumedWhenConsumed(t *testing.T) {
 	}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Field("/thing", &v).Consumed()
+	errors := Changes(changes).Field("/thing", &v).Consumed()
 
 	assert.Empty(t, errors)
 }
@@ -189,7 +189,7 @@ func TestEach(t *testing.T) {
 	}
 
 	var v, w string
-	errors := Changes(changes, &shared.Lpa{}).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
 		if i == 0 {
 			p.Field("/thing", &v)
 		} else if i == 1 {
@@ -209,7 +209,7 @@ func TestEachWhenNonIndexedKey(t *testing.T) {
 		{Key: "/-/other", New: json.RawMessage(`"other"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes, &shared.Lpa{}).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
 		var v any
 		p.Field("/thing", v)
 		return p.Errors()
@@ -224,7 +224,7 @@ func TestEachWhenNonIndexedKey(t *testing.T) {
 func TestEachWhenRequired(t *testing.T) {
 	changes := []shared.Change{}
 
-	errors := Changes(changes, &shared.Lpa{}).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
 		var v any
 		p.Field("/thing", v)
 		return p.Errors()
@@ -242,7 +242,7 @@ func TestEachWhenOutOfRange(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes, &shared.Lpa{}).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
 		if i > 0 {
 			return p.OutOfRange()
 		}
@@ -263,7 +263,7 @@ func TestEachWhenNotConsumed(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes, &shared.Lpa{}).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
 		if i == 0 {
 			var v string
 			p.Field("/thing", &v)
@@ -284,7 +284,7 @@ func TestPrefix(t *testing.T) {
 	}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Prefix("/a", func(p *Parser) []shared.FieldError {
+	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError {
 		return p.
 			Field("/thing", &v).
 			Consumed()
@@ -302,7 +302,7 @@ func TestPrefixWhenNotConsumed(t *testing.T) {
 	}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Prefix("/a", func(p *Parser) []shared.FieldError {
+	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError {
 		return p.
 			Field("/thing", &v).
 			Consumed()
@@ -318,7 +318,7 @@ func TestPrefixWhenNotConsumed(t *testing.T) {
 func TestPrefixWhenMissing(t *testing.T) {
 	changes := []shared.Change{}
 
-	errors := Changes(changes, &shared.Lpa{}).Prefix("/a", func(p *Parser) []shared.FieldError { return nil }).Consumed()
+	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError { return nil }).Consumed()
 
 	assert.ElementsMatch(t, []shared.FieldError{
 		{Source: "/changes", Detail: "missing /a/..."},
@@ -331,7 +331,7 @@ func TestPrefixOptional(t *testing.T) {
 	}
 
 	var v string
-	errors := Changes(changes, &shared.Lpa{}).Prefix("/a", func(p *Parser) []shared.FieldError {
+	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError {
 		return p.
 			Field("/thing", &v).
 			Consumed()
@@ -343,7 +343,7 @@ func TestPrefixOptional(t *testing.T) {
 
 func TestOptionalPrefixWhenMissing(t *testing.T) {
 	changes := []shared.Change{}
-	errors := Changes(changes, &shared.Lpa{}).Prefix("/a", func(p *Parser) []shared.FieldError { return nil }, Optional()).Consumed()
+	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError { return nil }, Optional()).Consumed()
 
 	assert.Empty(t, errors)
 }

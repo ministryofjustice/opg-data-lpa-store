@@ -34,7 +34,7 @@ func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySign, []shared.FieldError) {
 	var data AttorneySign
 
-	errors := parse.Changes(changes, lpa).
+	errors := parse.Changes(changes).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Each(func(i int, p *parse.Parser) []shared.FieldError {
@@ -43,13 +43,13 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 					}
 
 					data.Index = &i
-					data.Mobile = p.Lpa.Attorneys[i].Mobile
-					data.ContactLanguagePreference = p.Lpa.Attorneys[i].ContactLanguagePreference
-					data.Channel = p.Lpa.Attorneys[i].Channel
-					data.Email = p.Lpa.Attorneys[i].Email
+					data.Mobile = lpa.Attorneys[i].Mobile
+					data.ContactLanguagePreference = lpa.Attorneys[i].ContactLanguagePreference
+					data.Channel = lpa.Attorneys[i].Channel
+					data.Email = lpa.Attorneys[i].Email
 
-					if p.Lpa.Attorneys[i].SignedAt != nil {
-						data.SignedAt = *p.Lpa.Attorneys[i].SignedAt
+					if lpa.Attorneys[i].SignedAt != nil {
+						data.SignedAt = *lpa.Attorneys[i].SignedAt
 					}
 
 					return p.

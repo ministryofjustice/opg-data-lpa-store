@@ -32,7 +32,7 @@ func (a TrustCorporationSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validateTrustCorporationSign(changes []shared.Change, lpa *shared.Lpa) (TrustCorporationSign, []shared.FieldError) {
 	var data TrustCorporationSign
 
-	errors := parse.Changes(changes, lpa).
+	errors := parse.Changes(changes).
 		Prefix("/trustCorporations", func(prefix *parse.Parser) []shared.FieldError {
 			return prefix.
 				Each(func(i int, each *parse.Parser) []shared.FieldError {
