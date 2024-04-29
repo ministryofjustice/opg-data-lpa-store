@@ -63,7 +63,7 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 						Field("/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.Channel)
 						}), parse.MustMatchExisting()).
-						Field("/email", &data.Email, parse.MustMatchExisting()).
+						Field("/email", &data.Email, parse.MustMatchExisting(), parse.Optional()).
 						Consumed()
 				}).
 				Consumed()

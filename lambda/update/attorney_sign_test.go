@@ -77,11 +77,6 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 						New: json.RawMessage(`"online"`),
 						Old: jsonNull,
 					},
-					{
-						Key: "/attorneys/0/email",
-						New: json.RawMessage(`"a@example.com"`),
-						Old: jsonNull,
-					},
 				},
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
