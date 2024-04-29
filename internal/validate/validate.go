@@ -82,7 +82,6 @@ func OptionalTime(source string, t *time.Time) []shared.FieldError {
 func Address(prefix string, address shared.Address) []shared.FieldError {
 	return All(
 		Required(fmt.Sprintf("%s/line1", prefix), address.Line1),
-		Required(fmt.Sprintf("%s/town", prefix), address.Town),
 		Required(fmt.Sprintf("%s/country", prefix), address.Country),
 		Country(fmt.Sprintf("%s/country", prefix), address.Country),
 	)

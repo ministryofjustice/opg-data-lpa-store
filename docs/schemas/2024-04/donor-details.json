@@ -142,7 +142,7 @@
   "$defs": {
     "Address": {
       "type": "object",
-      "required": ["line1", "town", "country"],
+      "required": ["line1", "country"],
       "properties": {
         "line1": {
           "type": "string",
