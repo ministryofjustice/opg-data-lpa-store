@@ -10,7 +10,6 @@ import (
 
 var validAddress = shared.Address{
 	Line1:   "123 Main St",
-	Town:    "Homeland",
 	Country: "GB",
 }
 
@@ -86,7 +85,6 @@ func TestAddressEmpty(t *testing.T) {
 	errors := Address("/test", address)
 
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/line1", Detail: "field is required"})
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/town", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/country", Detail: "field is required"})
 }
 
@@ -99,7 +97,6 @@ func TestAddressValid(t *testing.T) {
 func TestAddressInvalidCountry(t *testing.T) {
 	invalidAddress := shared.Address{
 		Line1:   "123 Main St",
-		Town:    "Homeland",
 		Country: "United Kingdom",
 	}
 	errors := Address("/test", invalidAddress)

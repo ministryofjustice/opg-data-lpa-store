@@ -6,7 +6,7 @@ type Address struct {
 	Line1    string `json:"line1"`
 	Line2    string `json:"line2,omitempty"`
 	Line3    string `json:"line3,omitempty"`
-	Town     string `json:"town"`
+	Town     string `json:"town,omitempty"`
 	Postcode string `json:"postcode,omitempty"`
 	Country  string `json:"country"`
 }
