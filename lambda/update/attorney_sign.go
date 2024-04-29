@@ -31,7 +31,7 @@ func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateAttorneySign(changes []shared.Change) (AttorneySign, []shared.FieldError) {
+func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySign, []shared.FieldError) {
 	var data AttorneySign
 
 	errors := parse.Changes(changes).
@@ -43,18 +43,27 @@ func validateAttorneySign(changes []shared.Change) (AttorneySign, []shared.Field
 					}
 
 					data.Index = &i
+					data.Mobile = lpa.Attorneys[i].Mobile
+					data.ContactLanguagePreference = lpa.Attorneys[i].ContactLanguagePreference
+					data.Channel = lpa.Attorneys[i].Channel
+					data.Email = lpa.Attorneys[i].Email
+
+					if lpa.Attorneys[i].SignedAt != nil {
+						data.SignedAt = *lpa.Attorneys[i].SignedAt
+					}
+
 					return p.
-						Field("/mobile", &data.Mobile).
+						Field("/mobile", &data.Mobile, parse.MustMatchExisting()).
 						Field("/signedAt", &data.SignedAt, parse.Validate(func() []shared.FieldError {
 							return validate.Time("", data.SignedAt)
-						})).
+						}), parse.MustMatchExisting()).
 						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.ContactLanguagePreference)
-						})).
+						}), parse.MustMatchExisting()).
 						Field("/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.Channel)
-						}), parse.Optional()).
-						Field("/email", &data.Email, parse.Optional()).
+						}), parse.MustMatchExisting()).
+						Field("/email", &data.Email, parse.MustMatchExisting()).
 						Consumed()
 				}).
 				Consumed()

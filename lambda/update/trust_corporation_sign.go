@@ -29,7 +29,7 @@ func (a TrustCorporationSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateTrustCorporationSign(changes []shared.Change) (TrustCorporationSign, []shared.FieldError) {
+func validateTrustCorporationSign(changes []shared.Change, lpa *shared.Lpa) (TrustCorporationSign, []shared.FieldError) {
 	var data TrustCorporationSign
 
 	errors := parse.Changes(changes).
