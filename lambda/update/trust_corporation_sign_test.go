@@ -213,7 +213,7 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				{Source: "/changes/7", Detail: "unexpected change provided"},
 			},
 		},
-		"invalid contact language": {
+		"invalid values": {
 			update: shared.Update{
 				Type: "TRUST_CORPORATION_SIGN",
 				Changes: []shared.Change{
@@ -247,10 +247,16 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						New: json.RawMessage(`"xy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/1/channel",
+						New: json.RawMessage(`"digital"`),
+						Old: json.RawMessage(`"paper"`),
+					},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/5/new", Detail: "invalid value"},
+				{Source: "/changes/6/new", Detail: "invalid value"},
 			},
 		},
 		"multiple trust corporations": {
