@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"log/slog"
 	"os"
 
@@ -70,8 +69,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		l.logger.Error("error marshalling LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
-
-	log.Println(string(body))
 
 	response.StatusCode = 200
 	response.Body = string(body)
