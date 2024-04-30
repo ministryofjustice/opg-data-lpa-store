@@ -29,6 +29,21 @@
       "channel": "paper"
     }
   ],
+  "trustCorporations": [
+    {
+      "uid": "1d95993a-ffbb-484c-b2fe-f4cca51801da",
+      "name": "Trust us Corp.",
+      "companyNumber": "666123321",
+      "address": {
+        "line1": "103 Line 1",
+        "town": "Town",
+        "country": "GB"
+      },
+      "email": "a@example.com",
+      "status": "active",
+      "channel": "paper"
+    }
+  ],
   "certificateProvider": {
     "uid": "6808960d-12cf-47c5-a2bc-3177deb8599c",
     "firstNames": "Vone",
@@ -44,5 +59,6 @@
   },
   "lifeSustainingTreatmentOption": "option-a",
   "signedAt": "2024-01-10T23:00:00Z",
-  "certificateProviderNotRelatedConfirmedAt": "2024-01-11T22:00:00Z"
+  "certificateProviderNotRelatedConfirmedAt": "2024-01-11T22:00:00Z",
+  "howAttorneysMakeDecisions": "jointly"
 }

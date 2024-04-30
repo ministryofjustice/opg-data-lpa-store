@@ -37,10 +37,13 @@ test-api:
 	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}'
 
 	# certificate provider sign
-	cat ./docs/certificate-provider-change.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+	cat ./docs/certificate-provider-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
 	# attorney sign
-	cat ./docs/attorney-change.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+	cat ./docs/attorney-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+
+	# trust corporation sign
+	cat ./docs/trust-corporation-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
 	# get lpa
 	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
