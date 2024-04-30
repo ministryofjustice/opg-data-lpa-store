@@ -10,7 +10,6 @@ import (
 
 var validAddress = shared.Address{
 	Line1:   "123 Main St",
-	Town:    "Homeland",
 	Country: "GB",
 }
 
@@ -46,7 +45,6 @@ func TestValidateAttorneyEmpty(t *testing.T) {
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/dateOfBirth", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/town", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
 }
 
@@ -105,7 +103,6 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/email", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/town", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
 }
 
