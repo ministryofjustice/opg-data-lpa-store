@@ -103,7 +103,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:3.3
+    image: localstack/localstack:3.4
     ports:
       - "4566:4566"
     volumes:
