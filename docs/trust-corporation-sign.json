@@ -1,0 +1,65 @@
+{
+  "type": "TRUST_CORPORATION_SIGN",
+  "changes": [
+    {
+      "key": "/trustCorporations/0/mobile",
+      "new": "07700900000",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/contactLanguagePreference",
+      "new": "en",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/channel",
+      "new": "online",
+      "old": "paper"
+    },
+    {
+      "key": "/trustCorporations/0/email",
+      "new": "b@example.com",
+      "old": "a@example.com"
+    },
+    {
+      "key": "/trustCorporations/0/signatories/0/firstNames",
+      "new": "Sam",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/0/lastName",
+      "new": "Smith",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/0/professionalTitle",
+      "new": "President",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/0/signedAt",
+      "new": "2024-01-13T22:00:00Z",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/1/firstNames",
+      "new": "Sandra",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/1/lastName",
+      "new": "Smith",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/1/professionalTitle",
+      "new": "Vice President",
+      "old": null
+    },
+    {
+      "key": "/trustCorporations/0/signatories/1/signedAt",
+      "new": "2024-01-13T22:00:00Z",
+      "old": null
+    }
+  ]
+}

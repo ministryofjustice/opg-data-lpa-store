@@ -82,9 +82,76 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						Old: jsonNull,
 					},
 					{
+						Key: "/trustCorporations/1/signatories/1/firstNames",
+						New: json.RawMessage(`"Jane"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/1/lastName",
+						New: json.RawMessage(`"Smith"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/1/professionalTitle",
+						New: json.RawMessage(`"Deputy Director"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/1/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Old: jsonNull,
+					},
+					{
 						Key: "/trustCorporations/1/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
+					},
+				},
+			},
+		},
+		"valid - existing values": {
+			update: shared.Update{
+				Type: "TRUST_CORPORATION_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/trustCorporations/1/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/0/firstNames",
+						New: json.RawMessage(`"John"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/0/lastName",
+						New: json.RawMessage(`"Smith"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/0/professionalTitle",
+						New: json.RawMessage(`"Director"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/signatories/0/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/1/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
+					},
+					{
+						Key: "/trustCorporations/1/channel",
+						New: json.RawMessage(`"online"`),
+						Old: json.RawMessage(`"paper"`),
 					},
 				},
 			},

@@ -252,6 +252,10 @@
         "status": {
           "type": "string",
           "enum": ["active", "replacement", "removed"]
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["paper", "online"]
         }
       }
     },
