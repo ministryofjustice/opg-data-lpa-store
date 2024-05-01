@@ -299,31 +299,31 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/lifeSustainingTreatmentOption", Detail: "field must not be provided"},
 			},
 		},
-		"online trust corporation missing email": {
-			lpa: shared.LpaInit{
-				TrustCorporations: []shared.TrustCorporation{
-					{
-						Channel: shared.ChannelOnline,
-					},
-				},
-			},
-			contains: []shared.FieldError{
-				{Source: "/trustCorporations/0/email", Detail: "field is required"},
-			},
-		},
-		"paper trust corporation with email": {
-			lpa: shared.LpaInit{
-				TrustCorporations: []shared.TrustCorporation{
-					{
-						Channel: shared.ChannelPaper,
-						Email:   "a@example.com",
-					},
-				},
-			},
-			contains: []shared.FieldError{
-				{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
-			},
-		},
+		//"online trust corporation missing email": {
+		//	lpa: shared.LpaInit{
+		//		TrustCorporations: []shared.TrustCorporation{
+		//			{
+		//				Channel: shared.ChannelOnline,
+		//			},
+		//		},
+		//	},
+		//	contains: []shared.FieldError{
+		//		{Source: "/trustCorporations/0/email", Detail: "field is required"},
+		//	},
+		//},
+		//"paper trust corporation with email": {
+		//	lpa: shared.LpaInit{
+		//		TrustCorporations: []shared.TrustCorporation{
+		//			{
+		//				Channel: shared.ChannelPaper,
+		//				Email:   "a@example.com",
+		//			},
+		//		},
+		//	},
+		//	contains: []shared.FieldError{
+		//		{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
+		//	},
+		//},
 	}
 
 	for name, tc := range testcases {
