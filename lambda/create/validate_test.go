@@ -100,10 +100,10 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/name", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/companyNumber", Detail: "field is required"})
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/email", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/channel", Detail: "field is required"})
 }
 
 func TestValidateTrustCorporationValid(t *testing.T) {
@@ -114,6 +114,7 @@ func TestValidateTrustCorporationValid(t *testing.T) {
 		Email:         "corp@example.com",
 		Address:       validAddress,
 		Status:        shared.AttorneyStatusActive,
+		Channel:       shared.ChannelOnline,
 	}
 	errors := validateTrustCorporation("/test", trustCorporation)
 
@@ -296,6 +297,31 @@ func TestValidateLpaInvalid(t *testing.T) {
 			contains: []shared.FieldError{
 				{Source: "/whenTheLpaCanBeUsed", Detail: "field is required"},
 				{Source: "/lifeSustainingTreatmentOption", Detail: "field must not be provided"},
+			},
+		},
+		"online trust corporation missing email": {
+			lpa: shared.LpaInit{
+				TrustCorporations: []shared.TrustCorporation{
+					{
+						Channel: shared.ChannelOnline,
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/trustCorporations/0/email", Detail: "field is required"},
+			},
+		},
+		"paper trust corporation with email": {
+			lpa: shared.LpaInit{
+				TrustCorporations: []shared.TrustCorporation{
+					{
+						Channel: shared.ChannelPaper,
+						Email:   "a@example.com",
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
 			},
 		},
 	}
