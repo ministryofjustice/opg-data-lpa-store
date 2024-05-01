@@ -83,6 +83,7 @@ type TrustCorporation struct {
 	Mobile                    string         `json:"mobile,omitempty"`
 	Signatories               []Signatory    `json:"signatories,omitempty"`
 	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
+	Channel                   Channel        `json:"channel"`
 }
 
 type Signatory struct {

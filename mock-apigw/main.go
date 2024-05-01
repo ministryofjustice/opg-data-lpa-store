@@ -155,6 +155,21 @@ func handlePactState(r *http.Request) error {
 					"channel": "paper"
 				}
 			],
+			"trustCorporations": [
+				{
+					"uid": "1d95993a-ffbb-484c-b2fe-f4cca51801da",
+					"name": "Trust us Corp.",
+					"companyNumber": "666123321",
+					"address": {
+						"line1": "103 Line 1",
+						"town": "Town",
+						"country": "GB"
+					},
+					"email": "a@example.com",
+					"status": "active",
+					"channel": "paper"
+				}
+			],
 			"certificateProvider": {
 				"uid": "4fe2ac67-17cc-4e9b-a9d6-ce30b5f9c82e",
 				"firstNames": "Some",
@@ -168,7 +183,8 @@ func handlePactState(r *http.Request) error {
 				}
 			},
 			"lifeSustainingTreatmentOption": "option-a",
-			"signedAt": "2000-01-02T12:13:14Z"
+			"signedAt": "2000-01-02T12:13:14Z",
+			"howAttorneysMakeDecisions": "jointly"
 		}`
 
 		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
