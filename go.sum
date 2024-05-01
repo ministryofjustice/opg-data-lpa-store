@@ -97,6 +97,8 @@ github.com/ministryofjustice/opg-go-common v0.0.0-20240327113448-b9fa41e2a2f9 h1
 github.com/ministryofjustice/opg-go-common v0.0.0-20240327113448-b9fa41e2a2f9/go.mod h1:GwdjLkhiHZVmXy2e821+qbyecZpbG8aEuoptZIVq3SA=
 github.com/ministryofjustice/opg-go-common v0.0.0-20240422101718-0e820ea906d2 h1:I7j5OFhC17U5Z2BdyBm1SADrMj1YpHPHibl+b0mwZ+o=
 github.com/ministryofjustice/opg-go-common v0.0.0-20240422101718-0e820ea906d2/go.mod h1:quiAne9HW2seduWV//T+2+G02K3Gpr5t8rjY+pWUa0Q=
+github.com/ministryofjustice/opg-go-common v1.1.0-SW-6856-add-versioning.2 h1:le87UcUUfSc5v9JNFds1nUFyoFy0ih0HE5DFkKAVsC0=
+github.com/ministryofjustice/opg-go-common v1.1.0-SW-6856-add-versioning.2/go.mod h1:quiAne9HW2seduWV//T+2+G02K3Gpr5t8rjY+pWUa0Q=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rogpeppe/go-internal v1.10.0 h1:TMyTOH3F/DB16zRVcYyreMH6GnZZrwQVAoYjRBZyWFQ=
