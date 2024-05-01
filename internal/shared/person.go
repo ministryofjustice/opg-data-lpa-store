@@ -77,7 +77,7 @@ type TrustCorporation struct {
 	UID                       string         `json:"uid"`
 	Name                      string         `json:"name"`
 	CompanyNumber             string         `json:"companyNumber"`
-	Email                     string         `json:"email"`
+	Email                     string         `json:"email,omitempty"`
 	Address                   Address        `json:"address"`
 	Status                    AttorneyStatus `json:"status"`
 	Mobile                    string         `json:"mobile,omitempty"`

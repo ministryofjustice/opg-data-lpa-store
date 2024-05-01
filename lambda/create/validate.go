@@ -127,8 +127,8 @@ func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorpor
 		validate.Address(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
 		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
-		//validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
-		//	validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
-		//	validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
+		validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
+			validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
+			validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
 	)
 }
