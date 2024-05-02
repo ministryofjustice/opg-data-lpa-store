@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-04/lpa.json",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/lpa.json",
   "description": "A lasting power of attorney document",
   "allOf": [
     {

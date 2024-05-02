@@ -165,7 +165,6 @@ func handlePactState(r *http.Request) error {
 						"town": "Town",
 						"country": "GB"
 					},
-					"email": "a@example.com",
 					"status": "active",
 					"channel": "paper"
 				}
