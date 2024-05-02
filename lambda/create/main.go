@@ -94,7 +94,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 		return problem.Respond()
 	}
-
+	
 	data := shared.Lpa{LpaInit: input}
 	data.Uid = uid
 	data.Status = shared.LpaStatusProcessing
