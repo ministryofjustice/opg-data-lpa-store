@@ -51,61 +51,67 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 	testcases := map[string]struct {
 		update shared.Update
 		errors []shared.FieldError
+		lpa    *shared.Lpa
 	}{
 		"valid": {
 			update: shared.Update{
 				Type: "TRUST_CORPORATION_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/trustCorporations/1/mobile",
+						Key: "/trustCorporations/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/firstNames",
+						Key: "/trustCorporations/0/signatories/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/lastName",
+						Key: "/trustCorporations/0/signatories/0/lastName",
 						New: json.RawMessage(`"Smith"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/professionalTitle",
+						Key: "/trustCorporations/0/signatories/0/professionalTitle",
 						New: json.RawMessage(`"Director"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/signedAt",
+						Key: "/trustCorporations/0/signatories/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/1/firstNames",
+						Key: "/trustCorporations/0/signatories/1/firstNames",
 						New: json.RawMessage(`"Jane"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/1/lastName",
+						Key: "/trustCorporations/0/signatories/1/lastName",
 						New: json.RawMessage(`"Smith"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/1/professionalTitle",
+						Key: "/trustCorporations/0/signatories/1/professionalTitle",
 						New: json.RawMessage(`"Deputy Director"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/1/signedAt",
+						Key: "/trustCorporations/0/signatories/1/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/contactLanguagePreference",
+						Key: "/trustCorporations/0/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{}},
 				},
 			},
 		},
@@ -114,44 +120,51 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				Type: "TRUST_CORPORATION_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/trustCorporations/1/mobile",
+						Key: "/trustCorporations/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/firstNames",
+						Key: "/trustCorporations/0/signatories/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/lastName",
+						Key: "/trustCorporations/0/signatories/0/lastName",
 						New: json.RawMessage(`"Smith"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/professionalTitle",
+						Key: "/trustCorporations/0/signatories/0/professionalTitle",
 						New: json.RawMessage(`"Director"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/signedAt",
+						Key: "/trustCorporations/0/signatories/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/contactLanguagePreference",
+						Key: "/trustCorporations/0/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/email",
+						Key: "/trustCorporations/0/email",
 						New: json.RawMessage(`"b@example.com"`),
 						Old: json.RawMessage(`"a@example.com"`),
 					},
 					{
-						Key: "/trustCorporations/1/channel",
+						Key: "/trustCorporations/0/channel",
 						New: json.RawMessage(`"online"`),
 						Old: json.RawMessage(`"paper"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{
+						{Email: "a@example.com", Channel: shared.ChannelPaper},
 					},
 				},
 			},
@@ -167,32 +180,32 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				Type: "TRUST_CORPORATION_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/trustCorporations/1/mobile",
+						Key: "/trustCorporations/0/mobile",
 						New: json.RawMessage(`"0777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/firstNames",
+						Key: "/trustCorporations/0/signatories/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/lastName",
+						Key: "/trustCorporations/0/signatories/0/lastName",
 						New: json.RawMessage(`"Smith"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/professionalTitle",
+						Key: "/trustCorporations/0/signatories/0/professionalTitle",
 						New: json.RawMessage(`"Director"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/signedAt",
+						Key: "/trustCorporations/0/signatories/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/contactLanguagePreference",
+						Key: "/trustCorporations/0/contactLanguagePreference",
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
 						Old: jsonNull,
 					},
@@ -202,7 +215,7 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/firstNames",
+						Key: "/trustCorporations/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
@@ -212,51 +225,61 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				{Source: "/changes/6", Detail: "unexpected change provided"},
 				{Source: "/changes/7", Detail: "unexpected change provided"},
 			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{}},
+				},
+			},
 		},
 		"invalid values": {
 			update: shared.Update{
 				Type: "TRUST_CORPORATION_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/trustCorporations/1/mobile",
+						Key: "/trustCorporations/0/mobile",
 						New: json.RawMessage(`"07777"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/firstNames",
+						Key: "/trustCorporations/0/signatories/0/firstNames",
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/lastName",
+						Key: "/trustCorporations/0/signatories/0/lastName",
 						New: json.RawMessage(`"Smith"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/professionalTitle",
+						Key: "/trustCorporations/0/signatories/0/professionalTitle",
 						New: json.RawMessage(`"Director"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/signatories/0/signedAt",
+						Key: "/trustCorporations/0/signatories/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/contactLanguagePreference",
+						Key: "/trustCorporations/0/contactLanguagePreference",
 						New: json.RawMessage(`"xy"`),
 						Old: jsonNull,
 					},
 					{
-						Key: "/trustCorporations/1/channel",
+						Key: "/trustCorporations/0/channel",
 						New: json.RawMessage(`"digital"`),
-						Old: json.RawMessage(`"paper"`),
+						Old: jsonNull,
 					},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/5/new", Detail: "invalid value"},
 				{Source: "/changes/6/new", Detail: "invalid value"},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{}},
+				},
 			},
 		},
 		"multiple trust corporations": {
@@ -299,12 +322,17 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 				{Source: "/changes/1/key", Detail: "index out of range"},
 				{Source: "/changes", Detail: "missing /trustCorporations/0/signatories/0/firstNames"},
 			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{}, {}},
+				},
+			},
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update, &shared.Lpa{})
+			_, errors := validateUpdate(tc.update, tc.lpa)
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-04/lpa.json",
+  "description": "A lasting power of attorney document",
+  "allOf": [
+    {
+      "$ref": "./donor-details.json"
+    }
+  ],
+  "type": "object",
+  "required": ["uid", "status", "registrationDate", "updatedAt"],
+  "readOnly": true,
+  "properties": {
+    "uid": {
+      "type": "string",
+      "pattern": "M-([A-Z0-9]{4})-([A-Z0-9]{4})-([A-Z0-9]{4})",
+      "example": "M-789Q-P4DF-4UX3"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["processing", "registered"]
+    },
+    "registrationDate": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attorneys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "signedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "trustCorporations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "signedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "certificateProvider": {
+      "type": "object",
+      "properties": {
+        "signedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
