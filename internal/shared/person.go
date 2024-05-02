@@ -65,7 +65,7 @@ func (a AttorneyStatus) IsValid() bool {
 type Attorney struct {
 	Person
 	DateOfBirth               Date           `json:"dateOfBirth"`
-	Email                     string         `json:"email"`
+	Email                     string         `json:"email,omitempty"`
 	Status                    AttorneyStatus `json:"status"`
 	Mobile                    string         `json:"mobile,omitempty"`
 	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
