@@ -104,6 +104,9 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validate.Date(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
 		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
+		validate.IfElse(attorney.Channel == shared.ChannelOnline,
+			validate.Required(fmt.Sprintf("%s/email", prefix), attorney.Email),
+			validate.Empty(fmt.Sprintf("%s/email", prefix), attorney.Email)),
 	)
 }
 
@@ -127,8 +130,8 @@ func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorpor
 		validate.Address(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
 		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
-		//validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
-		//	validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
-		//	validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
+		validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
+			validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
+			validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
 	)
 }
