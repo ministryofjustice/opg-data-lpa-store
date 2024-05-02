@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-04/donor-details.json",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/donor-details.json",
   "description": "The data that should be provided when an LPA is executed",
   "type": "object",
   "required": [
@@ -229,12 +229,21 @@
         "channel": {
           "type": "string",
           "enum": ["paper", "online"]
+        },
+        "if": {
+          "required": ["channel"],
+          "properties": {
+            "channel": { "const": "online" }
+          }
+        },
+        "then": {
+          "required": ["email"]
         }
       }
     },
     "TrustCorporation": {
       "type": "object",
-      "required": ["name", "companyNumber", "email", "address", "status"],
+      "required": ["name", "companyNumber", "address", "status"],
       "properties": {
         "name": {
           "type": "string"
@@ -256,6 +265,15 @@
         "channel": {
           "type": "string",
           "enum": ["paper", "online"]
+        },
+        "if": {
+          "required": ["channel"],
+          "properties": {
+            "channel": { "const": "online" }
+          }
+        },
+        "then": {
+          "required": ["email"]
         }
       }
     },

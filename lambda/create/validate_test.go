@@ -203,6 +203,33 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/howAttorneysMakeDecisionsDetails", Detail: "field must not be provided"},
 			},
 		},
+		"online attorney missing email": {
+			lpa: shared.LpaInit{
+				Attorneys: []shared.Attorney{
+					{
+						Channel: shared.ChannelOnline,
+						Status:  shared.AttorneyStatusActive,
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/attorneys/0/email", Detail: "field is required"},
+			},
+		},
+		"paper attorney with email": {
+			lpa: shared.LpaInit{
+				Attorneys: []shared.Attorney{
+					{
+						Channel: shared.ChannelPaper,
+						Email:   "a@example.com",
+						Status:  shared.AttorneyStatusActive,
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/attorneys/0/email", Detail: "field must not be provided"},
+			},
+		},
 		"single replacement attorney with decisions": {
 			lpa: shared.LpaInit{
 				Attorneys:                            []shared.Attorney{{Status: shared.AttorneyStatusReplacement}},
@@ -299,31 +326,31 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/lifeSustainingTreatmentOption", Detail: "field must not be provided"},
 			},
 		},
-		//"online trust corporation missing email": {
-		//	lpa: shared.LpaInit{
-		//		TrustCorporations: []shared.TrustCorporation{
-		//			{
-		//				Channel: shared.ChannelOnline,
-		//			},
-		//		},
-		//	},
-		//	contains: []shared.FieldError{
-		//		{Source: "/trustCorporations/0/email", Detail: "field is required"},
-		//	},
-		//},
-		//"paper trust corporation with email": {
-		//	lpa: shared.LpaInit{
-		//		TrustCorporations: []shared.TrustCorporation{
-		//			{
-		//				Channel: shared.ChannelPaper,
-		//				Email:   "a@example.com",
-		//			},
-		//		},
-		//	},
-		//	contains: []shared.FieldError{
-		//		{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
-		//	},
-		//},
+		"online trust corporation missing email": {
+			lpa: shared.LpaInit{
+				TrustCorporations: []shared.TrustCorporation{
+					{
+						Channel: shared.ChannelOnline,
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/trustCorporations/0/email", Detail: "field is required"},
+			},
+		},
+		"paper trust corporation with email": {
+			lpa: shared.LpaInit{
+				TrustCorporations: []shared.TrustCorporation{
+					{
+						Channel: shared.ChannelPaper,
+						Email:   "a@example.com",
+					},
+				},
+			},
+			contains: []shared.FieldError{
+				{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
+			},
+		},
 	}
 
 	for name, tc := range testcases {
@@ -360,6 +387,7 @@ func TestValidateLpaValid(t *testing.T) {
 				DateOfBirth: newDate("1977-10-30"),
 				Status:      shared.AttorneyStatusActive,
 				Channel:     shared.ChannelOnline,
+				Email:       "a@example.com",
 			},
 		},
 		CertificateProvider: shared.CertificateProvider{
