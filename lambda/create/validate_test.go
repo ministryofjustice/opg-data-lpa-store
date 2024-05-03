@@ -145,6 +145,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		"empty": {
 			contains: []shared.FieldError{
 				{Source: "/lpaType", Detail: "field is required"},
+				{Source: "/channel", Detail: "field is required"},
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
@@ -373,6 +374,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 func TestValidateLpaValid(t *testing.T) {
 	lpa := shared.LpaInit{
 		LpaType: shared.LpaTypePersonalWelfare,
+		Channel: shared.ChannelOnline,
 		Donor: shared.Donor{
 			Person: shared.Person{
 				UID:        "e0f311fd-fe38-40c9-8e82-8263d0f578d9",
