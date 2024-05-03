@@ -46,6 +46,8 @@ func TestValidateAttorneyEmpty(t *testing.T) {
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/dateOfBirth", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/channel", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/uid", Detail: "field is required"})
 }
 
 func TestValidateAttorneyValid(t *testing.T) {
@@ -58,6 +60,8 @@ func TestValidateAttorneyValid(t *testing.T) {
 		},
 		DateOfBirth: newDate("1928-01-18"),
 		Status:      shared.AttorneyStatusActive,
+		Channel:     shared.ChannelOnline,
+		Email:       "a@example.com",
 	}
 	errors := validateAttorney("/test", attorney)
 
@@ -67,6 +71,7 @@ func TestValidateAttorneyValid(t *testing.T) {
 func TestValidateAttorneyMalformedDateOfBirth(t *testing.T) {
 	attorney := shared.Attorney{
 		Person: shared.Person{
+			UID:        "0a266ff6-1c7b-49b7-acd0-047f1dcda2ce",
 			FirstNames: "Lesia",
 			LastName:   "Lathim",
 			Address:    validAddress,
@@ -82,6 +87,7 @@ func TestValidateAttorneyMalformedDateOfBirth(t *testing.T) {
 func TestValidateAttorneyInvalidStatus(t *testing.T) {
 	attorney := shared.Attorney{
 		Person: shared.Person{
+			UID:        "0a266ff6-1c7b-49b7-acd0-047f1dcda2ce",
 			FirstNames: "Lesia",
 			LastName:   "Lathim",
 			Address:    validAddress,
@@ -104,6 +110,7 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/line1", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/address/country", Detail: "field is required"})
 	assert.Contains(t, errors, shared.FieldError{Source: "/test/channel", Detail: "field is required"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/test/uid", Detail: "field is required"})
 }
 
 func TestValidateTrustCorporationValid(t *testing.T) {
@@ -401,8 +408,20 @@ func TestValidateLpaValid(t *testing.T) {
 			Email:   "some@example.com",
 			Channel: shared.ChannelOnline,
 		},
+		TrustCorporations: []shared.TrustCorporation{
+			{
+				UID:           "af2f7aa6-2f8e-4311-af2a-4855c4686d30",
+				Name:          "corp",
+				CompanyNumber: "5",
+				Email:         "corp@example.com",
+				Address:       validAddress,
+				Status:        shared.AttorneyStatusActive,
+				Channel:       shared.ChannelOnline,
+			},
+		},
 		LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionA,
 		SignedAt:                      time.Now(),
+		HowAttorneysMakeDecisions:     shared.HowMakeDecisionsJointly,
 	}
 	errors := Validate(lpa)
 
