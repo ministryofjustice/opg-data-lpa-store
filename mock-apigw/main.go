@@ -127,6 +127,7 @@ func handlePactState(r *http.Request) error {
 		url := fmt.Sprintf("http://localhost:8080/lpas/%s", oldUID)
 		body := `{
 			"lpaType": "personal-welfare",
+			"channel": "online",
 			"donor": {
 				"uid": "34cd75eb-17bc-434a-b922-4772ce3e0439",
 				"firstNames": "Homer",
