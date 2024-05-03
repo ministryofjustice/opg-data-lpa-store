@@ -251,9 +251,9 @@ components:
           items:
             $ref: "#/components/schemas/Lpa"
     Lpa:
-      $ref: "../schemas/2024-04/lpa.json"
+      $ref: "../schemas/2024-10/lpa.json"
     DonorDetails:
-      $ref: "../schemas/2024-04/donor-details.json"
+      $ref: "../schemas/2024-10/donor-details.json"
     Update:
       type: object
       required:

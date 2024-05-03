@@ -18,8 +18,8 @@
     },
     {
       "key": "/trustCorporations/0/email",
-      "new": "b@example.com",
-      "old": "a@example.com"
+      "new": "a@example.com",
+      "old": null
     },
     {
       "key": "/trustCorporations/0/signatories/0/firstNames",
