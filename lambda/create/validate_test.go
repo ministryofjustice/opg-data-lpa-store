@@ -140,7 +140,7 @@ func TestValidateAttorneyMalformedDateOfBirth(t *testing.T) {
 
 	errors := validateAttorney("/test", attorney)
 
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/dateOfBirth", Detail: "invalid format"})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/test/dateOfBirth", Detail: "invalid format"}})
 }
 
 func TestValidateAttorneyInvalidStatus(t *testing.T) {
@@ -149,7 +149,7 @@ func TestValidateAttorneyInvalidStatus(t *testing.T) {
 
 	errors := validateAttorney("/test", attorney)
 
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "invalid value"})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/test/status", Detail: "invalid value"}})
 }
 
 func TestValidateTrustCorporationEmpty(t *testing.T) {
@@ -175,12 +175,12 @@ func TestValidateTrustCorporationValid(t *testing.T) {
 }
 
 func TestValidateTrustCorporationInvalidStatus(t *testing.T) {
-	trustCorporation := shared.TrustCorporation{
-		Status: "bad status",
-	}
+	trustCorporation := makeTrustCorporation()
+	trustCorporation.Status = "bad status"
+
 	errors := validateTrustCorporation("/test", trustCorporation)
 
-	assert.Contains(t, errors, shared.FieldError{Source: "/test/status", Detail: "invalid value"})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/test/status", Detail: "invalid value"}})
 }
 
 func TestValidateLpaInvalid(t *testing.T) {
