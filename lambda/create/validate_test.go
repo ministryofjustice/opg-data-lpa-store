@@ -145,6 +145,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		"empty": {
 			contains: []shared.FieldError{
 				{Source: "/lpaType", Detail: "field is required"},
+				{Source: "/channel", Detail: "field is required"},
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
 				{Source: "/donor/dateOfBirth", Detail: "field is required"},
