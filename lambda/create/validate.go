@@ -100,10 +100,13 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validate.UUID(fmt.Sprintf("%s/uid", prefix), attorney.UID),
 		validate.Required(fmt.Sprintf("%s/firstNames", prefix), attorney.FirstNames),
 		validate.Required(fmt.Sprintf("%s/lastName", prefix), attorney.LastName),
-		validate.Required(fmt.Sprintf("%s/status", prefix), string(attorney.Status)),
 		validate.Date(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
 		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
+		validate.IsValid(fmt.Sprintf("%s/channel", prefix), attorney.Channel),
+		validate.IfElse(attorney.Channel == shared.ChannelOnline,
+			validate.Required(fmt.Sprintf("%s/email", prefix), attorney.Email),
+			validate.Empty(fmt.Sprintf("%s/email", prefix), attorney.Email)),
 	)
 }
 
@@ -125,10 +128,10 @@ func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorpor
 		validate.Required(fmt.Sprintf("%s/name", prefix), trustCorporation.Name),
 		validate.Required(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber),
 		validate.Address(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
-		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
-		//validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
-		//	validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
-		//	validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
+		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
+		validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
+			validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
+			validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
 	)
 }
