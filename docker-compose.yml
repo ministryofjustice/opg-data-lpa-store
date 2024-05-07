@@ -118,11 +118,10 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v1.57.2
+    image: golangci/golangci-lint:v1.58.0
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
-      - ./.cache/golangci-lint/v1.55.2:/root/.cache
     command: golangci-lint run --timeout 5m --out-format=github-actions ./lambda/get/... ./lambda/create/... ./lambda/update/...
 
   gosec:
