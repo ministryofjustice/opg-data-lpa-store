@@ -14,6 +14,7 @@ func (c CertificateProviderOptOut) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: "/type", Detail: "certificate provider cannot opt out after providing certificate"}}
 	}
 
+	lpa.CertificateProviderNotRelatedConfirmedAt = nil
 	lpa.CertificateProvider = shared.CertificateProvider{}
 
 	return nil
