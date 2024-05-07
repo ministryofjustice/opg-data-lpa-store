@@ -5,6 +5,7 @@
   "type": "object",
   "required": [
     "lpaType",
+    "channel",
     "donor",
     "attorneys",
     "certificateProvider",
@@ -14,6 +15,10 @@
     "lpaType": {
       "type": "string",
       "enum": ["property-and-affairs", "personal-welfare"]
+    },
+    "channel": {
+      "type": "string",
+      "enum": ["paper", "online"]
     },
     "donor": {
       "allOf": [
