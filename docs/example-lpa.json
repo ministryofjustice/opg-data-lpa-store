@@ -1,5 +1,6 @@
 {
   "lpaType": "personal-welfare",
+  "channel": "online",
   "donor": {
     "uid": "eda719db-8880-4dda-8c5d-bb9ea12c236f",
     "firstNames": "Feeg",
