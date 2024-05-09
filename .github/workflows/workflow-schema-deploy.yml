@@ -1,0 +1,17 @@
+name: Deploy schema to data dictionary
+
+on:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger data dictionary deploy
+        run: gh api -X POST repos/ministryofjustice/opg-data-dictionary/dispatches -f body='{"event_type":"redeploy"}'
