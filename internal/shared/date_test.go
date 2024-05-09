@@ -92,10 +92,11 @@ func TestDateDynamoDB(t *testing.T) {
 			av := &types.AttributeValueMemberS{Value: tc.dynamo}
 
 			var unmarshal Date
-			attributevalue.Unmarshal(av, &unmarshal)
+			assert.Nil(t, attributevalue.Unmarshal(av, &unmarshal))
 			assert.Equal(t, tc.date, unmarshal)
 
-			marshal, _ := attributevalue.Marshal(unmarshal)
+			marshal, err := attributevalue.Marshal(unmarshal)
+			assert.Nil(t, err)
 			assert.Equal(t, av, marshal)
 		})
 	}
