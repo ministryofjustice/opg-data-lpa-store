@@ -31,6 +31,10 @@ func (d *Date) UnmarshalJSON(data []byte) error {
 }
 
 func (d *Date) UnmarshalText(data []byte) error {
+	if len(data) == 0 {
+		return nil
+	}
+
 	var err error
 	d.t, err = time.Parse(time.DateOnly, string(data))
 	return err

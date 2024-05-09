@@ -61,12 +61,15 @@ export class JsonSchemaEditor {
 
     $container.addEventListener("input", (e) => {
       if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLSelectElement
+        (e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLSelectElement) &&
+        e.target.name
       ) {
         const value = JSON.parse(this.$module.value);
         jsonSet(value, e.target.name, e.target.value);
         this.$module.value = JSON.stringify(value);
+
+        if (e.target.name === "/channel") this.build();
       }
     });
 
