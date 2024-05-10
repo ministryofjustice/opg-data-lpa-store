@@ -89,12 +89,16 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	// validation
 	if errs := Validate(input); len(errs) > 0 {
-		problem := shared.ProblemInvalidRequest
-		problem.Errors = errs
+		if input.Channel == shared.ChannelPaper {
+			l.logger.Info("encountered validation errors in lpa", slog.Any("uid", uid))
+		} else {
+			problem := shared.ProblemInvalidRequest
+			problem.Errors = errs
 
-		return problem.Respond()
+			return problem.Respond()
+		}
 	}
-	
+
 	data := shared.Lpa{LpaInit: input}
 	data.Uid = uid
 	data.Status = shared.LpaStatusProcessing
