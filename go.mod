@@ -2,7 +2,7 @@ module github.com/ministryofjustice/opg-data-lpa-store
 
 go 1.22
 
-toolchain go1.22.2
+toolchain go1.22.3
 
 require (
 	github.com/aws/aws-lambda-go v1.47.0
