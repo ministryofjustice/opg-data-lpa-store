@@ -135,12 +135,29 @@
       "type": "string",
       "enum": ["option-a", "option-b"]
     },
-    "restrictionsAndConditions": {
-      "type": "string"
-    },
     "signedAt": {
       "type": "string",
       "format": "date-time"
+    }
+  },
+  "if": {
+    "required": ["channel"],
+    "properties": {
+      "channel": { "const": "online" }
+    }
+  },
+  "then": {
+    "properties": {
+      "restrictionsAndConditions": {
+        "type": "string"
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "restrictionsAndConditionsImages": {
+        "$ref": "#/$defs/Images"
+      }
     }
   },
   "additionalProperties": false,
@@ -293,6 +310,23 @@
         }
       ],
       "type": "object"
+    },
+    "Images": {
+      "type": "array",
+      "items":  {
+        "$ref": "#/$defs/ImageUpload"
+      }
+    },
+    "ImageUpload": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        }
+      }
     }
   }
 }
