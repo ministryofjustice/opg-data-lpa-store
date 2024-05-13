@@ -65,7 +65,11 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 	}
 
 	hash := sha256.New()
-	hash.Write(imgData)
+	_, err = hash.Write(imgData)
+
+	if err != nil {
+		return shared.File{}, err
+	}
 
 	return shared.File{
 		Path: path,
