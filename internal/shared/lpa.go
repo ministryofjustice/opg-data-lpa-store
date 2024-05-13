@@ -21,16 +21,18 @@ type LpaInit struct {
 	WhenTheLpaCanBeUsed                         CanUse                  `json:"whenTheLpaCanBeUsed,omitempty"`
 	LifeSustainingTreatmentOption               LifeSustainingTreatment `json:"lifeSustainingTreatmentOption,omitempty"`
 	RestrictionsAndConditions                   string                  `json:"restrictionsAndConditions,omitempty"`
+	RestrictionsAndConditionsImages             []FileUpload            `json:"restrictionsAndConditionsImages,omitempty"`
 	SignedAt                                    time.Time               `json:"signedAt"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time              `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 
 type Lpa struct {
 	LpaInit
-	Uid              string     `json:"uid"`
-	Status           LpaStatus  `json:"status"`
-	RegistrationDate *time.Time `json:"registrationDate,omitempty"`
-	UpdatedAt        time.Time  `json:"updatedAt"`
+	Uid                             string     `json:"uid"`
+	Status                          LpaStatus  `json:"status"`
+	RegistrationDate                *time.Time `json:"registrationDate,omitempty"`
+	UpdatedAt                       time.Time  `json:"updatedAt"`
+	RestrictionsAndConditionsImages []File     `json:"restrictionsAndConditionsImages,omitempty"`
 }
 
 type LpaType string

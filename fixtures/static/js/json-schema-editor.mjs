@@ -3,6 +3,14 @@ import { Tabs as GovukTabs } from "../govuk-frontend.min.js";
 
 const { Draft07 } = window.jlib;
 
+const toBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(";base64,")[1]);
+    reader.onerror = reject;
+  });
+
 export class JsonSchemaEditor {
   /**
    * @type {HTMLTextAreaElement}
@@ -186,6 +194,38 @@ export class JsonSchemaEditor {
         $input.classList.add("govuk-input");
 
         $parent.appendChild(this.createGovukFormGroup(nub, $input));
+      } else if (
+        schema.type === "object" &&
+        Object.keys(schema.properties).join(",") === "filename,data"
+      ) {
+        const $filename = document.createElement("input");
+        $filename.type = "hidden";
+        $filename.name = `${pointer}/filename`;
+        const $data = document.createElement("input");
+        $data.type = "hidden";
+        $data.name = `${pointer}/data`;
+
+        const $input = document.createElement("input");
+        $input.id = `f-${pointer}`;
+        $input.type = "file";
+        $input.classList.add("govuk-file-upload");
+
+        $input.addEventListener("change", async () => {
+          const file = $input.files?.[0];
+          if (file) {
+            $filename.value = file.name;
+            $filename.dispatchEvent(new InputEvent("input", { bubbles: true }));
+
+            $data.value = await toBase64(file);
+            $data.dispatchEvent(new InputEvent("input", { bubbles: true }));
+          }
+        });
+
+        $parent.appendChild($filename);
+        $parent.appendChild($data);
+        $parent.appendChild(this.createGovukFormGroup("Upload file", $input));
+
+        parents[pointer] = document.createElement("div");
       } else if (schema.type === "object" || schema.type === "array") {
         const $details = document.createElement("details");
         $details.classList.add("govuk-details");
