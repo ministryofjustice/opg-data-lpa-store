@@ -135,12 +135,32 @@
       "type": "string",
       "enum": ["option-a", "option-b"]
     },
-    "restrictionsAndConditions": {
-      "type": "string"
-    },
     "signedAt": {
       "type": "string",
       "format": "date-time"
+    }
+  },
+  "if": {
+    "required": ["channel"],
+    "properties": {
+      "channel": { "const": "online" }
+    }
+  },
+  "then": {
+    "properties": {
+      "restrictionsAndConditions": {
+        "type": "string"
+      }
+    }
+  },
+  "else": {
+    "properties": {
+      "restrictionsAndConditionsImages": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/File"
+        }
+      }
     }
   },
   "additionalProperties": false,
@@ -234,16 +254,16 @@
         "channel": {
           "type": "string",
           "enum": ["paper", "online"]
-        },
-        "if": {
-          "required": ["channel"],
-          "properties": {
-            "channel": { "const": "online" }
-          }
-        },
-        "then": {
-          "required": ["email"]
         }
+      },
+      "if": {
+        "required": ["channel"],
+        "properties": {
+          "channel": { "const": "online" }
+        }
+      },
+      "then": {
+        "required": ["email"]
       }
     },
     "TrustCorporation": {
@@ -274,16 +294,16 @@
         "channel": {
           "type": "string",
           "enum": ["paper", "online"]
-        },
-        "if": {
-          "required": ["channel"],
-          "properties": {
-            "channel": { "const": "online" }
-          }
-        },
-        "then": {
-          "required": ["email"]
         }
+      },
+      "if": {
+        "required": ["channel"],
+        "properties": {
+          "channel": { "const": "online" }
+        }
+      },
+      "then": {
+        "required": ["email"]
       }
     },
     "PersonToNotify": {
@@ -293,6 +313,18 @@
         }
       ],
       "type": "object"
+    },
+    "File": {
+      "type": "object",
+      "required": ["filename", "data"],
+      "properties": {
+        "filename": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        }
+      }
     }
   }
 }
