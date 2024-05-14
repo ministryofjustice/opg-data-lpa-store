@@ -36,6 +36,7 @@ type Store interface {
 
 type S3Client interface {
 	Put(ctx context.Context, objectKey string, obj any) error
+	UploadFile(ctx context.Context, file shared.FileUpload, path string) (shared.File, error)
 }
 
 type Verifier interface {
@@ -103,6 +104,20 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	data.Uid = uid
 	data.Status = shared.LpaStatusProcessing
 	data.UpdatedAt = time.Now()
+
+	if data.Channel == shared.ChannelPaper && len(input.RestrictionsAndConditionsImages) > 0 {
+		data.RestrictionsAndConditionsImages = make([]shared.File, len(input.RestrictionsAndConditionsImages))
+		for i, image := range input.RestrictionsAndConditionsImages {
+			path := fmt.Sprintf("%s/scans/rc_%d_%s", data.Uid, i, image.Filename)
+
+			data.RestrictionsAndConditionsImages[i], err = l.staticLpaStorage.UploadFile(ctx, image, path)
+
+			if err != nil {
+				l.logger.Error("error saving restrictions and conditions image", slog.Any("err", err))
+				return shared.ProblemInternalServerError.Respond()
+			}
+		}
+	}
 
 	// save
 	if err = l.store.Put(ctx, data); err != nil {
