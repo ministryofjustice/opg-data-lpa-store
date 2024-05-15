@@ -29,6 +29,7 @@
         "minor",
         "patch"
       ],
+      "schedule": "* 6 1 * *",
       "stabilityDays": 3,
       "prPriority": 4
     }
