@@ -4,7 +4,7 @@
   "description": "A lasting power of attorney document",
   "allOf": [
     {
-      "$ref": "./donor-details.json"
+      "$ref": "https://github.com/ministryofjustice/opg-data-lpa-store/raw/main/docs/schemas/2024-10/donor-details.json"
     }
   ],
   "type": "object",
