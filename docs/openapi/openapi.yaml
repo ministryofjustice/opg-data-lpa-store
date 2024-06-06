@@ -251,9 +251,9 @@ components:
           items:
             $ref: "#/components/schemas/Lpa"
     Lpa:
-      $ref: "https://github.com/ministryofjustice/opg-data-lpa-store/raw/main/docs/schemas/2024-10/lpa.json"
+      $ref: "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/lpa.json"
     DonorDetails:
-      $ref: "https://github.com/ministryofjustice/opg-data-lpa-store/raw/main/docs/schemas/2024-10/donor-details.json"
+      $ref: "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/donor-details.json"
     Update:
       type: object
       required:
