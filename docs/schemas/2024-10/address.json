@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/address.json",
+  "description": "An address",
+  "type": "object",
+  "required": ["line1", "country"],
+  "properties": {
+    "line1": {
+      "type": "string",
+      "x-faker": "address.streetAddress"
+    },
+    "line2": {
+      "type": "string",
+      "x-faker": "address.streetName"
+    },
+    "line3": {
+      "type": "string",
+      "x-faker": "address.cityName"
+    },
+    "town": {
+      "type": "string",
+      "x-faker": "address.cityName"
+    },
+    "postcode": {
+      "type": "string",
+      "x-faker": {
+        "helpers.replaceSymbols": "??# #??"
+      }
+    },
+    "country": {
+      "type": "string",
+      "format": "ISO-3166-1",
+      "minLength": 2,
+      "maxLength": 2,
+      "x-faker": "address.countryCode"
+    }
+  },
+  "additionalProperties": false,
+  "example": {
+    "line1": "Flat 3",
+    "line2": "42 Primrose Lane",
+    "line3": "Greenfields",
+    "town": "Manchester",
+    "postcode": "M17 2XY",
+    "country": "GB"
+  }
+}
