@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/attorney.json",
+  "allOf": [
+    {
+      "$ref": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/person.json"
+    }
+  ],
+  "type": "object",
+  "required": ["dateOfBirth", "status", "channel"],
+  "properties": {
+    "dateOfBirth": {
+      "type": "string",
+      "format": "date"
+    },
+    "email": {
+      "type": "string",
+      "x-faker": "internet.email"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "replacement", "removed"]
+    },
+    "channel": {
+      "type": "string",
+      "enum": ["paper", "online"]
+    }
+  },
+  "if": {
+    "required": ["channel"],
+    "properties": {
+      "channel": { "const": "online" }
+    }
+  },
+  "then": {
+    "required": ["email"]
+  }
+}
