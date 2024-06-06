@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/trust-corporation.json",
+  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/trust-corporation.json",
   "type": "object",
   "required": ["name", "companyNumber", "address", "status", "channel", "uid"],
   "properties": {
@@ -19,7 +19,7 @@
       "x-faker": "internet.email"
     },
     "address": {
-      "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/address.json"
+      "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/address.json"
     },
     "status": {
       "type": "string",

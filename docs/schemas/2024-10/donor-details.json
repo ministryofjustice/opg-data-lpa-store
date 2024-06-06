@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/donor-details.json",
+  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/donor-details.json",
   "description": "The data that should be provided when an LPA is executed",
   "type": "object",
   "required": [
@@ -23,7 +23,7 @@
     "donor": {
       "allOf": [
         {
-          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/person.json"
+          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/person.json"
         }
       ],
       "type": "object",
@@ -50,20 +50,20 @@
     "attorneys": {
       "type": "array",
       "items": {
-        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/attorney.json"
+        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/attorney.json"
       },
       "minLength": 1
     },
     "trustCorporations": {
       "type": "array",
       "items": {
-        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/trust-corporation.json"
+        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/trust-corporation.json"
       }
     },
     "certificateProvider": {
       "allOf": [
         {
-          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/person.json"
+          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/person.json"
         }
       ],
       "type": "object",
@@ -95,7 +95,7 @@
     "peopleToNotify": {
       "type": "array",
       "items": {
-        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/person-to-notify.json"
+        "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/person-to-notify.json"
       }
     },
     "howAttorneysMakeDecisions": {
@@ -158,7 +158,7 @@
       "restrictionsAndConditionsImages": {
         "type": "array",
         "items": {
-          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/file.json"
+          "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/file.json"
         }
       }
     }
