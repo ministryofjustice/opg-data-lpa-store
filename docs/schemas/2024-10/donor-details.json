@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/donor-details.json",
+  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/a5bebd0c135e9d1faec09484149026d30724c125/docs/schemas/2024-10/donor-details.json",
   "description": "The data that should be provided when an LPA is executed",
   "type": "object",
   "required": [
