@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/person.json",
+  "type": "object",
+  "required": ["uid", "firstNames", "lastName", "address"],
+  "properties": {
+    "uid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "firstNames": {
+      "type": "string",
+      "x-faker": "name.firstName"
+    },
+    "lastName": {
+      "type": "string",
+      "x-faker": "name.lastName"
+    },
+    "address": {
+      "$ref": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/address.json"
+    }
+  }
+}

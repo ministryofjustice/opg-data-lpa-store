@@ -1,0 +1,14 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/file.json",
+    "type": "object",
+    "required": ["filename", "data"],
+    "properties": {
+      "filename": {
+        "type": "string"
+      },
+      "data": {
+        "type": "string"
+      }
+    }
+}
