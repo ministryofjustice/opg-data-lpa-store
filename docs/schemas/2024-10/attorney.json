@@ -1,9 +1,9 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/attorney.json",
+  "$id": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/attorney.json",
   "allOf": [
     {
-      "$ref": "https://raw.githubusercontent.com/ministryofjustice/opg-data-lpa-store/d5d81b6df9a89aaa4c3634bfca31bfa3c1b1fd0d/docs/schemas/2024-10/person.json"
+      "$ref": "https://data-dictionary.opg.service.justice.gov.uk/schema/lpa/2024-10/person.json"
     }
   ],
   "type": "object",
