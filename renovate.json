@@ -36,14 +36,12 @@
   ],
   "major": {
     "automerge": false,
-    "stabilityDays": 3,
-    "prPriority": 0
+    "stabilityDays": 3
   },
   "vulnerabilityAlerts": {
     "groupName": "Security Alerts",
     "rangeStrategy": "update-lockfile",
     "commitMessagePrefix": "[SECURITY]",
-    "branchTopic": "{{{datasource}}}-{{{depName}}}-vulnerability",
-    "prPriority": 5
+    "branchTopic": "{{{datasource}}}-{{{depName}}}-vulnerability"
   }
 }
