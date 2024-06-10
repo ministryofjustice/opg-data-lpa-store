@@ -83,8 +83,12 @@ type logger interface {
 	Error(string, ...any)
 }
 
-func NewJWTVerifier(cfg aws.Config, logger logger) JWTVerifier {
-	client := secretsmanager.NewFromConfig(cfg)
+func NewJWTVerifier(cfg aws.Config, endpointURL string, logger logger) JWTVerifier {
+	client := secretsmanager.NewFromConfig(cfg, func(o *secretsmanager.Options) {
+		if endpointURL != "" {
+			o.BaseEndpoint = aws.String(endpointURL)
+		}
+	})
 
 	secretKey, err := client.GetSecretValue(context.Background(), &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(os.Getenv("JWT_SECRET_KEY_ID")),

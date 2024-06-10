@@ -20,9 +20,13 @@ type Client struct {
 	svc          EventBridgeClient
 }
 
-func NewClient(cfg aws.Config, eventBusName string) *Client {
+func NewClient(cfg aws.Config, endpointURL string, eventBusName string) *Client {
 	return &Client{
-		svc:          eventbridge.NewFromConfig(cfg),
+		svc: eventbridge.NewFromConfig(cfg, func(o *eventbridge.Options) {
+			if endpointURL != "" {
+				o.BaseEndpoint = aws.String(endpointURL)
+			}
+		}),
 		eventBusName: eventBusName,
 	}
 }
