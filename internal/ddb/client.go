@@ -16,9 +16,11 @@ type Client struct {
 	changesTableName string
 }
 
-func New(cfg aws.Config, tableName, changesTableName string) *Client {
+func New(cfg aws.Config, endpointURL string, tableName, changesTableName string) *Client {
 	return &Client{
-		ddb:              dynamodb.NewFromConfig(cfg),
+		ddb:              dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
+			o.BaseEndpoint = aws.String(endpointURL)
+		}),
 		tableName:        tableName,
 		changesTableName: changesTableName,
 	}
