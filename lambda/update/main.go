@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
@@ -128,29 +127,21 @@ func main() {
 	// set endpoint to "" outside dev to use default AWS resolver
 	endpointURL := os.Getenv("AWS_BASE_URL")
 
-	cfg, err := config.LoadDefaultConfig(ctx, func(o *config.LoadOptions) error {
-		if endpointURL != "" {
-			o.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
-				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-					return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
-				},
-			)
-		}
+	cfg, err := config.LoadDefaultConfig(ctx)
 
-		return nil
-	})
 	if err != nil {
 		logger.Error("failed to load aws config", slog.Any("err", err))
 	}
 
 	l := &Lambda{
-		eventClient: event.NewClient(cfg, os.Getenv("EVENT_BUS_NAME")),
+		eventClient: event.NewClient(cfg, endpointURL, os.Getenv("EVENT_BUS_NAME")),
 		store: ddb.New(
 			cfg,
+			endpointURL,
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		verifier: shared.NewJWTVerifier(cfg, logger),
+		verifier: shared.NewJWTVerifier(cfg, endpointURL, logger),
 		logger:   logger,
 	}
 
