@@ -7,10 +7,12 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"net/url"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
+	smithyendpoints "github.com/aws/smithy-go/endpoints"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
@@ -78,8 +80,33 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 
 }
 
-func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
-	awsClient := s3.NewFromConfig(awsConfig)
+type resolver struct {
+	endpointURL string
+}
+
+func (r *resolver) ResolveEndpoint(ctx context.Context, params s3.EndpointParameters) (
+	smithyendpoints.Endpoint, error,
+) {
+	u, err := url.Parse(r.endpointURL)
+	if err != nil {
+		return smithyendpoints.Endpoint{}, err
+	}
+
+	u.Path = *params.Bucket
+
+	return smithyendpoints.Endpoint{
+		URI: *u,
+	}, nil
+}
+
+func NewS3Client(awsConfig aws.Config, endpointURL string, bucketName string) *S3Client {
+	awsClient := s3.NewFromConfig(awsConfig, func(o *s3.Options) {
+		if endpointURL != "" {
+			o.EndpointResolverV2 = &resolver{
+				endpointURL: endpointURL,
+			}
+		}
+	})
 
 	return &S3Client{
 		bucketName: bucketName,
