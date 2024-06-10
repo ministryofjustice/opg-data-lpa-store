@@ -78,8 +78,12 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 
 }
 
-func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
-	awsClient := s3.NewFromConfig(awsConfig)
+func NewS3Client(awsConfig aws.Config, endpointURL string, bucketName string) *S3Client {
+	awsClient := s3.NewFromConfig(awsConfig, func(o *s3.Options) {
+		if endpointURL != "" {
+			o.BaseEndpoint = aws.String(endpointURL)
+		}
+	})
 
 	return &S3Client{
 		bucketName: bucketName,
