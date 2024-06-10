@@ -79,7 +79,9 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 }
 
 func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
-	awsClient := s3.NewFromConfig(awsConfig)
+	awsClient := s3.NewFromConfig(awsConfig, func(o *s3.Options) {
+		o.UsePathStyle = true
+	})
 
 	return &S3Client{
 		bucketName: bucketName,
