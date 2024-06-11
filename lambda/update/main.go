@@ -128,19 +128,13 @@ func main() {
 	// set endpoint to "" outside dev to use default AWS resolver
 	endpointURL := os.Getenv("AWS_BASE_URL")
 
-	cfg, err := config.LoadDefaultConfig(ctx, func(o *config.LoadOptions) error {
-		if endpointURL != "" {
-			o.EndpointResolverWithOptions = aws.EndpointResolverWithOptionsFunc(
-				func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-					return aws.Endpoint{URL: endpointURL, HostnameImmutable: true}, nil
-				},
-			)
-		}
-
-		return nil
-	})
+	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		logger.Error("failed to load aws config", slog.Any("err", err))
+	}
+
+	if endpointURL != "" {
+		cfg.BaseEndpoint = aws.String(endpointURL)
 	}
 
 	l := &Lambda{
