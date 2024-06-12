@@ -268,6 +268,7 @@ components:
             - PERFECT
             - REGISTER
             - CERTIFICATE_PROVIDER_OPT_OUT
+            - ID_CHECK_COMPLETE
         changes:
           type: array
           items:
