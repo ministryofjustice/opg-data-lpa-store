@@ -24,21 +24,21 @@ type Person struct {
 
 type Donor struct {
 	Person
-	DateOfBirth               Date          `json:"dateOfBirth"`
-	Email                     string        `json:"email"`
-	OtherNamesKnownBy         string        `json:"otherNamesKnownBy,omitempty"`
-	ContactLanguagePreference Lang          `json:"contactLanguagePreference"`
-	IdentityCheck             IdentityCheck `json:"identityCheck,omitempty"`
+	DateOfBirth               Date           `json:"dateOfBirth"`
+	Email                     string         `json:"email"`
+	OtherNamesKnownBy         string         `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type CertificateProvider struct {
 	Person
-	Email                     string        `json:"email"`
-	Phone                     string        `json:"phone"`
-	Channel                   Channel       `json:"channel"`
-	SignedAt                  *time.Time    `json:"signedAt,omitempty"`
-	ContactLanguagePreference Lang          `json:"contactLanguagePreference,omitempty"`
-	IdentityCheck             IdentityCheck `json:"identityCheck,omitempty"`
+	Email                     string         `json:"email"`
+	Phone                     string         `json:"phone"`
+	Channel                   Channel        `json:"channel"`
+	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type Channel string

@@ -8,7 +8,7 @@ import (
 
 type IdCheckComplete struct {
 	Actor idccActor
-	shared.IdentityCheck
+	*shared.IdentityCheck
 }
 
 type idccActor string
@@ -41,6 +41,10 @@ func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckC
 				existing.IdentityCheck = lpa.Donor.IdentityCheck
 			case certificateProvider:
 				existing.IdentityCheck = lpa.CertificateProvider.IdentityCheck
+			}
+
+			if existing.IdentityCheck == nil {
+				existing.IdentityCheck = &shared.IdentityCheck{}
 			}
 
 			existing.Actor = actor

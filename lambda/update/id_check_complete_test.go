@@ -72,37 +72,25 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 func TestIdCheckCompleteApplyDonor(t *testing.T) {
 	check := IdCheckComplete{
 		Actor:         donor,
-		IdentityCheck: shared.IdentityCheck{},
+		IdentityCheck: &shared.IdentityCheck{},
 	}
 
-	lpa := shared.Lpa{
-		LpaInit: shared.LpaInit{
-			Donor: shared.Donor{
-				IdentityCheck: shared.IdentityCheck{},
-			},
-		},
-	}
+	lpa := shared.Lpa{}
 
 	check.Apply(&lpa)
 
-	assert.Equal(t, check.IdentityCheck, lpa.LpaInit.Donor.IdentityCheck)
+	assert.Equal(t, check.IdentityCheck, lpa.Donor.IdentityCheck)
 }
 
 func TestIdCheckCompleteApplyCertificateProvider(t *testing.T) {
 	check := IdCheckComplete{
 		Actor:         certificateProvider,
-		IdentityCheck: shared.IdentityCheck{},
+		IdentityCheck: &shared.IdentityCheck{},
 	}
 
-	lpa := shared.Lpa{
-		LpaInit: shared.LpaInit{
-			Donor: shared.Donor{
-				IdentityCheck: shared.IdentityCheck{},
-			},
-		},
-	}
+	lpa := shared.Lpa{}
 
 	check.Apply(&lpa)
 
-	assert.Equal(t, check.IdentityCheck, lpa.LpaInit.CertificateProvider.IdentityCheck)
+	assert.Equal(t, check.IdentityCheck, lpa.CertificateProvider.IdentityCheck)
 }
