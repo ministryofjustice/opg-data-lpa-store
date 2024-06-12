@@ -27,13 +27,20 @@ func (idcc IdCheckComplete) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateIdCheckComplete(changes []shared.Change) (IdCheckComplete, []shared.FieldError) {
+func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
 	var existing IdCheckComplete
 
 	identityCheckParser := func(actor idccActor) func(p *parse.Parser) []shared.FieldError {
 		return func(p *parse.Parser) []shared.FieldError {
 			if existing.Actor != "" {
 				return []shared.FieldError{{Source: "/", Detail: "id check for multiple actors is not allowed"}}
+			}
+
+			switch actor {
+			case donor:
+				existing.IdentityCheck = lpa.Donor.IdentityCheck
+			case certificateProvider:
+				existing.IdentityCheck = lpa.CertificateProvider.IdentityCheck
 			}
 
 			existing.Actor = actor
