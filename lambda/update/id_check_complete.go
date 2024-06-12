@@ -27,48 +27,39 @@ func (idcc IdCheckComplete) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func parseIdCheckCompleteChanges(prefix string, changes []shared.Change, existing IdCheckComplete) (IdCheckComplete, []shared.FieldError) {
-	errors := parse.Changes(changes).
-		Prefix(
-			prefix,
-			func(p *parse.Parser) []shared.FieldError {
-				return p.
-					Field("/type", &existing.Type, parse.Validate(func() []shared.FieldError {
-						return validate.IsValid("", existing.Type)
-					}), parse.MustMatchExisting()).
-					Field("/date", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
-						return validate.Time("", existing.CheckedAt)
-					}), parse.MustMatchExisting()).
-					Field("/reference", &existing.Reference, parse.Validate(func() []shared.FieldError {
-						return validate.Required("", existing.Reference)
-					}), parse.MustMatchExisting()).
-					Consumed()
-			},
-		).Errors()
-
-	return existing, errors
-}
-
-func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
+func validateIdCheckComplete(changes []shared.Change) (IdCheckComplete, []shared.FieldError) {
 	var existing IdCheckComplete
 
-	// identify whether we are parsing donor or certificate provider identity check
-	prefix := "/donor/identityCheck"
-	errors := parse.Changes(changes).Prefix(prefix, func(p *parse.Parser) []shared.FieldError {
-		// ignore validation on fields (for now)
-		return []shared.FieldError{}
-	}).Errors()
+	identityCheckParser := func(actor idccActor) func(p *parse.Parser) []shared.FieldError {
+		return func(p *parse.Parser) []shared.FieldError {
+			if existing.Actor != "" {
+				return []shared.FieldError{{Source: "/", Detail: "id check for multiple actors is not allowed"}}
+			}
 
-	// if we have errors at this point, we assume we are parsing a certificateProvider identity check
-	if len(errors) > 0 {
-		prefix = "/certificateProvider/identityCheck"
+			existing.Actor = actor
 
-		// populate existing from certificate provider
-		existing = IdCheckComplete{IdentityCheck: lpa.CertificateProvider.IdentityCheck, Actor: certificateProvider}
-	} else {
-		// populate existing from donor
-		existing = IdCheckComplete{IdentityCheck: lpa.Donor.IdentityCheck, Actor: donor}
+			return p.
+				Field("/type", &existing.Type, parse.Validate(func() []shared.FieldError {
+					return validate.IsValid("", existing.Type)
+				}), parse.MustMatchExisting()).
+				Field("/date", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
+					return validate.Time("", existing.CheckedAt)
+				}), parse.MustMatchExisting()).
+				Field("/reference", &existing.Reference, parse.Validate(func() []shared.FieldError {
+					return validate.Required("", existing.Reference)
+				}), parse.MustMatchExisting()).
+				Consumed()
+		}
 	}
 
-	return parseIdCheckCompleteChanges(prefix, changes, existing)
+	errors := parse.Changes(changes).
+		Prefix("/donor/identityCheck", identityCheckParser(donor), parse.Optional()).
+		Prefix("/certificateProvider/identityCheck", identityCheckParser(certificateProvider), parse.Optional()).
+		Errors()
+
+	if existing.Actor == "" {
+		return existing, append(errors, shared.FieldError{Source: "/", Detail: "id check for unknown actor type"})
+	}
+
+	return existing, errors
 }
