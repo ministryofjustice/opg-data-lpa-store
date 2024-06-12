@@ -36,8 +36,8 @@ func parseIdCheckCompleteChanges(prefix string, changes []shared.Change, existin
 					Field("/type", &existing.Type, parse.Validate(func() []shared.FieldError {
 						return validate.IsValid("", existing.Type)
 					}), parse.MustMatchExisting()).
-					Field("/date", &existing.Date, parse.Validate(func() []shared.FieldError {
-						return validate.Time("", existing.Date)
+					Field("/date", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
+						return validate.Time("", existing.CheckedAt)
 					}), parse.MustMatchExisting()).
 					Field("/reference", &existing.Reference, parse.Validate(func() []shared.FieldError {
 						return validate.Required("", existing.Reference)
