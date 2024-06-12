@@ -42,6 +42,9 @@ test-api:
 	# attorney sign
 	cat ./docs/attorney-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
+	# id check complete
+	cat ./docs/id-check-complete.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+
 	# trust corporation sign
 	cat ./docs/trust-corporation-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
