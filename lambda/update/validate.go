@@ -22,6 +22,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateRegister(update.Changes)
 	case "TRUST_CORPORATION_SIGN":
 		return validateTrustCorporationSign(update.Changes, lpa)
+	case "ID_CHECK_COMPLETE":
+		return validateIdCheckComplete(update.Changes, lpa)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}

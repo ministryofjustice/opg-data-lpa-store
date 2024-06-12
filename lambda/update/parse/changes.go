@@ -156,6 +156,13 @@ func oldEqualsExisting(old any, existing any) bool {
 
 		return shared.Channel(old.(string)) == *v
 
+	case *shared.IdentityCheckType:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.IdentityCheckType(old.(string)) == *v
+
 	case *string:
 		if old == nil {
 			return *v == ""
