@@ -19,6 +19,11 @@ var (
 )
 
 func (idcc IdCheckComplete) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if idcc.Actor == donor {
+		lpa.Donor.IdentityCheck = idcc.IdentityCheck
+	} else {
+		lpa.CertificateProvider.IdentityCheck = idcc.IdentityCheck
+	}
 	return nil
 }
 

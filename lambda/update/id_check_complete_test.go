@@ -68,3 +68,41 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.Date.Format(time.RFC3339Nano))
 	assert.Equal(t, certificateProvider, idCheckComplete.Actor)
 }
+
+func TestIdCheckCompleteApplyDonor(t *testing.T) {
+	check := IdCheckComplete{
+		Actor:         donor,
+		IdentityCheck: shared.IdentityCheck{},
+	}
+
+	lpa := shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Donor: shared.Donor{
+				IdentityCheck: shared.IdentityCheck{},
+			},
+		},
+	}
+
+	check.Apply(&lpa)
+
+	assert.Equal(t, check.IdentityCheck, lpa.LpaInit.Donor.IdentityCheck)
+}
+
+func TestIdCheckCompleteApplyCertificateProvider(t *testing.T) {
+	check := IdCheckComplete{
+		Actor:         certificateProvider,
+		IdentityCheck: shared.IdentityCheck{},
+	}
+
+	lpa := shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Donor: shared.Donor{
+				IdentityCheck: shared.IdentityCheck{},
+			},
+		},
+	}
+
+	check.Apply(&lpa)
+
+	assert.Equal(t, check.IdentityCheck, lpa.LpaInit.CertificateProvider.IdentityCheck)
+}
