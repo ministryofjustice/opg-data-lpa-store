@@ -35,7 +35,7 @@ func TestIdCheckCompleteValidateDonor(t *testing.T) {
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "xyz", idCheckComplete.Reference)
 	assert.Equal(t, shared.IdentityCheckTypeOneLogin, idCheckComplete.Type)
-	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.Date.Format(time.RFC3339Nano))
+	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.CheckedAt.Format(time.RFC3339Nano))
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
 
@@ -65,7 +65,7 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "abn", idCheckComplete.Reference)
 	assert.Equal(t, shared.IdentityCheckTypeOpgPaperId, idCheckComplete.Type)
-	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.Date.Format(time.RFC3339Nano))
+	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.CheckedAt.Format(time.RFC3339Nano))
 	assert.Equal(t, certificateProvider, idCheckComplete.Actor)
 }
 
