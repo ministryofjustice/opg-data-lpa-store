@@ -30,7 +30,7 @@ func TestIdCheckCompleteValidateDonor(t *testing.T) {
 		},
 	}
 
-	idCheckComplete, errors := validateIdCheckComplete(changes, &shared.Lpa{})
+	idCheckComplete, errors := validateIdCheckComplete(changes)
 
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "xyz", idCheckComplete.Reference)
@@ -60,7 +60,7 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 		},
 	}
 
-	idCheckComplete, errors := validateIdCheckComplete(changes, &shared.Lpa{})
+	idCheckComplete, errors := validateIdCheckComplete(changes)
 
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "abn", idCheckComplete.Reference)
