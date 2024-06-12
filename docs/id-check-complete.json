@@ -1,0 +1,20 @@
+{
+    "type": "ID_CHECK_COMPLETE",
+    "changes": [
+        {
+            "key": "/donor/identityCheck/date",
+            "new": "2024-01-13T22:00:00Z",
+            "old": null
+        },
+        {
+            "key": "/donor/identityCheck/type",
+            "new": "one-login",
+            "old": null
+        },
+        {
+            "key": "/donor/identityCheck/reference",
+            "new": "1234567890",
+            "old": null
+        }
+    ]
+}
