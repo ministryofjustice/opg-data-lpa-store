@@ -7,8 +7,8 @@ import (
 )
 
 type IdCheckComplete struct {
-	Actor idccActor
-	*shared.IdentityCheck
+	Actor         idccActor
+	IdentityCheck *shared.IdentityCheck
 }
 
 type idccActor string
@@ -50,14 +50,14 @@ func validateConfirmIdentity(prefix string, actor idccActor, changes []shared.Ch
 			existing.Actor = actor
 
 			return p.
-				Field("/type", &existing.Type, parse.Validate(func() []shared.FieldError {
-					return validate.IsValid("", existing.Type)
+				Field("/type", &existing.IdentityCheck.Type, parse.Validate(func() []shared.FieldError {
+					return validate.IsValid("", existing.IdentityCheck.Type)
 				}), parse.MustMatchExisting()).
-				Field("/checkedAt", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
-					return validate.Time("", existing.CheckedAt)
+				Field("/checkedAt", &existing.IdentityCheck.CheckedAt, parse.Validate(func() []shared.FieldError {
+					return validate.Time("", existing.IdentityCheck.CheckedAt)
 				}), parse.MustMatchExisting()).
-				Field("/reference", &existing.Reference, parse.Validate(func() []shared.FieldError {
-					return validate.Required("", existing.Reference)
+				Field("/reference", &existing.IdentityCheck.Reference, parse.Validate(func() []shared.FieldError {
+					return validate.Required("", existing.IdentityCheck.Reference)
 				}), parse.MustMatchExisting()).
 				Consumed()
 		}
