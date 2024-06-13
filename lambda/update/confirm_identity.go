@@ -27,57 +27,38 @@ func (idcc IdCheckComplete) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateConfirmIdentity(prefix string, actor idccActor, changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
-	var existing IdCheckComplete
-
-	identityCheckParser := func(actor idccActor) func(p *parse.Parser) []shared.FieldError {
-		return func(p *parse.Parser) []shared.FieldError {
-			if existing.Actor != "" {
-				return []shared.FieldError{{Source: "/", Detail: "id check for multiple actors is not allowed"}}
-			}
-
-			switch actor {
-			case donor:
-				existing.IdentityCheck = lpa.Donor.IdentityCheck
-			case certificateProvider:
-				existing.IdentityCheck = lpa.CertificateProvider.IdentityCheck
-			}
-
-			if existing.IdentityCheck == nil {
-				existing.IdentityCheck = &shared.IdentityCheck{}
-			}
-
-			existing.Actor = actor
-
-			return p.
-				Field("/type", &existing.IdentityCheck.Type, parse.Validate(func() []shared.FieldError {
-					return validate.IsValid("", existing.IdentityCheck.Type)
-				}), parse.MustMatchExisting()).
-				Field("/checkedAt", &existing.IdentityCheck.CheckedAt, parse.Validate(func() []shared.FieldError {
-					return validate.Time("", existing.IdentityCheck.CheckedAt)
-				}), parse.MustMatchExisting()).
-				Field("/reference", &existing.IdentityCheck.Reference, parse.Validate(func() []shared.FieldError {
-					return validate.Required("", existing.IdentityCheck.Reference)
-				}), parse.MustMatchExisting()).
-				Consumed()
-		}
-	}
+func validateConfirmIdentity(prefix string, actor idccActor, ic *shared.IdentityCheck, changes []shared.Change) (IdCheckComplete, []shared.FieldError) {
+	var idcc IdCheckComplete
 
 	errors := parse.Changes(changes).
-		Prefix(prefix, identityCheckParser(actor)).
-		Errors()
+		Prefix(prefix, func(p *parse.Parser) []shared.FieldError {
+			idcc.Actor = actor
 
-	if existing.Actor == "" {
-		return existing, append(errors, shared.FieldError{Source: "/", Detail: "id check for unknown actor type"})
-	}
+			if ic == nil {
+				ic = &shared.IdentityCheck{}
+			}
+			idcc.IdentityCheck = ic
 
-	return existing, errors
+			return p.
+				Field("/type", &ic.Type, parse.Validate(func() []shared.FieldError {
+					return validate.IsValid("", ic.Type)
+				}), parse.MustMatchExisting()).
+				Field("/checkedAt", &ic.CheckedAt, parse.Validate(func() []shared.FieldError {
+					return validate.Time("", ic.CheckedAt)
+				}), parse.MustMatchExisting()).
+				Field("/reference", &ic.Reference, parse.Validate(func() []shared.FieldError {
+					return validate.Required("", ic.Reference)
+				}), parse.MustMatchExisting()).
+				Consumed()
+		}).Errors()
+
+	return idcc, errors
 }
 
 func validateDonorConfirmIdentity(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
-	return validateConfirmIdentity("/donor/identityCheck", donor, changes, lpa)
+	return validateConfirmIdentity("/donor/identityCheck", donor, lpa.Donor.IdentityCheck, changes)
 }
 
 func validateCertificateProviderConfirmIdentity(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
-	return validateConfirmIdentity("/certificateProvider/identityCheck", certificateProvider, changes, lpa)
+	return validateConfirmIdentity("/certificateProvider/identityCheck", certificateProvider, lpa.CertificateProvider.IdentityCheck, changes)
 }
