@@ -62,23 +62,14 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional          bool
-	mustMatchExisting bool
-	validator         func() []shared.FieldError
+	optional  bool
+	validator func() []shared.FieldError
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
 func Optional() func(fieldOpts) fieldOpts {
 	return func(f fieldOpts) fieldOpts {
 		f.optional = true
-		return f
-	}
-}
-
-// MustMatchExisting [Parser.Field] will add an error when the old value does not match the existing value.
-func MustMatchExisting() func(fieldOpts) fieldOpts {
-	return func(f fieldOpts) fieldOpts {
-		f.mustMatchExisting = true
 		return f
 	}
 }
@@ -109,25 +100,20 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 
 	for i, change := range p.changes {
 		if change.Key == key {
-			// Adding for expand phase - will be removed once consumers are updated
-			if options.mustMatchExisting {
-				var old any
-				if err := json.Unmarshal(change.Old, &old); err != nil {
-					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
-				}
-
-				if !oldEqualsExisting(old, existing) {
-					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
-
-					return p
-				}
+			var old any
+			if err := json.Unmarshal(change.Old, &old); err != nil {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
 			}
 
-			if err := json.Unmarshal(change.New, existing); err != nil {
-				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
-			} else if options.validator != nil {
-				for _, error := range options.validator() {
-					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: error.Detail})
+			if !oldEqualsExisting(old, existing) {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
+			} else {
+				if err := json.Unmarshal(change.New, existing); err != nil {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
+				} else if options.validator != nil {
+					for _, error := range options.validator() {
+						p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: error.Detail})
+					}
 				}
 			}
 
@@ -176,6 +162,13 @@ func oldEqualsExisting(old any, existing any) bool {
 		}
 
 		return old.(string) == *v
+
+	case *int:
+		if old == nil {
+			return *v == 0
+		}
+
+		return old.(int) == *v
 
 	default:
 		return false
