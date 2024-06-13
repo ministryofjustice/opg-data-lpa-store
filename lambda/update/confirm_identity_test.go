@@ -69,9 +69,11 @@ func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
 
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
 
-	// errors: missing "checkedAt" change, invalid value for "type" change, unexpected "/donor/identityCheck/irrelevant"
-	// change, unexpected "/irrelevant" change
 	assert.Len(t, errors, 4)
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes", Detail: "missing /donor/identityCheck/checkedAt"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/0", Detail: "unexpected change provided"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/1", Detail: "unexpected change provided"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/3/new", Detail: "invalid value"})
 	assert.Equal(t, &shared.IdentityCheck{Type: "rinky-dink-login-system"}, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
@@ -101,9 +103,9 @@ func TestConfirmIdentityDonorANDCertificateProviderFails(t *testing.T) {
 		Reference: "xyz",
 	}
 
-	// missing "checkedAt" change (as it lacks the /donor/identityCheck prefix),
-	// unexpected "/certificateProvider/identityCheck/checkedAt" change
 	assert.Len(t, errors, 2)
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes", Detail: "missing /donor/identityCheck/checkedAt"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/0", Detail: "unexpected change provided"})
 
 	assert.Equal(t, expectedIdCheckComplete, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
@@ -142,9 +144,10 @@ func TestConfirmIdentityDonorMismatchWithExistingLpaFails(t *testing.T) {
 
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, existingLpa)
 
-	// one "old does not match existing value" and one "unexpected change" for each field where Old
-	// does not matching the existing value on the LPA
-	assert.Len(t, errors, 6)
+	assert.Len(t, errors, 3)
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/0/old", Detail: "does not match existing value"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/1/old", Detail: "does not match existing value"})
+	assert.Contains(t, errors, shared.FieldError{Source: "/changes/2/old", Detail: "does not match existing value"})
 	assert.Equal(t, existingLpa.LpaInit.Donor.IdentityCheck, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
