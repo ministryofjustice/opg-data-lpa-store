@@ -1,0 +1,20 @@
+{
+    "type": "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
+    "changes": [
+        {
+            "key": "/certificateProvider/identityCheck/checkedAt",
+            "new": "2024-01-13T22:00:00Z",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/identityCheck/type",
+            "new": "one-login",
+            "old": null
+        },
+        {
+            "key": "/certificateProvider/identityCheck/reference",
+            "new": "1234567890",
+            "old": null
+        }
+    ]
+}
