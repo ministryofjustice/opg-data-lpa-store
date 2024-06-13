@@ -268,6 +268,8 @@ components:
             - PERFECT
             - REGISTER
             - CERTIFICATE_PROVIDER_OPT_OUT
+            - DONOR_CONFIRM_IDENTITY
+            - CERTIFICATE_PROVIDER_CONFIRM_IDENTITY
         changes:
           type: array
           items:
