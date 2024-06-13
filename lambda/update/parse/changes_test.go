@@ -88,18 +88,18 @@ func TestFieldValidateWhenInvalid(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "invalid"}}, errors)
 }
 
-func TestFieldMustMatchExistingString(t *testing.T) {
+func TestFieldOldString(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/thing", New: json.RawMessage(`"new val"`), Old: json.RawMessage(`"old val"`)},
 	}
 
 	v := "old val"
-	Changes(changes).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v)
 
 	assert.Equal(t, "new val", v)
 }
 
-func TestFieldMustMatchExistingTime(t *testing.T) {
+func TestFieldOldTime(t *testing.T) {
 	now := time.Now()
 	yesterday := time.Now().Add(-24 * time.Hour)
 
@@ -107,29 +107,29 @@ func TestFieldMustMatchExistingTime(t *testing.T) {
 		{Key: "/thing", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`)},
 	}
 
-	Changes(changes).Field("/thing", &yesterday, MustMatchExisting())
+	Changes(changes).Field("/thing", &yesterday)
 
 	assert.WithinDuration(t, now, yesterday, time.Second)
 }
 
-func TestFieldMustMatchExistingLang(t *testing.T) {
+func TestFieldOldLang(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/thing", New: json.RawMessage(`"cy"`), Old: json.RawMessage(`"en"`)},
 	}
 
 	v := shared.LangEn
-	Changes(changes).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v)
 
 	assert.Equal(t, shared.LangCy, v)
 }
 
-func TestFieldMustMatchExistingChannel(t *testing.T) {
+func TestFieldOldChannel(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/thing", New: json.RawMessage(`"online"`), Old: json.RawMessage(`"paper"`)},
 	}
 
 	v := shared.ChannelPaper
-	Changes(changes).Field("/thing", &v, MustMatchExisting())
+	Changes(changes).Field("/thing", &v)
 
 	assert.Equal(t, shared.ChannelOnline, v)
 }
@@ -147,7 +147,7 @@ func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 			}
 
 			v := "existing"
-			errors := Changes(changes).Field("/thing", &v, MustMatchExisting()).Errors()
+			errors := Changes(changes).Field("/thing", &v).Errors()
 
 			assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
 		})
