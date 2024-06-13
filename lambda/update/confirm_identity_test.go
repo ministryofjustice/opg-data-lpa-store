@@ -47,7 +47,7 @@ func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
 			Old: json.RawMessage("null"),
 			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
 		},
-		// empty required field
+		// empty optional field - does not cause an error message
 		{
 			Key: "/donor/identityCheck/reference",
 			Old: json.RawMessage("null"),
@@ -63,9 +63,9 @@ func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
 
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
 
-	// errors: missing "checkedAt" field, invalid value for "type" field, empty "reference" field,
+	// errors: missing "checkedAt" field, invalid value for "type" field,
 	// unexpected "irrelevantButStillADate" field
-	assert.Len(t, errors, 4)
+	assert.Len(t, errors, 3)
 	assert.Equal(t, &shared.IdentityCheck{Type: "rinky-dink-login-system"}, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
