@@ -22,6 +22,10 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateRegister(update.Changes)
 	case "TRUST_CORPORATION_SIGN":
 		return validateTrustCorporationSign(update.Changes, lpa)
+	case "DONOR_CONFIRM_IDENTITY":
+		return validateDonorConfirmIdentity(update.Changes, lpa)
+	case "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY":
+		return validateCertificateProviderConfirmIdentity(update.Changes, lpa)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
