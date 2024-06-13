@@ -39,6 +39,107 @@ func TestConfirmIdentityDonor(t *testing.T) {
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
 
+func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
+	changes := []shared.Change{
+		// irrelevant field
+		{
+			Key: "/donor/identityCheck/irrelevantButStillADate",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
+		},
+		// empty required field
+		{
+			Key: "/donor/identityCheck/reference",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`""`),
+		},
+		// invalid value for field
+		{
+			Key: "/donor/identityCheck/type",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"rinky-dink-login-system"`),
+		},
+	}
+
+	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
+
+	// errors: missing "checkedAt" field, invalid value for "type" field, empty "reference" field,
+	// unexpected "irrelevantButStillADate" field
+	assert.Len(t, errors, 4)
+	assert.Equal(t, &shared.IdentityCheck{Type: "rinky-dink-login-system"}, idCheckComplete.IdentityCheck)
+	assert.Equal(t, donor, idCheckComplete.Actor)
+}
+
+func TestConfirmIdentityDonorANDCertificateProviderFails(t *testing.T) {
+	changes := []shared.Change{
+		{
+			Key: "/certificateProvider/identityCheck/checkedAt",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
+		},
+		{
+			Key: "/donor/identityCheck/reference",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"xyz"`),
+		},
+		{
+			Key: "/donor/identityCheck/type",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"one-login"`),
+		},
+	}
+
+	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
+	expectedIdCheckComplete := &shared.IdentityCheck{
+		Type:      shared.IdentityCheckTypeOneLogin,
+		Reference: "xyz",
+	}
+
+	// missing "checkedAt" field (as it lacks the /donor/identityCheck prefix)
+	assert.Len(t, errors, 1)
+
+	assert.Equal(t, expectedIdCheckComplete, idCheckComplete.IdentityCheck)
+	assert.Equal(t, donor, idCheckComplete.Actor)
+}
+
+func TestConfirmIdentityDonorMismatchWithExistingLpaFails(t *testing.T) {
+	changes := []shared.Change{
+		{
+			Key: "/donor/identityCheck/checkedAt",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
+		},
+		{
+			Key: "/donor/identityCheck/reference",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"xyz"`),
+		},
+		{
+			Key: "/donor/identityCheck/type",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"one-login"`),
+		},
+	}
+
+	existingLpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Donor: shared.Donor{
+				IdentityCheck: &shared.IdentityCheck{
+					CheckedAt: time.Now().AddDate(-1, 0, 0),
+					Reference: "notxyz",
+					Type:      "not-one-login",
+				},
+			},
+		},
+	}
+
+	idCheckComplete, errors := validateDonorConfirmIdentity(changes, existingLpa)
+
+	assert.Len(t, errors, 6)
+	assert.Equal(t, existingLpa.LpaInit.Donor.IdentityCheck, idCheckComplete.IdentityCheck)
+	assert.Equal(t, donor, idCheckComplete.Actor)
+}
+
 func TestConfirmIdentityCertificateProvider(t *testing.T) {
 	today := time.Now()
 
