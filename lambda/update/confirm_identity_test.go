@@ -9,7 +9,7 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
-func TestIdCheckCompleteValidateDonor(t *testing.T) {
+func TestConfirmIdentityDonor(t *testing.T) {
 	today := time.Now()
 
 	changes := []shared.Change{
@@ -30,7 +30,7 @@ func TestIdCheckCompleteValidateDonor(t *testing.T) {
 		},
 	}
 
-	idCheckComplete, errors := validateIdCheckComplete(changes, &shared.Lpa{})
+	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
 
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "xyz", idCheckComplete.Reference)
@@ -39,7 +39,7 @@ func TestIdCheckCompleteValidateDonor(t *testing.T) {
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
 
-func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
+func TestConfirmIdentityCertificateProvider(t *testing.T) {
 	today := time.Now()
 
 	changes := []shared.Change{
@@ -60,7 +60,7 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 		},
 	}
 
-	idCheckComplete, errors := validateIdCheckComplete(changes, &shared.Lpa{})
+	idCheckComplete, errors := validateCertificateProviderConfirmIdentity(changes, &shared.Lpa{})
 
 	assert.Len(t, errors, 0)
 	assert.Equal(t, "abn", idCheckComplete.Reference)
@@ -69,7 +69,7 @@ func TestIdCheckCompleteValidateCertificateProvider(t *testing.T) {
 	assert.Equal(t, certificateProvider, idCheckComplete.Actor)
 }
 
-func TestIdCheckCompleteApplyDonor(t *testing.T) {
+func TestConfirmIdentityApplyDonor(t *testing.T) {
 	check := IdCheckComplete{
 		Actor:         donor,
 		IdentityCheck: &shared.IdentityCheck{},
@@ -82,7 +82,7 @@ func TestIdCheckCompleteApplyDonor(t *testing.T) {
 	assert.Equal(t, check.IdentityCheck, lpa.Donor.IdentityCheck)
 }
 
-func TestIdCheckCompleteApplyCertificateProvider(t *testing.T) {
+func TestConfirmIdentityApplyCertificateProvider(t *testing.T) {
 	check := IdCheckComplete{
 		Actor:         certificateProvider,
 		IdentityCheck: &shared.IdentityCheck{},

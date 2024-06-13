@@ -1,18 +1,18 @@
 {
-    "type": "ID_CHECK_COMPLETE",
+    "type": "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
     "changes": [
         {
-            "key": "/donor/identityCheck/date",
+            "key": "/certificateProvider/identityCheck/date",
             "new": "2024-01-13T22:00:00Z",
             "old": null
         },
         {
-            "key": "/donor/identityCheck/type",
+            "key": "/certificateProvider/identityCheck/type",
             "new": "one-login",
             "old": null
         },
         {
-            "key": "/donor/identityCheck/reference",
+            "key": "/certificateProvider/identityCheck/reference",
             "new": "1234567890",
             "old": null
         }
