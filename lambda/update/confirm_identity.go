@@ -42,11 +42,11 @@ func validateConfirmIdentity(prefix string, actor idccActor, ic *shared.Identity
 			return p.
 				Field("/type", &ic.Type, parse.Validate(func() []shared.FieldError {
 					return validate.IsValid("", ic.Type)
-				}), parse.MustMatchExisting()).
+				})).
 				Field("/checkedAt", &ic.CheckedAt, parse.Validate(func() []shared.FieldError {
 					return validate.Time("", ic.CheckedAt)
-				}), parse.MustMatchExisting()).
-				Field("/reference", &ic.Reference, parse.Optional(), parse.MustMatchExisting()).
+				})).
+				Field("/reference", &ic.Reference, parse.Optional()).
 				Consumed()
 		}).
 		Consumed()
