@@ -14,7 +14,7 @@ func TestConfirmIdentityDonor(t *testing.T) {
 
 	changes := []shared.Change{
 		{
-			Key: "/donor/identityCheck/date",
+			Key: "/donor/identityCheck/checkedAt",
 			Old: json.RawMessage("null"),
 			New: json.RawMessage(`"` + today.Format(time.RFC3339Nano) + `"`),
 		},
@@ -44,7 +44,7 @@ func TestConfirmIdentityCertificateProvider(t *testing.T) {
 
 	changes := []shared.Change{
 		{
-			Key: "/certificateProvider/identityCheck/date",
+			Key: "/certificateProvider/identityCheck/checkedAt",
 			Old: json.RawMessage("null"),
 			New: json.RawMessage(`"` + today.Format(time.RFC3339Nano) + `"`),
 		},
