@@ -27,7 +27,7 @@ func (idcc IdCheckComplete) Apply(lpa *shared.Lpa) []shared.FieldError {
 	return nil
 }
 
-func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
+func validateConfirmIdentity(prefix string, actor idccActor, changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
 	var existing IdCheckComplete
 
 	identityCheckParser := func(actor idccActor) func(p *parse.Parser) []shared.FieldError {
@@ -64,8 +64,7 @@ func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckC
 	}
 
 	errors := parse.Changes(changes).
-		Prefix("/donor/identityCheck", identityCheckParser(donor), parse.Optional()).
-		Prefix("/certificateProvider/identityCheck", identityCheckParser(certificateProvider), parse.Optional()).
+		Prefix(prefix, identityCheckParser(actor)).
 		Errors()
 
 	if existing.Actor == "" {
@@ -73,4 +72,12 @@ func validateIdCheckComplete(changes []shared.Change, lpa *shared.Lpa) (IdCheckC
 	}
 
 	return existing, errors
+}
+
+func validateDonorConfirmIdentity(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
+	return validateConfirmIdentity("/donor/identityCheck", donor, changes, lpa)
+}
+
+func validateCertificateProviderConfirmIdentity(changes []shared.Change, lpa *shared.Lpa) (IdCheckComplete, []shared.FieldError) {
+	return validateConfirmIdentity("/certificateProvider/identityCheck", certificateProvider, changes, lpa)
 }
