@@ -53,7 +53,7 @@ func validateConfirmIdentity(prefix string, actor idccActor, changes []shared.Ch
 				Field("/type", &existing.Type, parse.Validate(func() []shared.FieldError {
 					return validate.IsValid("", existing.Type)
 				}), parse.MustMatchExisting()).
-				Field("/date", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
+				Field("/checkedAt", &existing.CheckedAt, parse.Validate(func() []shared.FieldError {
 					return validate.Time("", existing.CheckedAt)
 				}), parse.MustMatchExisting()).
 				Field("/reference", &existing.Reference, parse.Validate(func() []shared.FieldError {

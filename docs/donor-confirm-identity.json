@@ -2,7 +2,7 @@
     "type": "DONOR_CONFIRM_IDENTITY",
     "changes": [
         {
-            "key": "/donor/identityCheck/date",
+            "key": "/donor/identityCheck/checkedAt",
             "new": "2024-01-13T22:00:00Z",
             "old": null
         },
