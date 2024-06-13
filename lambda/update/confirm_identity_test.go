@@ -41,13 +41,19 @@ func TestConfirmIdentityDonor(t *testing.T) {
 
 func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
 	changes := []shared.Change{
-		// irrelevant field
+		// irrelevant field with no prefix
 		{
-			Key: "/donor/identityCheck/irrelevantButStillADate",
+			Key: "/irrelevant",
 			Old: json.RawMessage("null"),
 			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
 		},
-		// empty required field
+		// irrelevant field with prefix
+		{
+			Key: "/donor/identityCheck/irrelevant",
+			Old: json.RawMessage("null"),
+			New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
+		},
+		// empty optional field - does not cause an error message
 		{
 			Key: "/donor/identityCheck/reference",
 			Old: json.RawMessage("null"),
@@ -63,8 +69,8 @@ func TestConfirmIdentityDonorBadFieldsFails(t *testing.T) {
 
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
 
-	// errors: missing "checkedAt" field, invalid value for "type" field, empty "reference" field,
-	// unexpected "irrelevantButStillADate" field
+	// errors: missing "checkedAt" change, invalid value for "type" change, unexpected "/donor/identityCheck/irrelevant"
+	// change, unexpected "/irrelevant" change
 	assert.Len(t, errors, 4)
 	assert.Equal(t, &shared.IdentityCheck{Type: "rinky-dink-login-system"}, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
@@ -95,8 +101,9 @@ func TestConfirmIdentityDonorANDCertificateProviderFails(t *testing.T) {
 		Reference: "xyz",
 	}
 
-	// missing "checkedAt" field (as it lacks the /donor/identityCheck prefix)
-	assert.Len(t, errors, 1)
+	// missing "checkedAt" change (as it lacks the /donor/identityCheck prefix),
+	// unexpected "/certificateProvider/identityCheck/checkedAt" change
+	assert.Len(t, errors, 2)
 
 	assert.Equal(t, expectedIdCheckComplete, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
@@ -135,6 +142,8 @@ func TestConfirmIdentityDonorMismatchWithExistingLpaFails(t *testing.T) {
 
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, existingLpa)
 
+	// one "old does not match existing value" and one "unexpected change" for each field where Old
+	// does not matching the existing value on the LPA
 	assert.Len(t, errors, 6)
 	assert.Equal(t, existingLpa.LpaInit.Donor.IdentityCheck, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
