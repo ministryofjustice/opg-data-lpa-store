@@ -33,9 +33,9 @@ func TestConfirmIdentityDonor(t *testing.T) {
 	idCheckComplete, errors := validateDonorConfirmIdentity(changes, &shared.Lpa{})
 
 	assert.Len(t, errors, 0)
-	assert.Equal(t, "xyz", idCheckComplete.Reference)
-	assert.Equal(t, shared.IdentityCheckTypeOneLogin, idCheckComplete.Type)
-	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.CheckedAt.Format(time.RFC3339Nano))
+	assert.Equal(t, "xyz", idCheckComplete.IdentityCheck.Reference)
+	assert.Equal(t, shared.IdentityCheckTypeOneLogin, idCheckComplete.IdentityCheck.Type)
+	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.IdentityCheck.CheckedAt.Format(time.RFC3339Nano))
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
 
@@ -63,9 +63,9 @@ func TestConfirmIdentityCertificateProvider(t *testing.T) {
 	idCheckComplete, errors := validateCertificateProviderConfirmIdentity(changes, &shared.Lpa{})
 
 	assert.Len(t, errors, 0)
-	assert.Equal(t, "abn", idCheckComplete.Reference)
-	assert.Equal(t, shared.IdentityCheckTypeOpgPaperId, idCheckComplete.Type)
-	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.CheckedAt.Format(time.RFC3339Nano))
+	assert.Equal(t, "abn", idCheckComplete.IdentityCheck.Reference)
+	assert.Equal(t, shared.IdentityCheckTypeOpgPaperId, idCheckComplete.IdentityCheck.Type)
+	assert.Equal(t, today.Format(time.RFC3339Nano), idCheckComplete.IdentityCheck.CheckedAt.Format(time.RFC3339Nano))
 	assert.Equal(t, certificateProvider, idCheckComplete.Actor)
 }
 
