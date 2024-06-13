@@ -2,7 +2,7 @@
     "type": "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
     "changes": [
         {
-            "key": "/certificateProvider/identityCheck/date",
+            "key": "/certificateProvider/identityCheck/checkedAt",
             "new": "2024-01-13T22:00:00Z",
             "old": null
         },
