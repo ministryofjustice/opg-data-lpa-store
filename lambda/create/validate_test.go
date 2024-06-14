@@ -482,6 +482,18 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/trustCorporations/0/email", Detail: "field must not be provided"},
 			},
 		},
+		"incorrect identity check": {
+			lpa: func() shared.LpaInit {
+				lpa := makeLpaWithDonorAndActors()
+				lpa.Donor.IdentityCheck = &shared.IdentityCheck{Type: "what"}
+
+				return lpa
+			},
+			expectedErrors: []shared.FieldError{
+				{Source: "/donor/identityCheck/checkedAt", Detail: "field is required"},
+				{Source: "/donor/identityCheck/type", Detail: "invalid value"},
+			},
+		},
 	}
 
 	for name, tc := range testcases {
