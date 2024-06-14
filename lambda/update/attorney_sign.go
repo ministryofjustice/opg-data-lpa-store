@@ -53,17 +53,17 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 					}
 
 					return p.
-						Field("/mobile", &data.Mobile, parse.MustMatchExisting()).
+						Field("/mobile", &data.Mobile).
 						Field("/signedAt", &data.SignedAt, parse.Validate(func() []shared.FieldError {
 							return validate.Time("", data.SignedAt)
-						}), parse.MustMatchExisting()).
+						})).
 						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.ContactLanguagePreference)
-						}), parse.MustMatchExisting()).
+						})).
 						Field("/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
 							return validate.IsValid("", data.Channel)
-						}), parse.MustMatchExisting(), parse.Optional()).
-						Field("/email", &data.Email, parse.MustMatchExisting(), parse.Optional()).
+						}), parse.Optional()).
+						Field("/email", &data.Email, parse.Optional()).
 						Consumed()
 				}).
 				Consumed()
