@@ -345,9 +345,6 @@
         "type": {
           "type": "string",
           "enum": ["one-login", "opg-paper-id"]
-        },
-        "reference": {
-          "type": "string"
         }
       }
     }

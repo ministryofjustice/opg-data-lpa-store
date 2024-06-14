@@ -46,7 +46,6 @@ func validateConfirmIdentity(prefix string, actor idccActor, ic *shared.Identity
 				Field("/checkedAt", &ic.CheckedAt, parse.Validate(func() []shared.FieldError {
 					return validate.Time("", ic.CheckedAt)
 				})).
-				Field("/reference", &ic.Reference, parse.Optional()).
 				Consumed()
 		}).
 		Consumed()
