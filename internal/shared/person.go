@@ -105,7 +105,6 @@ type PersonToNotify struct {
 
 type IdentityCheck struct {
 	CheckedAt time.Time         `json:"checkedAt"`
-	Reference string            `json:"reference"`
 	Type      IdentityCheckType `json:"type"`
 }
 
