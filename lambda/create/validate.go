@@ -19,6 +19,11 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.Date("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
 		validate.Address("/donor/address", lpa.Donor.Address),
 		validate.IsValid("/donor/contactLanguagePreference", lpa.Donor.ContactLanguagePreference),
+		validate.IfFunc(lpa.Donor.IdentityCheck != nil, func() []shared.FieldError {
+			return validate.All(
+				validate.Time("/donor/identityCheck/checkedAt", lpa.Donor.IdentityCheck.CheckedAt),
+				validate.IsValid("/donor/identityCheck/type", lpa.Donor.IdentityCheck.Type))
+		}),
 		validate.UUID("/certificateProvider/uid", lpa.CertificateProvider.UID),
 		validate.Required("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames),
 		validate.Required("/certificateProvider/lastName", lpa.CertificateProvider.LastName),
