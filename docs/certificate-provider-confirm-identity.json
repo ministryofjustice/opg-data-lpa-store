@@ -10,11 +10,6 @@
             "key": "/certificateProvider/identityCheck/type",
             "new": "one-login",
             "old": null
-        },
-        {
-            "key": "/certificateProvider/identityCheck/reference",
-            "new": "1234567890",
-            "old": null
         }
     ]
 }

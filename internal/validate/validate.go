@@ -35,6 +35,14 @@ func If(ok bool, e []shared.FieldError) []shared.FieldError {
 	return IfElse(ok, e, nil)
 }
 
+func IfFunc(ok bool, fn func() []shared.FieldError) []shared.FieldError {
+	if ok {
+		return fn()
+	}
+
+	return nil
+}
+
 func Required(source string, value string) []shared.FieldError {
 	return If(value == "", []shared.FieldError{{Source: source, Detail: "field is required"}})
 }

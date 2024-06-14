@@ -44,6 +44,10 @@
         "contactLanguagePreference": {
           "type": "string",
           "enum": ["en", "cy"]
+        },
+        "identityCheck": {
+          "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
+          "type": "object",
         }
       }
     },
@@ -89,6 +93,10 @@
         "channel": {
           "type": "string",
           "enum": ["paper", "online"]
+        },
+        "identityCheck": {
+          "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
+          "type": "object",
         }
       }
     },
@@ -323,6 +331,20 @@
         },
         "data": {
           "type": "string"
+        }
+      }
+    },
+    "IdentityCheck": {
+      "type": "object",
+      "required": ["checkedAt", "type"],
+      "properties": {
+        "checkedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["one-login", "opg-paper-id"]
         }
       }
     }
