@@ -24,19 +24,21 @@ type Person struct {
 
 type Donor struct {
 	Person
-	DateOfBirth               Date   `json:"dateOfBirth"`
-	Email                     string `json:"email"`
-	OtherNamesKnownBy         string `json:"otherNamesKnownBy,omitempty"`
-	ContactLanguagePreference Lang   `json:"contactLanguagePreference"`
+	DateOfBirth               Date           `json:"dateOfBirth"`
+	Email                     string         `json:"email"`
+	OtherNamesKnownBy         string         `json:"otherNamesKnownBy,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type CertificateProvider struct {
 	Person
-	Email                     string     `json:"email"`
-	Phone                     string     `json:"phone"`
-	Channel                   Channel    `json:"channel"`
-	SignedAt                  *time.Time `json:"signedAt,omitempty"`
-	ContactLanguagePreference Lang       `json:"contactLanguagePreference,omitempty"`
+	Email                     string         `json:"email"`
+	Phone                     string         `json:"phone"`
+	Channel                   Channel        `json:"channel"`
+	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
+	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 }
 
 type Channel string
@@ -99,6 +101,23 @@ func (s Signatory) IsZero() bool {
 
 type PersonToNotify struct {
 	Person
+}
+
+type IdentityCheck struct {
+	CheckedAt time.Time         `json:"checkedAt"`
+	Reference string            `json:"reference"`
+	Type      IdentityCheckType `json:"type"`
+}
+
+type IdentityCheckType string
+
+const (
+	IdentityCheckTypeOneLogin   = IdentityCheckType("one-login")
+	IdentityCheckTypeOpgPaperId = IdentityCheckType("opg-paper-id")
+)
+
+func (e IdentityCheckType) IsValid() bool {
+	return e == IdentityCheckTypeOneLogin || e == IdentityCheckTypeOpgPaperId
 }
 
 type HowMakeDecisions string
