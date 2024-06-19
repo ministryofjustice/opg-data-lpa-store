@@ -2,18 +2,33 @@ package shared
 
 import (
 	"fmt"
+	"log/slog"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var secretKey = []byte("secret")
 
 var verifier = JWTVerifier{
 	secretKey: secretKey,
+	Logger:    nil,
+}
+
+type mockLogger struct {
+	mock.Mock
+}
+
+func (m *mockLogger) Info(msg string, params ...any) {
+	m.Called(msg, params)
+}
+
+func (m *mockLogger) Error(msg string, params ...any) {
+	m.Called(msg, params)
 }
 
 func createToken(claims jwt.MapClaims) string {
@@ -157,6 +172,15 @@ func TestVerifyHeader(t *testing.T) {
 			},
 		},
 	}
+
+	logger := mockLogger{}
+	logger.On(
+		"Info",
+		"JWT valid for urn:opg:sirius:users:34",
+		[]interface{}{slog.Any("subject", "urn:opg:sirius:users:34")},
+	)
+
+	verifier.Logger = &logger
 
 	_, err := verifier.VerifyHeader(event)
 	assert.Nil(t, err)

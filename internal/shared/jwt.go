@@ -77,10 +77,12 @@ func (l LpaStoreClaims) Validate() error {
 
 type JWTVerifier struct {
 	secretKey []byte
+	Logger    logger
 }
 
 type logger interface {
 	Error(string, ...any)
+	Info(string, ...any)
 }
 
 func NewJWTVerifier(cfg aws.Config, logger logger) JWTVerifier {
@@ -96,6 +98,7 @@ func NewJWTVerifier(cfg aws.Config, logger logger) JWTVerifier {
 
 	return JWTVerifier{
 		secretKey: []byte(*secretKey.SecretString),
+		Logger:    logger,
 	}
 }
 
@@ -115,6 +118,8 @@ func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) (*LpaStor
 	if err != nil {
 		return nil, err
 	}
+
+	v.Logger.Info(fmt.Sprintf("JWT valid for %s", claims.Subject), slog.Any("subject", claims.Subject))
 
 	return claims, nil
 }
