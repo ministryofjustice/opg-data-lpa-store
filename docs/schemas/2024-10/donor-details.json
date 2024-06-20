@@ -47,7 +47,7 @@
         },
         "identityCheck": {
           "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
-          "type": "object",
+          "type": "object"
         }
       }
     },
@@ -96,7 +96,7 @@
         },
         "identityCheck": {
           "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
-          "type": "object",
+          "type": "object"
         }
       }
     },
