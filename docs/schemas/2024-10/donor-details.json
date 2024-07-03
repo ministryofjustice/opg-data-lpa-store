@@ -46,8 +46,7 @@
           "enum": ["en", "cy"]
         },
         "identityCheck": {
-          "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
-          "type": "object"
+          "$ref": "#/$defs/IdentityCheck"
         }
       }
     },
