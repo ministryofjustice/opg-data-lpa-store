@@ -94,8 +94,7 @@
           "enum": ["paper", "online"]
         },
         "identityCheck": {
-          "allOf": [{"$ref": "#/$defs/IdentityCheck"}],
-          "type": "object"
+          "$ref": "#/$defs/IdentityCheck"
         }
       }
     },
