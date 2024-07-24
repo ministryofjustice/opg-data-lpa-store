@@ -18,7 +18,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["processing", "registered"]
+      "enum": ["in-progress", "registered"]
     },
     "registrationDate": {
       "oneOf": [
