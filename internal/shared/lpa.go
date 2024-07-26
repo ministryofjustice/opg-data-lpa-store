@@ -49,8 +49,8 @@ func (e LpaType) IsValid() bool {
 type LpaStatus string
 
 const (
-	LpaStatusInProgress     = LpaStatus("in-progress")
-	LpaStatusPerfect        = LpaStatus("perfect")
-	LpaStatusRegistered     = LpaStatus("registered")
-	LpaStatusCannotRegister = LpaStatus("cannot-register")
+	LpaStatusInProgress             = LpaStatus("in-progress")
+	LpaStatusStatutoryWaitingPeriod = LpaStatus("statutory-waiting-period")
+	LpaStatusRegistered             = LpaStatus("registered")
+	LpaStatusCannotRegister         = LpaStatus("cannot-register")
 )
