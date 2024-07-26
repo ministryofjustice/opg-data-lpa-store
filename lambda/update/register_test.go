@@ -12,7 +12,7 @@ func TestRegisterApply(t *testing.T) {
 	now := time.Now()
 
 	lpa := &shared.Lpa{
-		Status: shared.LpaStatusPerfect,
+		Status: shared.LpaStatusStatutoryWaitingPeriod,
 	}
 
 	errors := Register{}.Apply(lpa)
@@ -21,11 +21,11 @@ func TestRegisterApply(t *testing.T) {
 	assert.Equal(t, shared.LpaStatusRegistered, lpa.Status)
 }
 
-func TestRegisterApplyWhenNotPerfect(t *testing.T) {
+func TestRegisterApplyWhenNotStatutoryWaitingPeriod(t *testing.T) {
 	for _, status := range []shared.LpaStatus{shared.LpaStatusProcessing, shared.LpaStatusRegistered} {
 		t.Run(string(status), func(t *testing.T) {
 			errors := Register{}.Apply(&shared.Lpa{Status: status})
-			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be perfect to register"}}, errors)
+			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be statutory waiting period to register"}}, errors)
 		})
 	}
 }
