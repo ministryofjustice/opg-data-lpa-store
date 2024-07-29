@@ -10,7 +10,7 @@ import (
 )
 
 func TestCertificateProviderOptOutApply(t *testing.T) {
-	lpa := &shared.Lpa{Status: shared.LpaStatusProcessing}
+	lpa := &shared.Lpa{Status: shared.LpaStatusInProgress}
 	c := CertificateProviderOptOut{}
 
 	errors := c.Apply(lpa)

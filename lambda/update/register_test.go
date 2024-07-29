@@ -22,7 +22,7 @@ func TestRegisterApply(t *testing.T) {
 }
 
 func TestRegisterApplyWhenNotPerfect(t *testing.T) {
-	for _, status := range []shared.LpaStatus{shared.LpaStatusProcessing, shared.LpaStatusRegistered} {
+	for _, status := range []shared.LpaStatus{shared.LpaStatusInProgress, shared.LpaStatusRegistered} {
 		t.Run(string(status), func(t *testing.T) {
 			errors := Register{}.Apply(&shared.Lpa{Status: status})
 			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be perfect to register"}}, errors)

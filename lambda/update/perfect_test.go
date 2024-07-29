@@ -12,7 +12,7 @@ func TestPerfectApply(t *testing.T) {
 	now := time.Now()
 
 	lpa := &shared.Lpa{
-		Status: shared.LpaStatusProcessing,
+		Status: shared.LpaStatusInProgress,
 		LpaInit: shared.LpaInit{
 			SignedAt: now,
 			CertificateProvider: shared.CertificateProvider{
@@ -43,7 +43,7 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 	}{
 		"lpa": {
 			lpa: &shared.Lpa{
-				Status: shared.LpaStatusProcessing,
+				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
 					Attorneys:           []shared.Attorney{{SignedAt: &now}},
@@ -56,7 +56,7 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 		},
 		"certificate provider": {
 			lpa: &shared.Lpa{
-				Status: shared.LpaStatusProcessing,
+				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
 					CertificateProvider: shared.CertificateProvider{},
@@ -70,7 +70,7 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 		},
 		"attorney": {
 			lpa: &shared.Lpa{
-				Status: shared.LpaStatusProcessing,
+				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
 					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
@@ -84,7 +84,7 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 		},
 		"trust corporation": {
 			lpa: &shared.Lpa{
-				Status: shared.LpaStatusProcessing,
+				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
 					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
@@ -106,11 +106,11 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 	}
 }
 
-func TestRegisterApplyWhenNotProcessing(t *testing.T) {
+func TestRegisterApplyWhenNotInProgress(t *testing.T) {
 	for _, status := range []shared.LpaStatus{shared.LpaStatusPerfect, shared.LpaStatusRegistered} {
 		t.Run(string(status), func(t *testing.T) {
 			errors := Perfect{}.Apply(&shared.Lpa{Status: status})
-			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be processing to make perfect"}}, errors)
+			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make perfect"}}, errors)
 		})
 	}
 }

@@ -102,7 +102,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	data := shared.Lpa{LpaInit: input}
 	data.Uid = uid
-	data.Status = shared.LpaStatusProcessing
+	data.Status = shared.LpaStatusInProgress
 	data.UpdatedAt = time.Now()
 
 	if data.Channel == shared.ChannelPaper && len(input.RestrictionsAndConditionsImages) > 0 {

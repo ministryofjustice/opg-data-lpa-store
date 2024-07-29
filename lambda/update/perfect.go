@@ -7,8 +7,8 @@ import (
 type Perfect struct{}
 
 func (r Perfect) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if lpa.Status != shared.LpaStatusProcessing {
-		return []shared.FieldError{{Source: "/type", Detail: "status must be processing to make perfect"}}
+	if lpa.Status != shared.LpaStatusInProgress {
+		return []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make perfect"}}
 	}
 
 	if lpa.SignedAt.IsZero() {
