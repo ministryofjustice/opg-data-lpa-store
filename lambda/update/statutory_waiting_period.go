@@ -8,7 +8,7 @@ type StatutoryWaitingPeriod struct{}
 
 func (r StatutoryWaitingPeriod) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if lpa.Status != shared.LpaStatusInProgress {
-		return []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make statutory waiting period"}}
+		return []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to enter statutory-waiting-period"}}
 	}
 
 	if lpa.SignedAt.IsZero() {

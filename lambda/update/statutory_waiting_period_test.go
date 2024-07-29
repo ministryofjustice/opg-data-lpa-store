@@ -110,7 +110,7 @@ func TestRegisterApplyWhenNotInProgress(t *testing.T) {
 	for _, status := range []shared.LpaStatus{shared.LpaStatusStatutoryWaitingPeriod, shared.LpaStatusRegistered} {
 		t.Run(string(status), func(t *testing.T) {
 			errors := StatutoryWaitingPeriod{}.Apply(&shared.Lpa{Status: status})
-			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make statutory waiting period"}}, errors)
+			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to enter statutory-waiting-period"}}, errors)
 		})
 	}
 }

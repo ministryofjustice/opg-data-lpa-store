@@ -16,6 +16,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateCertificateProviderOptOut(update.Changes)
 	case "CERTIFICATE_PROVIDER_SIGN":
 		return validateCertificateProviderSign(update.Changes, lpa)
+	case "PERFECT":
+		return validateStatutoryWaitingPeriod(update.Changes)
 	case "STATUTORY_WAITING_PERIOD":
 		return validateStatutoryWaitingPeriod(update.Changes)
 	case "REGISTER":
