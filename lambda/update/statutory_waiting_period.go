@@ -4,11 +4,11 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
-type Perfect struct{}
+type StatutoryWaitingPeriod struct{}
 
-func (r Perfect) Apply(lpa *shared.Lpa) []shared.FieldError {
+func (r StatutoryWaitingPeriod) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if lpa.Status != shared.LpaStatusInProgress {
-		return []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make perfect"}}
+		return []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make statutory waiting period"}}
 	}
 
 	if lpa.SignedAt.IsZero() {
@@ -33,15 +33,15 @@ func (r Perfect) Apply(lpa *shared.Lpa) []shared.FieldError {
 		}
 	}
 
-	lpa.Status = shared.LpaStatusPerfect
+	lpa.Status = shared.LpaStatusStatutoryWaitingPeriod
 
 	return nil
 }
 
-func validatePerfect(changes []shared.Change) (Perfect, []shared.FieldError) {
+func validateStatutoryWaitingPeriod(changes []shared.Change) (StatutoryWaitingPeriod, []shared.FieldError) {
 	if len(changes) > 0 {
-		return Perfect{}, []shared.FieldError{{Source: "/changes", Detail: "expected empty"}}
+		return StatutoryWaitingPeriod{}, []shared.FieldError{{Source: "/changes", Detail: "expected empty"}}
 	}
 
-	return Perfect{}, nil
+	return StatutoryWaitingPeriod{}, nil
 }
