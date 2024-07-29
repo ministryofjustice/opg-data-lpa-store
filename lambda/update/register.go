@@ -9,8 +9,8 @@ import (
 type Register struct{}
 
 func (r Register) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if lpa.Status != shared.LpaStatusPerfect {
-		return []shared.FieldError{{Source: "/type", Detail: "status must be perfect to register"}}
+	if lpa.Status != shared.LpaStatusStatutoryWaitingPeriod {
+		return []shared.FieldError{{Source: "/type", Detail: "status must be statutory-waiting-period to register"}}
 	}
 
 	now := time.Now().UTC()
