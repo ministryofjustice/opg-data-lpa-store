@@ -266,6 +266,7 @@ components:
             - ATTORNEY_SIGN
             - TRUST_CORPORATION_SIGN
             - PERFECT
+            - STATUTORY_WAITING_PERIOD
             - REGISTER
             - CERTIFICATE_PROVIDER_OPT_OUT
             - DONOR_CONFIRM_IDENTITY

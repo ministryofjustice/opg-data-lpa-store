@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPerfectApply(t *testing.T) {
+func TestStatutoryWaitingPeriodApply(t *testing.T) {
 	now := time.Now()
 
 	lpa := &shared.Lpa{
@@ -29,12 +29,12 @@ func TestPerfectApply(t *testing.T) {
 		},
 	}
 
-	errors := Perfect{}.Apply(lpa)
+	errors := StatutoryWaitingPeriod{}.Apply(lpa)
 	assert.Nil(t, errors)
-	assert.Equal(t, shared.LpaStatusPerfect, lpa.Status)
+	assert.Equal(t, shared.LpaStatusStatutoryWaitingPeriod, lpa.Status)
 }
 
-func TestPerfectApplyWhenUnsigned(t *testing.T) {
+func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 	now := time.Now()
 
 	testcases := map[string]struct {
@@ -100,27 +100,27 @@ func TestPerfectApplyWhenUnsigned(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			errors := Perfect{}.Apply(tc.lpa)
+			errors := StatutoryWaitingPeriod{}.Apply(tc.lpa)
 			assert.Equal(t, tc.errors, errors)
 		})
 	}
 }
 
 func TestRegisterApplyWhenNotInProgress(t *testing.T) {
-	for _, status := range []shared.LpaStatus{shared.LpaStatusPerfect, shared.LpaStatusRegistered} {
+	for _, status := range []shared.LpaStatus{shared.LpaStatusStatutoryWaitingPeriod, shared.LpaStatusRegistered} {
 		t.Run(string(status), func(t *testing.T) {
-			errors := Perfect{}.Apply(&shared.Lpa{Status: status})
-			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to make perfect"}}, errors)
+			errors := StatutoryWaitingPeriod{}.Apply(&shared.Lpa{Status: status})
+			assert.Equal(t, []shared.FieldError{{Source: "/type", Detail: "status must be in-progress to enter statutory-waiting-period"}}, errors)
 		})
 	}
 }
 
-func TestValidatePerfect(t *testing.T) {
-	_, errors := validatePerfect(nil)
+func TestValidateStatutoryWaitingPeriod(t *testing.T) {
+	_, errors := validateStatutoryWaitingPeriod(nil)
 	assert.Nil(t, errors)
 }
 
-func TestValidatePerfectWhenChanges(t *testing.T) {
-	_, errors := validatePerfect([]shared.Change{{}})
+func TestValidateStatutoryWaitingPeriodWhenChanges(t *testing.T) {
+	_, errors := validateStatutoryWaitingPeriod([]shared.Change{{}})
 	assert.Equal(t, []shared.FieldError{{Source: "/changes", Detail: "expected empty"}}, errors)
 }
