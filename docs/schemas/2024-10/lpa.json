@@ -18,7 +18,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["draft", "in-progress", "statutory-waiting-period", "registered", "do-not-register", "expired", "cannot-register", "cancelled", "de-registered", "suspended"]
+      "enum": ["in-progress", "statutory-waiting-period", "registered", "do-not-register", "expired", "cannot-register", "cancelled", "de-registered", "suspended"]
     },
     "registrationDate": {
       "oneOf": [
