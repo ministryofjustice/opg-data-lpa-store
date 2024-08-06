@@ -53,4 +53,5 @@ const (
 	LpaStatusStatutoryWaitingPeriod = LpaStatus("statutory-waiting-period")
 	LpaStatusRegistered             = LpaStatus("registered")
 	LpaStatusCannotRegister         = LpaStatus("cannot-register")
+	LpaStatusWithdrawn              = LpaStatus("withdrawn")
 )
