@@ -18,7 +18,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["in-progress", "statutory-waiting-period", "registered"]
+      "enum": ["in-progress", "statutory-waiting-period", "registered", "cannot-register", "withdrawn"]
     },
     "registrationDate": {
       "oneOf": [

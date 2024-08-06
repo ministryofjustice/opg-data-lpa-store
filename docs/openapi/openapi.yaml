@@ -271,6 +271,7 @@ components:
             - CERTIFICATE_PROVIDER_OPT_OUT
             - DONOR_CONFIRM_IDENTITY
             - CERTIFICATE_PROVIDER_CONFIRM_IDENTITY
+            - DONOR_WITHDRAW_LPA
         changes:
           type: array
           items:
