@@ -12,7 +12,7 @@ func (d DonorWithdrawLpa) Apply(lpa *shared.Lpa) []shared.FieldError {
 	}
 
 	if lpa.Status == shared.LpaStatusRegistered {
-		return []shared.FieldError{{Source: "/type", Detail: "cannot withdraw a registered"}}
+		return []shared.FieldError{{Source: "/type", Detail: "cannot withdraw a registered lpa"}}
 	}
 
 	if lpa.Status == shared.LpaStatusCannotRegister {

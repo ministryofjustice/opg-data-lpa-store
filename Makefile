@@ -93,6 +93,9 @@ go-lint: ## Lint Go code
 gosec: ## Scan Go code for security flaws
 	docker compose run --rm gosec
 
+go-test: ## Run go unit tests
+	go test ./... -race -covermode=atomic -coverprofile=coverage.out
+
 check-code: go-lint gosec test
 
 up-fixtures: ## Bring up fixtures UI locally
