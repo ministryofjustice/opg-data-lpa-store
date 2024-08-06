@@ -51,6 +51,9 @@ test-api:
 	# trust corporation sign
 	cat ./docs/trust-corporation-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
+	# lpa enters statutory waiting period
+	cat ./docs/statutory-waiting-period.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+
 	# get lpa
 	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 
@@ -60,9 +63,12 @@ test-api:
 	# certificate provider opt out
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
 	cat ./docs/certificate-provider-opt-out.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
+	# donor withdraws lpa
+	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
+	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
+	cat ./docs/donor-withdraw-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 .PHONY: test-api
 
 test-pact:
