@@ -25,7 +25,7 @@ module "lambda" {
     DDB_TABLE_NAME_CHANGES  = var.dynamodb_name_changes
     EVENT_BUS_NAME          = var.event_bus.name
     S3_BUCKET_NAME_ORIGINAL = var.lpa_store_static_bucket.bucket
-    JWT_SECRET_KEY_ID       = "${var.account_name}/jwt-key"
+    JWT_SECRET_KEY_ID       = data.aws_secretsmanager_secret.jwt_secret_key.arn
   }
 
   providers = {
