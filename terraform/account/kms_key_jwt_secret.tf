@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     effect = "Allow"
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"]
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.management.account_id}:root"]
     }
     actions = [
       "kms:*",
@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     sid    = "Allow Key to be used for Encryption"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
     ]
     actions = [
       "kms:Encrypt",
@@ -53,7 +53,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/breakglass",
       ]
     }
   }
@@ -62,7 +62,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     sid    = "Allow Key to be used for Decryption"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
     ]
     actions = [
       "kms:Decrypt",
@@ -72,33 +72,12 @@ data "aws_iam_policy_document" "jwt_kms" {
 
     principals {
       type = "AWS"
-      identifiers = [
-        # need a better principle and condition as per
-        #  https://docs.aws.amazon.com/secretsmanager/latest/userguide/security-encryption.html
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root",
-        # ECS task role for app
-      ]
-    }
-  }
-
-  statement {
-    sid    = "General View Access"
-    effect = "Allow"
-    resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
-    ]
-    actions = [
-      "kms:DescribeKey",
-      "kms:GetKeyPolicy",
-      "kms:GetKeyRotationStatus",
-      "kms:List*",
-    ]
-
-    principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:root"
-      ]
+      identifiers = concat(
+        local.account.jwt_key_cross_account_access_roles,
+        [
+          # Need to list the lambda roles here or int he var above
+          "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-ci",
+      ])
     }
   }
 
@@ -106,7 +85,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     sid    = "Key Administrator"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
     ]
     actions = [
       "kms:Create*",
@@ -129,8 +108,8 @@ data "aws_iam_policy_document" "jwt_kms" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/breakglass",
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/modernising-lpa-ci",
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/breakglass",
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-ci",
       ]
     }
   }
@@ -142,7 +121,7 @@ data "aws_iam_policy_document" "jwt_kms_development_account_operator_admin" {
     sid    = "Dev Account Key Administrator"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.global.account_id}:key/*"
+      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
     ]
     actions = [
       "kms:Create*",
@@ -164,7 +143,7 @@ data "aws_iam_policy_document" "jwt_kms_development_account_operator_admin" {
     principals {
       type = "AWS"
       identifiers = [
-        "arn:aws:iam::${data.aws_caller_identity.global.account_id}:role/operator"
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/operator"
       ]
     }
   }

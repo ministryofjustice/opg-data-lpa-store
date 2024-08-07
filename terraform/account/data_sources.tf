@@ -10,6 +10,6 @@ data "aws_region" "eu_west_2" {
   provider = aws.eu_west_2
 }
 
-data "aws_caller_identity" "global" {
-  provider = aws.global
+data "aws_caller_identity" "management" {
+  provider = aws.management
 }
