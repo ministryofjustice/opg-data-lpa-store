@@ -50,6 +50,6 @@ data "aws_subnets" "application" {
 
 # this can be updated in future to reference the shared secret in the management account
 data "aws_secretsmanager_secret" "jwt_secret_key" {
-  name     = "${data.aws_default_tags.default.tags.application}/${data.aws_default_tags.default.tags.account}/jwt-key"
-  provider = aws.management
+  name     = "${data.aws_default_tags.default.tags.account}/jwt-key"
+  provider = aws.region
 }
