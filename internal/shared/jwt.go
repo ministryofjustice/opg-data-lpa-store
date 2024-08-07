@@ -89,7 +89,7 @@ func NewJWTVerifier(cfg aws.Config, logger logger) JWTVerifier {
 	client := secretsmanager.NewFromConfig(cfg)
 
 	secretKey, err := client.GetSecretValue(context.Background(), &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(os.Getenv("JWT_SECRET_KEY_ID")),
+		SecretId: aws.String(os.Getenv("JWT_SECRET_KEY_ARN")),
 	})
 
 	if err != nil {
