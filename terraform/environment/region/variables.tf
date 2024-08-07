@@ -51,6 +51,7 @@ variable "environment_name" {
 
 variable "event_bus" {
   description = "Event bus to send events to"
+  type        = any
 }
 
 variable "has_fixtures" {
@@ -61,8 +62,10 @@ variable "has_fixtures" {
 
 variable "lpa_store_static_bucket" {
   description = "LPA Store Static bucket object for the region"
+  type        = any
 }
 
 variable "lpa_store_static_bucket_kms_key" {
   description = "LPA Store Static bucket KMS Key object for the region"
+  type        = any
 }
