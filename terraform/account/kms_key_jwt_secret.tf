@@ -1,7 +1,7 @@
 module "jwt_kms" {
   source                  = "../modules/kms_key"
   encrypted_resource      = "jwt key secret"
-  kms_key_alias_name      = "${data.aws_default_tags.default.tags.application}-jwt-key-secret-encryption"
+  kms_key_alias_name      = "${data.aws_default_tags.default.tags.application}/${data.aws_default_tags.default.tags.account}/jwt-key"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
