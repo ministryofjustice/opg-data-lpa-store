@@ -7,9 +7,9 @@ data "aws_caller_identity" "current" {
 }
 
 # we could use this data source instead of using an input variable for the account name
-# data "aws_default_tags" "current" {
-#   provider = aws.region
-# }
+data "aws_default_tags" "default" {
+  provider = aws.region
+}
 
 data "aws_vpc" "main" {
   filter {
@@ -50,6 +50,6 @@ data "aws_subnets" "application" {
 
 # this can be updated in future to reference the shared secret in the management account
 data "aws_secretsmanager_secret" "jwt_secret_key" {
-  name     = "${var.account_name}/jwt-key"
+  name     = "${data.aws_default_tags.default.tags.account}/jwt-key"
   provider = aws.region
 }
