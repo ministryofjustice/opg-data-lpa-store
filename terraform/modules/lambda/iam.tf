@@ -45,28 +45,6 @@ data "aws_iam_policy_document" "lambda" {
       "logs:DescribeLogStreams"
     ]
   }
-
-  statement {
-    sid       = "allowPutEvents"
-    effect    = "Allow"
-    resources = [var.event_bus_arn]
-    actions = [
-      "events:PutEvents"
-    ]
-  }
-
-  statement {
-    sid       = "allowReadJwtSecret"
-    effect    = "Allow"
-    resources = [data.aws_secretsmanager_secret.jwt_secret_key.arn]
-    actions = [
-      "secretsmanager:GetSecretValue"
-    ]
-  }
-}
-
-data "aws_secretsmanager_secret" "jwt_secret_key" {
-  name = "${var.account_name}/jwt-key"
 }
 
 resource "aws_lambda_permission" "allow_lambda_execution_operator" {
