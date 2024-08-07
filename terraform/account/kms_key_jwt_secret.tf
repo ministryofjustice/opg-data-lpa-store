@@ -1,14 +1,14 @@
 module "jwt_kms" {
-  source                  = "./modules/kms_key"
+  source                  = "../modules/kms_key"
   encrypted_resource      = "jwt key secret"
-  kms_key_alias_name      = "${data.aws_default_tags.default.tags.application}_jwt_jwt_key_encryption"
+  kms_key_alias_name      = "${data.aws_default_tags.default.tags.application}_jwt_key_secret_encryption"
   enable_key_rotation     = true
   enable_multi_region     = true
   deletion_window_in_days = 10
   kms_key_policy          = data.aws_default_tags.default.tags.account == "development" ? data.aws_iam_policy_document.jwt_kms_merged.json : data.aws_iam_policy_document.jwt_kms.json
   providers = {
-    aws.eu_west_1 = aws.eu_west_1
-    aws.eu_west_2 = aws.eu_west_2
+    aws.eu_west_1 = aws.management_eu_west_1
+    aws.eu_west_2 = aws.management_eu_west_2
   }
 }
 data "aws_iam_policy_document" "jwt_kms_merged" {
