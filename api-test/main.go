@@ -136,7 +136,6 @@ func makeJwt(secretKey []byte, uid *string) string {
 		"sub": "urn:opg:sirius:users:" + *uid,
 	}
 
-	log.Println(claims)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 
