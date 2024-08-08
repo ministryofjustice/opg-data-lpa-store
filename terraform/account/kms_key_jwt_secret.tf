@@ -59,7 +59,7 @@ data "aws_iam_policy_document" "jwt_kms" {
   }
 
   statement {
-    sid    = "Allow Key to be used for Decryption"
+    sid    = "Cross account access"
     effect = "Allow"
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
@@ -75,8 +75,8 @@ data "aws_iam_policy_document" "jwt_kms" {
       identifiers = concat(
         local.account.jwt_key_cross_account_access_roles,
         [
-          # Need to list the lambda roles here or int he var above
-          "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-ci",
+          # allow all roles in the lpa-store-lambda path in the current account
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-lambda/*",
       ])
     }
   }
