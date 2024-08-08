@@ -1,5 +1,7 @@
 resource "aws_iam_role" "lambda" {
-  name               = "lambda-${var.lambda_name}-${var.environment_name}-${data.aws_region.current.name}"
+  name = "lambda-${var.lambda_name}-${var.environment_name}-${data.aws_region.current.name}"
+  # this path will be used to grant permission to the lambda to access the KMS key
+  # path               = "/lpa-store-lambda/"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
 
   lifecycle {
