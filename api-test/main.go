@@ -30,6 +30,7 @@ import (
 func main() {
 	ctx := context.Background()
 	expectedStatusCode := flag.Int("expectedStatus", 200, "Expected response status code")
+	authorUID := flag.String("authorUID", "34", "Set the UID of the author in the header")
 	writeBody := flag.Bool("write", false, "Write the response body to STDOUT")
 	flag.Parse()
 	args := flag.Args()
@@ -41,7 +42,7 @@ func main() {
 		fmt.Print("M-" + strings.ToUpper(uuid.NewString()[9:23]))
 		os.Exit(0)
 	case "JWT":
-		fmt.Print(makeJwt([]byte(jwtSecret)))
+		fmt.Print(makeJwt([]byte(jwtSecret), authorUID))
 		os.Exit(0)
 	case "REQUEST":
 		// continue
@@ -68,7 +69,7 @@ func main() {
 	}
 
 	if jwtSecret != "" {
-		tokenString := makeJwt([]byte(jwtSecret))
+		tokenString := makeJwt([]byte(jwtSecret), authorUID)
 
 		req.Header.Add("X-Jwt-Authorization", fmt.Sprintf("Bearer %s", tokenString))
 	}
@@ -127,14 +128,15 @@ func main() {
 	}
 }
 
-func makeJwt(secretKey []byte) string {
+func makeJwt(secretKey []byte, uid *string) string {
 	claims := jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "urn:opg:sirius:users:34",
+		"sub": "urn:opg:sirius:users:" + *uid,
 	}
 
+	log.Println(claims)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secretKey)
 
