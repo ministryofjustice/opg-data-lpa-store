@@ -65,6 +65,11 @@ test-api:
 	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
 	cat ./docs/certificate-provider-opt-out.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
 
+	# attorney opt out
+	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
+	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
+	cat ./docs/attorney-opt-out.json | ./api-test/tester -expectedStatus=201 -authorUID=9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+
 	# donor withdraws lpa
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
