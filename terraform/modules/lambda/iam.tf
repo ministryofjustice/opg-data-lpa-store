@@ -3,9 +3,9 @@ resource "aws_iam_role" "lambda" {
   path               = "/lpa-store-lambda/"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
 
-  lifecycle {
-    create_before_destroy = false
-  }
+  # lifecycle {
+  #   create_before_destroy = false
+  # }
 }
 
 data "aws_iam_policy_document" "lambda_assume" {
