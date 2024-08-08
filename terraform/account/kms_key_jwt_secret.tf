@@ -110,6 +110,7 @@ data "aws_iam_policy_document" "jwt_kms" {
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/breakglass",
         "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-ci",
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/modernising-lpa-ci",
       ]
     }
   }
