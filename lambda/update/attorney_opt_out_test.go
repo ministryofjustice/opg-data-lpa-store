@@ -202,30 +202,6 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 				{Source: "/changes", Detail: "expected empty"},
 			},
 		},
-		"invalid author UID": {
-			update: shared.Update{
-				Author:  "urn:opg:poas:makeregister:users:123",
-				Type:    "ATTORNEY_OPT_OUT",
-				Changes: []shared.Change{},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-			},
-			expected: AttorneyOptOut{},
-			errors: []shared.FieldError{
-				{Source: "/update/author/uid", Detail: "invalid format"},
-			},
-		},
-		"missing author UID": {
-			update: shared.Update{
-				Author:  "urn:opg:poas:makeregister:users:",
-				Type:    "ATTORNEY_OPT_OUT",
-				Changes: []shared.Change{},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-			},
-			expected: AttorneyOptOut{},
-			errors: []shared.FieldError{
-				{Source: "/update/author/uid", Detail: "field is required"},
-			},
-		},
 		"invalid subject": {
 			update: shared.Update{
 				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
@@ -235,7 +211,7 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 			},
 			expected: AttorneyOptOut{},
 			errors: []shared.FieldError{
-				{Source: "/update/subject", Detail: "invalid format"},
+				{Source: "/subject", Detail: "invalid format"},
 			},
 		},
 		"missing subject": {
@@ -247,7 +223,7 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 			},
 			expected: AttorneyOptOut{},
 			errors: []shared.FieldError{
-				{Source: "/update/subject", Detail: "field is required"},
+				{Source: "/subject", Detail: "field is required"},
 			},
 		},
 		"subject and author do not match": {
