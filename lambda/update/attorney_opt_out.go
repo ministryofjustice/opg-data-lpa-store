@@ -22,11 +22,8 @@ func (c AttorneyOptOut) Apply(lpa *shared.Lpa) []shared.FieldError {
 	attorney.Status = shared.AttorneyStatusRemoved
 	lpa.PutAttorney(attorney)
 
-	var activeAttorneys []any
-	activeAttorneys = append(activeAttorneys, lpa.ActiveAttorneys())
-	activeAttorneys = append(activeAttorneys, lpa.ActiveTrustCorporations())
-
-	switch len(activeAttorneys) {
+	attorneysCount := len(lpa.ActiveAttorneys()) + len(lpa.ActiveTrustCorporations())
+	switch attorneysCount {
 	case 0, 1:
 		lpa.Status = shared.LpaStatusCannotRegister
 	default:
