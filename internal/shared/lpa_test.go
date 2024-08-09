@@ -96,3 +96,20 @@ func TestAttorneysPut(t *testing.T) {
 		})
 	}
 }
+
+func TestActiveAttorneys(t *testing.T) {
+	lpa := &Lpa{LpaInit: LpaInit{
+		Attorneys: []Attorney{
+			{Person: Person{FirstNames: "a"}},
+			{Person: Person{FirstNames: "b"}, Status: AttorneyStatusActive},
+			{Person: Person{FirstNames: "c"}, Status: AttorneyStatusReplacement},
+			{Person: Person{FirstNames: "d"}, Status: AttorneyStatusRemoved},
+			{Person: Person{FirstNames: "e"}, Status: AttorneyStatusActive},
+		},
+	}}
+
+	assert.Equal(t, []Attorney{
+		{Person: Person{FirstNames: "b"}, Status: AttorneyStatusActive},
+		{Person: Person{FirstNames: "e"}, Status: AttorneyStatusActive},
+	}, lpa.ActiveAttorneys())
+}

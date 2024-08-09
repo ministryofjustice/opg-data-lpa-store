@@ -74,7 +74,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
-	update.Author, _ = claims.GetSubject()
+	subject, _ := claims.GetSubject()
+	update.Author = shared.URN(subject)
 
 	applyable, errors := validateUpdate(update, &lpa)
 	if len(errors) > 0 {

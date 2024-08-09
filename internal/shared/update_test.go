@@ -6,33 +6,43 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUpdateAuthorUID(t *testing.T) {
-	testcases := []string{
-		"urn:opg:poas:makeregister:users:123",
-		"urn:opg:poas:sirius:users:123",
+func TestURNDetails(t *testing.T) {
+	testcases := map[URN]struct {
+		UID     string
+		Service string
+	}{
+		"urn:opg:poas:makeregister:users:123": {
+			UID:     "123",
+			Service: "makeregister",
+		},
+		"urn:opg:poas:sirius:users:456": {
+			UID:     "456",
+			Service: "sirius",
+		},
 	}
 
-	for _, urn := range testcases {
-		t.Run(urn, func(t *testing.T) {
-			uid := Update{Author: urn}.AuthorUID()
+	for urn, tc := range testcases {
+		t.Run(string(urn), func(t *testing.T) {
+			details := urn.Details()
 
-			assert.Equal(t, "123", uid)
+			assert.Equal(t, tc.UID, details.UID)
+			assert.Equal(t, tc.Service, details.Service)
 		})
 	}
 
 }
 
-func TestUpdateAuthorUIDWhenInvalidFormat(t *testing.T) {
-	testcases := []string{
-		"urn:opg:poas:makeregister:not-users:123",
+func TestURNDetailsWhenURNInvalidFormat(t *testing.T) {
+	testcases := []URN{
 		"urn:opg:poas:makeregister:users:",
+		"urn-opg-poas-makeregister-users-123",
 	}
 
 	for _, urn := range testcases {
-		t.Run(urn, func(t *testing.T) {
-			uid := Update{Author: urn}.AuthorUID()
+		t.Run(string(urn), func(t *testing.T) {
+			details := urn.Details()
 
-			assert.Equal(t, "", uid)
+			assert.Equal(t, AuthorDetails{}, details)
 		})
 	}
 }

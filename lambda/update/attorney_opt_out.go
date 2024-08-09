@@ -1,6 +1,9 @@
 package main
 
-import "github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
+import (
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
+)
 
 type AttorneyOptOut struct {
 	AttorneyUID string
@@ -16,12 +19,11 @@ func (c AttorneyOptOut) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: "/type", Detail: "attorney cannot opt out after signing"}}
 	}
 
-	// TODO Check if status correct
 	attorney.Status = shared.AttorneyStatusRemoved
 	lpa.PutAttorney(attorney)
 
-	switch len(lpa.Attorneys) {
-	case 1, 2:
+	switch len(lpa.ActiveAttorneys()) {
+	case 0, 1:
 		lpa.Status = shared.LpaStatusCannotRegister
 	default:
 		if lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointly || lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers {
@@ -37,9 +39,20 @@ func validateAttorneyOptOut(update shared.Update) (AttorneyOptOut, []shared.Fiel
 		return AttorneyOptOut{}, []shared.FieldError{{Source: "/changes", Detail: "expected empty"}}
 	}
 
-	if update.AuthorUID() == "" {
-		return AttorneyOptOut{}, []shared.FieldError{{Source: "/update", Detail: "author UID missing from URN"}}
+	author := update.Author.Details()
+
+	uidErrors := validate.All(
+		validate.UUID("/update/author/uid", author.UID),
+		validate.UUID("/update/subject", update.Subject),
+	)
+
+	if len(uidErrors) > 0 {
+		return AttorneyOptOut{}, uidErrors
 	}
 
-	return AttorneyOptOut{AttorneyUID: update.AuthorUID()}, nil
+	if author.Service == "makeregister" && update.Subject != author.UID {
+		return AttorneyOptOut{}, []shared.FieldError{{Source: "/update", Detail: "cannot change other actors"}}
+	}
+
+	return AttorneyOptOut{AttorneyUID: update.Subject}, nil
 }

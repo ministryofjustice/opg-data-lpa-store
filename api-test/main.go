@@ -133,7 +133,7 @@ func makeJwt(secretKey []byte, uid *string) string {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "urn:opg:sirius:users:" + *uid,
+		"sub": "urn:opg:poas:sirius:users:" + *uid,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

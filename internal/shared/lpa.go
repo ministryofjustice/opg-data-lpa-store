@@ -45,6 +45,16 @@ func (l *Lpa) PutAttorney(attorney Attorney) {
 	}
 }
 
+func (l *Lpa) ActiveAttorneys() (attorneys []Attorney) {
+	for _, a := range l.Attorneys {
+		if a.Status == AttorneyStatusActive {
+			attorneys = append(attorneys, a)
+		}
+	}
+
+	return attorneys
+}
+
 type Lpa struct {
 	LpaInit
 	Uid                             string     `json:"uid"`
