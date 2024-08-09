@@ -19,3 +19,114 @@ func TestLpaInitMarshalJSON(t *testing.T) {
 	data, _ := json.Marshal(LpaInit{})
 	assert.JSONEq(t, expected, string(data))
 }
+
+func TestAttorneysGet(t *testing.T) {
+	testCases := map[string]struct {
+		attorneys        []Attorney
+		expectedAttorney Attorney
+		uid              string
+		expectedFound    bool
+	}{
+		"found": {
+			attorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+				{Person: Person{UID: "xyz", FirstNames: "b"}},
+			},
+			expectedAttorney: Attorney{Person: Person{UID: "xyz", FirstNames: "b"}},
+			uid:              "xyz",
+			expectedFound:    true,
+		},
+		"not found": {
+			attorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+				{Person: Person{UID: "xyz", FirstNames: "b"}},
+			},
+			expectedAttorney: Attorney{},
+			uid:              "not-a-match",
+			expectedFound:    false,
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{LpaInit: LpaInit{Attorneys: tc.attorneys}}
+			a, found := lpa.GetAttorney(tc.uid)
+
+			assert.Equal(t, tc.expectedFound, found)
+			assert.Equal(t, tc.expectedAttorney, a)
+		})
+	}
+}
+
+func TestAttorneysPut(t *testing.T) {
+	testCases := map[string]struct {
+		attorneys         []Attorney
+		expectedAttorneys []Attorney
+		updatedAttorney   Attorney
+	}{
+		"does not exist": {
+			attorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+			},
+			expectedAttorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+				{Person: Person{UID: "xyz", FirstNames: "b"}},
+			},
+			updatedAttorney: Attorney{Person: Person{UID: "xyz", FirstNames: "b"}},
+		},
+		"exists": {
+			attorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+				{Person: Person{UID: "xyz", FirstNames: "b"}},
+			},
+			expectedAttorneys: []Attorney{
+				{Person: Person{UID: "abc", FirstNames: "a"}},
+				{Person: Person{UID: "xyz", FirstNames: "z"}},
+			},
+			updatedAttorney: Attorney{Person: Person{UID: "xyz", FirstNames: "z"}},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			lpa := &Lpa{LpaInit: LpaInit{Attorneys: tc.attorneys}}
+			lpa.PutAttorney(tc.updatedAttorney)
+
+			assert.Equal(t, tc.expectedAttorneys, lpa.Attorneys)
+		})
+	}
+}
+
+func TestActiveAttorneys(t *testing.T) {
+	lpa := &Lpa{LpaInit: LpaInit{
+		Attorneys: []Attorney{
+			{Person: Person{FirstNames: "a"}},
+			{Person: Person{FirstNames: "b"}, Status: AttorneyStatusActive},
+			{Person: Person{FirstNames: "c"}, Status: AttorneyStatusReplacement},
+			{Person: Person{FirstNames: "d"}, Status: AttorneyStatusRemoved},
+			{Person: Person{FirstNames: "e"}, Status: AttorneyStatusActive},
+		},
+	}}
+
+	assert.Equal(t, []Attorney{
+		{Person: Person{FirstNames: "b"}, Status: AttorneyStatusActive},
+		{Person: Person{FirstNames: "e"}, Status: AttorneyStatusActive},
+	}, lpa.ActiveAttorneys())
+}
+
+func TestActiveTrustCorporations(t *testing.T) {
+	lpa := &Lpa{LpaInit: LpaInit{
+		TrustCorporations: []TrustCorporation{
+			{Name: "a"},
+			{Name: "b", Status: AttorneyStatusActive},
+			{Name: "c", Status: AttorneyStatusReplacement},
+			{Name: "d", Status: AttorneyStatusRemoved},
+			{Name: "e", Status: AttorneyStatusActive},
+		},
+	}}
+
+	assert.Equal(t, []TrustCorporation{
+		{Name: "b", Status: AttorneyStatusActive},
+		{Name: "e", Status: AttorneyStatusActive},
+	}, lpa.ActiveTrustCorporations())
+}
