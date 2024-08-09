@@ -55,6 +55,16 @@ func (l *Lpa) ActiveAttorneys() (attorneys []Attorney) {
 	return attorneys
 }
 
+func (l *Lpa) ActiveTrustCorporations() (trustCorporations []TrustCorporation) {
+	for _, tc := range l.TrustCorporations {
+		if tc.Status == AttorneyStatusActive {
+			trustCorporations = append(trustCorporations, tc)
+		}
+	}
+
+	return trustCorporations
+}
+
 type Lpa struct {
 	LpaInit
 	Uid                             string     `json:"uid"`

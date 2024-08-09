@@ -127,6 +127,34 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				},
 			},
 		},
+		"multiple attorneys with trust corporations": {
+			lpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
+					Attorneys: []shared.Attorney{
+						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
+					},
+					TrustCorporations: []shared.TrustCorporation{
+						{Status: shared.AttorneyStatusActive},
+					},
+				},
+			},
+			expectedLpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
+					Attorneys: []shared.Attorney{
+						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
+					},
+					TrustCorporations: []shared.TrustCorporation{
+						{Status: shared.AttorneyStatusActive},
+					},
+				},
+			},
+		},
 	}
 
 	for name, tc := range testcases {
