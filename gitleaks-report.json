@@ -1,0 +1,22 @@
+[
+ {
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 71,
+  "EndLine": 71,
+  "StartColumn": 77,
+  "EndColumn": 123,
+  "Match": "authorUID=9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d ",
+  "Secret": "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
+  "File": "Makefile",
+  "SymlinkFile": "",
+  "Commit": "4155b1eec33bdadc524a0582b4b858599f624466",
+  "Entropy": 3.7289722,
+  "Author": "Alex Saunders",
+  "Email": "acsauk@gmail.com",
+  "Date": "2024-08-08T15:50:22Z",
+  "Message": "add api test for attorney opt out",
+  "Tags": [],
+  "RuleID": "generic-api-key",
+  "Fingerprint": "4155b1eec33bdadc524a0582b4b858599f624466:Makefile:generic-api-key:71"
+ }
+]
