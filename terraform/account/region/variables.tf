@@ -1,8 +1,3 @@
-variable "account_name" {
-  description = "Name of AWS account"
-  type        = string
-}
-
 variable "is_production" {
   description = "Whether this is a production environment"
   type        = bool
