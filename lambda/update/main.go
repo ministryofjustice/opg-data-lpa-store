@@ -74,6 +74,9 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
+	subject, _ := claims.GetSubject()
+	update.Author = shared.URN(subject)
+
 	applyable, errors := validateUpdate(update, &lpa)
 	if len(errors) > 0 {
 		problem := shared.ProblemInvalidRequest
@@ -92,7 +95,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	update.Id = uuid.NewString()
 	update.Uid = lpa.Uid
 	update.Applied = time.Now().UTC().Format(time.RFC3339)
-	update.Author, _ = claims.GetSubject()
 
 	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
 		l.logger.Error("error saving changes", slog.Any("err", err))
