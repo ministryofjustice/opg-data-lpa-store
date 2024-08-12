@@ -33,28 +33,6 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				},
 			},
 		},
-		"two attorneys": {
-			lpa: &shared.Lpa{
-				Status: shared.LpaStatusInProgress,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-					},
-				},
-			},
-			expectedLpa: &shared.Lpa{
-				Status: shared.LpaStatusCannotRegister,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-					},
-				},
-			},
-		},
 		"multiple attorneys jointly and severally": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
