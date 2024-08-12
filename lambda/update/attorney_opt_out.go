@@ -40,15 +40,11 @@ func validateAttorneyOptOut(update shared.Update) (AttorneyOptOut, []shared.Fiel
 		return AttorneyOptOut{}, []shared.FieldError{{Source: "/changes", Detail: "expected empty"}}
 	}
 
-	if errs := validate.UUID("/subject", update.Subject); len(errs) > 0 {
+	author := update.Author.Details()
+
+	if errs := validate.UUID("/author", author.UID); len(errs) > 0 {
 		return AttorneyOptOut{}, errs
 	}
 
-	author := update.Author.Details()
-
-	if author.Service == "makeregister" && update.Subject != author.UID {
-		return AttorneyOptOut{}, []shared.FieldError{{Source: "/update", Detail: "cannot change other actors"}}
-	}
-
-	return AttorneyOptOut{AttorneyUID: update.Subject}, nil
+	return AttorneyOptOut{AttorneyUID: author.UID}, nil
 }

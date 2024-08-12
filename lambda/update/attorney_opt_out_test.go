@@ -180,7 +180,6 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
 				Type:    "ATTORNEY_OPT_OUT",
 				Changes: []shared.Change{},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
 			},
 			expected: AttorneyOptOut{AttorneyUID: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9"},
 		},
@@ -195,58 +194,22 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 						Old: jsonNull,
 					},
 				},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
 			},
 			expected: AttorneyOptOut{},
 			errors: []shared.FieldError{
 				{Source: "/changes", Detail: "expected empty"},
 			},
 		},
-		"invalid subject": {
+		"author UID not valid": {
 			update: shared.Update{
-				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
+				Author:  "urn:opg:poas:makeregister:users:not-a-uid",
 				Type:    "ATTORNEY_OPT_OUT",
 				Changes: []shared.Change{},
-				Subject: "123",
 			},
 			expected: AttorneyOptOut{},
 			errors: []shared.FieldError{
-				{Source: "/subject", Detail: "invalid format"},
+				{Source: "/author", Detail: "invalid format"},
 			},
-		},
-		"missing subject": {
-			update: shared.Update{
-				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-				Type:    "ATTORNEY_OPT_OUT",
-				Changes: []shared.Change{},
-				Subject: "",
-			},
-			expected: AttorneyOptOut{},
-			errors: []shared.FieldError{
-				{Source: "/subject", Detail: "field is required"},
-			},
-		},
-		"subject and author do not match": {
-			update: shared.Update{
-				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-				Type:    "ATTORNEY_OPT_OUT",
-				Changes: []shared.Change{},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c8",
-			},
-			expected: AttorneyOptOut{},
-			errors: []shared.FieldError{
-				{Source: "/update", Detail: "cannot change other actors"},
-			},
-		},
-		"subject and author do not match when service not makeregister": {
-			update: shared.Update{
-				Author:  "urn:opg:poas:sirius:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-				Type:    "ATTORNEY_OPT_OUT",
-				Changes: []shared.Change{},
-				Subject: "dc487ebb-b39d-45ed-bb6a-7f950fd355c8",
-			},
-			expected: AttorneyOptOut{AttorneyUID: "dc487ebb-b39d-45ed-bb6a-7f950fd355c8"},
-			errors:   []shared.FieldError{},
 		},
 	}
 

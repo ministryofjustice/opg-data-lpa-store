@@ -33,7 +33,6 @@ type Update struct {
 	Author  URN      `json:"author"`
 	Type    string   `json:"type"`
 	Changes []Change `json:"changes"`
-	Subject string   `json:"subject,omitempty"` // UID of actor the change applies to
 }
 
 type AuthorDetails struct {

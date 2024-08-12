@@ -296,6 +296,3 @@ components:
                   - type: number
                   - type: boolean
                   - type: "null"
-        subject:
-          type: string
-          format: uuid
