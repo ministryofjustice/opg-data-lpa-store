@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "jwt_kms" {
     sid    = "Allow Key to be used for Encryption"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
+      "*"
     ]
     actions = [
       "kms:Encrypt",
@@ -58,34 +58,35 @@ data "aws_iam_policy_document" "jwt_kms" {
     }
   }
 
-  # statement {
-  #   sid    = "Cross account access"
-  #   effect = "Allow"
-  #   resources = [
-  #     "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
-  #   ]
-  #   actions = [
-  #     "kms:Decrypt",
-  #     "kms:GenerateDataKey*",
-  #     "kms:DescribeKey",
-  #   ]
+  statement {
+    sid    = "Cross account access"
+    effect = "Allow"
+    resources = [
+      "*"
+    ]
+    actions = [
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
 
-  #   principals {
-  #     type = "AWS"
-  #     identifiers = concat(
-  #       local.account.jwt_key_cross_account_access_roles,
-  #       [
-  #         # allow all roles in the lpa-store-lambda path in the current account
-  #         "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-lambda/*",
-  #     ])
-  #   }
-  # }
+    principals {
+      type        = "AWS"
+      identifiers = local.account.jwt_key_cross_account_access
+    }
+    condition {
+      test     = "ArnLike"
+      variable = "aws:PrincipalArn"
+      values   = local.account.jwt_key_cross_account_access_roles
+    }
+
+  }
 
   statement {
     sid    = "Key Administrator"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
+      "*"
     ]
     actions = [
       "kms:Create*",
@@ -122,7 +123,7 @@ data "aws_iam_policy_document" "jwt_kms_development_account_operator_admin" {
     sid    = "Dev Account Key Administrator"
     effect = "Allow"
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.management.account_id}:key/*"
+      "*"
     ]
     actions = [
       "kms:Create*",
