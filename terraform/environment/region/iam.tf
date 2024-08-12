@@ -112,7 +112,7 @@ data "aws_iam_policy_document" "lambda_secrets_policy" {
     effect    = "Allow"
     resources = [data.aws_kms_alias.jwt_key.target_key_arn]
     actions = [
-      "secretsmanager:GetSecretValue"
+      "kms:Decrypt"
     ]
   }
 }
