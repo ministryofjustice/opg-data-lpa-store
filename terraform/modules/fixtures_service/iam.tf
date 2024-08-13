@@ -45,6 +45,7 @@ data "aws_iam_policy_document" "task_role" {
 
 resource "aws_iam_role" "execution_role" {
   name_prefix        = "fixtures-execution-role-${var.environment_name}-"
+  path               = "/lpa-store-fixtures/"
   assume_role_policy = data.aws_iam_policy_document.execution_assume_role.json
 
   provider = aws.global
