@@ -186,6 +186,10 @@ export class JsonSchemaEditor {
         $parent.appendChild(this.createGovukFormGroup(nub, $select));
 
         $select.dispatchEvent(new InputEvent("input"));
+
+        requestAnimationFrame(() => {
+          $select.value = "";
+        });
       } else if (schema.type === "string") {
         const $input = document.createElement("input");
         $input.id = `f-${pointer}`;
