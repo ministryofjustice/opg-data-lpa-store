@@ -1,5 +1,6 @@
 resource "aws_iam_role" "task_role" {
   name_prefix        = "fixtures-task-role-${var.environment_name}-"
+  path               = "/lpa-store-fixtures/"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_role_assume_policy.json
 
   provider = aws.global
@@ -44,6 +45,7 @@ data "aws_iam_policy_document" "task_role" {
 
 resource "aws_iam_role" "execution_role" {
   name_prefix        = "fixtures-execution-role-${var.environment_name}-"
+  path               = "/lpa-store-fixtures/"
   assume_role_policy = data.aws_iam_policy_document.execution_assume_role.json
 
   provider = aws.global
@@ -94,10 +96,19 @@ data "aws_iam_policy_document" "execution_role" {
   }
 
   statement {
+    sid       = "allowReadJwtSecret"
     effect    = "Allow"
     resources = [data.aws_secretsmanager_secret.jwt_secret_key.arn]
     actions = [
       "secretsmanager:GetSecretValue"
+    ]
+  }
+  statement {
+    sid       = "allowReadJwtSecretEncryption"
+    effect    = "Allow"
+    resources = [data.aws_kms_alias.jwt_key.target_key_arn]
+    actions = [
+      "kms:Decrypt"
     ]
   }
 
