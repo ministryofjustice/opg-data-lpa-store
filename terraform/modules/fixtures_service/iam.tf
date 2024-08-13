@@ -94,10 +94,19 @@ data "aws_iam_policy_document" "execution_role" {
   }
 
   statement {
+    sid       = "allowReadJwtSecret"
     effect    = "Allow"
     resources = [data.aws_secretsmanager_secret.jwt_secret_key.arn]
     actions = [
       "secretsmanager:GetSecretValue"
+    ]
+  }
+  statement {
+    sid       = "allowReadJwtSecretEncryption"
+    effect    = "Allow"
+    resources = [data.aws_kms_alias.jwt_key.target_key_arn]
+    actions = [
+      "kms:Decrypt"
     ]
   }
 
