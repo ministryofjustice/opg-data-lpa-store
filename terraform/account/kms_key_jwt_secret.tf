@@ -80,7 +80,8 @@ data "aws_iam_policy_document" "jwt_kms" {
       values = concat(
         local.account.jwt_key_cross_account_access_roles,
         [
-          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-lambda/*"
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-lambda/*",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-fixtures/*",
       ])
     }
 
