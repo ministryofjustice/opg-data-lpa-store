@@ -3,41 +3,24 @@ package main
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAttorneyOptOutApply(t *testing.T) {
+	now := time.Now()
+
 	testcases := map[string]struct {
 		lpa         *shared.Lpa
 		expectedLpa *shared.Lpa
+		errors      []shared.FieldError
 	}{
-		"single attorney": {
+		"successful apply": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsUnset,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-					},
-				},
-			},
-			expectedLpa: &shared.Lpa{
-				Status: shared.LpaStatusCannotRegister,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsUnset,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-					},
-				},
-			},
-		},
-		"multiple attorneys jointly and severally": {
-			lpa: &shared.Lpa{
-				Status: shared.LpaStatusInProgress,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
 					Attorneys: []shared.Attorney{
 						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
 						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
@@ -48,7 +31,6 @@ func TestAttorneyOptOutApply(t *testing.T) {
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
 					Attorneys: []shared.Attorney{
 						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
 						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
@@ -57,80 +39,46 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				},
 			},
 		},
-		"multiple attorneys jointly": {
+		"not found": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
 					Attorneys: []shared.Attorney{
 						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
-				Status: shared.LpaStatusCannotRegister,
+				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
 					Attorneys: []shared.Attorney{
 						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
 					},
 				},
+			},
+			errors: []shared.FieldError{
+				{Source: "/type", Detail: "attorney not found"},
 			},
 		},
-		"multiple attorneys jointly for some": {
+		"already signed": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
 					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
-					},
-				},
-			},
-			expectedLpa: &shared.Lpa{
-				Status: shared.LpaStatusCannotRegister,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
-					},
-				},
-			},
-		},
-		"multiple attorneys with trust corporations": {
-			lpa: &shared.Lpa{
-				Status: shared.LpaStatusInProgress,
-				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-					},
-					TrustCorporations: []shared.TrustCorporation{
-						{Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
 					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-					},
-					TrustCorporations: []shared.TrustCorporation{
-						{Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
 					},
 				},
+			},
+			errors: []shared.FieldError{
+				{Source: "/type", Detail: "attorney cannot opt out after signing"},
 			},
 		},
 	}
@@ -141,7 +89,7 @@ func TestAttorneyOptOutApply(t *testing.T) {
 
 			errors := c.Apply(tc.lpa)
 
-			assert.Empty(t, errors)
+			assert.Equal(t, tc.errors, errors)
 			assert.Equal(t, tc.expectedLpa, tc.lpa)
 		})
 	}
