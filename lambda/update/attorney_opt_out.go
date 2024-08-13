@@ -22,14 +22,6 @@ func (c AttorneyOptOut) Apply(lpa *shared.Lpa) []shared.FieldError {
 	attorney.Status = shared.AttorneyStatusRemoved
 	lpa.PutAttorney(attorney)
 
-	attorneysCount := len(lpa.ActiveAttorneys()) + len(lpa.ActiveTrustCorporations())
-
-	if attorneysCount == 0 {
-		lpa.Status = shared.LpaStatusCannotRegister
-	} else if lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointly || lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers {
-		lpa.Status = shared.LpaStatusCannotRegister
-	}
-
 	return nil
 }
 
