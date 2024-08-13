@@ -1,5 +1,6 @@
 resource "aws_iam_role" "task_role" {
   name_prefix        = "fixtures-task-role-${var.environment_name}-"
+  path               = "/lpa-store-fixtures/"
   assume_role_policy = data.aws_iam_policy_document.ecs_task_role_assume_policy.json
 
   provider = aws.global
