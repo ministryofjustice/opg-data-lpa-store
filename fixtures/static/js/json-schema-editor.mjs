@@ -95,6 +95,7 @@ export class JsonSchemaEditor {
     const value = JSON.parse(this.$module.value);
 
     const data = jsonSchema.getTemplate(value);
+    this.$module.value = JSON.stringify(data);
 
     this.$formContainer.innerHTML = "";
     this.constructElements(this.$formContainer, data, jsonSchema);
@@ -186,10 +187,6 @@ export class JsonSchemaEditor {
         $parent.appendChild(this.createGovukFormGroup(nub, $select));
 
         $select.dispatchEvent(new InputEvent("input"));
-
-        requestAnimationFrame(() => {
-          $select.value = "";
-        });
       } else if (schema.type === "string") {
         const $input = document.createElement("input");
         $input.id = `f-${pointer}`;
