@@ -1,5 +1,7 @@
 resource "aws_iam_role" "lambda" {
-  name               = "lambda-${var.lambda_name}-${var.environment_name}-${data.aws_region.current.name}"
+  name = "lambda-${var.lambda_name}-${var.environment_name}-${data.aws_region.current.name}"
+  # this path will be used to grant permission to the lambda to access the KMS key
+  path               = "/lpa-store-lambda/"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
 
   lifecycle {
@@ -45,28 +47,6 @@ data "aws_iam_policy_document" "lambda" {
       "logs:DescribeLogStreams"
     ]
   }
-
-  statement {
-    sid       = "allowPutEvents"
-    effect    = "Allow"
-    resources = [var.event_bus_arn]
-    actions = [
-      "events:PutEvents"
-    ]
-  }
-
-  statement {
-    sid       = "allowReadJwtSecret"
-    effect    = "Allow"
-    resources = [data.aws_secretsmanager_secret.jwt_secret_key.arn]
-    actions = [
-      "secretsmanager:GetSecretValue"
-    ]
-  }
-}
-
-data "aws_secretsmanager_secret" "jwt_secret_key" {
-  name = "${var.account_name}/jwt-key"
 }
 
 resource "aws_lambda_permission" "allow_lambda_execution_operator" {

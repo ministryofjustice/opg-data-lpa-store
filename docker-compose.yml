@@ -1,5 +1,3 @@
-version: "3.6"
-
 services:
   lambda-create:
     image: lpa-store/lambda/api-create
@@ -20,7 +18,7 @@ services:
       DDB_TABLE_NAME_CHANGES: changes
       S3_BUCKET_NAME_ORIGINAL: opg-lpa-store-static-eu-west-1
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY_ID: local/jwt-key
+      JWT_SECRET_KEY_ARN: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -43,7 +41,7 @@ services:
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY_ID: local/jwt-key
+      JWT_SECRET_KEY_ARN: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -66,7 +64,7 @@ services:
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY_ID: local/jwt-key
+      JWT_SECRET_KEY_ARN: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -89,7 +87,7 @@ services:
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
       EVENT_BUS_NAME: local-main
-      JWT_SECRET_KEY_ID: local/jwt-key
+      JWT_SECRET_KEY_ARN: local/jwt-key
     volumes:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
@@ -103,7 +101,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:3.5
+    image: localstack/localstack:3.6
     ports:
       - "4566:4566"
     volumes:

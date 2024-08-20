@@ -25,7 +25,7 @@ jobs:
       - name: Verify specified Pact
         if: ${{ github.event_name == 'repository_dispatch' }}
         run: |
-          docker-compose run --rm pact-verifier \
+          docker compose run --rm pact-verifier \
             --header="X-Jwt-Authorization=Bearer $JWT" \
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=main \
@@ -37,7 +37,7 @@ jobs:
       - name: Verify pacts, including pending
         if: ${{ github.event_name == 'push' }}
         run: |
-          docker-compose run --rm pact-verifier \
+          docker compose run --rm pact-verifier \
             --header="X-Jwt-Authorization=Bearer $JWT" \
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=main \
@@ -49,7 +49,7 @@ jobs:
       - name: Verify pacts are still upheld
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          docker-compose run --rm pact-verifier \
+          docker compose run --rm pact-verifier \
             --header="X-Jwt-Authorization=Bearer $JWT" \
             --provider-version=$(git rev-parse HEAD) \
             --provider-branch=${{ github.head_ref }} \

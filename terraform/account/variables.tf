@@ -1,9 +1,11 @@
 variable "accounts" {
   type = map(
     object({
-      account_id    = string
-      account_name  = string
-      is_production = bool
+      account_id                         = string
+      account_name                       = string
+      is_production                      = bool
+      jwt_key_cross_account_access       = list(string)
+      jwt_key_cross_account_access_roles = list(string)
     })
   )
 }

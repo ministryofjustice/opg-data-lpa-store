@@ -51,6 +51,11 @@ export class JsonSchemaEditor {
     const response = await fetch(url);
     this.schema = await response.json();
 
+    // TODO - Find a better solution
+    // HACK - Remove these from the schema so that blank values are not sent to the API
+    delete this.schema.properties.donor.properties.identityCheck;
+    delete this.schema.properties.certificateProvider.properties.identityCheck;
+
     const $container = document.createElement("div");
     this.$formContainer = $container;
 
@@ -95,6 +100,7 @@ export class JsonSchemaEditor {
     const value = JSON.parse(this.$module.value);
 
     const data = jsonSchema.getTemplate(value);
+    this.$module.value = JSON.stringify(data);
 
     this.$formContainer.innerHTML = "";
     this.constructElements(this.$formContainer, data, jsonSchema);
