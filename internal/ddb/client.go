@@ -10,8 +10,15 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
+type dynamodbClient interface {
+	TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
+	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	BatchGetItem(ctx context.Context, params *dynamodb.BatchGetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)
+}
+
 type Client struct {
-	ddb              *dynamodb.Client
+	ddb              dynamodbClient
 	tableName        string
 	changesTableName string
 }

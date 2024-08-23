@@ -1,0 +1,9 @@
+with-expecter: true
+inpackage: True
+dir: "{{.InterfaceDir}}"
+mockname: "mock{{.InterfaceName|firstUpper}}"
+outpkg: "{{.PackageName}}"
+filename: "mock_{{.InterfaceName}}_test.go"
+all: true
+packages:
+  github.com/ministryofjustice/opg-data-lpa-store/internal/ddb:
