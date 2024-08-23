@@ -11,50 +11,34 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-type FieldError struct {
-	Source string `json:"source"`
-	Detail string `json:"detail"`
-}
+var (
+	ProblemInternalServerError = Problem{
+		StatusCode: 500,
+		Code:       "INTERNAL_SERVER_ERROR",
+		Detail:     "Internal server error",
+	}
+	ProblemInvalidRequest = Problem{
+		StatusCode: 400,
+		Code:       "INVALID_REQUEST",
+		Detail:     "Invalid request",
+	}
+	ProblemUnauthorisedRequest = Problem{
+		StatusCode: 401,
+		Code:       "UNAUTHORISED",
+		Detail:     "Invalid JWT",
+	}
+	ProblemNotFoundRequest = Problem{
+		StatusCode: 404,
+		Code:       "NOT_FOUND",
+		Detail:     "Record not found",
+	}
+)
 
 type Problem struct {
 	StatusCode int          `json:"-"`
 	Code       string       `json:"code"`
 	Detail     string       `json:"detail"`
 	Errors     []FieldError `json:"errors,omitempty"`
-}
-
-type LogEvent struct {
-	Timestamp   time.Time `json:"time"`
-	Level       string    `json:"level"`
-	Message     string    `json:"msg"`
-	ServiceName string    `json:"service_name"`
-	Status      int       `json:"status"`
-	Problem     Problem   `json:"problem"`
-	ErrorString string    `json:"error_string,omitempty"`
-}
-
-var ProblemInternalServerError Problem = Problem{
-	StatusCode: 500,
-	Code:       "INTERNAL_SERVER_ERROR",
-	Detail:     "Internal server error",
-}
-
-var ProblemInvalidRequest Problem = Problem{
-	StatusCode: 400,
-	Code:       "INVALID_REQUEST",
-	Detail:     "Invalid request",
-}
-
-var ProblemUnauthorisedRequest Problem = Problem{
-	StatusCode: 401,
-	Code:       "UNAUTHORISED",
-	Detail:     "Invalid JWT",
-}
-
-var ProblemNotFoundRequest Problem = Problem{
-	StatusCode: 404,
-	Code:       "NOT_FOUND",
-	Detail:     "Record not found",
 }
 
 func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
@@ -85,4 +69,19 @@ func (problem Problem) Respond() (events.APIGatewayProxyResponse, error) {
 		StatusCode: code,
 		Body:       string(body),
 	}, nil
+}
+
+type FieldError struct {
+	Source string `json:"source"`
+	Detail string `json:"detail"`
+}
+
+type LogEvent struct {
+	Timestamp   time.Time `json:"time"`
+	Level       string    `json:"level"`
+	Message     string    `json:"msg"`
+	ServiceName string    `json:"service_name"`
+	Status      int       `json:"status"`
+	Problem     Problem   `json:"problem"`
+	ErrorString string    `json:"error_string,omitempty"`
 }

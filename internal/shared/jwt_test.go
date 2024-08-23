@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 var secretKey = []byte("secret")
@@ -17,18 +16,6 @@ var secretKey = []byte("secret")
 var verifier = JWTVerifier{
 	secretKey: secretKey,
 	Logger:    nil,
-}
-
-type mockLogger struct {
-	mock.Mock
-}
-
-func (m *mockLogger) Info(msg string, params ...any) {
-	m.Called(msg, params)
-}
-
-func (m *mockLogger) Error(msg string, params ...any) {
-	m.Called(msg, params)
 }
 
 func createToken(claims jwt.MapClaims) string {
@@ -167,20 +154,17 @@ func TestVerifyHeader(t *testing.T) {
 
 	event := events.APIGatewayProxyRequest{
 		MultiValueHeaders: map[string][]string{
-			"X-Jwt-Authorization": []string{
+			"X-Jwt-Authorization": {
 				fmt.Sprintf("Bearer %s", token),
 			},
 		},
 	}
 
-	logger := mockLogger{}
-	logger.On(
-		"Info",
-		"JWT valid for urn:opg:sirius:users:34",
-		[]interface{}{slog.Any("subject", "urn:opg:sirius:users:34")},
-	)
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		Info("JWT valid for urn:opg:sirius:users:34", slog.Any("subject", "urn:opg:sirius:users:34"))
 
-	verifier.Logger = &logger
+	verifier.Logger = logger
 
 	_, err := verifier.VerifyHeader(event)
 	assert.Nil(t, err)
