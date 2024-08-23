@@ -8,3 +8,4 @@ all: true
 packages:
   github.com/ministryofjustice/opg-data-lpa-store/internal/ddb:
   github.com/ministryofjustice/opg-data-lpa-store/internal/event:
+  github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore:
