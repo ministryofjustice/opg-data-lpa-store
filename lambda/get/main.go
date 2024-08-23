@@ -50,6 +50,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	}
 
 	lpa, err := l.store.Get(ctx, event.PathParameters["uid"])
+	if err != nil {
+		l.logger.Error("error fetching LPA", slog.Any("err", err))
+		return shared.ProblemInternalServerError.Respond()
+	}
 
 	// If item can't be found in DynamoDB then it returns empty object hence 404 error returned if
 	// empty object returned
@@ -58,13 +62,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
-	if err != nil {
-		l.logger.Error("error fetching LPA", slog.Any("err", err))
-		return shared.ProblemInternalServerError.Respond()
-	}
-
 	body, err := json.Marshal(lpa)
-
 	if err != nil {
 		l.logger.Error("error marshalling LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
