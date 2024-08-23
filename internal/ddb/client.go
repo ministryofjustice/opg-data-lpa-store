@@ -18,14 +18,14 @@ type dynamodbClient interface {
 }
 
 type Client struct {
-	ddb              dynamodbClient
+	svc              dynamodbClient
 	tableName        string
 	changesTableName string
 }
 
 func New(cfg aws.Config, tableName, changesTableName string) *Client {
 	return &Client{
-		ddb:              dynamodb.NewFromConfig(cfg),
+		svc:              dynamodb.NewFromConfig(cfg),
 		tableName:        tableName,
 		changesTableName: changesTableName,
 	}
@@ -65,7 +65,7 @@ func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update)
 		},
 	}
 
-	_, err = c.ddb.TransactWriteItems(ctx, transactInput)
+	_, err = c.svc.TransactWriteItems(ctx, transactInput)
 
 	return err
 }
@@ -76,7 +76,7 @@ func (c *Client) Put(ctx context.Context, data any) error {
 		return err
 	}
 
-	_, err = c.ddb.PutItem(ctx, &dynamodb.PutItemInput{
+	_, err = c.svc.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: aws.String(c.tableName),
 		Item:      item,
 	})
@@ -92,7 +92,7 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 		return lpa, err
 	}
 
-	getItemOutput, err := c.ddb.GetItem(ctx, &dynamodb.GetItemInput{
+	getItemOutput, err := c.svc.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(c.tableName),
 		Key: map[string]types.AttributeValue{
 			"uid": marshalledUid,
@@ -116,7 +116,7 @@ func (c *Client) GetList(ctx context.Context, uids []string) ([]shared.Lpa, erro
 		}
 	}
 
-	output, err := c.ddb.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
+	output, err := c.svc.BatchGetItem(ctx, &dynamodb.BatchGetItemInput{
 		RequestItems: map[string]types.KeysAndAttributes{
 			c.tableName: {
 				Keys: keys,

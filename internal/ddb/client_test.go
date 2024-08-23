@@ -22,10 +22,9 @@ var (
 )
 
 func TestNew(t *testing.T) {
-	cfg := aws.Config{Region: "somewhere"}
+	client := New(aws.Config{}, tableName, changesTableName)
 
-	client := New(cfg, tableName, changesTableName)
-	assert.IsType(t, (*dynamodb.Client)(nil), client.ddb)
+	assert.IsType(t, (*dynamodb.Client)(nil), client.svc)
 	assert.Equal(t, tableName, client.tableName)
 	assert.Equal(t, changesTableName, client.changesTableName)
 }
@@ -63,7 +62,7 @@ func TestClientPutChanges(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{
-		ddb:              dynamodbClient,
+		svc:              dynamodbClient,
 		tableName:        tableName,
 		changesTableName: changesTableName,
 	}
@@ -92,7 +91,7 @@ func TestClientPut(t *testing.T) {
 		Return(nil, expectedError)
 
 	client := &Client{
-		ddb:       dynamodbClient,
+		svc:       dynamodbClient,
 		tableName: tableName,
 	}
 
@@ -117,7 +116,7 @@ func TestClientGet(t *testing.T) {
 		}, nil)
 
 	client := &Client{
-		ddb:       dynamodbClient,
+		svc:       dynamodbClient,
 		tableName: tableName,
 	}
 
@@ -132,7 +131,7 @@ func TestClientGetWhenClientErrors(t *testing.T) {
 		GetItem(ctx, mock.Anything).
 		Return(nil, expectedError)
 
-	client := &Client{ddb: dynamodbClient}
+	client := &Client{svc: dynamodbClient}
 
 	_, err := client.Get(ctx, "my-uid")
 	assert.Equal(t, expectedError, err)
@@ -165,7 +164,7 @@ func TestClientGetList(t *testing.T) {
 		}, nil)
 
 	client := &Client{
-		ddb:       dynamodbClient,
+		svc:       dynamodbClient,
 		tableName: tableName,
 	}
 
@@ -183,7 +182,7 @@ func TestClientGetListWhenClientErrors(t *testing.T) {
 		BatchGetItem(ctx, mock.Anything).
 		Return(nil, expectedError)
 
-	client := &Client{ddb: dynamodbClient}
+	client := &Client{svc: dynamodbClient}
 
 	_, err := client.GetList(ctx, []string{"my-uid", "another-uid"})
 	assert.Equal(t, expectedError, err)

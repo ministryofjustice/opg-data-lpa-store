@@ -32,7 +32,6 @@ func (c *Client) SendLpaUpdated(ctx context.Context, event LpaUpdated) error {
 }
 
 func (c *Client) send(ctx context.Context, eventType string, detail any) error {
-
 	v, err := json.Marshal(detail)
 	if err != nil {
 		return err
