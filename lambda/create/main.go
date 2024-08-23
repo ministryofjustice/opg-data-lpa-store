@@ -49,9 +49,12 @@ type Lambda struct {
 	store            Store
 	verifier         Verifier
 	logger           Logger
+	now              func() time.Time
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	uid := req.PathParameters["uid"]
+
 	_, err := l.verifier.VerifyHeader(req)
 	if err != nil {
 		l.logger.Info("Unable to verify JWT from header")
@@ -59,9 +62,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	l.logger.Debug("Successfully parsed JWT from event header")
-
-	var input shared.LpaInit
-	uid := req.PathParameters["uid"]
 
 	response := events.APIGatewayProxyResponse{
 		StatusCode: 500,
@@ -82,8 +82,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return problem.Respond()
 	}
 
-	err = json.Unmarshal([]byte(req.Body), &input)
-	if err != nil {
+	var input shared.LpaInit
+	if err := json.Unmarshal([]byte(req.Body), &input); err != nil {
 		l.logger.Error("error unmarshalling request", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -91,7 +91,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	// validation
 	if errs := Validate(input); len(errs) > 0 {
 		if input.Channel == shared.ChannelPaper {
-			l.logger.Info("encountered validation errors in lpa", slog.Any("uid", uid))
+			l.logger.Info("encountered validation errors in lpa", slog.String("uid", uid))
 		} else {
 			problem := shared.ProblemInvalidRequest
 			problem.Errors = errs
@@ -100,10 +100,12 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		}
 	}
 
-	data := shared.Lpa{LpaInit: input}
-	data.Uid = uid
-	data.Status = shared.LpaStatusInProgress
-	data.UpdatedAt = time.Now()
+	data := shared.Lpa{
+		LpaInit:   input,
+		Uid:       uid,
+		Status:    shared.LpaStatusInProgress,
+		UpdatedAt: l.now(),
+	}
 
 	if data.Channel == shared.ChannelPaper && len(input.RestrictionsAndConditionsImages) > 0 {
 		data.RestrictionsAndConditionsImages = make([]shared.File, len(input.RestrictionsAndConditionsImages))
@@ -111,7 +113,6 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 			path := fmt.Sprintf("%s/scans/rc_%d_%s", data.Uid, i, image.Filename)
 
 			data.RestrictionsAndConditionsImages[i], err = l.staticLpaStorage.UploadFile(ctx, image, path)
-
 			if err != nil {
 				l.logger.Error("error saving restrictions and conditions image", slog.Any("err", err))
 				return shared.ProblemInternalServerError.Respond()
@@ -120,7 +121,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	// save
-	if err = l.store.Put(ctx, data); err != nil {
+	if err := l.store.Put(ctx, data); err != nil {
 		l.logger.Error("error saving LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
@@ -128,18 +129,16 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	// save to static storage as JSON
 	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", data.Uid)
 
-	if err = l.staticLpaStorage.Put(ctx, objectKey, data); err != nil {
+	if err := l.staticLpaStorage.Put(ctx, objectKey, data); err != nil {
 		l.logger.Error("error saving static record", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	// send lpa-updated event
-	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
+	if err := l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid:        uid,
 		ChangeType: "CREATE",
-	})
-
-	if err != nil {
+	}); err != nil {
 		l.logger.Error("unexpected error occurred", slog.Any("err", err))
 	}
 
@@ -179,6 +178,7 @@ func main() {
 		),
 		verifier: shared.NewJWTVerifier(cfg, logger),
 		logger:   logger,
+		now:      time.Now,
 	}
 
 	lambda.Start(l.HandleEvent)
