@@ -10,3 +10,6 @@ packages:
   github.com/ministryofjustice/opg-data-lpa-store/internal/event:
   github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore:
   github.com/ministryofjustice/opg-data-lpa-store/internal/shared:
+  github.com/ministryofjustice/opg-data-lpa-store/lambda/create:
+  github.com/ministryofjustice/opg-data-lpa-store/lambda/get:
+  github.com/ministryofjustice/opg-data-lpa-store/lambda/getlist:
