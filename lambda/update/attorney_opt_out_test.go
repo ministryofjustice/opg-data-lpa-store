@@ -39,6 +39,28 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				},
 			},
 		},
+		"successful apply to replacement": {
+			lpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					Attorneys: []shared.Attorney{
+						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusReplacement},
+						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					},
+				},
+			},
+			expectedLpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					Attorneys: []shared.Attorney{
+						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
+						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					},
+				},
+			},
+		},
 		"not found": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
