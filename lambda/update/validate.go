@@ -30,6 +30,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateDonorWithdrawLPA(update.Changes)
 	case "ATTORNEY_OPT_OUT":
 		return validateAttorneyOptOut(update)
+	case "TRUST_CORPORATION_OPT_OUT":
+		return validateTrustCorporationOptOut(update)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
