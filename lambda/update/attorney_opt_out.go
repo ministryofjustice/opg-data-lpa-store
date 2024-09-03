@@ -10,19 +10,18 @@ type AttorneyOptOut struct {
 }
 
 func (c AttorneyOptOut) Apply(lpa *shared.Lpa) []shared.FieldError {
-	attorney, ok := lpa.GetAttorney(c.AttorneyUID)
-	if !ok {
-		return []shared.FieldError{{Source: "/type", Detail: "attorney not found"}}
+	for i := range lpa.Attorneys {
+		if lpa.Attorneys[i].UID == c.AttorneyUID {
+			if lpa.Attorneys[i].SignedAt != nil && !lpa.Attorneys[i].SignedAt.IsZero() {
+				return []shared.FieldError{{Source: "/type", Detail: "attorney cannot opt out after signing"}}
+			}
+
+			lpa.Attorneys[i].Status = shared.AttorneyStatusRemoved
+			return nil
+		}
 	}
 
-	if attorney.SignedAt != nil && !attorney.SignedAt.IsZero() {
-		return []shared.FieldError{{Source: "/type", Detail: "attorney cannot opt out after signing"}}
-	}
-
-	attorney.Status = shared.AttorneyStatusRemoved
-	lpa.PutAttorney(attorney)
-
-	return nil
+	return []shared.FieldError{{Source: "/type", Detail: "attorney not found"}}
 }
 
 func validateAttorneyOptOut(update shared.Update) (AttorneyOptOut, []shared.FieldError) {

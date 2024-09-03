@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAttorneyOptOutApply(t *testing.T) {
+func TestTrustCorporationOptOutApply(t *testing.T) {
 	now := time.Now()
 
 	testcases := map[string]struct {
@@ -21,20 +21,20 @@ func TestAttorneyOptOutApply(t *testing.T) {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
+						{UID: "b", Status: shared.AttorneyStatusActive},
+						{UID: "c", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
+						{UID: "b", Status: shared.AttorneyStatusRemoved},
+						{UID: "c", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
@@ -43,20 +43,20 @@ func TestAttorneyOptOutApply(t *testing.T) {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusReplacement},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
+						{UID: "b", Status: shared.AttorneyStatusReplacement},
+						{UID: "c", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusRemoved},
-						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
+						{UID: "b", Status: shared.AttorneyStatusRemoved},
+						{UID: "c", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
@@ -65,49 +65,49 @@ func TestAttorneyOptOutApply(t *testing.T) {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "a", Status: shared.AttorneyStatusActive},
 					},
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/type", Detail: "attorney not found"},
+				{Source: "/type", Detail: "trust corporation not found"},
 			},
 		},
 		"already signed": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "b", Status: shared.AttorneyStatusActive, Signatories: []shared.Signatory{{SignedAt: now}}},
 					},
 				},
 			},
 			expectedLpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
+					TrustCorporations: []shared.TrustCorporation{
+						{UID: "b", Status: shared.AttorneyStatusActive, Signatories: []shared.Signatory{{SignedAt: now}}},
 					},
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/type", Detail: "attorney cannot opt out after signing"},
+				{Source: "/type", Detail: "trust corporation cannot opt out after signing"},
 			},
 		},
 	}
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			c := AttorneyOptOut{AttorneyUID: "b"}
+			c := TrustCorporationOptOut{trustCorporationUID: "b"}
 
 			errors := c.Apply(tc.lpa)
 
@@ -117,24 +117,24 @@ func TestAttorneyOptOutApply(t *testing.T) {
 	}
 }
 
-func TestValidateUpdateAttorneyOptOut(t *testing.T) {
+func TestValidateUpdateTrustCorporationOptOut(t *testing.T) {
 	testcases := map[string]struct {
 		update   shared.Update
 		errors   []shared.FieldError
-		expected AttorneyOptOut
+		expected TrustCorporationOptOut
 	}{
 		"valid": {
 			update: shared.Update{
 				Author:  "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-				Type:    "ATTORNEY_OPT_OUT",
+				Type:    "TRUST_CORPORATION_OPT_OUT",
 				Changes: []shared.Change{},
 			},
-			expected: AttorneyOptOut{AttorneyUID: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9"},
+			expected: TrustCorporationOptOut{trustCorporationUID: "dc487ebb-b39d-45ed-bb6a-7f950fd355c9"},
 		},
 		"with changes": {
 			update: shared.Update{
 				Author: "urn:opg:poas:makeregister:users:dc487ebb-b39d-45ed-bb6a-7f950fd355c9",
-				Type:   "ATTORNEY_OPT_OUT",
+				Type:   "TRUST_CORPORATION_OPT_OUT",
 				Changes: []shared.Change{
 					{
 						Key: "/something/someValue",
@@ -143,7 +143,7 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 					},
 				},
 			},
-			expected: AttorneyOptOut{},
+			expected: TrustCorporationOptOut{},
 			errors: []shared.FieldError{
 				{Source: "/changes", Detail: "expected empty"},
 			},
@@ -151,10 +151,10 @@ func TestValidateUpdateAttorneyOptOut(t *testing.T) {
 		"author UID not valid": {
 			update: shared.Update{
 				Author:  "urn:opg:poas:makeregister:users:not-a-uid",
-				Type:    "ATTORNEY_OPT_OUT",
+				Type:    "TRUST_CORPORATION_OPT_OUT",
 				Changes: []shared.Change{},
 			},
-			expected: AttorneyOptOut{},
+			expected: TrustCorporationOptOut{},
 			errors: []shared.FieldError{
 				{Source: "/author", Detail: "invalid format"},
 			},
