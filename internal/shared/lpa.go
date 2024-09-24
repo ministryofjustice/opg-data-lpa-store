@@ -12,6 +12,8 @@ type LpaInit struct {
 	TrustCorporations                           []TrustCorporation      `json:"trustCorporations,omitempty"`
 	CertificateProvider                         CertificateProvider     `json:"certificateProvider"`
 	PeopleToNotify                              []PersonToNotify        `json:"peopleToNotify,omitempty"`
+	IndependentWitness                          *IndependentWitness     `json:"independentWitness,omitempty"`
+	AuthorisedSignatory                         *AuthorisedSignatory    `json:"authorisedSignatory,omitempty"`
 	HowAttorneysMakeDecisions                   HowMakeDecisions        `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails            string                  `json:"howAttorneysMakeDecisionsDetails,omitempty"`
 	HowReplacementAttorneysMakeDecisions        HowMakeDecisions        `json:"howReplacementAttorneysMakeDecisions,omitempty"`

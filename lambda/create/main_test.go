@@ -28,10 +28,10 @@ var (
 				UID:        "a06daa09-750d-4e02-9877-0ea782491014",
 				FirstNames: "donor-firstname",
 				LastName:   "donor-lastname",
-				Address: shared.Address{
-					Line1:   "donor-line1",
-					Country: "GB",
-				},
+			},
+			Address: shared.Address{
+				Line1:   "donor-line1",
+				Country: "GB",
 			},
 			DateOfBirth:               makeDate("2020-01-02"),
 			Email:                     "donor-email",
@@ -42,10 +42,10 @@ var (
 				UID:        "c442a9a2-9d14-48ca-9cfa-d30d591b0d68",
 				FirstNames: "attorney-firstname",
 				LastName:   "attorney-lastname",
-				Address: shared.Address{
-					Line1:   "attorney-line1",
-					Country: "GB",
-				},
+			},
+			Address: shared.Address{
+				Line1:   "attorney-line1",
+				Country: "GB",
 			},
 			DateOfBirth:               makeDate("2020-02-03"),
 			ContactLanguagePreference: shared.LangEn,
@@ -57,10 +57,10 @@ var (
 				UID:        "e9751c0a-0504-4ec6-942e-b85fddbbd178",
 				FirstNames: "certificate-provider-firstname",
 				LastName:   "certificate-provider-lastname",
-				Address: shared.Address{
-					Line1:   "certificate-provider-line1",
-					Country: "GB",
-				},
+			},
+			Address: shared.Address{
+				Line1:   "certificate-provider-line1",
+				Country: "GB",
 			},
 			Channel:                   shared.ChannelOnline,
 			Email:                     "certificate-provider-email",

@@ -16,14 +16,14 @@ func (a Address) IsZero() bool {
 }
 
 type Person struct {
-	UID        string  `json:"uid"`
-	FirstNames string  `json:"firstNames"`
-	LastName   string  `json:"lastName"`
-	Address    Address `json:"address"`
+	UID        string `json:"uid"`
+	FirstNames string `json:"firstNames"`
+	LastName   string `json:"lastName"`
 }
 
 type Donor struct {
 	Person
+	Address                   Address        `json:"address"`
 	DateOfBirth               Date           `json:"dateOfBirth"`
 	Email                     string         `json:"email"`
 	OtherNamesKnownBy         string         `json:"otherNamesKnownBy,omitempty"`
@@ -33,6 +33,7 @@ type Donor struct {
 
 type CertificateProvider struct {
 	Person
+	Address                   Address        `json:"address"`
 	Email                     string         `json:"email"`
 	Phone                     string         `json:"phone"`
 	Channel                   Channel        `json:"channel"`
@@ -66,6 +67,7 @@ func (a AttorneyStatus) IsValid() bool {
 
 type Attorney struct {
 	Person
+	Address                   Address        `json:"address"`
 	DateOfBirth               Date           `json:"dateOfBirth"`
 	Email                     string         `json:"email,omitempty"`
 	Status                    AttorneyStatus `json:"status"`
@@ -100,6 +102,17 @@ func (s Signatory) IsZero() bool {
 }
 
 type PersonToNotify struct {
+	Person
+	Address Address `json:"address"`
+}
+
+type IndependentWitness struct {
+	Person
+	Phone   string  `json:"phone"`
+	Address Address `json:"address"`
+}
+
+type AuthorisedSignatory struct {
 	Person
 }
 
