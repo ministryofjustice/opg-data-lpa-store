@@ -66,7 +66,7 @@ resource "aws_api_gateway_stage" "current" {
       "\"caller\":\"$context.identity.caller\",",
       "\"user\":\"$context.identity.user\",",
       "\"requestTime\":\"$context.requestTime\",",
-      "\"httpMethod\":\"$context.httpMethod\"",
+      "\"httpMethod\":\"$context.httpMethod\",",
       "\"resourcePath\":\"$context.resourcePath\",",
       "\"status\":\"$context.status\",",
       "\"protocol\":\"$context.protocol\",",
