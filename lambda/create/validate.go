@@ -35,6 +35,20 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.Required("/certificateProvider/phone", lpa.CertificateProvider.Phone),
 		validateAttorneys("/attorneys", lpa.Attorneys),
 		validateTrustCorporations("/trustCorporations", lpa.TrustCorporations),
+		validate.IfFunc(lpa.AuthorisedSignatory != nil, func() []shared.FieldError {
+			return validate.All(
+				validate.Required("/authorisedSignatory/uid", lpa.AuthorisedSignatory.UID),
+				validate.Required("/authorisedSignatory/firstNames", lpa.AuthorisedSignatory.FirstNames),
+				validate.Required("/authorisedSignatory/lastName", lpa.AuthorisedSignatory.LastName))
+		}),
+		validate.IfFunc(lpa.IndependentWitness != nil, func() []shared.FieldError {
+			return validate.All(
+				validate.Required("/independentWitness/uid", lpa.IndependentWitness.UID),
+				validate.Required("/independentWitness/firstNames", lpa.IndependentWitness.FirstNames),
+				validate.Required("/independentWitness/lastName", lpa.IndependentWitness.LastName),
+				validate.Required("/independentWitness/phone", lpa.IndependentWitness.Phone),
+				validate.Address("/independentWitness/address", lpa.IndependentWitness.Address))
+		}),
 		validate.IfElse(activeAttorneyCount > 1,
 			validate.IsValid("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions),
 			validate.Unset("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions)),
