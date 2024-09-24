@@ -93,14 +93,14 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					CertificateProvider: shared.CertificateProvider{
-						Person: shared.Person{Address: shared.Address{
+						Address: shared.Address{
 							Line1:    "Line 1",
 							Line2:    "Line 2",
 							Line3:    "Line 3",
 							Town:     "Town",
 							Postcode: "ABC 123",
 							Country:  "GB",
-						}},
+						},
 						SignedAt:                  &yesterday,
 						ContactLanguagePreference: shared.LangEn,
 						Email:                     "a@example.com",
