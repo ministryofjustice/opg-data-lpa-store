@@ -104,6 +104,38 @@
         "$ref": "#/$defs/PersonToNotify"
       }
     },
+    "independentWitness": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Person"
+        }
+      ],
+      "properties": {
+        "phone": {
+          "type": "string",
+          "x-faker": "phone.number"
+        }
+      },
+      "required": ["phone"]
+    },
+    "authorisedSignatory": {
+      "type": "object",
+      "required": ["uid", "firstNames", "lastName"],
+      "properties": {
+        "uid": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "firstNames": {
+          "type": "string",
+          "x-faker": "name.firstName"
+        },
+        "lastName": {
+          "type": "string",
+          "x-faker": "name.lastName"
+        }
+      }
+    },
     "howAttorneysMakeDecisions": {
       "type": "string",
       "enum": [
@@ -142,6 +174,10 @@
       "enum": ["option-a", "option-b"]
     },
     "signedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "certificateProviderNotRelatedConfirmedAt": {
       "type": "string",
       "format": "date-time"
     }
