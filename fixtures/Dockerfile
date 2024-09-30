@@ -12,6 +12,8 @@ WORKDIR /app
 
 COPY fixtures/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
+#patch packages with issues
+RUN apk upgrade --no-cache libexpat
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
