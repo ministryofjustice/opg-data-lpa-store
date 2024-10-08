@@ -89,10 +89,11 @@ func makeLpaWithDonorAndActors() shared.LpaInit {
 			ContactLanguagePreference: shared.LangEn,
 			DateOfBirth:               newDate("1956-08-08"),
 		},
-		CertificateProvider: makeCertificateProvider(),
-		Attorneys:           []shared.Attorney{makeAttorney()},
-		SignedAt:            time.Now(),
-		WhenTheLpaCanBeUsed: shared.CanUseWhenHasCapacity,
+		CertificateProvider:              makeCertificateProvider(),
+		Attorneys:                        []shared.Attorney{makeAttorney()},
+		SignedAt:                         time.Now(),
+		WitnessedByCertificateProviderAt: time.Now(),
+		WhenTheLpaCanBeUsed:              shared.CanUseWhenHasCapacity,
 	}
 }
 
@@ -212,6 +213,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/certificateProvider/phone", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
 				{Source: "/signedAt", Detail: "field is required"},
+				// {Source: "/witnessedByCertificateProviderAt", Detail: "field is required"},
 			},
 		},
 		"online certificate provider missing email": {
