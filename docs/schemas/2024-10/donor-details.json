@@ -177,6 +177,14 @@
       "type": "string",
       "format": "date-time"
     },
+    "witnessedByCertificateProviderAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "witnessedByIndependentWitnessAt": {
+      "type": "string",
+      "format": "date-time"
+    },
     "certificateProviderNotRelatedConfirmedAt": {
       "type": "string",
       "format": "date-time"
