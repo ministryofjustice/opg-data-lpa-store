@@ -25,6 +25,8 @@ type LpaInit struct {
 	RestrictionsAndConditions                   string                  `json:"restrictionsAndConditions,omitempty"`
 	RestrictionsAndConditionsImages             []FileUpload            `json:"restrictionsAndConditionsImages,omitempty"`
 	SignedAt                                    time.Time               `json:"signedAt"`
+	WitnessedByCertificateProviderAt            time.Time               `json:"witnessedByCertificateProviderAt"`
+	WitnessedByIndependentWitnessAt             *time.Time              `json:"witnessedByIndependentWitnessAt,omitempty"`
 	CertificateProviderNotRelatedConfirmedAt    *time.Time              `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
 }
 

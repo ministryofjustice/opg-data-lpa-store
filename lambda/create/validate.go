@@ -73,6 +73,8 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 			validate.IsValid("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed),
 			validate.Unset("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption))),
 		validate.Time("/signedAt", lpa.SignedAt),
+		// validate.Time("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt),
+		// validate.OptionalTime("/witnessedByIndependentWitnessAt", lpa.WitnessedByIndependentWitnessAt),
 		validate.OptionalTime("/certificateProviderNotRelatedConfirmedAt", lpa.CertificateProviderNotRelatedConfirmedAt),
 	)
 }
