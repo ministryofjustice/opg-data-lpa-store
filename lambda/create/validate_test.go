@@ -213,7 +213,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/certificateProvider/phone", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
 				{Source: "/signedAt", Detail: "field is required"},
-				// {Source: "/witnessedByCertificateProviderAt", Detail: "field is required"},
+				{Source: "/witnessedByCertificateProviderAt", Detail: "field is required"},
 			},
 		},
 		"online certificate provider missing email": {
