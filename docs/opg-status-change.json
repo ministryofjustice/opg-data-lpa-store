@@ -1,0 +1,10 @@
+{
+    "type": "OPG_STATUS_CHANGE",
+    "changes": [
+        {
+            "key": "/status",
+            "new": "cannot-register",
+            "old": "in-progress"
+        }
+    ]
+}

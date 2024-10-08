@@ -163,6 +163,13 @@ func oldEqualsExisting(old any, existing any) bool {
 
 		return shared.IdentityCheckType(old.(string)) == *v
 
+	case *shared.LpaStatus:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.LpaStatus(old.(string)) == *v
+
 	case *string:
 		if old == nil {
 			return *v == ""
