@@ -67,8 +67,9 @@ var (
 			Phone:                     "0777777777",
 			ContactLanguagePreference: shared.LangEn,
 		},
-		WhenTheLpaCanBeUsed: shared.CanUseWhenHasCapacity,
-		SignedAt:            testNow,
+		WhenTheLpaCanBeUsed:              shared.CanUseWhenHasCapacity,
+		SignedAt:                         testNow,
+		WitnessedByCertificateProviderAt: testNow,
 	}
 )
 
