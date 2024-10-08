@@ -9,7 +9,8 @@
     "donor",
     "attorneys",
     "certificateProvider",
-    "signedAt"
+    "signedAt",
+    "witnessedByCertificateProviderAt"
   ],
   "properties": {
     "lpaType": {
