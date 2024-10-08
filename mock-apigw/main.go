@@ -184,6 +184,7 @@ func handlePactState(r *http.Request) error {
 			},
 			"lifeSustainingTreatmentOption": "option-a",
 			"signedAt": "2000-01-02T12:13:14Z",
+			"witnessedByCertificateProviderAt": "2000-01-02T13:13:14Z",
 			"howAttorneysMakeDecisions": "jointly"
 		}`
 
