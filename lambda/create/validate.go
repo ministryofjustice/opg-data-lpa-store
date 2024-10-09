@@ -47,7 +47,8 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 				validate.Required("/independentWitness/firstNames", lpa.IndependentWitness.FirstNames),
 				validate.Required("/independentWitness/lastName", lpa.IndependentWitness.LastName),
 				validate.Required("/independentWitness/phone", lpa.IndependentWitness.Phone),
-				validate.Address("/independentWitness/address", lpa.IndependentWitness.Address))
+				validate.Address("/independentWitness/address", lpa.IndependentWitness.Address),
+				validate.Time("/witnessedByIndependentWitnessAt", lpa.WitnessedByIndependentWitnessAt))
 		}),
 		validate.IfElse(activeAttorneyCount > 1,
 			validate.IsValid("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions),
@@ -73,8 +74,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 			validate.IsValid("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed),
 			validate.Unset("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption))),
 		validate.Time("/signedAt", lpa.SignedAt),
-		// validate.Time("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt),
-		// validate.OptionalTime("/witnessedByIndependentWitnessAt", lpa.WitnessedByIndependentWitnessAt),
+		validate.Time("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt),
 		validate.OptionalTime("/certificateProviderNotRelatedConfirmedAt", lpa.CertificateProviderNotRelatedConfirmedAt),
 	)
 }

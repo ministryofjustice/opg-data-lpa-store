@@ -213,7 +213,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 				{Source: "/certificateProvider/phone", Detail: "field is required"},
 				{Source: "/attorneys", Detail: "at least one attorney is required"},
 				{Source: "/signedAt", Detail: "field is required"},
-				// {Source: "/witnessedByCertificateProviderAt", Detail: "field is required"},
+				{Source: "/witnessedByCertificateProviderAt", Detail: "field is required"},
 			},
 		},
 		"online certificate provider missing email": {
@@ -494,6 +494,24 @@ func TestValidateLpaInvalid(t *testing.T) {
 			expectedErrors: []shared.FieldError{
 				{Source: "/donor/identityCheck/checkedAt", Detail: "field is required"},
 				{Source: "/donor/identityCheck/type", Detail: "invalid value"},
+			},
+		},
+		"independent witness missing witnessed at": {
+			lpa: func() shared.LpaInit {
+				lpa := makeLpaWithDonorAndActors()
+				lpa.IndependentWitness = &shared.IndependentWitness{
+					Person: shared.Person{
+						UID:        "b99af83d-5b6c-44f7-8c03-14004699bdb9",
+						FirstNames: "Some",
+						LastName:   "Person",
+					},
+					Address: validAddress,
+					Phone:   "077777",
+				}
+				return lpa
+			},
+			expectedErrors: []shared.FieldError{
+				{Source: "/witnessedByIndependentWitnessAt", Detail: "field is required"},
 			},
 		},
 	}
