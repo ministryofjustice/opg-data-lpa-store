@@ -75,8 +75,15 @@ func Date(source string, date shared.Date) []shared.FieldError {
 	return nil
 }
 
-func Time(source string, t time.Time) []shared.FieldError {
-	return If(t.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
+func Time(source string, t interface{ IsZero() bool }) []shared.FieldError {
+	switch v := t.(type) {
+	case time.Time:
+		return If(v.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
+	case *time.Time:
+		return If(v == nil || v.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
+	default:
+		panic("Time must only be called with time.Time or *time.Time")
+	}
 }
 
 func OptionalTime(source string, t *time.Time) []shared.FieldError {
