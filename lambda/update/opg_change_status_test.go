@@ -29,7 +29,7 @@ func TestOpgChangeStatusInvalidNewStatus(t *testing.T) {
 	}
 
 	errors := c.Apply(lpa)
-	assert.Equal(t, errors, []shared.FieldError{{Source: "/type", Detail: "Status to be updated should be cannot register"}})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register"}})
 }
 
 func TestOpgChangeStatusIncorrectExistingStatus(t *testing.T) {
@@ -41,7 +41,7 @@ func TestOpgChangeStatusIncorrectExistingStatus(t *testing.T) {
 	}
 
 	errors := c.Apply(lpa)
-	assert.Equal(t, errors, []shared.FieldError{{Source: "/type", Detail: "Lpa status cannot be registered"}})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be registered"}})
 }
 
 func TestValidateUpdateOPGChangeStatus(t *testing.T) {
