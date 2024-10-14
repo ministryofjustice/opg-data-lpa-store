@@ -100,6 +100,7 @@ export class JsonSchemaEditor {
     const value = JSON.parse(this.$module.value);
 
     const data = jsonSchema.getTemplate(value);
+    this.nullEmptyDates(data);
     this.$module.value = JSON.stringify(data);
 
     this.$formContainer.innerHTML = "";
@@ -109,6 +110,19 @@ export class JsonSchemaEditor {
     const $inputs = this.$formContainer.querySelectorAll("input,select");
     $inputs.forEach(($input) => {
       $input.value = jsonGet(value, $input.getAttribute("name")) ?? "";
+    });
+  }
+
+  nullEmptyDates(data) {
+    [
+      "/signedAt",
+      "/witnessedByCertificateProviderAt",
+      "/witnessedByIndependentWitnessAt",
+      "/certificateProviderNotRelatedConfirmedAt",
+    ].forEach((datePointer) => {
+      if (jsonGet(data, datePointer) === "") {
+        jsonSet(data, datePointer, null);
+      }
     });
   }
 
