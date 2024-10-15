@@ -3,18 +3,23 @@ variable "application_subnet_ids" {
   type        = list(string)
 }
 
-variable "environment_name" {
-  description = "The name of the environment the fixtures container is deployed to"
-  type        = string
-}
-
 variable "cloudwatch_kms_key_id" {
   description = "KMS key used to encrypt CloudWatch logs"
   type        = string
 }
 
+variable "container_port" {
+  description = "Port exposed by container"
+  type        = number
+}
+
 variable "ecr_image_uri" {
   description = "The URI of the image the container should use"
+  type        = string
+}
+
+variable "environment_name" {
+  description = "The name of the environment the fixtures container is deployed to"
   type        = string
 }
 
