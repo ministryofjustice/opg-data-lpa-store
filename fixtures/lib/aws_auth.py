@@ -13,13 +13,13 @@ class AwsAuth:
             self.session = boto3_session
 
     def get_headers(self, service = "execute-api", **request_config):
-        sigV4A = crt.auth.CrtS3SigV4AsymAuth(
+        sig_v4a = crt.auth.CrtS3SigV4AsymAuth(
             self.session.get_credentials(),
             service,
             os.environ.get("AWS_REGION", "eu-west-1"),
         )
         aws_req = awsrequest.AWSRequest(**request_config)
-        sigV4A.add_auth(aws_req)
+        sig_v4a.add_auth(aws_req)
         prepped = aws_req.prepare()
 
         return prepped.headers
