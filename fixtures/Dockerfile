@@ -24,9 +24,9 @@ COPY fixtures/static static
 COPY fixtures/templates templates
 COPY docs/schemas static/schemas
 
-EXPOSE 80
+EXPOSE 8080
 
 RUN addgroup -S app && adduser -S -g app app
 USER app
 
-CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "80"]
+CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
