@@ -11,7 +11,7 @@ COPY ./internal /app/internal
 ARG DIR
 COPY ./lambda/$DIR /app/lambda/$DIR
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main ./lambda/$DIR
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main "./lambda/$DIR"
 
 FROM alpine:3
 
