@@ -19,7 +19,7 @@ resource "aws_ecs_service" "fixtures" {
   load_balancer {
     target_group_arn = aws_lb_target_group.fixtures.arn
     container_name   = "fixtures"
-    container_port   = 80
+    container_port   = 8080
   }
 
   network_configuration {
@@ -60,8 +60,8 @@ locals {
       name                   = "fixtures",
       portMappings = [
         {
-          containerPort = 80,
-          hostPort      = 80,
+          containerPort = 8080,
+          hostPort      = 8080,
           protocol      = "tcp"
         }
       ],
