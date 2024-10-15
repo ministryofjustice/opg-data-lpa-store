@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 FROM python:3-alpine3.17
 
@@ -25,5 +25,8 @@ COPY fixtures/templates templates
 COPY docs/schemas static/schemas
 
 EXPOSE 80
+
+RUN addgroup -S app && adduser -S -g app app
+USER app
 
 CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "80"]

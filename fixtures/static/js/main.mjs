@@ -10,6 +10,6 @@ export function initAll() {
   Object.entries(initiators).forEach(([name, Component]) => {
     const $elements = document.querySelectorAll(`[data-module="${name}"]`);
 
-    $elements.forEach(($element) => new Component($element));
+    $elements.forEach(($element) => Component.create($element));
   });
 }
