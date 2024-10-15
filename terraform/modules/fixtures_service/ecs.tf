@@ -60,7 +60,7 @@ locals {
       name                   = "fixtures",
       portMappings = [
         {
-          containerPort = 80,
+          containerPort = 8080,
           hostPort      = 80,
           protocol      = "tcp"
         }

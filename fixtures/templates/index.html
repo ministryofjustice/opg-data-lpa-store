@@ -63,6 +63,8 @@
         {% endif %} {% endif %}
 
         <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
           <div class="govuk-form-group">
             <label class="govuk-label govuk-label--m" for="f-uid">UID</label>
             <input
@@ -100,7 +102,11 @@
       </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/json-schema-library@9.3.4/dist/jsonSchemaLibrary.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/json-schema-library@9.3.4/dist/jsonSchemaLibrary.min.js"
+      integrity="sha384-RePbUf/gtYzyS1nEErY0oNbL9zMtjU3TXf4Dj4FBEmhclyRv8pPvibkBEMUpd/c3"
+      crossorigin="anonymous"
+    ></script>
     <script type="module">
       import { initAll as govukInitAll } from "./assets/govuk-frontend.min.js";
       import { initAll as appInitAll } from "./assets/js/main.mjs";
