@@ -4,6 +4,7 @@ module "fixtures" {
 
   application_subnet_ids = data.aws_subnets.application.ids
   cloudwatch_kms_key_id  = aws_kms_key.cloudwatch.arn
+  container_port         = 8080
   ecr_image_uri          = "${data.aws_ecr_repository.fixtures[0].repository_url}:${var.app_version}"
   environment_name       = var.environment_name
   public_subnet_ids      = data.aws_subnets.public.ids
