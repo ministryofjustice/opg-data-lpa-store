@@ -6,14 +6,12 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3-alpine3.17
+FROM python:3-alpine3.19
 
 WORKDIR /app
 
 COPY fixtures/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-#patch packages with issues
-RUN apk upgrade --no-cache libexpat
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib

@@ -27,8 +27,6 @@ export class UidGenerator {
 
       $parent.insertBefore($container, $module);
       $container.appendChild($module);
-
-      $parent = $container;
     }
 
     const $btn = document.createElement("button");
