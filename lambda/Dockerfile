@@ -19,4 +19,7 @@ RUN apk upgrade libssl3 libcrypto3
 
 COPY --from=build-env /go/bin/main /var/task/main
 
+RUN addgroup -S app && adduser -S -g app app
+USER app
+
 ENTRYPOINT [ "/var/task/main" ]

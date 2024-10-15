@@ -52,4 +52,11 @@ export class UidGenerator {
       `M-` +
       [value.slice(0, 4), value.slice(4, 8), value.slice(8, 12)].join("-");
   }
+
+  /**
+   * @param {Element} $module
+   */
+  static async create($module) {
+    return new UidGenerator($module);
+  }
 }

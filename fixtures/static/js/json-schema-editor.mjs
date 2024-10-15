@@ -36,8 +36,6 @@ export class JsonSchemaEditor {
     }
 
     this.$module = $module;
-
-    this.init();
   }
 
   async init() {
@@ -318,5 +316,15 @@ export class JsonSchemaEditor {
     new GovukTabs($container);
 
     return $container;
+  }
+
+  /**
+   * @param {Element} $module
+   */
+  static async create($module) {
+    const $editor = new JsonSchemaEditor($module);
+    $editor.init();
+
+    return $editor;
   }
 }
