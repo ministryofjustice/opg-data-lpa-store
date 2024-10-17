@@ -58,4 +58,9 @@ const (
 	LpaStatusRegistered             = LpaStatus("registered")
 	LpaStatusCannotRegister         = LpaStatus("cannot-register")
 	LpaStatusWithdrawn              = LpaStatus("withdrawn")
+	LpaStatusCancelled              = LpaStatus("cancelled")
 )
+
+func (l LpaStatus) IsValid() bool {
+	return l == LpaStatusInProgress || l == LpaStatusStatutoryWaitingPeriod || l == LpaStatusRegistered || l == LpaStatusCannotRegister || l == LpaStatusWithdrawn || l == LpaStatusCancelled
+}
