@@ -20,7 +20,7 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateStatutoryWaitingPeriod(update.Changes)
 	case "REGISTER":
 		return validateRegister(update.Changes)
-	case "OPG_CHANGE_STATUS":
+	case "OPG_STATUS_CHANGE":
 		return validateOpgChangeStatus(update.Changes, lpa)
 	case "TRUST_CORPORATION_SIGN":
 		return validateTrustCorporationSign(update.Changes, lpa)

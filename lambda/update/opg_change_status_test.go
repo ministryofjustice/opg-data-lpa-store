@@ -52,7 +52,7 @@ func TestValidateUpdateOPGChangeStatus(t *testing.T) {
 	}{
 		"valid - with previous values": {
 			update: shared.Update{
-				Type: "OPG_CHANGE_STATUS",
+				Type: "OPG_STATUS_CHANGE",
 				Changes: []shared.Change{
 					{
 						Key: "/status",
@@ -67,7 +67,7 @@ func TestValidateUpdateOPGChangeStatus(t *testing.T) {
 		},
 		"invalid status": {
 			update: shared.Update{
-				Type: "OPG_CHANGE_STATUS",
+				Type: "OPG_STATUS_CHANGE",
 				Changes: []shared.Change{
 					{
 						Key: "/status",
