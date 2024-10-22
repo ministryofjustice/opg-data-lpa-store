@@ -48,4 +48,4 @@ awslocal dynamodb create-table \
 # Secrets Manager
 awslocal secretsmanager create-secret --name local/jwt-key \
     --description "JWT secret for service authentication" \
-    --secret-string "secret"
+    --secret-string "mysupersecrettestkeythatis128bits"

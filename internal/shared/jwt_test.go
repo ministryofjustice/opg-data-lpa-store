@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var secretKey = []byte("secret")
+var secretKey = []byte("mysupersecrettestkeythatis128bits")
 
 var verifier = JWTVerifier{
 	secretKey: secretKey,
