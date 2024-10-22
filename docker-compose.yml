@@ -146,11 +146,11 @@ services:
       context: .
       dockerfile: ./fixtures/Dockerfile
     ports:
-      - "5000:80"
+      - "5000:8080"
     environment:
       - SKIP_AUTH=1
       - BASE_URL=http://apigw:8080
-      - JWT_SECRET_KEY=secret
+      - JWT_SECRET_KEY=mysupersecrettestkeythatis128bits
     volumes:
       - ./fixtures/static/js:/app/static/js
       - ./docs/schemas:/app/static/schemas

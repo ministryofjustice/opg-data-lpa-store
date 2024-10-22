@@ -1,5 +1,5 @@
 SHELL = '/bin/bash'
-export JWT_SECRET_KEY ?= secret
+export JWT_SECRET_KEY ?= mysupersecrettestkeythatis128bits
 
 help:
 	@grep --no-filename -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -17,7 +17,7 @@ test: ## Unit tests
 	go test ./... -race -covermode=atomic -coverprofile=coverage.out
 
 test-api: URL ?= http://localhost:9000
-# test-api: export JWT_SECRET_KEY ?= secret
+# test-api: export JWT_SECRET_KEY ?= mysupersecrettestkeythatis128bits
 test-api:
 	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
@@ -77,7 +77,7 @@ test-api:
 .PHONY: test-api
 
 test-pact:
-	$(eval JWT := "$(shell JWT_SECRET_KEY=secret ./api-test/tester JWT)")
+	$(eval JWT := "$(shell JWT_SECRET_KEY=mysupersecrettestkeythatis128bits ./api-test/tester JWT)")
 
 	docker compose run --rm pact-verifier \
       --header="X-Jwt-Authorization=Bearer $(JWT)" \
