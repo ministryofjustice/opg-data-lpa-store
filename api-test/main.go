@@ -22,9 +22,9 @@ import (
 
 // ./api-test/tester UID -> generate a UID
 // ./api-test/tester JWT -> generate a JWT
-// JWT_SECRET_KEY=secret ./api-test/tester -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
+// JWT_SECRET_KEY=mysupersecrettestkeythatis128bits ./api-test/tester -expectedStatus=200 REQUEST <METHOD> <URL> <REQUEST BODY>
 //
-//	-> make a test request with a JWT generated using secret "secret" and expected status 200
+//	-> make a test request with a JWT generated using secret "mysupersecrettestkeythatis128bits" and expected status 200
 //
 // note that the jwtSecret sends a boilerplate JWT for now with valid iat, exp, iss and sub fields
 func main() {
