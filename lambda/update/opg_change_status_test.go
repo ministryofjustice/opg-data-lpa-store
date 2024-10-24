@@ -7,12 +7,25 @@ import (
 	"testing"
 )
 
-func TestOpgChangeStatusApply(t *testing.T) {
+func TestOpgChangeStatusToCannotRegisterApply(t *testing.T) {
 	lpa := &shared.Lpa{
 		Status: shared.LpaStatusInProgress,
 	}
 	c := OpgChangeStatus{
 		Status: shared.LpaStatusCannotRegister,
+	}
+
+	errors := c.Apply(lpa)
+	assert.Empty(t, errors)
+	assert.Equal(t, c.Status, lpa.Status)
+}
+
+func TestOpgChangeStatusToCancelledApply(t *testing.T) {
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusRegistered,
+	}
+	c := OpgChangeStatus{
+		Status: shared.LpaStatusCancelled,
 	}
 
 	errors := c.Apply(lpa)
@@ -29,10 +42,10 @@ func TestOpgChangeStatusInvalidNewStatus(t *testing.T) {
 	}
 
 	errors := c.Apply(lpa)
-	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register"}})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register or cancelled"}})
 }
 
-func TestOpgChangeStatusIncorrectExistingStatus(t *testing.T) {
+func TestOpgChangeStatusToCannotRegisterIncorrectExistingStatus(t *testing.T) {
 	lpa := &shared.Lpa{
 		Status: shared.LpaStatusRegistered,
 	}
@@ -41,7 +54,19 @@ func TestOpgChangeStatusIncorrectExistingStatus(t *testing.T) {
 	}
 
 	errors := c.Apply(lpa)
-	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be registered"}})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be registered while changing to cannot register"}})
+}
+
+func TestOpgChangeStatusToCancelledIncorrectExistingStatus(t *testing.T) {
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusInProgress,
+	}
+	c := OpgChangeStatus{
+		Status: shared.LpaStatusCancelled,
+	}
+
+	errors := c.Apply(lpa)
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be registered while changing to cancelled"}})
 }
 
 func TestValidateUpdateOPGChangeStatus(t *testing.T) {
