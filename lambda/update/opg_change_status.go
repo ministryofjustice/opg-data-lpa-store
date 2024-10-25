@@ -12,16 +12,20 @@ type OpgChangeStatus struct {
 
 func (r OpgChangeStatus) Apply(lpa *shared.Lpa) []shared.FieldError {
 
-	if r.Status != shared.LpaStatusCannotRegister {
-		return []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register"}}
+	if r.Status != shared.LpaStatusCannotRegister && r.Status != shared.LpaStatusCancelled {
+		return []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register or cancelled"}}
 	}
 
-	if lpa.Status == shared.LpaStatusRegistered {
-		return []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be registered"}}
+	if r.Status == shared.LpaStatusCannotRegister && lpa.Status == shared.LpaStatusRegistered {
+		return []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be registered while changing to cannot register"}}
 	}
 
-	if lpa.Status == shared.LpaStatusCancelled {
-		return []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be cancelled"}}
+	if r.Status == shared.LpaStatusCannotRegister && lpa.Status == shared.LpaStatusCancelled {
+		return []shared.FieldError{{Source: "/status", Detail: "Lpa status cannot be cancelled while changing to cannot register"}}
+	}
+
+	if r.Status == shared.LpaStatusCancelled && lpa.Status != shared.LpaStatusRegistered {
+		return []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be registered while changing to cancelled"}}
 	}
 
 	lpa.Status = r.Status
