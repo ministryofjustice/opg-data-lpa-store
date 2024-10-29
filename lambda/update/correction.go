@@ -44,30 +44,30 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	errors := parse.Changes(changes).
 		Prefix("/donor/address", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Field("/line1", &data.DonorAddress.Line1).
+				Field("/line1", &data.DonorAddress.Line1, parse.Optional()).
 				Field("/line2", &data.DonorAddress.Line2, parse.Optional()).
 				Field("/line3", &data.DonorAddress.Line3, parse.Optional()).
-				Field("/town", &data.DonorAddress.Town).
+				Field("/town", &data.DonorAddress.Town, parse.Optional()).
 				Field("/postcode", &data.DonorAddress.Postcode, parse.Optional()).
 				Field("/country", &data.DonorAddress.Country, parse.Validate(func() []shared.FieldError {
 					return validate.Country("", data.DonorAddress.Country)
-				})).
+				}), parse.Optional()).
 				Consumed()
 		}, parse.Optional()).
 		Field("/donor/firstNames", &data.DonorFirstNames, parse.Validate(func() []shared.FieldError {
 			return validate.Required("", data.DonorFirstNames)
-		})).
+		}), parse.Optional()).
 		Field("/donor/lastName", &data.DonorLastName, parse.Validate(func() []shared.FieldError {
 			return validate.Required("", data.DonorLastName)
-		})).
+		}), parse.Optional()).
 		Field("/donor/otherNamesKnownBy", &data.DonorOtherNames, parse.Optional()).
 		Field("/donor/email", &data.DonorEmail, parse.Optional()).
 		Field("/donor/dateOfBirth", &data.DonorDob, parse.Validate(func() []shared.FieldError {
 			return validate.Date("", data.DonorDob)
-		})).
+		}), parse.Optional()).
 		Field("/signedAt", &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
 			return validate.Time("", data.LPASignedAt)
-		})).
+		}), parse.Optional()).
 		Consumed()
 
 	return data, errors
