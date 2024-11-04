@@ -1,15 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:recommended"],
   "branchPrefix": "renovate-",
   "branchNameStrict": true,
   "commitMessageAction": "Renovate Update",
-  "labels": [
-    "Dependencies",
-    "Renovate"
-  ],
+  "labels": ["Dependencies", "Renovate"],
   "packageRules": [
     {
       "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
@@ -22,21 +17,16 @@
       "automerge": true,
       "groupName": "Patch & Minor Updates",
       "groupSlug": "all-minor-patch-updates",
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
+      "matchUpdateTypes": ["minor", "patch"],
       "schedule": "* 0-6 1 * *",
-      "stabilityDays": 3,
-      "prPriority": 4
+      "minimumReleaseAge": "3 days",
+      "prPriority": 4,
+      "matchPackageNames": ["*"]
     }
   ],
   "major": {
     "automerge": false,
-    "stabilityDays": 3
+    "minimumReleaseAge": "3 days"
   },
   "vulnerabilityAlerts": {
     "groupName": "Security Alerts",
