@@ -12,8 +12,8 @@ type OpgChangeStatus struct {
 
 func (r OpgChangeStatus) Apply(lpa *shared.Lpa) []shared.FieldError {
 
-	if r.Status != shared.LpaStatusCannotRegister && r.Status != shared.LpaStatusCancelled {
-		return []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register or cancelled"}}
+	if r.Status != shared.LpaStatusCannotRegister && r.Status != shared.LpaStatusCancelled && r.Status != shared.LpaStatusDoNotRegister {
+		return []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register, cancelled or do not register"}}
 	}
 
 	if r.Status == shared.LpaStatusCannotRegister && lpa.Status == shared.LpaStatusRegistered {
@@ -26,6 +26,10 @@ func (r OpgChangeStatus) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 	if r.Status == shared.LpaStatusCancelled && lpa.Status != shared.LpaStatusRegistered {
 		return []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be registered while changing to cancelled"}}
+	}
+
+	if r.Status == shared.LpaStatusDoNotRegister && lpa.Status != shared.LpaStatusStatutoryWaitingPeriod {
+		return []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be statutory waiting period while changing to do not register"}}
 	}
 
 	lpa.Status = r.Status

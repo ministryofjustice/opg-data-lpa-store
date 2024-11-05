@@ -33,6 +33,19 @@ func TestOpgChangeStatusToCancelledApply(t *testing.T) {
 	assert.Equal(t, c.Status, lpa.Status)
 }
 
+func TestOpgChangeStatusToDoNotRegisterApply(t *testing.T) {
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusStatutoryWaitingPeriod,
+	}
+	c := OpgChangeStatus{
+		Status: shared.LpaStatusDoNotRegister,
+	}
+
+	errors := c.Apply(lpa)
+	assert.Empty(t, errors)
+	assert.Equal(t, c.Status, lpa.Status)
+}
+
 func TestOpgChangeStatusInvalidNewStatus(t *testing.T) {
 	lpa := &shared.Lpa{
 		Status: shared.LpaStatusInProgress,
@@ -42,7 +55,7 @@ func TestOpgChangeStatusInvalidNewStatus(t *testing.T) {
 	}
 
 	errors := c.Apply(lpa)
-	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register or cancelled"}})
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Status to be updated should be cannot register, cancelled or do not register"}})
 }
 
 func TestOpgChangeStatusToCannotRegisterIncorrectExistingStatus(t *testing.T) {
@@ -67,6 +80,18 @@ func TestOpgChangeStatusToCancelledIncorrectExistingStatus(t *testing.T) {
 
 	errors := c.Apply(lpa)
 	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be registered while changing to cancelled"}})
+}
+
+func TestOpgChangeStatusToDoNotRegisterIncorrectExistingStatus(t *testing.T) {
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusInProgress,
+	}
+	c := OpgChangeStatus{
+		Status: shared.LpaStatusDoNotRegister,
+	}
+
+	errors := c.Apply(lpa)
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/status", Detail: "Lpa status has to be statutory waiting period while changing to do not register"}})
 }
 
 func TestValidateUpdateOPGChangeStatus(t *testing.T) {
