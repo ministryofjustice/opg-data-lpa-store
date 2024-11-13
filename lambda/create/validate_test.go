@@ -105,9 +105,9 @@ func TestCountAttorneys(t *testing.T) {
 	assert.Equal(t, 0, replacements)
 
 	actives, replacements = countAttorneys([]shared.Attorney{
-		{Status: shared.AttorneyStatusReplacement},
-		{Status: shared.AttorneyStatusActive},
-		{Status: shared.AttorneyStatusReplacement},
+		{AppointmentType: shared.AppointmentTypeReplacement},
+		{AppointmentType: shared.AppointmentTypeOriginal},
+		{AppointmentType: shared.AppointmentTypeReplacement},
 	}, []shared.TrustCorporation{
 		{Status: shared.AttorneyStatusReplacement},
 		{Status: shared.AttorneyStatusActive},
@@ -124,6 +124,7 @@ func TestValidateAttorneyEmpty(t *testing.T) {
 		{Source: "/test/firstNames", Detail: "field is required"},
 		{Source: "/test/lastName", Detail: "field is required"},
 		{Source: "/test/status", Detail: "field is required"},
+		{Source: "/test/appointmentType", Detail: "field is required"},
 		{Source: "/test/address/line1", Detail: "field is required"},
 		{Source: "/test/address/country", Detail: "field is required"},
 		{Source: "/test/address/country", Detail: "must be a valid ISO-3166-1 country code"},
