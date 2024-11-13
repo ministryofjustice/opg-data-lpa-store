@@ -26,6 +26,7 @@
       },
       "dateOfBirth": "1982-07-24",
       "status": "active",
+      "appointmentType": "original",
       "channel": "paper"
     }
   ],
