@@ -43,6 +43,14 @@
           "signedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "replacement", "removed"]
+          },
+          "appointmentType": {
+            "type": "string",
+            "enum": ["original", "replacement"]
           }
         }
       }

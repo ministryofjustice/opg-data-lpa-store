@@ -148,6 +148,7 @@ func handlePactState(r *http.Request) error {
 					"lastName": "Vallar",
 					"dateOfBirth": "2001-01-17",
 					"status": "active",
+					"appointmentType": "original",
 					"address": {
 						"line1": "71 South Western Terrace",
 						"town": "Milton",
