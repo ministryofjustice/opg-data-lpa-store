@@ -134,6 +134,19 @@ func TestFieldOldChannel(t *testing.T) {
 	assert.Equal(t, shared.ChannelOnline, v)
 }
 
+func TestFieldOldDate(t *testing.T) {
+	oldDate, newDate := shared.Date{}, shared.Date{}
+	_ = oldDate.UnmarshalText([]byte("2000-11-10"))
+	_ = newDate.UnmarshalText([]byte("1990-01-02"))
+
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"1990-01-02"`), Old: json.RawMessage(`"2000-11-10"`)},
+	}
+
+	Changes(changes).Field("/thing", &oldDate)
+	assert.Equal(t, &newDate, &oldDate)
+}
+
 func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 	testcases := map[string]json.RawMessage{
 		"string": json.RawMessage(`"not same as existing"`),
