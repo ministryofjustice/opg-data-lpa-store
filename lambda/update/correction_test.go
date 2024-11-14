@@ -66,6 +66,24 @@ func TestCorrectionApply(t *testing.T) {
 	assert.Equal(t, correction.LPASignedAt, lpa.SignedAt)
 }
 
+func TestCorrectionLpaSignedOnlineChannel(t *testing.T) {
+	now := time.Now()
+	yesterday := now.Add(-24 * time.Hour)
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Channel:  "online",
+			SignedAt: yesterday,
+		},
+	}
+
+	correction := Correction{
+		LPASignedAt: now,
+	}
+	errors := correction.Apply(lpa)
+
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}})
+}
+
 func TestValidateCorrection(t *testing.T) {
 	now := time.Now()
 

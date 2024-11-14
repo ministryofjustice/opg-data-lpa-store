@@ -18,6 +18,9 @@ type Correction struct {
 }
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if !c.LPASignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
+		return []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}}
+	}
 
 	lpa.Donor.FirstNames = c.DonorFirstNames
 	lpa.Donor.LastName = c.DonorLastName
