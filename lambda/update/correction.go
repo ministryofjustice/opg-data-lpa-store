@@ -22,6 +22,10 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
+	if lpa.Status == shared.LpaStatusRegistered {
+		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
+	}
+
 	lpa.Donor.FirstNames = c.DonorFirstNames
 	lpa.Donor.LastName = c.DonorLastName
 	lpa.Donor.OtherNamesKnownBy = c.DonorOtherNames

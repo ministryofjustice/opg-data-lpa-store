@@ -66,6 +66,27 @@ func TestCorrectionApply(t *testing.T) {
 	assert.Equal(t, correction.LPASignedAt, lpa.SignedAt)
 }
 
+func TestCorrectionRegisteredLpa(t *testing.T) {
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusRegistered,
+		LpaInit: shared.LpaInit{
+			Channel: "paper",
+			Donor: shared.Donor{
+				Person: shared.Person{
+					FirstNames: "donor-firstname",
+				},
+			},
+		},
+	}
+
+	correction := Correction{
+		DonorFirstNames: "Jane",
+	}
+	errors := correction.Apply(lpa)
+
+	assert.Equal(t, errors, []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}})
+}
+
 func TestCorrectionLpaSignedOnlineChannel(t *testing.T) {
 	now := time.Now()
 	yesterday := now.Add(-24 * time.Hour)
