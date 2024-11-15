@@ -26,11 +26,12 @@ func makeAttorney() shared.Attorney {
 			FirstNames: "Sharonda",
 			LastName:   "Graciani",
 		},
-		Address:     validAddress,
-		Email:       "some@example.com",
-		Channel:     shared.ChannelOnline,
-		DateOfBirth: newDate("1977-10-30"),
-		Status:      shared.AttorneyStatusActive,
+		Address:         validAddress,
+		AppointmentType: shared.AppointmentTypeOriginal,
+		Email:           "some@example.com",
+		Channel:         shared.ChannelOnline,
+		DateOfBirth:     newDate("1977-10-30"),
+		Status:          shared.AttorneyStatusActive,
 	}
 }
 
@@ -41,11 +42,12 @@ func makeReplacementAttorney() shared.Attorney {
 			FirstNames: "Sharonda",
 			LastName:   "Graciani",
 		},
-		Address:     validAddress,
-		Email:       "some@example.com",
-		Channel:     shared.ChannelOnline,
-		DateOfBirth: newDate("1977-10-30"),
-		Status:      shared.AttorneyStatusReplacement,
+		Address:         validAddress,
+		AppointmentType: shared.AppointmentTypeReplacement,
+		Email:           "some@example.com",
+		Channel:         shared.ChannelOnline,
+		DateOfBirth:     newDate("1977-10-30"),
+		Status:          shared.AttorneyStatusReplacement,
 	}
 }
 
