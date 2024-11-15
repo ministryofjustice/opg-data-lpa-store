@@ -57,24 +57,37 @@ type AttorneyStatus string
 
 const (
 	AttorneyStatusActive      = AttorneyStatus("active")
+	AttorneyStatusInactive    = AttorneyStatus("inactive")
 	AttorneyStatusReplacement = AttorneyStatus("replacement")
 	AttorneyStatusRemoved     = AttorneyStatus("removed")
 )
 
 func (a AttorneyStatus) IsValid() bool {
-	return a == AttorneyStatusActive || a == AttorneyStatusReplacement || a == AttorneyStatusRemoved
+	return a == AttorneyStatusActive || a == AttorneyStatusReplacement || a == AttorneyStatusRemoved || a == AttorneyStatusInactive
+}
+
+type AppointmentType string
+
+const (
+	AppointmentTypeOriginal    = AppointmentType("original")
+	AppointmentTypeReplacement = AppointmentType("replacement")
+)
+
+func (a AppointmentType) IsValid() bool {
+	return true
 }
 
 type Attorney struct {
 	Person
-	Address                   Address        `json:"address"`
-	DateOfBirth               Date           `json:"dateOfBirth"`
-	Email                     string         `json:"email,omitempty"`
-	Status                    AttorneyStatus `json:"status"`
-	Mobile                    string         `json:"mobile,omitempty"`
-	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
-	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
-	Channel                   Channel        `json:"channel"`
+	Address                   Address         `json:"address"`
+	DateOfBirth               Date            `json:"dateOfBirth"`
+	Email                     string          `json:"email,omitempty"`
+	Status                    AttorneyStatus  `json:"status"`
+	AppointmentType           AppointmentType `json:"appointmentType"`
+	Mobile                    string          `json:"mobile,omitempty"`
+	SignedAt                  *time.Time      `json:"signedAt,omitempty"`
+	ContactLanguagePreference Lang            `json:"contactLanguagePreference,omitempty"`
+	Channel                   Channel         `json:"channel"`
 }
 
 type TrustCorporation struct {
