@@ -81,10 +81,10 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 
 func countAttorneys(as []shared.Attorney, ts []shared.TrustCorporation) (actives, replacements int) {
 	for _, a := range as {
-		switch a.AppointmentType {
-		case shared.AppointmentTypeOriginal:
+		switch a.Status {
+		case shared.AttorneyStatusActive:
 			actives++
-		case shared.AppointmentTypeReplacement:
+		case shared.AttorneyStatusReplacement:
 			replacements++
 		}
 	}

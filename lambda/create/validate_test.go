@@ -105,9 +105,9 @@ func TestCountAttorneys(t *testing.T) {
 	assert.Equal(t, 0, replacements)
 
 	actives, replacements = countAttorneys([]shared.Attorney{
-		{AppointmentType: shared.AppointmentTypeReplacement},
-		{AppointmentType: shared.AppointmentTypeOriginal},
-		{AppointmentType: shared.AppointmentTypeReplacement},
+		{Status: shared.AttorneyStatusReplacement},
+		{Status: shared.AttorneyStatusActive},
+		{Status: shared.AttorneyStatusReplacement},
 	}, []shared.TrustCorporation{
 		{Status: shared.AttorneyStatusReplacement},
 		{Status: shared.AttorneyStatusActive},
