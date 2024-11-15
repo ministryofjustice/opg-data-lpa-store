@@ -170,6 +170,14 @@ func oldEqualsExisting(old any, existing any) bool {
 
 		return shared.LpaStatus(old.(string)) == *v
 
+	case *shared.Date:
+		if old == nil {
+			return v.IsZero()
+		}
+		oldDate := &shared.Date{}
+		_ = oldDate.UnmarshalText([]byte(old.(string)))
+		return *oldDate == *v
+
 	case *string:
 		if old == nil {
 			return *v == ""
