@@ -125,7 +125,6 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validate.Date(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
 		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
-		validate.IsValid(fmt.Sprintf("%s/appointmentType", prefix), attorney.AppointmentType),
 		validate.IsValid(fmt.Sprintf("%s/channel", prefix), attorney.Channel),
 		validate.IfElse(attorney.Channel == shared.ChannelOnline,
 			validate.Required(fmt.Sprintf("%s/email", prefix), attorney.Email),

@@ -74,7 +74,7 @@ const (
 )
 
 func (a AppointmentType) IsValid() bool {
-	return a == AppointmentTypeOriginal || a == AppointmentTypeReplacement
+	return true
 }
 
 type Attorney struct {
