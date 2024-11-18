@@ -47,6 +47,7 @@ var (
 				Line1:   "attorney-line1",
 				Country: "GB",
 			},
+			AppointmentType:           shared.AppointmentTypeOriginal,
 			DateOfBirth:               makeDate("2020-02-03"),
 			ContactLanguagePreference: shared.LangEn,
 			Status:                    shared.AttorneyStatusActive,
