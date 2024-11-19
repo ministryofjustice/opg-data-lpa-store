@@ -60,6 +60,10 @@
       "items": {
         "type": "object",
         "properties": {
+          "appointmentType": {
+            "type": "string",
+            "enum": ["original", "replacement"]
+          },
           "signedAt": {
             "type": "string",
             "format": "date-time"
