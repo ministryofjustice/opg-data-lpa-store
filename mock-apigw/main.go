@@ -167,6 +167,7 @@ func handlePactState(r *http.Request) error {
 						"town": "Town",
 						"country": "GB"
 					},
+					"appointmentType": "original",
 					"status": "active",
 					"channel": "paper"
 				}
