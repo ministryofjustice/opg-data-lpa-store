@@ -41,6 +41,7 @@
         "country": "GB"
       },
       "status": "active",
+      "appointmentType": "original",
       "channel": "paper"
     }
   ],
