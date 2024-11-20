@@ -91,16 +91,17 @@ type Attorney struct {
 }
 
 type TrustCorporation struct {
-	UID                       string         `json:"uid"`
-	Name                      string         `json:"name"`
-	CompanyNumber             string         `json:"companyNumber"`
-	Email                     string         `json:"email,omitempty"`
-	Address                   Address        `json:"address"`
-	Status                    AttorneyStatus `json:"status"`
-	Mobile                    string         `json:"mobile,omitempty"`
-	Signatories               []Signatory    `json:"signatories,omitempty"`
-	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
-	Channel                   Channel        `json:"channel"`
+	UID                       string          `json:"uid"`
+	Name                      string          `json:"name"`
+	CompanyNumber             string          `json:"companyNumber"`
+	Email                     string          `json:"email,omitempty"`
+	AppointmentType           AppointmentType `json:"appointmentType"`
+	Address                   Address         `json:"address"`
+	Status                    AttorneyStatus  `json:"status"`
+	Mobile                    string          `json:"mobile,omitempty"`
+	Signatories               []Signatory     `json:"signatories,omitempty"`
+	ContactLanguagePreference Lang            `json:"contactLanguagePreference,omitempty"`
+	Channel                   Channel         `json:"channel"`
 }
 
 type Signatory struct {

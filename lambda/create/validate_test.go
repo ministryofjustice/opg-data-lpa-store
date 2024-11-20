@@ -67,13 +67,14 @@ func makeCertificateProvider() shared.CertificateProvider {
 
 func makeTrustCorporation() shared.TrustCorporation {
 	return shared.TrustCorporation{
-		UID:           "af2f7aa6-2f8e-4311-af2a-4855c4686d30",
-		Name:          "corp",
-		CompanyNumber: "5",
-		Email:         "corp@example.com",
-		Address:       validAddress,
-		Status:        shared.AttorneyStatusActive,
-		Channel:       shared.ChannelOnline,
+		UID:             "af2f7aa6-2f8e-4311-af2a-4855c4686d30",
+		Name:            "corp",
+		CompanyNumber:   "5",
+		Email:           "corp@example.com",
+		Address:         validAddress,
+		AppointmentType: shared.AppointmentTypeOriginal,
+		Status:          shared.AttorneyStatusActive,
+		Channel:         shared.ChannelOnline,
 	}
 }
 
