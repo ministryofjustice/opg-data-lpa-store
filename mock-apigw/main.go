@@ -168,6 +168,7 @@ func handlePactState(r *http.Request) error {
 						"country": "GB"
 					},
 					"status": "active",
+					"appointmentType": "original",
 					"channel": "paper"
 				}
 			],
