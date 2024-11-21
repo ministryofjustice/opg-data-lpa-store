@@ -106,12 +106,12 @@ func TestCountAttorneys(t *testing.T) {
 	assert.Equal(t, 0, replacements)
 
 	actives, replacements = countAttorneys([]shared.Attorney{
-		{Status: shared.AttorneyStatusReplacement},
-		{Status: shared.AttorneyStatusActive},
-		{Status: shared.AttorneyStatusReplacement},
+		{AppointmentType: shared.AppointmentTypeReplacement},
+		{AppointmentType: shared.AppointmentTypeOriginal},
+		{AppointmentType: shared.AppointmentTypeReplacement},
 	}, []shared.TrustCorporation{
-		{Status: shared.AttorneyStatusReplacement},
-		{Status: shared.AttorneyStatusActive},
+		{AppointmentType: shared.AppointmentTypeReplacement},
+		{AppointmentType: shared.AppointmentTypeOriginal},
 	})
 	assert.Equal(t, 2, actives)
 	assert.Equal(t, 3, replacements)
@@ -124,6 +124,7 @@ func TestValidateAttorneyEmpty(t *testing.T) {
 		{Source: "/test/uid", Detail: "field is required"},
 		{Source: "/test/firstNames", Detail: "field is required"},
 		{Source: "/test/lastName", Detail: "field is required"},
+		{Source: "/test/appointmentType", Detail: "field is required"},
 		{Source: "/test/status", Detail: "field is required"},
 		{Source: "/test/address/line1", Detail: "field is required"},
 		{Source: "/test/address/country", Detail: "field is required"},
@@ -165,6 +166,7 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 		{Source: "/test/uid", Detail: "field is required"},
 		{Source: "/test/name", Detail: "field is required"},
 		{Source: "/test/companyNumber", Detail: "field is required"},
+		{Source: "/test/appointmentType", Detail: "field is required"},
 		{Source: "/test/status", Detail: "field is required"},
 		{Source: "/test/address/line1", Detail: "field is required"},
 		{Source: "/test/address/country", Detail: "field is required"},

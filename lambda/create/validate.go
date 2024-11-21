@@ -81,19 +81,19 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 
 func countAttorneys(as []shared.Attorney, ts []shared.TrustCorporation) (actives, replacements int) {
 	for _, a := range as {
-		switch a.Status {
-		case shared.AttorneyStatusActive:
+		switch a.AppointmentType {
+		case shared.AppointmentTypeOriginal:
 			actives++
-		case shared.AttorneyStatusReplacement:
+		case shared.AppointmentTypeReplacement:
 			replacements++
 		}
 	}
 
 	for _, t := range ts {
-		switch t.Status {
-		case shared.AttorneyStatusActive:
+		switch t.AppointmentType {
+		case shared.AppointmentTypeOriginal:
 			actives++
-		case shared.AttorneyStatusReplacement:
+		case shared.AppointmentTypeReplacement:
 			replacements++
 		}
 	}
@@ -126,6 +126,7 @@ func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldErr
 		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
 		validate.IsValid(fmt.Sprintf("%s/channel", prefix), attorney.Channel),
+		validate.IsValid(fmt.Sprintf("%s/appointmentType", prefix), attorney.AppointmentType),
 		validate.IfElse(attorney.Channel == shared.ChannelOnline,
 			validate.Required(fmt.Sprintf("%s/email", prefix), attorney.Email),
 			validate.Empty(fmt.Sprintf("%s/email", prefix), attorney.Email)),
@@ -152,6 +153,7 @@ func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorpor
 		validate.Address(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
 		validate.IsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
 		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
+		validate.IsValid(fmt.Sprintf("%s/appointmentType", prefix), trustCorporation.AppointmentType),
 		validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
 			validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
 			validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
