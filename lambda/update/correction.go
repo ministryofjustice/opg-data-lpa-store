@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
+	"strconv"
 	"time"
 )
 
@@ -29,6 +29,11 @@ type Correction struct {
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if !c.LPASignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
 		return []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}}
+	}
+
+	if c.Index != nil && lpa.Attorneys[*c.Index].SignedAt != nil && !lpa.Attorneys[*c.Index].SignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
+		source := "/attorney/" + strconv.Itoa(*c.Index) + "/signedAt"
+		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
 
 	if lpa.Status == shared.LpaStatusRegistered {
@@ -102,8 +107,6 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					}
 
 					data.Index = &i
-					fmt.Println(data.Index)
-					fmt.Println(lpa.Attorneys[i].LastName)
 					data.AttorneyFirstNames = lpa.Attorneys[i].FirstNames
 					data.AttorneyLastName = lpa.Attorneys[i].LastName
 					data.AttorneyDob = lpa.Attorneys[i].DateOfBirth
