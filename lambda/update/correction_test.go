@@ -35,7 +35,8 @@ func TestCorrectionApply(t *testing.T) {
 				},
 				Email: "john.doe@example.com",
 			},
-			SignedAt: yesterday,
+			SignedAt:  yesterday,
+			Attorneys: []shared.Attorney{},
 		},
 	}
 
@@ -113,7 +114,7 @@ func TestValidateCorrection(t *testing.T) {
 		lpa     *shared.Lpa
 		errors  []shared.FieldError
 	}{
-		"valid update": {
+		"valid donor update": {
 			changes: []shared.Change{
 				{Key: "/donor/firstNames", New: json.RawMessage(`"Jane"`), Old: jsonNull},
 				{Key: "/donor/lastName", New: json.RawMessage(`"Doe"`), Old: jsonNull},
@@ -125,6 +126,27 @@ func TestValidateCorrection(t *testing.T) {
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					Donor: shared.Donor{},
+				},
+			},
+		},
+		"valid attorney update": {
+			changes: []shared.Change{
+				{Key: "/attorneys/0/firstNames", New: json.RawMessage(`"Jane"`), Old: jsonNull},
+				{Key: "/attorneys/0/lastName", New: json.RawMessage(`"Doe"`), Old: jsonNull},
+				{Key: "/attorneys/0/dateOfBirth", New: json.RawMessage(`"2000-01-01"`), Old: jsonNull},
+				{Key: "/attorneys/0/email", New: json.RawMessage(`"test@test.com"`), Old: jsonNull},
+				{Key: "/attorneys/0/mobile", New: json.RawMessage(`"123456789"`), Old: jsonNull},
+				{Key: "/attorneys/0/address/line1", New: json.RawMessage(`"123 Main St"`), Old: jsonNull},
+				{Key: "/attorneys/0/address/town", New: json.RawMessage(`"City"`), Old: jsonNull},
+				{Key: "/attorneys/0/address/country", New: json.RawMessage(`"GB"`), Old: jsonNull},
+				{Key: "/attorneys/0/signedAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Donor: shared.Donor{},
+					Attorneys: []shared.Attorney{
+						shared.Attorney{},
+					},
 				},
 			},
 		},
