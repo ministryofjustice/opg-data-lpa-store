@@ -188,6 +188,7 @@ func TestCorrectionAttorneySignedAtChannel(t *testing.T) {
 
 func TestValidateCorrection(t *testing.T) {
 	now := time.Now()
+	const fieldRequired = "field is required"
 
 	testcases := map[string]struct {
 		changes []shared.Change
@@ -267,10 +268,10 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: "field is required"},
-				{Source: "/changes/1/new", Detail: "field is required"},
-				{Source: "/changes/2/new", Detail: "field is required"},
-				{Source: "/changes/3/new", Detail: "field is required"},
+				{Source: "/changes/0/new", Detail: fieldRequired},
+				{Source: "/changes/1/new", Detail: fieldRequired},
+				{Source: "/changes/2/new", Detail: fieldRequired},
+				{Source: "/changes/3/new", Detail: fieldRequired},
 			},
 		},
 		"invalid country": {

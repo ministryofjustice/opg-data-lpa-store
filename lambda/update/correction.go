@@ -26,13 +26,15 @@ type Correction struct {
 	AttorneySignedAt   time.Time
 }
 
+const signedAt = "/signedAt"
+
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if !c.LPASignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
-		return []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}}
+		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
 	if c.Index != nil && lpa.Attorneys[*c.Index].SignedAt != nil && !lpa.Attorneys[*c.Index].SignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
-		source := "/attorney/" + strconv.Itoa(*c.Index) + "/signedAt"
+		source := "/attorney/" + strconv.Itoa(*c.Index) + signedAt
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
 
@@ -96,7 +98,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 		Field("/donor/dateOfBirth", &data.DonorDob, parse.Validate(func() []shared.FieldError {
 			return validate.Date("", data.DonorDob)
 		}), parse.Optional()).
-		Field("/signedAt", &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
+		Field(signedAt, &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
 			return validate.Time("", data.LPASignedAt)
 		}), parse.Optional()).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
@@ -142,7 +144,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 								}), parse.Optional()).
 								Consumed()
 						}, parse.Optional()).
-						Field("/signedAt", &data.AttorneySignedAt, parse.Validate(func() []shared.FieldError {
+						Field(signedAt, &data.AttorneySignedAt, parse.Validate(func() []shared.FieldError {
 							return validate.Time("", data.AttorneySignedAt)
 						}), parse.Optional()).
 						Consumed()
