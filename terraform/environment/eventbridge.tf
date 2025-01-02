@@ -107,9 +107,9 @@ data "aws_iam_policy_document" "deadletter_queue" {
 }
 
 module "eventbridge_cross_account_target" {
-  for_each              = toset(local.environment.target_event_buses)
+  for_each              = tomap(local.environment.target_event_buses)
   source                = "../modules/eventbridge_cross_account_target"
-  name_suffix           = "${local.environment_name}-sirius"
+  name_suffix           = "${local.environment_name}-${each.key}"
   rule                  = aws_cloudwatch_event_rule.source_events_to_sirius
   dead_letter_queue_arn = aws_sqs_queue.event_dlq.arn
   target_event_bus_arn  = each.value

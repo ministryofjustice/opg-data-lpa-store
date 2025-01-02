@@ -32,7 +32,7 @@ variable "environments" {
       has_fixtures          = bool
       allowed_arns          = list(string)
       allowed_wildcard_arns = optional(list(string), [])
-      target_event_buses    = list(string)
+      target_event_buses    = map(string)
     })
   )
 }
