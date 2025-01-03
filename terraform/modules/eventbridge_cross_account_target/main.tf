@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_event_target" "cross_account_event_bus" {
-  target_id      = "cross-account-put-${var.name_suffix}"
+  target_id      = "cross-put-${var.name_suffix}"
   event_bus_name = var.rule.event_bus_name
   rule           = var.rule.name
   arn            = var.target_event_bus_arn
@@ -11,12 +11,12 @@ resource "aws_cloudwatch_event_target" "cross_account_event_bus" {
 }
 
 resource "aws_iam_role" "cross_account_put" {
-  name               = "cross-account-put-${var.name_suffix}"
+  name               = "cross-put-${var.name_suffix}"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_role_policy" "cross_account_put" {
-  name   = "cross-account-put-${var.name_suffix}"
+  name   = "cross-put-${var.name_suffix}"
   policy = data.aws_iam_policy_document.cross_account_put_access.json
   role   = aws_iam_role.cross_account_put.id
 }
