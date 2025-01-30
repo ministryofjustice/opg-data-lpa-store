@@ -10,6 +10,7 @@ resource "aws_secretsmanager_secret" "jwt_key" {
   provider = aws.management_eu_west_1
 }
 
+
 data "aws_iam_policy_document" "jwt_key_cross_account_access" {
   statement {
     effect = "Allow"
