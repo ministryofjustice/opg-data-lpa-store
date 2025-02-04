@@ -56,14 +56,13 @@ func (e Channel) IsValid() bool {
 type AttorneyStatus string
 
 const (
-	AttorneyStatusActive      = AttorneyStatus("active")
-	AttorneyStatusInactive    = AttorneyStatus("inactive")
-	AttorneyStatusReplacement = AttorneyStatus("replacement")
-	AttorneyStatusRemoved     = AttorneyStatus("removed")
+	AttorneyStatusActive   = AttorneyStatus("active")
+	AttorneyStatusInactive = AttorneyStatus("inactive")
+	AttorneyStatusRemoved  = AttorneyStatus("removed")
 )
 
 func (a AttorneyStatus) IsValid() bool {
-	return a == AttorneyStatusActive || a == AttorneyStatusReplacement || a == AttorneyStatusRemoved || a == AttorneyStatusInactive
+	return a == AttorneyStatusActive || a == AttorneyStatusRemoved || a == AttorneyStatusInactive
 }
 
 type AppointmentType string

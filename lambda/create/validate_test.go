@@ -47,7 +47,7 @@ func makeReplacementAttorney() shared.Attorney {
 		Email:           "some@example.com",
 		Channel:         shared.ChannelOnline,
 		DateOfBirth:     newDate("1977-10-30"),
-		Status:          shared.AttorneyStatusReplacement,
+		Status:          shared.AttorneyStatusInactive,
 	}
 }
 
@@ -106,12 +106,27 @@ func TestCountAttorneys(t *testing.T) {
 	assert.Equal(t, 0, replacements)
 
 	actives, replacements = countAttorneys([]shared.Attorney{
-		{AppointmentType: shared.AppointmentTypeReplacement},
-		{AppointmentType: shared.AppointmentTypeOriginal},
-		{AppointmentType: shared.AppointmentTypeReplacement},
+		{
+			Status:          shared.AttorneyStatusInactive,
+			AppointmentType: shared.AppointmentTypeReplacement,
+		},
+		{
+			Status:          shared.AttorneyStatusActive,
+			AppointmentType: shared.AppointmentTypeOriginal,
+		},
+		{
+			Status:          shared.AttorneyStatusInactive,
+			AppointmentType: shared.AppointmentTypeReplacement,
+		},
 	}, []shared.TrustCorporation{
-		{AppointmentType: shared.AppointmentTypeReplacement},
-		{AppointmentType: shared.AppointmentTypeOriginal},
+		{
+			Status:          shared.AttorneyStatusInactive,
+			AppointmentType: shared.AppointmentTypeReplacement,
+		},
+		{
+			Status:          shared.AttorneyStatusActive,
+			AppointmentType: shared.AppointmentTypeOriginal,
+		},
 	})
 	assert.Equal(t, 2, actives)
 	assert.Equal(t, 3, replacements)
