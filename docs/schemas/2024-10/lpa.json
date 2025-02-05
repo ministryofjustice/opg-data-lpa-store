@@ -46,7 +46,7 @@
           },
           "status": {
             "type": "string",
-            "enum": ["active", "inactive", "replacement", "removed"]
+            "enum": ["active", "inactive", "removed"]
           },
           "appointmentType": {
             "type": "string",
