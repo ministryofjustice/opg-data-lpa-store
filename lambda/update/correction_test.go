@@ -41,29 +41,31 @@ func TestDonorCorrectionApply(t *testing.T) {
 	}
 
 	correction := Correction{
-		DonorFirstNames: "Jane",
-		DonorLastName:   "Smith",
-		DonorOtherNames: "Janey",
-		DonorDob:        createDate("2000-11-11"),
-		DonorAddress: shared.Address{
-			Line1:    "456 Another St",
-			Town:     "Othertown",
-			Postcode: "B22 A11",
-			Country:  "IE",
+		Donor: DonorCorrection{
+			FirstNames:        "Jane",
+			LastName:          "Smith",
+			OtherNamesKnownBy: "Janey",
+			DateOfBirth:       createDate("2000-11-11"),
+			Address: shared.Address{
+				Line1:    "456 Another St",
+				Town:     "Othertown",
+				Postcode: "B22 A11",
+				Country:  "IE",
+			},
+			Email: "jane.smith@example.com",
 		},
-		DonorEmail:  "jane.smith@example.com",
 		LPASignedAt: now,
 	}
 
 	errors := correction.Apply(lpa)
 
 	assert.Empty(t, errors)
-	assert.Equal(t, correction.DonorFirstNames, lpa.Donor.FirstNames)
-	assert.Equal(t, correction.DonorLastName, lpa.Donor.LastName)
-	assert.Equal(t, correction.DonorOtherNames, lpa.Donor.OtherNamesKnownBy)
-	assert.Equal(t, correction.DonorDob, lpa.Donor.DateOfBirth)
-	assert.Equal(t, correction.DonorAddress, lpa.Donor.Address)
-	assert.Equal(t, correction.DonorEmail, lpa.Donor.Email)
+	assert.Equal(t, correction.Donor.FirstNames, lpa.Donor.FirstNames)
+	assert.Equal(t, correction.Donor.LastName, lpa.Donor.LastName)
+	assert.Equal(t, correction.Donor.OtherNamesKnownBy, lpa.Donor.OtherNamesKnownBy)
+	assert.Equal(t, correction.Donor.DateOfBirth, lpa.Donor.DateOfBirth)
+	assert.Equal(t, correction.Donor.Address, lpa.Donor.Address)
+	assert.Equal(t, correction.Donor.Email, lpa.Donor.Email)
 	assert.Equal(t, correction.LPASignedAt, lpa.SignedAt)
 }
 
@@ -96,31 +98,33 @@ func TestAttorneyCorrectionApply(t *testing.T) {
 
 	index := 1
 	correction := Correction{
-		Index:              &index,
-		AttorneyFirstNames: "Jane",
-		AttorneyLastName:   "Smith",
-		AttorneyDob:        createDate("2000-11-11"),
-		AttorneyAddress: shared.Address{
-			Line1:    "456 Another St",
-			Town:     "Othertown",
-			Postcode: "B22 A11",
-			Country:  "GB",
+		Attorney: AttorneyCorrection{
+			Index:      &index,
+			FirstNames: "Jane",
+			LastName:   "Smith",
+			Dob:        createDate("2000-11-11"),
+			Address: shared.Address{
+				Line1:    "456 Another St",
+				Town:     "Othertown",
+				Postcode: "B22 A11",
+				Country:  "GB",
+			},
+			Email:    "jane.smith@example.com",
+			Mobile:   "987654321",
+			SignedAt: now,
 		},
-		AttorneyEmail:    "jane.smith@example.com",
-		AttorneyMobile:   "987654321",
-		AttorneySignedAt: now,
 	}
 
 	errors := correction.Apply(lpa)
 
 	assert.Empty(t, errors)
-	assert.Equal(t, correction.AttorneyFirstNames, lpa.Attorneys[index].FirstNames)
-	assert.Equal(t, correction.AttorneyLastName, lpa.Attorneys[index].LastName)
-	assert.Equal(t, correction.AttorneyDob, lpa.Attorneys[index].DateOfBirth)
-	assert.Equal(t, correction.AttorneyAddress, lpa.Attorneys[index].Address)
-	assert.Equal(t, correction.AttorneyEmail, lpa.Attorneys[index].Email)
-	assert.Equal(t, correction.AttorneyMobile, lpa.Attorneys[index].Mobile)
-	assert.Equal(t, correction.AttorneySignedAt, *lpa.Attorneys[index].SignedAt)
+	assert.Equal(t, correction.Attorney.FirstNames, lpa.Attorneys[index].FirstNames)
+	assert.Equal(t, correction.Attorney.LastName, lpa.Attorneys[index].LastName)
+	assert.Equal(t, correction.Attorney.Dob, lpa.Attorneys[index].DateOfBirth)
+	assert.Equal(t, correction.Attorney.Address, lpa.Attorneys[index].Address)
+	assert.Equal(t, correction.Attorney.Email, lpa.Attorneys[index].Email)
+	assert.Equal(t, correction.Attorney.Mobile, lpa.Attorneys[index].Mobile)
+	assert.Equal(t, correction.Attorney.SignedAt, *lpa.Attorneys[index].SignedAt)
 }
 
 func TestCorrectionRegisteredLpa(t *testing.T) {
@@ -137,7 +141,9 @@ func TestCorrectionRegisteredLpa(t *testing.T) {
 	}
 
 	correction := Correction{
-		DonorFirstNames: "Jane",
+		Donor: DonorCorrection{
+			FirstNames: "Jane",
+		},
 	}
 	errors := correction.Apply(lpa)
 
@@ -178,8 +184,10 @@ func TestCorrectionAttorneySignedAtChannel(t *testing.T) {
 
 	index := 0
 	correction := Correction{
-		Index:            &index,
-		AttorneySignedAt: now,
+		Attorney: AttorneyCorrection{
+			Index:    &index,
+			SignedAt: now,
+		},
 	}
 	errors := correction.Apply(lpa)
 

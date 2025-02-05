@@ -9,16 +9,9 @@ import (
 )
 
 type Correction struct {
-	LPASignedAt        time.Time
-	Index              *int
-	AttorneyFirstNames string
-	AttorneyLastName   string
-	AttorneyDob        shared.Date
-	AttorneyAddress    shared.Address
-	AttorneyEmail      string
-	AttorneyMobile     string
-	AttorneySignedAt   time.Time
-	Donor              DonorCorrection
+	Donor       DonorCorrection
+	Attorney    AttorneyCorrection
+	LPASignedAt time.Time
 }
 
 type DonorCorrection struct {
@@ -30,6 +23,17 @@ type DonorCorrection struct {
 	Email             string
 }
 
+type AttorneyCorrection struct {
+	Index      *int
+	FirstNames string
+	LastName   string
+	Dob        shared.Date
+	Address    shared.Address
+	Email      string
+	Mobile     string
+	SignedAt   time.Time
+}
+
 const signedAt = "/signedAt"
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
@@ -37,8 +41,8 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
-	if c.Index != nil && lpa.Attorneys[*c.Index].SignedAt != nil && !lpa.Attorneys[*c.Index].SignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
-		source := "/attorney/" + strconv.Itoa(*c.Index) + signedAt
+	if c.Attorney.Index != nil && lpa.Attorneys[*c.Attorney.Index].SignedAt != nil && !lpa.Attorneys[*c.Attorney.Index].SignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
+		source := "/attorney/" + strconv.Itoa(*c.Attorney.Index) + signedAt
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
 	if lpa.Status == shared.LpaStatusRegistered {
@@ -53,14 +57,14 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.Donor.Email = c.Donor.Email
 	lpa.SignedAt = c.LPASignedAt
 
-	if c.Index != nil {
-		lpa.Attorneys[*c.Index].FirstNames = c.AttorneyFirstNames
-		lpa.Attorneys[*c.Index].LastName = c.AttorneyLastName
-		lpa.Attorneys[*c.Index].DateOfBirth = c.AttorneyDob
-		lpa.Attorneys[*c.Index].Address = c.AttorneyAddress
-		lpa.Attorneys[*c.Index].Email = c.AttorneyEmail
-		lpa.Attorneys[*c.Index].Mobile = c.AttorneyMobile
-		lpa.Attorneys[*c.Index].SignedAt = &c.AttorneySignedAt
+	if c.Attorney.Index != nil {
+		lpa.Attorneys[*c.Attorney.Index].FirstNames = c.Attorney.FirstNames
+		lpa.Attorneys[*c.Attorney.Index].LastName = c.Attorney.LastName
+		lpa.Attorneys[*c.Attorney.Index].DateOfBirth = c.Attorney.Dob
+		lpa.Attorneys[*c.Attorney.Index].Address = c.Attorney.Address
+		lpa.Attorneys[*c.Attorney.Index].Email = c.Attorney.Email
+		lpa.Attorneys[*c.Attorney.Index].Mobile = c.Attorney.Mobile
+		lpa.Attorneys[*c.Attorney.Index].SignedAt = &c.Attorney.SignedAt
 	}
 
 	return nil
@@ -85,45 +89,49 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					if data.Index != nil && *data.Index != i {
+					if data.Attorney.Index != nil && *data.Attorney.Index != i {
 						return p.OutOfRange()
 					}
 
-					data.Index = &i
-					data.AttorneyFirstNames = lpa.Attorneys[i].FirstNames
-					data.AttorneyLastName = lpa.Attorneys[i].LastName
-					data.AttorneyDob = lpa.Attorneys[i].DateOfBirth
-					data.AttorneyAddress = lpa.Attorneys[i].Address
-					data.AttorneyEmail = lpa.Attorneys[i].Email
-					data.AttorneyMobile = lpa.Attorneys[i].Mobile
+					data.Attorney.Index = &i
+					data.Attorney.FirstNames = lpa.Attorneys[i].FirstNames
+					data.Attorney.LastName = lpa.Attorneys[i].LastName
+					data.Attorney.Dob = lpa.Attorneys[i].DateOfBirth
+					data.Attorney.Address = lpa.Attorneys[i].Address
+					data.Attorney.Email = lpa.Attorneys[i].Email
+					data.Attorney.Mobile = lpa.Attorneys[i].Mobile
 
 					if lpa.Attorneys[i].SignedAt != nil {
-						data.AttorneySignedAt = *lpa.Attorneys[i].SignedAt
+						data.Attorney.SignedAt = *lpa.Attorneys[i].SignedAt
 					}
 
-					return p.
-						Field("/firstNames", &data.AttorneyFirstNames, parse.Validate(func() []shared.FieldError {
-							return validate.Required("", data.AttorneyFirstNames)
-						}), parse.Optional()).
-						Field("/lastName", &data.AttorneyLastName, parse.Validate(func() []shared.FieldError {
-							return validate.Required("", data.AttorneyLastName)
-						}), parse.Optional()).
-						Field("/dateOfBirth", &data.AttorneyDob, parse.Validate(func() []shared.FieldError {
-							return validate.Date("", data.AttorneyDob)
-						}), parse.Optional()).
-						Field("/email", &data.AttorneyEmail, parse.Optional()).
-						Field("/mobile", &data.AttorneyMobile, parse.Optional()).
-						Prefix("/address", validateAddress(&data.AttorneyAddress), parse.Optional()).
-						Field(signedAt, &data.AttorneySignedAt, parse.Validate(func() []shared.FieldError {
-							return validate.Time("", data.AttorneySignedAt)
-						}), parse.Optional()).
-						Consumed()
+					return validateAttorney(&data.Attorney, p)
 				}).
 				Consumed()
 		}, parse.Optional()).
 		Consumed()
 
 	return data, errors
+}
+
+func validateAttorney(attorney *AttorneyCorrection, p *parse.Parser) []shared.FieldError {
+	return p.
+		Field("/firstNames", &attorney.FirstNames, parse.Validate(func() []shared.FieldError {
+			return validate.Required("", attorney.FirstNames)
+		}), parse.Optional()).
+		Field("/lastName", &attorney.LastName, parse.Validate(func() []shared.FieldError {
+			return validate.Required("", attorney.LastName)
+		}), parse.Optional()).
+		Field("/dateOfBirth", &attorney.Dob, parse.Validate(func() []shared.FieldError {
+			return validate.Date("", attorney.Dob)
+		}), parse.Optional()).
+		Field("/email", &attorney.Email, parse.Optional()).
+		Field("/mobile", &attorney.Mobile, parse.Optional()).
+		Prefix("/address", validateAddress(&attorney.Address), parse.Optional()).
+		Field(signedAt, &attorney.SignedAt, parse.Validate(func() []shared.FieldError {
+			return validate.Time("", attorney.SignedAt)
+		}), parse.Optional()).
+		Consumed()
 }
 
 func validateDonor(donor *DonorCorrection) func(p *parse.Parser) []shared.FieldError {
