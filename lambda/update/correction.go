@@ -37,37 +37,46 @@ type AttorneyCorrection struct {
 const signedAt = "/signedAt"
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !c.LPASignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
+	if (c.LPASignedAt != time.Time{}) && c.LPASignedAt != lpa.SignedAt && lpa.Channel == shared.ChannelOnline {
 		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
-	if c.Attorney.Index != nil && lpa.Attorneys[*c.Attorney.Index].SignedAt != nil && !lpa.Attorneys[*c.Attorney.Index].SignedAt.IsZero() && lpa.Channel == shared.ChannelOnline {
+	if c.Attorney.Index != nil && (c.Attorney.SignedAt != time.Time{}) && c.Attorney.SignedAt != *lpa.Attorneys[*c.Attorney.Index].SignedAt && lpa.Channel == shared.ChannelOnline {
 		source := "/attorney/" + strconv.Itoa(*c.Attorney.Index) + signedAt
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
+
 	if lpa.Status == shared.LpaStatusRegistered {
 		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
 	}
 
-	lpa.Donor.FirstNames = c.Donor.FirstNames
-	lpa.Donor.LastName = c.Donor.LastName
-	lpa.Donor.OtherNamesKnownBy = c.Donor.OtherNamesKnownBy
-	lpa.Donor.DateOfBirth = c.Donor.DateOfBirth
-	lpa.Donor.Address = c.Donor.Address
-	lpa.Donor.Email = c.Donor.Email
+	c.Donor.Apply(lpa)
+	c.Attorney.Apply(lpa)
 	lpa.SignedAt = c.LPASignedAt
 
-	if c.Attorney.Index != nil {
-		lpa.Attorneys[*c.Attorney.Index].FirstNames = c.Attorney.FirstNames
-		lpa.Attorneys[*c.Attorney.Index].LastName = c.Attorney.LastName
-		lpa.Attorneys[*c.Attorney.Index].DateOfBirth = c.Attorney.Dob
-		lpa.Attorneys[*c.Attorney.Index].Address = c.Attorney.Address
-		lpa.Attorneys[*c.Attorney.Index].Email = c.Attorney.Email
-		lpa.Attorneys[*c.Attorney.Index].Mobile = c.Attorney.Mobile
-		lpa.Attorneys[*c.Attorney.Index].SignedAt = &c.Attorney.SignedAt
-	}
-
 	return nil
+}
+
+func (d DonorCorrection) Apply(lpa *shared.Lpa) {
+	lpa.Donor.FirstNames = d.FirstNames
+	lpa.Donor.LastName = d.LastName
+	lpa.Donor.OtherNamesKnownBy = d.OtherNamesKnownBy
+	lpa.Donor.DateOfBirth = d.DateOfBirth
+	lpa.Donor.Address = d.Address
+	lpa.Donor.Email = d.Email
+}
+
+func (a AttorneyCorrection) Apply(lpa *shared.Lpa) {
+	if a.Index != nil {
+		attorney := &lpa.Attorneys[*a.Index]
+		attorney.FirstNames = a.FirstNames
+		attorney.LastName = a.LastName
+		attorney.DateOfBirth = a.Dob
+		attorney.Address = a.Address
+		attorney.Email = a.Email
+		attorney.Mobile = a.Mobile
+		attorney.SignedAt = &a.SignedAt
+	}
 }
 
 func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, []shared.FieldError) {
