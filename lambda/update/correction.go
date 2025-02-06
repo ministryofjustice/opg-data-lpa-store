@@ -79,3 +79,17 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 
 	return data, errors
 }
+func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.FieldError {
+	return func(p *parse.Parser) []shared.FieldError {
+		return p.
+			Field("/line1", &address.Line1, parse.Optional()).
+			Field("/line2", &address.Line2, parse.Optional()).
+			Field("/line3", &address.Line3, parse.Optional()).
+			Field("/town", &address.Town, parse.Optional()).
+			Field("/postcode", &address.Postcode, parse.Optional()).
+			Field("/country", &address.Country, parse.Validate(func() []shared.FieldError {
+				return validate.Country("", address.Country)
+			}), parse.Optional()).
+			Consumed()
+	}
+}
