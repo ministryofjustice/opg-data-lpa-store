@@ -7,6 +7,7 @@ import (
 type LpaInit struct {
 	LpaType                                     LpaType                 `json:"lpaType"`
 	Channel                                     Channel                 `json:"channel"`
+	Language                                    Lang                    `json:"language"`
 	Donor                                       Donor                   `json:"donor"`
 	Attorneys                                   []Attorney              `json:"attorneys"`
 	TrustCorporations                           []TrustCorporation      `json:"trustCorporations,omitempty"`

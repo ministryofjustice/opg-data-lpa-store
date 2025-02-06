@@ -12,7 +12,7 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
-	mock "github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -21,8 +21,9 @@ var (
 	testNow       = time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)
 	testNowFn     = func() time.Time { return testNow }
 	validLpaInit  = shared.LpaInit{
-		LpaType: shared.LpaTypePropertyAndAffairs,
-		Channel: shared.ChannelOnline,
+		LpaType:  shared.LpaTypePropertyAndAffairs,
+		Channel:  shared.ChannelOnline,
+		Language: shared.LangEn,
 		Donor: shared.Donor{
 			Person: shared.Person{
 				UID:        "a06daa09-750d-4e02-9877-0ea782491014",
