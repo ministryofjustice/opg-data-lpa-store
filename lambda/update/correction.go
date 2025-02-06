@@ -73,6 +73,8 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	c.Attorney.Apply(lpa)
 	lpa.SignedAt = c.LPASignedAt
 
+	c.CertificateProvider.Apply(lpa)
+
 	return nil
 }
 
@@ -109,6 +111,13 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.Donor.Email = lpa.LpaInit.Donor.Email
 	data.LPASignedAt = lpa.LpaInit.SignedAt
 
+	data.CertificateProvider.FirstNames = lpa.LpaInit.CertificateProvider.FirstNames
+	data.CertificateProvider.LastName = lpa.LpaInit.CertificateProvider.LastName
+	data.CertificateProvider.Address = lpa.LpaInit.CertificateProvider.Address
+	data.CertificateProvider.Email = lpa.LpaInit.CertificateProvider.Email
+	data.CertificateProvider.Phone = lpa.LpaInit.CertificateProvider.Phone
+	data.CertificateProvider.SignedAt = lpa.LpaInit.SignedAt
+
 	errors := parse.Changes(changes).
 		Prefix("/donor", validateDonor(&data.Donor), parse.Optional()).
 		Field(signedAt, &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
@@ -137,6 +146,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 				}).
 				Consumed()
 		}, parse.Optional()).
+		Prefix("/certificateProvider", validateCertificateProvider(&data.CertificateProvider), parse.Optional()).
 		Consumed()
 
 	return data, errors
