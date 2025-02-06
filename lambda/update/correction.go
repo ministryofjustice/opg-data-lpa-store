@@ -9,9 +9,28 @@ import (
 )
 
 type Correction struct {
-	Donor       DonorCorrection
-	Attorney    AttorneyCorrection
-	LPASignedAt time.Time
+	Donor               DonorCorrection
+	Attorney            AttorneyCorrection
+	CertificateProvider CertificateProviderCorrection
+	LPASignedAt         time.Time
+}
+
+type CertificateProviderCorrection struct {
+	FirstNames string
+	LastName   string
+	Address    shared.Address
+	Email      string
+	Phone      string
+	SignedAt   time.Time
+}
+
+func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
+	lpa.CertificateProvider.FirstNames = cpr.FirstNames
+	lpa.CertificateProvider.LastName = cpr.LastName
+	lpa.CertificateProvider.Address = cpr.Address
+	lpa.CertificateProvider.Email = cpr.Email
+	lpa.CertificateProvider.Phone = cpr.Phone
+	lpa.CertificateProvider.SignedAt = &cpr.SignedAt
 }
 
 type DonorCorrection struct {
