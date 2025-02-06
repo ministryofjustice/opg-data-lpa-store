@@ -181,6 +181,25 @@ func validateDonor(donor *DonorCorrection) func(p *parse.Parser) []shared.FieldE
 	}
 }
 
+func validateCertificateProvider(certificateProvider *CertificateProviderCorrection) func(p *parse.Parser) []shared.FieldError {
+	return func(p *parse.Parser) []shared.FieldError {
+		return p.
+			Field("/firstNames", &certificateProvider.FirstNames, parse.Validate(func() []shared.FieldError {
+				return validate.Required("", certificateProvider.FirstNames)
+			}), parse.Optional()).
+			Field("/lastName", &certificateProvider.LastName, parse.Validate(func() []shared.FieldError {
+				return validate.Required("", certificateProvider.LastName)
+			}), parse.Optional()).
+			Prefix("/address", validateAddress(&certificateProvider.Address), parse.Optional()).
+			Field("/email", &certificateProvider.Email, parse.Optional()).
+			Field("/phone", &certificateProvider.Phone, parse.Optional()).
+			Field("/signedAt", &certificateProvider.SignedAt, parse.Validate(func() []shared.FieldError {
+				return validate.Time("", certificateProvider.SignedAt)
+			}), parse.Optional()).
+			Consumed()
+	}
+}
+
 func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.FieldError {
 	return func(p *parse.Parser) []shared.FieldError {
 		return p.
