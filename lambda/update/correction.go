@@ -8,13 +8,32 @@ import (
 )
 
 type Correction struct {
-	DonorFirstNames string
-	DonorLastName   string
-	DonorOtherNames string
-	DonorDob        shared.Date
-	DonorAddress    shared.Address
-	DonorEmail      string
-	LPASignedAt     time.Time
+	DonorFirstNames     string
+	DonorLastName       string
+	DonorOtherNames     string
+	DonorDob            shared.Date
+	DonorAddress        shared.Address
+	DonorEmail          string
+	CertificateProvider CertificateProviderCorrection
+	LPASignedAt         time.Time
+}
+
+type CertificateProviderCorrection struct {
+	FirstNames string
+	LastName   string
+	Address    shared.Address
+	Email      string
+	Phone      string
+	SignedAt   time.Time
+}
+
+func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
+	lpa.CertificateProvider.FirstNames = cpr.FirstNames
+	lpa.CertificateProvider.LastName = cpr.LastName
+	lpa.CertificateProvider.Address = cpr.Address
+	lpa.CertificateProvider.Email = cpr.Email
+	lpa.CertificateProvider.Phone = cpr.Phone
+	lpa.CertificateProvider.SignedAt = &cpr.SignedAt
 }
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
