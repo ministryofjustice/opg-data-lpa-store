@@ -21,6 +21,10 @@
       "type": "string",
       "enum": ["paper", "online"]
     },
+    "language": {
+      "type": "string",
+      "enum": ["en", "cy"]
+    },
     "donor": {
       "allOf": [
         {

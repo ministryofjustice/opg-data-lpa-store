@@ -9,7 +9,7 @@ import (
 
 func TestLpaInitMarshalJSON(t *testing.T) {
 	expected := `{
-"lpaType":"","channel":"",
+"lpaType":"","channel":"","language":"",
 "donor":{"uid":"","firstNames":"","lastName":"","address":{"line1":"","country":""},"dateOfBirth":"","email":"","contactLanguagePreference":""},
 "attorneys":null,
 "certificateProvider":{"uid":"","firstNames":"","lastName":"","address":{"line1":"","country":""},"email":"","phone":"","channel":""},
