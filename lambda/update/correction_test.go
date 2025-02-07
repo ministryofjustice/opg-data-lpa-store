@@ -194,6 +194,54 @@ func TestCorrectionAttorneySignedAtChannel(t *testing.T) {
 	assert.Equal(t, errors, []shared.FieldError{{Source: "/attorney/0/signedAt", Detail: "The attorney signed at date cannot be changed for online LPA"}})
 }
 
+func TestCorrectionApplyForCertificateProvider(t *testing.T) {
+	yesterday := time.Now().Add(-24 * time.Hour)
+
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			CertificateProvider: shared.CertificateProvider{
+				Person: shared.Person{
+					FirstNames: "Branson",
+					LastName:   "Conn",
+				},
+				Address: shared.Address{
+					Line1:    "9 Kutch Meadows",
+					Line2:    "Cummerata",
+					Town:     "West Blick",
+					Postcode: "YX97 3HZ",
+					Country:  "UK",
+				},
+				Email:    "Branson.Conn@example.com",
+				Phone:    "01977 67513",
+				SignedAt: &yesterday,
+			},
+		},
+	}
+
+	certificateProviderCorrection := CertificateProviderCorrection{
+		FirstNames: "Lynn",
+		LastName:   "Christiansen",
+		Address:    shared.Address{},
+		Email:      "Lynn.Christiansen@example.com",
+		Phone:      "01003 19993",
+		SignedAt:   yesterday,
+	}
+
+	correction := Correction{
+		CertificateProvider: certificateProviderCorrection,
+	}
+
+	errors := correction.Apply(lpa)
+
+	assert.Empty(t, errors)
+	assert.Equal(t, correction.CertificateProvider.FirstNames, lpa.CertificateProvider.FirstNames)
+	assert.Equal(t, correction.CertificateProvider.LastName, lpa.CertificateProvider.LastName)
+	assert.Equal(t, correction.CertificateProvider.Address, lpa.CertificateProvider.Address)
+	assert.Equal(t, correction.CertificateProvider.Email, lpa.CertificateProvider.Email)
+	assert.Equal(t, correction.CertificateProvider.Phone, lpa.CertificateProvider.Phone)
+	assert.Equal(t, correction.CertificateProvider.SignedAt, lpa.CertificateProvider.SignedAt)
+}
+
 func TestValidateCorrection(t *testing.T) {
 	now := time.Now()
 	const fieldRequired = "field is required"
