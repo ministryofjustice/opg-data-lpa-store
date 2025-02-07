@@ -39,13 +39,13 @@ func TestTrustCorporationOptOutApply(t *testing.T) {
 				},
 			},
 		},
-		"successful apply to replacement": {
+		"successful apply to inactive": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					TrustCorporations: []shared.TrustCorporation{
 						{UID: "a", Status: shared.AttorneyStatusActive},
-						{UID: "b", Status: shared.AttorneyStatusReplacement},
+						{UID: "b", Status: shared.AttorneyStatusInactive},
 						{UID: "c", Status: shared.AttorneyStatusActive},
 					},
 				},
