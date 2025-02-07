@@ -37,11 +37,11 @@ type AttorneyCorrection struct {
 const signedAt = "/signedAt"
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if (c.LPASignedAt != time.Time{}) && c.LPASignedAt != lpa.SignedAt && lpa.Channel == shared.ChannelOnline {
+	if !c.LPASignedAt.IsZero() && !c.LPASignedAt.Equal(lpa.SignedAt) && lpa.Channel == shared.ChannelOnline {
 		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
-	if c.Attorney.Index != nil && (c.Attorney.SignedAt != time.Time{}) && c.Attorney.SignedAt != *lpa.Attorneys[*c.Attorney.Index].SignedAt && lpa.Channel == shared.ChannelOnline {
+	if c.Attorney.Index != nil && !c.Attorney.SignedAt.IsZero() && !c.Attorney.SignedAt.Equal(*lpa.Attorneys[*c.Attorney.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
 		source := "/attorney/" + strconv.Itoa(*c.Attorney.Index) + signedAt
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
