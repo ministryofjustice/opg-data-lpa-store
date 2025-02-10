@@ -80,8 +80,9 @@ func makeTrustCorporation() shared.TrustCorporation {
 
 func makeLpaWithDonorAndActors() shared.LpaInit {
 	return shared.LpaInit{
-		LpaType: shared.LpaTypePropertyAndAffairs,
-		Channel: shared.ChannelOnline,
+		LpaType:  shared.LpaTypePropertyAndAffairs,
+		Channel:  shared.ChannelOnline,
+		Language: shared.LangEn,
 		Donor: shared.Donor{
 			Person: shared.Person{
 				UID:        "b99af83d-5b6c-44f7-8c03-14004699bdb9",
@@ -200,6 +201,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 			expectedErrors: []shared.FieldError{
 				{Source: "/lpaType", Detail: "field is required"},
 				{Source: "/channel", Detail: "field is required"},
+				{Source: "/language", Detail: "field is required"},
 				{Source: "/donor/uid", Detail: "field is required"},
 				{Source: "/donor/firstNames", Detail: "field is required"},
 				{Source: "/donor/lastName", Detail: "field is required"},
