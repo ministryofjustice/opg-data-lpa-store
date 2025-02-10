@@ -128,6 +128,7 @@ func handlePactState(r *http.Request) error {
 		body := `{
 			"lpaType": "personal-welfare",
 			"channel": "online",
+			"language": "en",
 			"donor": {
 				"uid": "34cd75eb-17bc-434a-b922-4772ce3e0439",
 				"firstNames": "Homer",

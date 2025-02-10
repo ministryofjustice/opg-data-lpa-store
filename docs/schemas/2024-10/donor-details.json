@@ -6,6 +6,7 @@
   "required": [
     "lpaType",
     "channel",
+    "language",
     "donor",
     "attorneys",
     "certificateProvider",
