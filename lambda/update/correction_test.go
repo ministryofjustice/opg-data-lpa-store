@@ -194,6 +194,54 @@ func TestCorrectionAttorneySignedAtChannel(t *testing.T) {
 	assert.Equal(t, errors, []shared.FieldError{{Source: "/attorney/0/signedAt", Detail: "The attorney signed at date cannot be changed for online LPA"}})
 }
 
+func TestCorrectionApplyForCertificateProvider(t *testing.T) {
+	yesterday := time.Now().Add(-24 * time.Hour)
+
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			CertificateProvider: shared.CertificateProvider{
+				Person: shared.Person{
+					FirstNames: "Branson",
+					LastName:   "Conn",
+				},
+				Address: shared.Address{
+					Line1:    "9 Kutch Meadows",
+					Line2:    "Cummerata",
+					Town:     "West Blick",
+					Postcode: "YX97 3HZ",
+					Country:  "UK",
+				},
+				Email:    "Branson.Conn@example.com",
+				Phone:    "01977 67513",
+				SignedAt: &yesterday,
+			},
+		},
+	}
+
+	certificateProviderCorrection := CertificateProviderCorrection{
+		FirstNames: "Lynn",
+		LastName:   "Christiansen",
+		Address:    shared.Address{},
+		Email:      "Lynn.Christiansen@example.com",
+		Phone:      "01003 19993",
+		SignedAt:   &yesterday,
+	}
+
+	correction := Correction{
+		CertificateProvider: certificateProviderCorrection,
+	}
+
+	errors := correction.Apply(lpa)
+
+	assert.Empty(t, errors)
+	assert.Equal(t, correction.CertificateProvider.FirstNames, lpa.CertificateProvider.FirstNames)
+	assert.Equal(t, correction.CertificateProvider.LastName, lpa.CertificateProvider.LastName)
+	assert.Equal(t, correction.CertificateProvider.Address, lpa.CertificateProvider.Address)
+	assert.Equal(t, correction.CertificateProvider.Email, lpa.CertificateProvider.Email)
+	assert.Equal(t, correction.CertificateProvider.Phone, lpa.CertificateProvider.Phone)
+	assert.Equal(t, correction.CertificateProvider.SignedAt, lpa.CertificateProvider.SignedAt)
+}
+
 func TestValidateCorrection(t *testing.T) {
 	now := time.Now()
 	const fieldRequired = "field is required"
@@ -262,17 +310,34 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 		},
+		"valid certificate provider update": {
+			changes: []shared.Change{
+				{Key: "/certificateProvider/firstNames", New: json.RawMessage(`"Trinity"`), Old: jsonNull},
+				{Key: "/certificateProvider/lastName", New: json.RawMessage(`"Monahan"`), Old: jsonNull},
+				{Key: "/certificateProvider/email", New: json.RawMessage(`"Trinity.Monahan@example.com"`), Old: jsonNull},
+				{Key: "/certificateProvider/phone", New: json.RawMessage(`"01697 233 415"`), Old: jsonNull},
+				{Key: "/certificateProvider/signedAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					CertificateProvider: shared.CertificateProvider{},
+				},
+			},
+		},
 		"missing required fields": {
 			changes: []shared.Change{
 				{Key: "/donor/firstNames", New: jsonNull, Old: jsonNull},
 				{Key: "/donor/lastName", New: jsonNull, Old: jsonNull},
 				{Key: "/attorneys/0/firstNames", New: jsonNull, Old: jsonNull},
 				{Key: "/attorneys/0/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/certificateProvider/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/certificateProvider/lastName", New: jsonNull, Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
-					Donor:     shared.Donor{},
-					Attorneys: []shared.Attorney{{}},
+					Donor:               shared.Donor{},
+					Attorneys:           []shared.Attorney{{}},
+					CertificateProvider: shared.CertificateProvider{},
 				},
 			},
 			errors: []shared.FieldError{
@@ -280,12 +345,15 @@ func TestValidateCorrection(t *testing.T) {
 				{Source: "/changes/1/new", Detail: fieldRequired},
 				{Source: "/changes/2/new", Detail: fieldRequired},
 				{Source: "/changes/3/new", Detail: fieldRequired},
+				{Source: "/changes/4/new", Detail: fieldRequired},
+				{Source: "/changes/5/new", Detail: fieldRequired},
 			},
 		},
 		"invalid country": {
 			changes: []shared.Change{
 				{Key: "/donor/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 				{Key: "/attorneys/0/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+				{Key: "/certificateProvider/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -293,6 +361,9 @@ func TestValidateCorrection(t *testing.T) {
 						Address: shared.Address{},
 					},
 					Attorneys: []shared.Attorney{{}},
+					CertificateProvider: shared.CertificateProvider{
+						Address: shared.Address{},
+					},
 				},
 			},
 			errors: []shared.FieldError{
