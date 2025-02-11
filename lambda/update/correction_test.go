@@ -369,6 +369,7 @@ func TestValidateCorrection(t *testing.T) {
 			errors: []shared.FieldError{
 				{Source: "/changes/0/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/changes/2/new", Detail: "must be a valid ISO-3166-1 country code"},
 			},
 		},
 	}
