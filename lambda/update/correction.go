@@ -21,7 +21,7 @@ type CertificateProviderCorrection struct {
 	Address    shared.Address
 	Email      string
 	Phone      string
-	SignedAt   *time.Time
+	SignedAt   time.Time
 }
 
 func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
@@ -30,7 +30,7 @@ func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
 	lpa.CertificateProvider.Address = cpr.Address
 	lpa.CertificateProvider.Email = cpr.Email
 	lpa.CertificateProvider.Phone = cpr.Phone
-	lpa.CertificateProvider.SignedAt = cpr.SignedAt
+	lpa.CertificateProvider.SignedAt = &cpr.SignedAt
 }
 
 type DonorCorrection struct {
@@ -116,7 +116,10 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.CertificateProvider.Address = lpa.LpaInit.CertificateProvider.Address
 	data.CertificateProvider.Email = lpa.LpaInit.CertificateProvider.Email
 	data.CertificateProvider.Phone = lpa.LpaInit.CertificateProvider.Phone
-	data.CertificateProvider.SignedAt = lpa.LpaInit.CertificateProvider.SignedAt
+
+	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
+		data.CertificateProvider.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
+	}
 
 	errors := parse.Changes(changes).
 		Prefix("/donor", validateDonor(&data.Donor), parse.Optional()).

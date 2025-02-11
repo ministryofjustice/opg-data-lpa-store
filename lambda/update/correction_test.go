@@ -224,7 +224,7 @@ func TestCorrectionApplyForCertificateProvider(t *testing.T) {
 		Address:    shared.Address{},
 		Email:      "Lynn.Christiansen@example.com",
 		Phone:      "01003 19993",
-		SignedAt:   &yesterday,
+		SignedAt:   yesterday,
 	}
 
 	correction := Correction{
@@ -239,7 +239,7 @@ func TestCorrectionApplyForCertificateProvider(t *testing.T) {
 	assert.Equal(t, correction.CertificateProvider.Address, lpa.CertificateProvider.Address)
 	assert.Equal(t, correction.CertificateProvider.Email, lpa.CertificateProvider.Email)
 	assert.Equal(t, correction.CertificateProvider.Phone, lpa.CertificateProvider.Phone)
-	assert.Equal(t, correction.CertificateProvider.SignedAt, lpa.CertificateProvider.SignedAt)
+	assert.Equal(t, correction.CertificateProvider.SignedAt, *lpa.CertificateProvider.SignedAt)
 }
 
 func TestValidateCorrection(t *testing.T) {
