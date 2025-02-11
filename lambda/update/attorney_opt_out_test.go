@@ -39,13 +39,13 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				},
 			},
 		},
-		"successful apply to replacement": {
+		"successful apply to inactive": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					Attorneys: []shared.Attorney{
 						{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive},
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusReplacement},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusInactive},
 						{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusActive},
 					},
 				},
