@@ -203,9 +203,7 @@ func validateCertificateProvider(certificateProvider *CertificateProviderCorrect
 			Prefix("/address", validateAddress(&certificateProvider.Address), parse.Optional()).
 			Field("/email", &certificateProvider.Email, parse.Optional()).
 			Field("/phone", &certificateProvider.Phone, parse.Optional()).
-			Field("/signedAt", &certificateProvider.SignedAt, parse.Validate(func() []shared.FieldError {
-				return validate.Time("", certificateProvider.SignedAt)
-			}), parse.Optional()).
+			Field("/signedAt", &certificateProvider.SignedAt, parse.Optional()).
 			Consumed()
 	}
 }
