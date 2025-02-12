@@ -79,60 +79,49 @@ func TestVerifyIssuer(t *testing.T) {
 	}
 }
 
-func TestVerifyBadSubForSiriusIssuer(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.sirius",
-		"sub": "",
-	})
-
-	_, err := verifier.verifyToken(token)
-
-	assert.NotNil(t, err)
-	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
+func TestVerifySub(t *testing.T) {
+	tests := map[string]struct {
+		iss        string
+		sub        string
+		shouldFail bool
+	}{
+		"sirius empty":       {iss: "opg.poas.sirius", sub: "", shouldFail: true},
+		"makeregister empty": {iss: "opg.poas.makeregister", sub: "", shouldFail: true},
+		"use empty":          {iss: "opg.poas.use", sub: "", shouldFail: true},
+		"valid sirius":       {iss: "opg.poas.sirius", sub: "urn:opg:sirius:users:34", shouldFail: false},
+		"valid makeregister": {
+			iss:        "opg.poas.makeregister",
+			sub:        "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
+			shouldFail: false,
+		},
+		"valid use": {
+			iss:        "opg.poas.use",
+			sub:        "urn:opg:poas:use:users:ccba2c6c-33c6-497c-8248-25241ebf7edd",
+			shouldFail: false,
+		},
 	}
-}
 
-func TestVerifyBadSubForMRLPAIssuer(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.makeregister",
-		"sub": "",
-	})
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			token := createToken(jwt.MapClaims{
+				"exp": time.Now().Add(time.Hour * 24).Unix(),
+				"iat": time.Now().Add(time.Hour * -24).Unix(),
+				"iss": tc.iss,
+				"sub": tc.sub,
+			})
 
-	_, err := verifier.verifyToken(token)
+			_, err := verifier.verifyToken(token)
 
-	assert.NotNil(t, err)
-	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
+			if tc.shouldFail {
+				assert.NotNil(t, err)
+				if err != nil {
+					assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
+				}
+			} else {
+				assert.Nil(t, err)
+			}
+		})
 	}
-}
-
-func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.sirius",
-		"sub": "urn:opg:sirius:users:34",
-	})
-
-	_, err := verifier.verifyToken(token)
-	assert.Nil(t, err)
-}
-
-func TestVerifyGoodJwtMRLPASubs(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.makeregister",
-		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
-	})
-
-	_, err := verifier.verifyToken(token)
-	assert.Nil(t, err)
 }
 
 func TestVerifyHeaderNoJWTHeader(t *testing.T) {
