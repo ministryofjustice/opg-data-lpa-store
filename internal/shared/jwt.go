@@ -19,11 +19,13 @@ import (
 const (
 	sirius string = "opg.poas.sirius"
 	mrlpa         = "opg.poas.makeregister"
+	use           = "opg.poas.use"
 )
 
 var validIssuers []string = []string{
 	sirius,
 	mrlpa,
+	use,
 }
 
 type LpaStoreClaims struct {
