@@ -111,22 +111,6 @@ func TestVerifyBadSubForMRLPAIssuer(t *testing.T) {
 	}
 }
 
-func TestVerifyBadSubForUseIssuer(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.use",
-		"sub": "",
-	})
-
-	_, err := verifier.verifyToken(token)
-
-	assert.NotNil(t, err)
-	if err != nil {
-		assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
-	}
-}
-
 func TestVerifyGoodJwtSiriusSubs(t *testing.T) {
 	token := createToken(jwt.MapClaims{
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -145,18 +129,6 @@ func TestVerifyGoodJwtMRLPASubs(t *testing.T) {
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.makeregister",
 		"sub": "urn:opg:poas:makeregister:users:e6707412-c9cd-4547-b428-7039a87e985e",
-	})
-
-	_, err := verifier.verifyToken(token)
-	assert.Nil(t, err)
-}
-
-func TestVerifyGoodJwtUseSubs(t *testing.T) {
-	token := createToken(jwt.MapClaims{
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-		"iat": time.Now().Add(time.Hour * -24).Unix(),
-		"iss": "opg.poas.use",
-		"sub": "urn:opg:poas:use:users:ccba2c6c-33c6-497c-8248-25241ebf7edd",
 	})
 
 	_, err := verifier.verifyToken(token)
