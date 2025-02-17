@@ -195,6 +195,7 @@ func TestCorrectionAttorneySignedAtChannel(t *testing.T) {
 }
 
 func TestCorrectionApplyForCertificateProvider(t *testing.T) {
+	twoDaysAgo := time.Now().Add(-48 * time.Hour)
 	yesterday := time.Now().Add(-24 * time.Hour)
 
 	lpa := &shared.Lpa{
@@ -213,7 +214,7 @@ func TestCorrectionApplyForCertificateProvider(t *testing.T) {
 				},
 				Email:    "Branson.Conn@example.com",
 				Phone:    "01977 67513",
-				SignedAt: &yesterday,
+				SignedAt: &twoDaysAgo,
 			},
 		},
 	}
@@ -221,10 +222,15 @@ func TestCorrectionApplyForCertificateProvider(t *testing.T) {
 	certificateProviderCorrection := CertificateProviderCorrection{
 		FirstNames: "Lynn",
 		LastName:   "Christiansen",
-		Address:    shared.Address{},
-		Email:      "Lynn.Christiansen@example.com",
-		Phone:      "01003 19993",
-		SignedAt:   yesterday,
+		Address: shared.Address{
+			Line1:    "653 Prosacco Avenue",
+			Town:     "Long Larkin",
+			Postcode: "RC18 6RZ",
+			Country:  "UK",
+		},
+		Email:    "Lynn.Christiansen@example.com",
+		Phone:    "01003 19993",
+		SignedAt: yesterday,
 	}
 
 	correction := Correction{
