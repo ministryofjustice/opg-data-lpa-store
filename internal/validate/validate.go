@@ -43,79 +43,237 @@ func IfFunc(ok bool, fn func() []shared.FieldError) []shared.FieldError {
 	return nil
 }
 
-func Required(source string, value string) []shared.FieldError {
-	return If(value == "", []shared.FieldError{{Source: source, Detail: "field is required"}})
-}
-
-func Empty(source string, value string) []shared.FieldError {
-	return If(value != "", []shared.FieldError{{Source: source, Detail: "field must not be provided"}})
-}
-
-func UUID(source string, value string) []shared.FieldError {
-	if value == "" {
-		return []shared.FieldError{{Source: source, Detail: "field is required"}}
+func WithSource(source string, val any, validators ...Validator) (errs []shared.FieldError) {
+	for _, validator := range validators {
+		msg := validator.Valid(val)
+		if msg != "" {
+			errs = append(errs, shared.FieldError{Source: source, Detail: msg})
+		}
 	}
 
-	if uuid.Validate(value) != nil {
-		return []shared.FieldError{{Source: source, Detail: "invalid format"}}
+	return errs
+}
+
+type Validator interface {
+	Valid(val any) string
+}
+
+type NotEmptyValidator struct{}
+
+func (v NotEmptyValidator) Valid(val any) string {
+	const msg = "field is required"
+
+	switch v := val.(type) {
+	case *string:
+		if *v == "" {
+			return msg
+		} else {
+			return ""
+		}
+	case string:
+		if v == "" {
+			return msg
+		} else {
+			return ""
+		}
+	case *time.Time:
+		if v == nil || v.IsZero() {
+			return msg
+		} else {
+			return ""
+		}
+	case time.Time:
+		if v.IsZero() {
+			return msg
+		} else {
+			return ""
+		}
 	}
 
-	return nil
+	return "unexpected type"
 }
 
-func Date(source string, date shared.Date) []shared.FieldError {
-	if date.IsMalformed {
-		return []shared.FieldError{{Source: source, Detail: "invalid format"}}
+func NotEmpty() Validator {
+	return NotEmptyValidator{}
+}
+
+type EmptyValidator struct{}
+
+func (v EmptyValidator) Valid(val any) string {
+	const msg = "field must not be provided"
+
+	switch v := val.(type) {
+	case *string:
+		if *v == "" {
+			return ""
+		} else {
+			return msg
+		}
+	case string:
+		if v == "" {
+			return ""
+		} else {
+			return msg
+		}
+	case *time.Time:
+		if v == nil || v.IsZero() {
+			return ""
+		} else {
+			return msg
+		}
+	case time.Time:
+		if v.IsZero() {
+			return ""
+		} else {
+			return msg
+		}
 	}
 
-	if date.IsZero() {
-		return []shared.FieldError{{Source: source, Detail: "field is required"}}
+	return "unexpected type"
+}
+
+func Empty() Validator {
+	return EmptyValidator{}
+}
+
+type ValidValidator struct{}
+
+func (v ValidValidator) Valid(val any) string {
+	if fmt.Sprint(val) == "" {
+		return "field is required"
 	}
 
-	return nil
-}
-
-func Time(source string, t interface{ IsZero() bool }) []shared.FieldError {
-	return If(t == (*time.Time)(nil) || t.IsZero(), []shared.FieldError{{Source: source, Detail: "field is required"}})
-}
-
-func OptionalTime(source string, t *time.Time) []shared.FieldError {
-	if t == nil {
-		return nil
+	enum, ok := val.(interface{ IsValid() bool })
+	if !ok {
+		return "unexpected type"
 	}
 
-	return If(t.IsZero(), []shared.FieldError{{Source: source, Detail: "must be a valid datetime"}})
-}
-
-func Address(prefix string, address shared.Address) []shared.FieldError {
-	return All(
-		Required(fmt.Sprintf("%s/line1", prefix), address.Line1),
-		Required(fmt.Sprintf("%s/country", prefix), address.Country),
-		Country(fmt.Sprintf("%s/country", prefix), address.Country),
-	)
-}
-
-func Country(source string, country string) []shared.FieldError {
-	return If(!countryCodeRe.MatchString(country), []shared.FieldError{{Source: source, Detail: "must be a valid ISO-3166-1 country code"}})
-}
-
-type isValid interface {
-	~string
-	IsValid() bool
-}
-
-func IsValid[V isValid](source string, v V) []shared.FieldError {
-	if e := Required(source, string(v)); e != nil {
-		return e
+	if !enum.IsValid() {
+		return "invalid value"
 	}
 
-	if !v.IsValid() {
-		return []shared.FieldError{{Source: source, Detail: "invalid value"}}
-	}
-
-	return nil
+	return ""
 }
 
-func Unset(source string, v interface{ Unset() bool }) []shared.FieldError {
-	return If(!v.Unset(), []shared.FieldError{{Source: source, Detail: "field must not be provided"}})
+func Valid() Validator {
+	return ValidValidator{}
+}
+
+type UnsetValidator struct{}
+
+func (v UnsetValidator) Valid(val any) string {
+	unset, ok := val.(interface{ Unset() bool })
+	if !ok {
+		return "unexpected type"
+	}
+
+	if !unset.Unset() {
+		return "field must not be provided"
+	}
+
+	return ""
+}
+
+func Unset() Validator {
+	return UnsetValidator{}
+}
+
+type UUIDValidator struct{}
+
+func (v UUIDValidator) Valid(val any) string {
+	str, ok := val.(string)
+	if !ok {
+		return "unexpected type"
+	}
+
+	if str == "" {
+		return "field is required"
+	}
+
+	if uuid.Validate(str) != nil {
+		return "invalid format"
+	}
+
+	return ""
+}
+
+func UUID() Validator {
+	return UUIDValidator{}
+}
+
+type DateValidator struct{}
+
+func (v DateValidator) Valid(val any) string {
+	switch v := val.(type) {
+	case shared.Date:
+		if v.IsMalformed {
+			return "invalid format"
+		}
+
+		if v.IsZero() {
+			return "field is required"
+		}
+
+		return ""
+	case *shared.Date:
+		if v.IsMalformed {
+			return "invalid format"
+		}
+
+		if v.IsZero() {
+			return "field is required"
+		}
+
+		return ""
+	}
+
+	return "unexpected type"
+}
+
+func Date() Validator {
+	return DateValidator{}
+}
+
+type CountryValidator struct{}
+
+func (v CountryValidator) Valid(val any) string {
+	switch v := val.(type) {
+	case string:
+		if !countryCodeRe.MatchString(v) {
+			return "must be a valid ISO-3166-1 country code"
+		} else {
+			return ""
+		}
+	case *string:
+		if !countryCodeRe.MatchString(*v) {
+			return "must be a valid ISO-3166-1 country code"
+		} else {
+			return ""
+		}
+	}
+
+	return "unexpected type"
+}
+
+func Country() Validator {
+	return CountryValidator{}
+}
+
+type OptionalTimeValidator struct{}
+
+func (v OptionalTimeValidator) Valid(val any) string {
+	t, ok := val.(*time.Time)
+	if !ok {
+		return "unexpected type"
+	}
+
+	if t != nil && t.IsZero() {
+		return "must be a valid datetime"
+	}
+
+	return ""
+}
+
+func OptionalTime() Validator {
+	return OptionalTimeValidator{}
 }
