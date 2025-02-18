@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 )
 
 type changeWithPosition struct {
@@ -63,7 +64,7 @@ type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
 	optional  bool
-	validator func() []shared.FieldError
+	validator validate.Validator
 }
 
 // Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
@@ -74,10 +75,9 @@ func Optional() func(fieldOpts) fieldOpts {
 	}
 }
 
-// Validate runs fn on the [Parser.Field] after unmarshalling. It has no effect when passed to [Parser.Prefix].
-func Validate(fn func() []shared.FieldError) Option {
+func Validate(v validate.Validator) Option {
 	return func(f fieldOpts) fieldOpts {
-		f.validator = fn
+		f.validator = v
 		return f
 	}
 }
@@ -111,8 +111,8 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 				if err := json.Unmarshal(change.New, existing); err != nil {
 					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
 				} else if options.validator != nil {
-					for _, error := range options.validator() {
-						p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: error.Detail})
+					if msg := options.validator.Valid(existing); msg != "" {
+						p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: msg})
 					}
 				}
 			}
