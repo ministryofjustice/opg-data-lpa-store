@@ -1,11 +1,12 @@
 package main
 
 import (
+	"strconv"
+	"time"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
-	"strconv"
-	"time"
 )
 
 type Correction struct {
@@ -92,9 +93,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 
 	errors := parse.Changes(changes).
 		Prefix("/donor", validateDonor(&data.Donor), parse.Optional()).
-		Field(signedAt, &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
-			return validate.Time("", data.LPASignedAt)
-		}), parse.Optional()).
+		Field(signedAt, &data.LPASignedAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Each(func(i int, p *parse.Parser) []shared.FieldError {
@@ -125,37 +124,23 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 
 func validateAttorney(attorney *AttorneyCorrection, p *parse.Parser) []shared.FieldError {
 	return p.
-		Field("/firstNames", &attorney.FirstNames, parse.Validate(func() []shared.FieldError {
-			return validate.Required("", attorney.FirstNames)
-		}), parse.Optional()).
-		Field("/lastName", &attorney.LastName, parse.Validate(func() []shared.FieldError {
-			return validate.Required("", attorney.LastName)
-		}), parse.Optional()).
-		Field("/dateOfBirth", &attorney.Dob, parse.Validate(func() []shared.FieldError {
-			return validate.Date("", attorney.Dob)
-		}), parse.Optional()).
+		Field("/firstNames", &attorney.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/lastName", &attorney.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/dateOfBirth", &attorney.Dob, parse.Validate(validate.Date()), parse.Optional()).
 		Field("/email", &attorney.Email, parse.Optional()).
 		Field("/mobile", &attorney.Mobile, parse.Optional()).
 		Prefix("/address", validateAddress(&attorney.Address), parse.Optional()).
-		Field(signedAt, &attorney.SignedAt, parse.Validate(func() []shared.FieldError {
-			return validate.Time("", attorney.SignedAt)
-		}), parse.Optional()).
+		Field(signedAt, &attorney.SignedAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Consumed()
 }
 
 func validateDonor(donor *DonorCorrection) func(p *parse.Parser) []shared.FieldError {
 	return func(p *parse.Parser) []shared.FieldError {
 		return p.
-			Field("/firstNames", &donor.FirstNames, parse.Validate(func() []shared.FieldError {
-				return validate.Required("", donor.FirstNames)
-			}), parse.Optional()).
-			Field("/lastName", &donor.LastName, parse.Validate(func() []shared.FieldError {
-				return validate.Required("", donor.LastName)
-			}), parse.Optional()).
+			Field("/firstNames", &donor.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Field("/lastName", &donor.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
 			Field("/otherNamesKnownBy", &donor.OtherNamesKnownBy, parse.Optional()).
-			Field("/dateOfBirth", &donor.DateOfBirth, parse.Validate(func() []shared.FieldError {
-				return validate.Date("", donor.DateOfBirth)
-			}), parse.Optional()).
+			Field("/dateOfBirth", &donor.DateOfBirth, parse.Validate(validate.Date()), parse.Optional()).
 			Prefix("/address", validateAddress(&donor.Address), parse.Optional()).
 			Field("/email", &donor.Email, parse.Optional()).
 			Consumed()
@@ -170,9 +155,7 @@ func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.Fie
 			Field("/line3", &address.Line3, parse.Optional()).
 			Field("/town", &address.Town, parse.Optional()).
 			Field("/postcode", &address.Postcode, parse.Optional()).
-			Field("/country", &address.Country, parse.Validate(func() []shared.FieldError {
-				return validate.Country("", address.Country)
-			}), parse.Optional()).
+			Field("/country", &address.Country, parse.Validate(validate.Country()), parse.Optional()).
 			Consumed()
 	}
 }

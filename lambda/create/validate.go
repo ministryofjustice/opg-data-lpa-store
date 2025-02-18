@@ -7,76 +7,83 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 )
 
+func validateAddress(prefix string, address shared.Address) []shared.FieldError {
+	return validate.All(
+		validate.WithSource(prefix+"/line1", address.Line1, validate.NotEmpty()),
+		validate.WithSource(prefix+"/country", address.Country, validate.NotEmpty(), validate.Country()),
+	)
+}
+
 func Validate(lpa shared.LpaInit) []shared.FieldError {
 	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
 	return validate.All(
-		validate.IsValid("/lpaType", lpa.LpaType),
-		validate.IsValid("/channel", lpa.Channel),
-		validate.IsValid("/language", lpa.Language),
-		validate.UUID("/donor/uid", lpa.Donor.UID),
-		validate.Required("/donor/firstNames", lpa.Donor.FirstNames),
-		validate.Required("/donor/lastName", lpa.Donor.LastName),
-		validate.Date("/donor/dateOfBirth", lpa.Donor.DateOfBirth),
-		validate.Address("/donor/address", lpa.Donor.Address),
-		validate.IsValid("/donor/contactLanguagePreference", lpa.Donor.ContactLanguagePreference),
+		validate.WithSource("/lpaType", lpa.LpaType, validate.Valid()),
+		validate.WithSource("/channel", lpa.Channel, validate.Valid()),
+		validate.WithSource("/language", lpa.Language, validate.Valid()),
+		validate.WithSource("/donor/uid", lpa.Donor.UID, validate.UUID()),
+		validate.WithSource("/donor/firstNames", lpa.Donor.FirstNames, validate.NotEmpty()),
+		validate.WithSource("/donor/lastName", lpa.Donor.LastName, validate.NotEmpty()),
+		validate.WithSource("/donor/dateOfBirth", lpa.Donor.DateOfBirth, validate.Date()),
+		validateAddress("/donor/address", lpa.Donor.Address),
+		validate.WithSource("/donor/contactLanguagePreference", lpa.Donor.ContactLanguagePreference, validate.Valid()),
 		validate.IfFunc(lpa.Donor.IdentityCheck != nil, func() []shared.FieldError {
 			return validate.All(
-				validate.Time("/donor/identityCheck/checkedAt", lpa.Donor.IdentityCheck.CheckedAt),
-				validate.IsValid("/donor/identityCheck/type", lpa.Donor.IdentityCheck.Type))
+				validate.WithSource("/donor/identityCheck/checkedAt", lpa.Donor.IdentityCheck.CheckedAt, validate.NotEmpty()),
+				validate.WithSource("/donor/identityCheck/type", lpa.Donor.IdentityCheck.Type, validate.Valid()))
 		}),
-		validate.UUID("/certificateProvider/uid", lpa.CertificateProvider.UID),
-		validate.Required("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames),
-		validate.Required("/certificateProvider/lastName", lpa.CertificateProvider.LastName),
-		validate.Address("/certificateProvider/address", lpa.CertificateProvider.Address),
-		validate.IsValid("/certificateProvider/channel", lpa.CertificateProvider.Channel),
+		validate.WithSource("/certificateProvider/uid", lpa.CertificateProvider.UID, validate.UUID()),
+		validate.WithSource("/certificateProvider/firstNames", lpa.CertificateProvider.FirstNames, validate.NotEmpty()),
+		validate.WithSource("/certificateProvider/lastName", lpa.CertificateProvider.LastName, validate.NotEmpty()),
+		validateAddress("/certificateProvider/address", lpa.CertificateProvider.Address),
+		validate.WithSource("/certificateProvider/channel", lpa.CertificateProvider.Channel, validate.Valid()),
 		validate.IfElse(lpa.CertificateProvider.Channel == shared.ChannelOnline,
-			validate.Required("/certificateProvider/email", lpa.CertificateProvider.Email),
-			validate.Empty("/certificateProvider/email", lpa.CertificateProvider.Email)),
-		validate.Required("/certificateProvider/phone", lpa.CertificateProvider.Phone),
+			validate.WithSource("/certificateProvider/email", lpa.CertificateProvider.Email, validate.NotEmpty()),
+			validate.WithSource("/certificateProvider/email", lpa.CertificateProvider.Email, validate.Empty())),
+		validate.WithSource("/certificateProvider/phone", lpa.CertificateProvider.Phone, validate.NotEmpty()),
 		validateAttorneys("/attorneys", lpa.Attorneys),
 		validateTrustCorporations("/trustCorporations", lpa.TrustCorporations),
 		validate.IfFunc(lpa.AuthorisedSignatory != nil, func() []shared.FieldError {
 			return validate.All(
-				validate.Required("/authorisedSignatory/uid", lpa.AuthorisedSignatory.UID),
-				validate.Required("/authorisedSignatory/firstNames", lpa.AuthorisedSignatory.FirstNames),
-				validate.Required("/authorisedSignatory/lastName", lpa.AuthorisedSignatory.LastName))
+				validate.WithSource("/authorisedSignatory/uid", lpa.AuthorisedSignatory.UID, validate.NotEmpty()),
+				validate.WithSource("/authorisedSignatory/firstNames", lpa.AuthorisedSignatory.FirstNames, validate.NotEmpty()),
+				validate.WithSource("/authorisedSignatory/lastName", lpa.AuthorisedSignatory.LastName, validate.NotEmpty()))
 		}),
 		validate.IfFunc(lpa.IndependentWitness != nil, func() []shared.FieldError {
 			return validate.All(
-				validate.Required("/independentWitness/uid", lpa.IndependentWitness.UID),
-				validate.Required("/independentWitness/firstNames", lpa.IndependentWitness.FirstNames),
-				validate.Required("/independentWitness/lastName", lpa.IndependentWitness.LastName),
-				validate.Required("/independentWitness/phone", lpa.IndependentWitness.Phone),
-				validate.Address("/independentWitness/address", lpa.IndependentWitness.Address),
-				validate.Time("/witnessedByIndependentWitnessAt", lpa.WitnessedByIndependentWitnessAt))
+				validate.WithSource("/independentWitness/uid", lpa.IndependentWitness.UID, validate.NotEmpty()),
+				validate.WithSource("/independentWitness/firstNames", lpa.IndependentWitness.FirstNames, validate.NotEmpty()),
+				validate.WithSource("/independentWitness/lastName", lpa.IndependentWitness.LastName, validate.NotEmpty()),
+				validate.WithSource("/independentWitness/phone", lpa.IndependentWitness.Phone, validate.NotEmpty()),
+				validateAddress("/independentWitness/address", lpa.IndependentWitness.Address),
+				validate.WithSource("/witnessedByIndependentWitnessAt", lpa.WitnessedByIndependentWitnessAt, validate.NotEmpty()))
 		}),
 		validate.IfElse(activeAttorneyCount > 1,
-			validate.IsValid("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions),
-			validate.Unset("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions)),
+			validate.WithSource("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions, validate.Valid()),
+			validate.WithSource("/howAttorneysMakeDecisions", lpa.HowAttorneysMakeDecisions, validate.Unset())),
 		validate.IfElse(lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-			validate.Required("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails),
-			validate.Empty("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails)),
+			validate.WithSource("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails, validate.NotEmpty()),
+			validate.WithSource("/howAttorneysMakeDecisionsDetails", lpa.HowAttorneysMakeDecisionsDetails, validate.Empty())),
 		validate.If(replacementAttorneyCount > 0 && lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally,
-			validate.IsValid("/howReplacementAttorneysStepIn", lpa.HowReplacementAttorneysStepIn)),
+			validate.WithSource("/howReplacementAttorneysStepIn", lpa.HowReplacementAttorneysStepIn, validate.Valid())),
 		validate.IfElse(lpa.HowReplacementAttorneysStepIn == shared.HowStepInAnotherWay,
-			validate.Required("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails),
-			validate.Empty("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails)),
+			validate.WithSource("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails, validate.NotEmpty()),
+			validate.WithSource("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails, validate.Empty())),
 		validate.IfElse(replacementAttorneyCount > 1 && (lpa.HowReplacementAttorneysStepIn == shared.HowStepInAllCanNoLongerAct || lpa.HowAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyAndSeverally),
-			validate.IsValid("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions),
-			validate.Unset("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions)),
+			validate.WithSource("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions, validate.Valid()),
+			validate.WithSource("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions, validate.Unset())),
 		validate.IfElse(lpa.HowReplacementAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-			validate.Required("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails),
-			validate.Empty("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails)),
+			validate.WithSource("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails, validate.NotEmpty()),
+			validate.WithSource("/howReplacementAttorneysMakeDecisionsDetails", lpa.HowReplacementAttorneysMakeDecisionsDetails, validate.Empty())),
 		validate.If(lpa.LpaType == shared.LpaTypePersonalWelfare, validate.All(
-			validate.IsValid("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption),
-			validate.Unset("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed))),
+			validate.WithSource("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption, validate.Valid()),
+			validate.WithSource("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed, validate.Unset()))),
 		validate.If(lpa.LpaType == shared.LpaTypePropertyAndAffairs, validate.All(
-			validate.IsValid("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed),
-			validate.Unset("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption))),
-		validate.Time("/signedAt", lpa.SignedAt),
-		validate.Time("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt),
-		validate.OptionalTime("/certificateProviderNotRelatedConfirmedAt", lpa.CertificateProviderNotRelatedConfirmedAt),
+			validate.WithSource("/whenTheLpaCanBeUsed", lpa.WhenTheLpaCanBeUsed, validate.Valid()),
+			validate.WithSource("/lifeSustainingTreatmentOption", lpa.LifeSustainingTreatmentOption, validate.Unset()))),
+		validate.WithSource("/signedAt", lpa.SignedAt, validate.NotEmpty()),
+		validate.WithSource("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt, validate.NotEmpty()),
+		validate.WithSource("/certificateProviderNotRelatedConfirmedAt", lpa.CertificateProviderNotRelatedConfirmedAt, validate.OptionalTime()),
 	)
 }
 
@@ -120,17 +127,17 @@ func validateAttorneys(prefix string, attorneys []shared.Attorney) []shared.Fiel
 
 func validateAttorney(prefix string, attorney shared.Attorney) []shared.FieldError {
 	return validate.All(
-		validate.UUID(fmt.Sprintf("%s/uid", prefix), attorney.UID),
-		validate.Required(fmt.Sprintf("%s/firstNames", prefix), attorney.FirstNames),
-		validate.Required(fmt.Sprintf("%s/lastName", prefix), attorney.LastName),
-		validate.Date(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth),
-		validate.Address(fmt.Sprintf("%s/address", prefix), attorney.Address),
-		validate.IsValid(fmt.Sprintf("%s/status", prefix), attorney.Status),
-		validate.IsValid(fmt.Sprintf("%s/channel", prefix), attorney.Channel),
-		validate.IsValid(fmt.Sprintf("%s/appointmentType", prefix), attorney.AppointmentType),
+		validate.WithSource(fmt.Sprintf("%s/uid", prefix), attorney.UID, validate.UUID()),
+		validate.WithSource(fmt.Sprintf("%s/firstNames", prefix), attorney.FirstNames, validate.NotEmpty()),
+		validate.WithSource(fmt.Sprintf("%s/lastName", prefix), attorney.LastName, validate.NotEmpty()),
+		validate.WithSource(fmt.Sprintf("%s/dateOfBirth", prefix), attorney.DateOfBirth, validate.Date()),
+		validateAddress(fmt.Sprintf("%s/address", prefix), attorney.Address),
+		validate.WithSource(fmt.Sprintf("%s/status", prefix), attorney.Status, validate.Valid()),
+		validate.WithSource(fmt.Sprintf("%s/channel", prefix), attorney.Channel, validate.Valid()),
+		validate.WithSource(fmt.Sprintf("%s/appointmentType", prefix), attorney.AppointmentType, validate.Valid()),
 		validate.IfElse(attorney.Channel == shared.ChannelOnline,
-			validate.Required(fmt.Sprintf("%s/email", prefix), attorney.Email),
-			validate.Empty(fmt.Sprintf("%s/email", prefix), attorney.Email)),
+			validate.WithSource(fmt.Sprintf("%s/email", prefix), attorney.Email, validate.NotEmpty()),
+			validate.WithSource(fmt.Sprintf("%s/email", prefix), attorney.Email, validate.Empty())),
 	)
 }
 
@@ -148,15 +155,15 @@ func validateTrustCorporations(prefix string, trustCorporations []shared.TrustCo
 
 func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorporation) []shared.FieldError {
 	return validate.All(
-		validate.UUID(fmt.Sprintf("%s/uid", prefix), trustCorporation.UID),
-		validate.Required(fmt.Sprintf("%s/name", prefix), trustCorporation.Name),
-		validate.Required(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber),
-		validate.Address(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
-		validate.IsValid(fmt.Sprintf("%s/status", prefix), trustCorporation.Status),
-		validate.IsValid(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel),
-		validate.IsValid(fmt.Sprintf("%s/appointmentType", prefix), trustCorporation.AppointmentType),
+		validate.WithSource(fmt.Sprintf("%s/uid", prefix), trustCorporation.UID, validate.UUID()),
+		validate.WithSource(fmt.Sprintf("%s/name", prefix), trustCorporation.Name, validate.NotEmpty()),
+		validate.WithSource(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber, validate.NotEmpty()),
+		validateAddress(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
+		validate.WithSource(fmt.Sprintf("%s/status", prefix), trustCorporation.Status, validate.Valid()),
+		validate.WithSource(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel, validate.Valid()),
+		validate.WithSource(fmt.Sprintf("%s/appointmentType", prefix), trustCorporation.AppointmentType, validate.Valid()),
 		validate.IfElse(trustCorporation.Channel == shared.ChannelOnline,
-			validate.Required(fmt.Sprintf("%s/email", prefix), trustCorporation.Email),
-			validate.Empty(fmt.Sprintf("%s/email", prefix), trustCorporation.Email)),
+			validate.WithSource(fmt.Sprintf("%s/email", prefix), trustCorporation.Email, validate.NotEmpty()),
+			validate.WithSource(fmt.Sprintf("%s/email", prefix), trustCorporation.Email, validate.Empty())),
 	)
 }
