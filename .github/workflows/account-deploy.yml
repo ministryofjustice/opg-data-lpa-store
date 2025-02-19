@@ -36,7 +36,7 @@ jobs:
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
-        run: echo "terraform version [${{ steps.tf_version.outputs.version }}]"
+        run: echo "terraform version [${{ steps.tf_version.outputs.version }}]" >> $GITHUB_STEP_SUMMARY
         working-directory: ${{ env.tf_dir }}
       - uses: hashicorp/setup-terraform@v3.1.2
         with:
