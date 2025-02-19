@@ -42,26 +42,24 @@ jobs:
       url: ${{ steps.terraform_outputs.outputs.url }}
     outputs:
       url: ${{ steps.terraform_outputs.outputs.url }}
+    env:
+      tf_dir: "./terraform/environment"
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: "0"
       - uses: unfor19/install-aws-cli-action@v1
-      - name: Parse terraform version
-        id: tf_version_setup
-        working-directory: ./terraform/environment
-        run: |
-          if [ -f ./versions.tf ]; then
-            terraform_version=$(cat ./versions.tf | ../../scripts/terraform-version.sh)
-            echo "- Terraform version: [${terraform_version}]" >> $GITHUB_STEP_SUMMARY
-            echo "TERRAFORM_VERSION=${terraform_version}" >> $GITHUB_OUTPUT
-          fi
-      - name: "Terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}]"
-        working-directory: ./terraform/environment
+      - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
+        id: tf_version
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v3.1.1
+        with:
+          terraform_directory: ${{ env.tf_dir }}
+      - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
+        run: echo "terraform version [${{ steps.tf_version.outputs.version }}]"
+        working-directory: ${{ env.tf_dir }}
       - uses: hashicorp/setup-terraform@v3.1.2
         with:
-          terraform_version: ${{ steps.tf_version_setup.outputs.TERRAFORM_VERSION }}
+          terraform_version: ${{ steps.tf_version.outputs.version }}
           terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4
@@ -81,12 +79,12 @@ jobs:
 
       - name: Lint Terraform
         run: terraform fmt -check -recursive
-        working-directory: ./terraform/environment
+        working-directory: ${{ env.tf_dir }}
         continue-on-error: true
 
       - name: Terraform Init
         run: terraform init -input=false
-        working-directory: ./terraform/environment
+        working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Plan
         env:
@@ -95,7 +93,7 @@ jobs:
         run: |
           terraform workspace show
           terraform plan -lock-timeout=300s -input=false -parallelism=30 -out=terraform.plan
-        working-directory: ./terraform/environment
+        working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Apply
         if: inputs.apply == true
@@ -104,7 +102,7 @@ jobs:
           TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
-        working-directory: ./terraform/environment
+        working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Outputs
         if: inputs.apply == true
@@ -114,4 +112,4 @@ jobs:
           TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           echo "url=$(terraform output -raw base_url)" >> $GITHUB_OUTPUT
-        working-directory: ./terraform/environment
+        working-directory: ${{ env.tf_dir }}
