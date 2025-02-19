@@ -54,12 +54,12 @@ jobs:
         uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v3.1.1
         with:
           terraform_directory: ${{ env.tf_dir }}
-      - name: "Terraform version [${{ steps.tf_version.outputs.TERRAFORM_VERSION }}]"
-        run: echo "terraform version [${{ steps.tf_version.outputs.TERRAFORM_VERSION }}]"
+      - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
+        run: echo "terraform version [${{ steps.tf_version.outputs.version }}]"
         working-directory: ${{ env.tf_dir }}
       - uses: hashicorp/setup-terraform@v3.1.2
         with:
-          terraform_version: ${{ steps.tf_version.outputs.TERRAFORM_VERSION }}
+          terraform_version: ${{ steps.tf_version.outputs.version }}
           terraform_wrapper: false
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@v4
