@@ -65,6 +65,15 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
 
+	if !c.CertificateProvider.SignedAt.IsZero() &&
+		!c.CertificateProvider.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) &&
+		lpa.Channel == shared.ChannelOnline {
+		return []shared.FieldError{{
+			Source: "/certificateProvider" + signedAt,
+			Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
+		}}
+	}
+
 	if lpa.Status == shared.LpaStatusRegistered {
 		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
 	}

@@ -248,6 +248,31 @@ func TestCorrectionApplyForCertificateProvider(t *testing.T) {
 	assert.Equal(t, correction.CertificateProvider.SignedAt, *lpa.CertificateProvider.SignedAt)
 }
 
+func TestCorrectionApplyForCertificateProviderSignedAtChannel(t *testing.T) {
+	now := time.Now()
+	yesterday := now.Add(-24 * time.Hour)
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Channel: "online",
+			CertificateProvider: shared.CertificateProvider{
+				SignedAt: &yesterday,
+			},
+		},
+	}
+
+	correction := Correction{
+		CertificateProvider: CertificateProviderCorrection{
+			SignedAt: now,
+		},
+	}
+	errors := correction.Apply(lpa)
+
+	assert.Equal(t, errors, []shared.FieldError{{
+		Source: "/certificateProvider/signedAt",
+		Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
+	}})
+}
+
 func TestValidateCorrection(t *testing.T) {
 	now := time.Now()
 	const fieldRequired = "field is required"
