@@ -50,23 +50,13 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 				Field("/line3", &data.Address.Line3, parse.Optional()).
 				Field("/town", &data.Address.Town).
 				Field("/postcode", &data.Address.Postcode, parse.Optional()).
-				Field("/country", &data.Address.Country, parse.Validate(func() []shared.FieldError {
-					return validate.Country("", data.Address.Country)
-				})).
+				Field("/country", &data.Address.Country, parse.Validate(validate.Country())).
 				Consumed()
 		}, parse.Optional()).
-		Field("/certificateProvider/signedAt", &data.SignedAt, parse.Validate(func() []shared.FieldError {
-			return validate.Time("", data.SignedAt)
-		})).
-		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(func() []shared.FieldError {
-			return validate.IsValid("", data.ContactLanguagePreference)
-		})).
-		Field("/certificateProvider/email", &data.Email, parse.Validate(func() []shared.FieldError {
-			return validate.Required("", data.Email)
-		}), parse.Optional()).
-		Field("/certificateProvider/channel", &data.Channel, parse.Validate(func() []shared.FieldError {
-			return validate.IsValid("", data.Channel)
-		}), parse.Optional()).
+		Field("/certificateProvider/signedAt", &data.SignedAt, parse.Validate(validate.NotEmpty())).
+		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid())).
+		Field("/certificateProvider/email", &data.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/certificateProvider/channel", &data.Channel, parse.Validate(validate.Valid()), parse.Optional()).
 		Consumed()
 
 	return data, errors

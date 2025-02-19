@@ -40,12 +40,8 @@ func validateConfirmIdentity(prefix string, actor idccActor, ic *shared.Identity
 			idcc.IdentityCheck = ic
 
 			return p.
-				Field("/type", &ic.Type, parse.Validate(func() []shared.FieldError {
-					return validate.IsValid("", ic.Type)
-				})).
-				Field("/checkedAt", &ic.CheckedAt, parse.Validate(func() []shared.FieldError {
-					return validate.Time("", ic.CheckedAt)
-				})).
+				Field("/type", &ic.Type, parse.Validate(validate.Valid())).
+				Field("/checkedAt", &ic.CheckedAt, parse.Validate(validate.NotEmpty())).
 				Consumed()
 		}).
 		Consumed()

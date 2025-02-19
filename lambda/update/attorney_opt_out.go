@@ -31,7 +31,7 @@ func validateAttorneyOptOut(update shared.Update) (AttorneyOptOut, []shared.Fiel
 
 	author := update.Author.Details()
 
-	if errs := validate.UUID("/author", author.UID); len(errs) > 0 {
+	if errs := validate.WithSource("/author", author.UID, validate.UUID()); len(errs) > 0 {
 		return AttorneyOptOut{}, errs
 	}
 

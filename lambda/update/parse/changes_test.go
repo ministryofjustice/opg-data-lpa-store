@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -68,24 +69,25 @@ func TestFieldValidate(t *testing.T) {
 	}
 
 	var v string
-	Changes(changes).Field("/thing", &v, Validate(func() []shared.FieldError {
-		return nil
-	}))
+	errors := Changes(changes).
+		Field("/thing", &v, Validate(validate.NotEmpty())).
+		Errors()
 
+	assert.Nil(t, errors)
 	assert.Equal(t, "val", v)
 }
 
 func TestFieldValidateWhenInvalid(t *testing.T) {
 	changes := []shared.Change{
-		{Key: "/thing", New: json.RawMessage(`"what"`), Old: json.RawMessage(`"why"`)},
+		{Key: "/thing", New: json.RawMessage(`""`), Old: jsonNull},
 	}
 
-	v := "why"
-	errors := Changes(changes).Field("/thing", &v, Validate(func() []shared.FieldError {
-		return []shared.FieldError{{Source: "/rewritten", Detail: "invalid"}}
-	})).Errors()
+	var v string
+	errors := Changes(changes).
+		Field("/thing", &v, Validate(validate.NotEmpty())).
+		Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "invalid"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "field is required"}}, errors)
 }
 
 func TestFieldOldString(t *testing.T) {
