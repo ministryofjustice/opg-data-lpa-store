@@ -51,7 +51,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@v1
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v1.1.0
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@v3.1.1
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.TERRAFORM_VERSION }}]"
