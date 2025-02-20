@@ -301,7 +301,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["active", "replacement", "removed"]
+          "enum": ["active", "inactive", "removed"]
         },
         "channel": {
           "type": "string",
@@ -341,7 +341,7 @@
         },
         "status": {
           "type": "string",
-          "enum": ["active", "replacement", "removed"]
+          "enum": ["active", "inactive", "removed"]
         },
         "channel": {
           "type": "string",
