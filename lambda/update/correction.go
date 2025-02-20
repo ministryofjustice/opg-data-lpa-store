@@ -9,9 +9,28 @@ import (
 )
 
 type Correction struct {
-	Donor       DonorCorrection
-	Attorney    AttorneyCorrection
-	LPASignedAt time.Time
+	Donor               DonorCorrection
+	Attorney            AttorneyCorrection
+	CertificateProvider CertificateProviderCorrection
+	LPASignedAt         time.Time
+}
+
+type CertificateProviderCorrection struct {
+	FirstNames string
+	LastName   string
+	Address    shared.Address
+	Email      string
+	Phone      string
+	SignedAt   time.Time
+}
+
+func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
+	lpa.CertificateProvider.FirstNames = cpr.FirstNames
+	lpa.CertificateProvider.LastName = cpr.LastName
+	lpa.CertificateProvider.Address = cpr.Address
+	lpa.CertificateProvider.Email = cpr.Email
+	lpa.CertificateProvider.Phone = cpr.Phone
+	lpa.CertificateProvider.SignedAt = &cpr.SignedAt
 }
 
 type DonorCorrection struct {
@@ -46,6 +65,15 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 	}
 
+	if !c.CertificateProvider.SignedAt.IsZero() &&
+		!c.CertificateProvider.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) &&
+		lpa.Channel == shared.ChannelOnline {
+		return []shared.FieldError{{
+			Source: "/certificateProvider" + signedAt,
+			Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
+		}}
+	}
+
 	if lpa.Status == shared.LpaStatusRegistered {
 		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
 	}
@@ -53,6 +81,8 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	c.Donor.Apply(lpa)
 	c.Attorney.Apply(lpa)
 	lpa.SignedAt = c.LPASignedAt
+
+	c.CertificateProvider.Apply(lpa)
 
 	return nil
 }
@@ -90,6 +120,16 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.Donor.Email = lpa.LpaInit.Donor.Email
 	data.LPASignedAt = lpa.LpaInit.SignedAt
 
+	data.CertificateProvider.FirstNames = lpa.LpaInit.CertificateProvider.FirstNames
+	data.CertificateProvider.LastName = lpa.LpaInit.CertificateProvider.LastName
+	data.CertificateProvider.Address = lpa.LpaInit.CertificateProvider.Address
+	data.CertificateProvider.Email = lpa.LpaInit.CertificateProvider.Email
+	data.CertificateProvider.Phone = lpa.LpaInit.CertificateProvider.Phone
+
+	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
+		data.CertificateProvider.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
+	}
+
 	errors := parse.Changes(changes).
 		Prefix("/donor", validateDonor(&data.Donor), parse.Optional()).
 		Field(signedAt, &data.LPASignedAt, parse.Validate(func() []shared.FieldError {
@@ -118,6 +158,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 				}).
 				Consumed()
 		}, parse.Optional()).
+		Prefix("/certificateProvider", validateCertificateProvider(&data.CertificateProvider), parse.Optional()).
 		Consumed()
 
 	return data, errors
@@ -158,6 +199,23 @@ func validateDonor(donor *DonorCorrection) func(p *parse.Parser) []shared.FieldE
 			}), parse.Optional()).
 			Prefix("/address", validateAddress(&donor.Address), parse.Optional()).
 			Field("/email", &donor.Email, parse.Optional()).
+			Consumed()
+	}
+}
+
+func validateCertificateProvider(certificateProvider *CertificateProviderCorrection) func(p *parse.Parser) []shared.FieldError {
+	return func(p *parse.Parser) []shared.FieldError {
+		return p.
+			Field("/firstNames", &certificateProvider.FirstNames, parse.Validate(func() []shared.FieldError {
+				return validate.Required("", certificateProvider.FirstNames)
+			}), parse.Optional()).
+			Field("/lastName", &certificateProvider.LastName, parse.Validate(func() []shared.FieldError {
+				return validate.Required("", certificateProvider.LastName)
+			}), parse.Optional()).
+			Prefix("/address", validateAddress(&certificateProvider.Address), parse.Optional()).
+			Field("/email", &certificateProvider.Email, parse.Optional()).
+			Field("/phone", &certificateProvider.Phone, parse.Optional()).
+			Field("/signedAt", &certificateProvider.SignedAt, parse.Optional()).
 			Consumed()
 	}
 }
