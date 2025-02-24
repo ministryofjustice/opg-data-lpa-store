@@ -42,15 +42,12 @@ func (r OpgChangeStatus) Apply(lpa *shared.Lpa) []shared.FieldError {
 }
 
 func validateOpgChangeStatus(changes []shared.Change, lpa *shared.Lpa) (OpgChangeStatus, []shared.FieldError) {
-
 	var data OpgChangeStatus
 
 	data.Status = lpa.Status
 
 	errors := parse.Changes(changes).
-		Field("/status", &data.Status, parse.Validate(func() []shared.FieldError {
-			return validate.IsValid("", data.Status)
-		})).
+		Field("/status", &data.Status, parse.Validate(validate.Valid())).
 		Consumed()
 
 	return data, errors
