@@ -35,6 +35,18 @@
       "type": "string",
       "format": "date-time"
     },
+    "howAttorneysMakeDecisionsIsDefault": {
+      "type": "boolean"
+    },
+    "howReplacementAttorneysMakeDecisionsIsDefault": {
+      "type": "boolean"
+    },
+    "whenTheLpaCanBeUsedIsDefault": {
+      "type": "boolean"
+    },
+    "lifeSustainingTreatmentOptionIsDefault": {
+      "type": "boolean"
+    },
     "attorneys": {
       "type": "array",
       "items": {

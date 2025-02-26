@@ -335,7 +335,7 @@ func TestValidateCorrection(t *testing.T) {
 						},
 						{
 							AppointmentType: shared.AppointmentTypeReplacement,
-							Status:          shared.AttorneyStatusReplacement,
+							Status:          shared.AttorneyStatusInactive,
 						},
 					},
 				},

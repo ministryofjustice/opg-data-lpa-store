@@ -145,6 +145,7 @@
     "howAttorneysMakeDecisions": {
       "type": "string",
       "enum": [
+        "",
         "jointly",
         "jointly-and-severally",
         "jointly-for-some-severally-for-others"
@@ -156,6 +157,7 @@
     "howReplacementAttorneysMakeDecisions": {
       "type": "string",
       "enum": [
+        "",
         "jointly",
         "jointly-and-severally",
         "jointly-for-some-severally-for-others"
@@ -173,11 +175,11 @@
     },
     "whenTheLpaCanBeUsed": {
       "type": "string",
-      "enum": ["when-capacity-lost", "when-has-capacity"]
+      "enum": ["", "when-capacity-lost", "when-has-capacity"]
     },
     "lifeSustainingTreatmentOption": {
       "type": "string",
-      "enum": ["option-a", "option-b"]
+      "enum": ["", "option-a", "option-b"]
     },
     "restrictionsAndConditions": {
       "type": "string"
