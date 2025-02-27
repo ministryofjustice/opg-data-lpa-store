@@ -74,6 +74,12 @@ test-api:
 	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
 	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
 	cat ./docs/donor-withdraw-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
+
+	# create with defaulted field
+	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
+	cat ./docs/example-lpa-default-request.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
+	./api-test/tester -expectedStatus=200 -write REQUEST GET $(URL)/lpas/$(LPA_UID) '' > $(TMPFILE)
+	diff <(jq --sort-keys 'del(.status,.uid,.updatedAt)' < $(TMPFILE)) <(jq --sort-keys . < docs/example-lpa-default-response.json)
 .PHONY: test-api
 
 test-pact:
