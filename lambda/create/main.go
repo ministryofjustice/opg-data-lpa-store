@@ -88,6 +88,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemInternalServerError.Respond()
 	}
 
+	input = SetDefaults(input)
+
 	// validation
 	if errs := Validate(input); len(errs) > 0 {
 		if input.Channel == shared.ChannelPaper {
