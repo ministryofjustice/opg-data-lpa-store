@@ -82,18 +82,70 @@ func makeDate(s string) shared.Date {
 }
 
 func TestLambdaHandleEvent(t *testing.T) {
-	for _, channel := range []shared.Channel{shared.ChannelOnline, shared.ChannelPaper} {
-		t.Run(string(channel), func(t *testing.T) {
-			lpaInit := validLpaInit
-			lpaInit.Channel = channel
-			body, _ := json.Marshal(lpaInit)
+	onlineWithDefault := validLpaInit
+	onlineWithDefault.WhenTheLpaCanBeUsed = shared.CanUseUnset
 
-			lpa := shared.Lpa{
+	onlineWithDefaultLpa := validLpaInit
+	onlineWithDefaultLpa.WhenTheLpaCanBeUsed = shared.CanUseWhenHasCapacity
+	onlineWithDefaultLpa.WhenTheLpaCanBeUsedIsDefault = true
+
+	paperLpaInit := validLpaInit
+	paperLpaInit.Channel = shared.ChannelPaper
+
+	paperWithDefault := validLpaInit
+	paperLpaInit.Channel = shared.ChannelPaper
+	paperWithDefault.WhenTheLpaCanBeUsed = shared.CanUseUnset
+
+	paperWithDefaultLpa := validLpaInit
+	paperLpaInit.Channel = shared.ChannelPaper
+	paperWithDefaultLpa.WhenTheLpaCanBeUsed = shared.CanUseWhenHasCapacity
+	paperWithDefaultLpa.WhenTheLpaCanBeUsedIsDefault = true
+
+	testcases := map[string]struct {
+		input shared.LpaInit
+		lpa   shared.Lpa
+	}{
+		"online": {
+			input: validLpaInit,
+			lpa: shared.Lpa{
 				Uid:       "my-uid",
 				Status:    shared.LpaStatusInProgress,
 				UpdatedAt: testNow,
-				LpaInit:   lpaInit,
-			}
+				LpaInit:   validLpaInit,
+			},
+		},
+		"online with default": {
+			input: onlineWithDefault,
+			lpa: shared.Lpa{
+				Uid:       "my-uid",
+				Status:    shared.LpaStatusInProgress,
+				UpdatedAt: testNow,
+				LpaInit:   onlineWithDefaultLpa,
+			},
+		},
+		"paper": {
+			input: paperLpaInit,
+			lpa: shared.Lpa{
+				Uid:       "my-uid",
+				Status:    shared.LpaStatusInProgress,
+				UpdatedAt: testNow,
+				LpaInit:   paperLpaInit,
+			},
+		},
+		"paper with default": {
+			input: paperWithDefault,
+			lpa: shared.Lpa{
+				Uid:       "my-uid",
+				Status:    shared.LpaStatusInProgress,
+				UpdatedAt: testNow,
+				LpaInit:   paperWithDefaultLpa,
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			body, _ := json.Marshal(tc.input)
 
 			req := events.APIGatewayProxyRequest{
 				PathParameters: map[string]string{"uid": "my-uid"},
@@ -114,12 +166,12 @@ func TestLambdaHandleEvent(t *testing.T) {
 				Get(ctx, "my-uid").
 				Return(shared.Lpa{}, nil)
 			store.EXPECT().
-				Put(ctx, lpa).
+				Put(ctx, tc.lpa).
 				Return(nil)
 
 			staticLpaStorage := newMockS3Client(t)
 			staticLpaStorage.EXPECT().
-				Put(ctx, "my-uid/donor-executed-lpa.json", lpa).
+				Put(ctx, "my-uid/donor-executed-lpa.json", tc.lpa).
 				Return(nil)
 
 			eventClient := newMockEventClient(t)
@@ -224,7 +276,7 @@ func TestLambdaHandleEventWhenPaperSubmissionContainsImages(t *testing.T) {
 func TestLambdaHandleEventWhenPaperSubmissionHasValidationErrors(t *testing.T) {
 	lpaInit := validLpaInit
 	lpaInit.Channel = shared.ChannelPaper
-	lpaInit.WhenTheLpaCanBeUsed = shared.CanUseUnset
+	lpaInit.WhenTheLpaCanBeUsed = shared.CanUse("bad")
 	body, _ := json.Marshal(lpaInit)
 
 	lpa := shared.Lpa{
