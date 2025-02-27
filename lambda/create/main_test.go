@@ -149,6 +149,78 @@ func TestLambdaHandleEvent(t *testing.T) {
 	}
 }
 
+func TestLambdaHandleEventWhenDefault(t *testing.T) {
+	for _, channel := range []shared.Channel{shared.ChannelOnline, shared.ChannelPaper} {
+		t.Run(string(channel), func(t *testing.T) {
+			lpaInit := validLpaInit
+			lpaInit.Channel = channel
+			lpaInit.WhenTheLpaCanBeUsed = shared.CanUseUnset
+			body, _ := json.Marshal(lpaInit)
+
+			lpaInit.WhenTheLpaCanBeUsed = shared.CanUseWhenHasCapacity
+			lpaInit.WhenTheLpaCanBeUsedIsDefault = true
+
+			lpa := shared.Lpa{
+				Uid:       "my-uid",
+				Status:    shared.LpaStatusInProgress,
+				UpdatedAt: testNow,
+				LpaInit:   lpaInit,
+			}
+
+			req := events.APIGatewayProxyRequest{
+				PathParameters: map[string]string{"uid": "my-uid"},
+				Body:           string(body),
+			}
+
+			verifier := newMockVerifier(t)
+			verifier.EXPECT().
+				VerifyHeader(req).
+				Return(nil, nil)
+
+			logger := newMockLogger(t)
+			logger.EXPECT().
+				Debug("Successfully parsed JWT from event header")
+
+			store := newMockStore(t)
+			store.EXPECT().
+				Get(ctx, "my-uid").
+				Return(shared.Lpa{}, nil)
+			store.EXPECT().
+				Put(ctx, lpa).
+				Return(nil)
+
+			staticLpaStorage := newMockS3Client(t)
+			staticLpaStorage.EXPECT().
+				Put(ctx, "my-uid/donor-executed-lpa.json", lpa).
+				Return(nil)
+
+			eventClient := newMockEventClient(t)
+			eventClient.EXPECT().
+				SendLpaUpdated(ctx, event.LpaUpdated{
+					Uid:        "my-uid",
+					ChangeType: "CREATE",
+				}).
+				Return(nil)
+
+			lambda := &Lambda{
+				verifier:         verifier,
+				logger:           logger,
+				store:            store,
+				staticLpaStorage: staticLpaStorage,
+				eventClient:      eventClient,
+				now:              testNowFn,
+			}
+
+			resp, err := lambda.HandleEvent(ctx, req)
+			assert.Nil(t, err)
+			assert.Equal(t, events.APIGatewayProxyResponse{
+				StatusCode: 201,
+				Body:       "{}",
+			}, resp)
+		})
+	}
+}
+
 func TestLambdaHandleEventWhenPaperSubmissionContainsImages(t *testing.T) {
 	lpaInit := validLpaInit
 	lpaInit.Channel = shared.ChannelPaper
@@ -224,7 +296,7 @@ func TestLambdaHandleEventWhenPaperSubmissionContainsImages(t *testing.T) {
 func TestLambdaHandleEventWhenPaperSubmissionHasValidationErrors(t *testing.T) {
 	lpaInit := validLpaInit
 	lpaInit.Channel = shared.ChannelPaper
-	lpaInit.WhenTheLpaCanBeUsed = shared.CanUseUnset
+	lpaInit.WhenTheLpaCanBeUsed = shared.CanUse("bad")
 	body, _ := json.Marshal(lpaInit)
 
 	lpa := shared.Lpa{
