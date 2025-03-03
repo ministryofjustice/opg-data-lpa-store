@@ -14,76 +14,14 @@ down: ## Stop application
 	docker compose down
 
 test: ## Unit tests
-	go test ./... -race -covermode=atomic -coverprofile=coverage.out
+	go test ./... -race -short -covermode=atomic -coverprofile=coverage.out
 
-test-api: URL ?= http://localhost:9000
-# test-api: export JWT_SECRET_KEY ?= mysupersecrettestkeythatis128bits
 test-api:
-	$(shell go build -o ./api-test/tester ./api-test && chmod +x ./api-test/tester)
-	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
-	$(eval TMPFILE := "$(shell mktemp)")
-
-	# JWT required
-	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"1"}'
-	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates '{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}'
-	JWT_SECRET_KEY=bad ./api-test/tester -expectedStatus=401 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
-
-	# create
-	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	./api-test/tester -expectedStatus=200 -write REQUEST GET $(URL)/lpas/$(LPA_UID) '' > $(TMPFILE)
-
-	# missing fields
-	diff <(jq --sort-keys 'del(.status,.uid,.updatedAt)' < $(TMPFILE)) <(jq --sort-keys . < docs/example-lpa.json)
-	./api-test/tester -expectedStatus=400 REQUEST PUT $(URL)/lpas/$(LPA_UID) '{"version":"2"}'
-
-	# certificate provider sign
-	cat ./docs/certificate-provider-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# attorney sign
-	cat ./docs/attorney-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# donor id check complete
-	cat ./docs/donor-confirm-identity.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# certificate provider id check complete
-	cat ./docs/certificate-provider-confirm-identity.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# trust corporation sign
-	cat ./docs/trust-corporation-sign.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# lpa enters statutory waiting period
-	cat ./docs/statutory-waiting-period.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# get lpa
-	./api-test/tester -expectedStatus=200 REQUEST GET $(URL)/lpas/$(LPA_UID) ''
-
-	# get lpas
-	./api-test/tester -expectedStatus=200 REQUEST POST $(URL)/lpas '{"uids": [$(LPA_UID)]}'
-
-	# certificate provider opt out
-	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
-	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	cat ./docs/certificate-provider-opt-out.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# attorney opt out
-	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
-	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	cat ./docs/attorney-opt-out.json | ./api-test/tester -expectedStatus=201 -authorUID=9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# donor withdraws lpa
-	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
-	cat ./docs/example-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	cat ./docs/donor-withdraw-lpa.json | ./api-test/tester -expectedStatus=201 REQUEST POST $(URL)/lpas/$(LPA_UID)/updates "`xargs -0`"
-
-	# create with defaulted field
-	$(eval LPA_UID := "$(shell ./api-test/tester UID)")
-	cat ./docs/example-lpa-default-request.json | ./api-test/tester -expectedStatus=201 REQUEST PUT $(URL)/lpas/$(LPA_UID) "`xargs -0`"
-	./api-test/tester -expectedStatus=200 -write REQUEST GET $(URL)/lpas/$(LPA_UID) '' > $(TMPFILE)
-	diff <(jq --sort-keys 'del(.status,.uid,.updatedAt)' < $(TMPFILE)) <(jq --sort-keys . < docs/example-lpa-default-response.json)
+	go test -count 1 .
 .PHONY: test-api
 
 test-pact:
-	$(eval JWT := "$(shell JWT_SECRET_KEY=mysupersecrettestkeythatis128bits ./api-test/tester JWT)")
+	$(eval JWT := "$(shell go run scripts/make_jwt.go)")
 
 	docker compose run --rm pact-verifier \
       --header="X-Jwt-Authorization=Bearer $(JWT)" \
