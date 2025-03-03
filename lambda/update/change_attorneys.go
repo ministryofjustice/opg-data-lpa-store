@@ -49,9 +49,7 @@ func validateChangeAttorney(changes []shared.Change, lpa *shared.Lpa) (ChangeAtt
 					data.ChangeAttorneyStatus = append(data.ChangeAttorneyStatus, ChangeAttorneyStatus{Index: &i, Status: lpa.Attorneys[i].Status})
 
 					return p.
-						Field("/status", &data.ChangeAttorneyStatus[key].Status, parse.Validate(func() []shared.FieldError {
-							return validate.IsValid("", data.ChangeAttorneyStatus[key].Status)
-						})).
+						Field("/status", &data.ChangeAttorneyStatus[key].Status, parse.Validate(validate.Valid())).
 						Consumed()
 				}).
 				Consumed()
