@@ -170,6 +170,13 @@ func oldEqualsExisting(old any, existing any) bool {
 
 		return shared.LpaStatus(old.(string)) == *v
 
+	case *shared.AttorneyStatus:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.AttorneyStatus(old.(string)) == *v
+
 	case *shared.Date:
 		if old == nil {
 			return v.IsZero()
