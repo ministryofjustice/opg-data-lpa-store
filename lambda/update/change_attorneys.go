@@ -19,9 +19,6 @@ type ChangeAttorneyStatus struct {
 func (a ChangeAttorney) Apply(lpa *shared.Lpa) []shared.FieldError {
 	for _, changeAttorneyStatus := range a.ChangeAttorneyStatus {
 		source := "/attorneys/" + strconv.Itoa(*changeAttorneyStatus.Index) + "/status"
-		if changeAttorneyStatus.Status == shared.AttorneyStatusRemoved && lpa.Attorneys[*changeAttorneyStatus.Index].Status == shared.AttorneyStatusInactive {
-			return []shared.FieldError{{Source: source, Detail: "An inactive attorney cannot be removed"}}
-		}
 
 		if changeAttorneyStatus.Status == shared.AttorneyStatusInactive && lpa.Attorneys[*changeAttorneyStatus.Index].Status == shared.AttorneyStatusActive {
 			return []shared.FieldError{{Source: source, Detail: "An active attorney cannot be made inactive"}}
