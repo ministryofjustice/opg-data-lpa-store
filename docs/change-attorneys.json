@@ -1,0 +1,15 @@
+{
+    "type": "CHANGE_ATTORNEYS",
+    "changes": [
+        {
+            "key": "/attorneys/0/status",
+            "new": "removed",
+            "old": "active"
+        },
+        {
+            "key": "/attorneys/1/status",
+            "new": "active",
+            "old": "inactive"
+        }
+    ]
+}
