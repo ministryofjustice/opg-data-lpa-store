@@ -100,7 +100,9 @@ func TestCreate(t *testing.T) {
 			req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
 
 			resp, _ := doRequest(req)
-			assert.Equal(t, http.StatusCreated, resp.StatusCode)
+			if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
+				return
+			}
 
 			getReq, _ := http.NewRequest(http.MethodGet,
 				fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
@@ -108,7 +110,9 @@ func TestCreate(t *testing.T) {
 			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
 
 			getResp, _ := doRequest(getReq)
-			assert.Equal(t, http.StatusOK, getResp.StatusCode)
+			if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
+				return
+			}
 
 			var getJSON map[string]any
 			json.NewDecoder(getResp.Body).Decode(&getJSON)
@@ -123,6 +127,89 @@ func TestCreate(t *testing.T) {
 			assert.JSONEq(t, string(outData), string(getBody))
 		})
 	}
+}
+
+func TestCreateWithImages(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping api test")
+		return
+	}
+
+	lpaUID := makeLpaUID()
+	inData, _ := os.ReadFile("docs/example-lpa-images.json")
+
+	req, _ := http.NewRequest(http.MethodPut,
+		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
+		bytes.NewReader(inData))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+
+	resp, _ := doRequest(req)
+	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
+		return
+	}
+
+	t.Run("Plain", func(t *testing.T) {
+		getReq, _ := http.NewRequest(http.MethodGet,
+			fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
+			nil)
+		getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+
+		getResp, _ := doRequest(getReq)
+		if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
+			return
+		}
+
+		var getJSON map[string]json.RawMessage
+		json.NewDecoder(getResp.Body).Decode(&getJSON)
+
+		var restrictionsAndConditionsImages []map[string]string
+		json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
+
+		getJSON["channel"] = json.RawMessage(`"online"`)
+		delete(getJSON, "status")
+		delete(getJSON, "uid")
+		delete(getJSON, "updatedAt")
+		delete(getJSON, "restrictionsAndConditionsImages")
+
+		outData, _ := os.ReadFile("docs/example-lpa.json")
+
+		getBody, _ := json.Marshal(getJSON)
+		assert.JSONEq(t, string(outData), string(getBody))
+
+		assert.Equal(t, "0_my-restrictions.png", strings.SplitN(restrictionsAndConditionsImages[0]["path"], "_", 2)[1])
+	})
+
+	t.Run("Presigned", func(t *testing.T) {
+		getReq, _ := http.NewRequest(http.MethodGet,
+			fmt.Sprintf("%s/lpas/%s?presign-images", baseURL, lpaUID),
+			nil)
+		getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+
+		getResp, _ := doRequest(getReq)
+		if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
+			return
+		}
+
+		var getJSON map[string]json.RawMessage
+		json.NewDecoder(getResp.Body).Decode(&getJSON)
+
+		var restrictionsAndConditionsImages []map[string]string
+		json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
+
+		getJSON["channel"] = json.RawMessage(`"online"`)
+		delete(getJSON, "status")
+		delete(getJSON, "uid")
+		delete(getJSON, "updatedAt")
+		delete(getJSON, "restrictionsAndConditionsImages")
+
+		outData, _ := os.ReadFile("docs/example-lpa.json")
+
+		getBody, _ := json.Marshal(getJSON)
+		assert.JSONEq(t, string(outData), string(getBody))
+
+		assert.Regexp(t, "^http://localstack:4566/"+lpaUID+"/scans/rc_0_my-restrictions.png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Checksum-Mode=ENABLED&X-Amz-Credential=.+&X-Amz-Date=[0-9]+T[0-9]+Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&x-id=GetObject&X-Amz-Signature=[a-f0-9]+$", restrictionsAndConditionsImages[0]["path"])
+	})
 }
 
 func TestCreateWithMissingFields(t *testing.T) {
