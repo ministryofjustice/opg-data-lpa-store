@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
+	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-go-common/telemetry"
 )
@@ -25,14 +26,19 @@ type Store interface {
 	GetList(ctx context.Context, uids []string) ([]shared.Lpa, error)
 }
 
+type PresignClient interface {
+	PresignLpa(ctx context.Context, lpa shared.Lpa) (shared.Lpa, error)
+}
+
 type Verifier interface {
 	VerifyHeader(events.APIGatewayProxyRequest) (*shared.LpaStoreClaims, error)
 }
 
 type Lambda struct {
-	store    Store
-	verifier Verifier
-	logger   Logger
+	store         Store
+	presignClient PresignClient
+	verifier      Verifier
+	logger        Logger
 }
 
 type lpasRequest struct {
@@ -69,6 +75,17 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		return shared.ProblemInternalServerError.Respond()
 	}
 
+	_, presignImages := event.QueryStringParameters["presign-images"]
+	if presignImages {
+		for i, lpa := range lpas {
+			lpas[i], err = l.presignClient.PresignLpa(ctx, lpa)
+			if err != nil {
+				l.logger.Error("error signing URL", slog.Any("err", err))
+				return shared.ProblemInternalServerError.Respond()
+			}
+		}
+	}
+
 	body, err := json.Marshal(lpasResponse{Lpas: lpas})
 	if err != nil {
 		l.logger.Error("error marshalling LPA", slog.Any("err", err))
@@ -102,6 +119,10 @@ func main() {
 			cfg,
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
+		),
+		presignClient: objectstore.NewS3Client(
+			cfg,
+			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
 		verifier: shared.NewJWTVerifier(cfg, logger),
 		logger:   logger,

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
@@ -98,4 +99,60 @@ func TestS3ClientUploadFileWhenS3Error(t *testing.T) {
 
 	_, err := client.UploadFile(ctx, upload, "dir/myfile.txt")
 	assert.Equal(t, expectedError, err)
+}
+
+func TestS3ClientPresignLpa(t *testing.T) {
+	presigner := newMockPresignClient(t)
+	presigner.EXPECT().
+		PresignGetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String("bucket1"),
+			Key:    aws.String("x.jpg"),
+		}).
+		Return(&v4.PresignedHTTPRequest{URL: "aws/x.jpg?blah"}, nil).
+		Once()
+	presigner.EXPECT().
+		PresignGetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String("bucket1"),
+			Key:    aws.String("y.png"),
+		}).
+		Return(&v4.PresignedHTTPRequest{URL: "aws/y.png?blah"}, nil).
+		Once()
+
+	client := &S3Client{
+		bucketName: "bucket1",
+		presigner:  presigner,
+	}
+
+	result, err := client.PresignLpa(ctx, shared.Lpa{
+		RestrictionsAndConditionsImages: []shared.File{
+			{
+				Path: "x.jpg",
+				Hash: "xxx",
+			},
+			{
+				Path: "y.png",
+				Hash: "yyy",
+			},
+		},
+	})
+	assert.Nil(t, err)
+	assert.Equal(t, "aws/x.jpg?blah", result.RestrictionsAndConditionsImages[0].Path)
+	assert.Equal(t, "aws/y.png?blah", result.RestrictionsAndConditionsImages[1].Path)
+}
+
+func TestS3ClientPresignLpaWhenError(t *testing.T) {
+	presigner := newMockPresignClient(t)
+	presigner.EXPECT().
+		PresignGetObject(mock.Anything, mock.Anything).
+		Return(nil, expectedError)
+
+	client := &S3Client{
+		bucketName: "bucket1",
+		presigner:  presigner,
+	}
+
+	_, err := client.PresignLpa(ctx, shared.Lpa{
+		RestrictionsAndConditionsImages: []shared.File{{Path: "x.jpg", Hash: "xxx"}},
+	})
+	assert.ErrorIs(t, err, expectedError)
 }
