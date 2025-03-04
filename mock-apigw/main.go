@@ -68,11 +68,17 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 
 	url := fmt.Sprintf("http://lambda-%s:8080/2015-03-31/functions/function/invocations", lambdaName)
 
+	query := map[string]string{}
+	for k, v := range r.URL.Query() {
+		query[k] = v[0]
+	}
+
 	body := events.APIGatewayProxyRequest{
-		Body:              reqBody.String(),
-		Path:              r.URL.Path,
-		HTTPMethod:        r.Method,
-		MultiValueHeaders: r.Header,
+		Body:                  reqBody.String(),
+		Path:                  r.URL.Path,
+		HTTPMethod:            r.Method,
+		MultiValueHeaders:     r.Header,
+		QueryStringParameters: query,
 	}
 
 	if uid != "" {
