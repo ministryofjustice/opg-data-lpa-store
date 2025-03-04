@@ -111,6 +111,7 @@
       }
     },
     "independentWitness": {
+      "type": "object",
       "allOf": [
         {
           "$ref": "#/$defs/Person"
@@ -265,7 +266,7 @@
         }
       ],
       "type": "object",
-      "required": ["dateOfBirth", "status", "channel"],
+      "required": ["dateOfBirth", "appointmentType", "status", "channel"],
       "properties": {
         "dateOfBirth": {
           "type": "string",
@@ -274,6 +275,10 @@
         "email": {
           "type": "string",
           "x-faker": "internet.email"
+        },
+        "appointmentType": {
+          "type": "string",
+          "enum": ["original", "replacement"]
         },
         "status": {
           "type": "string",
