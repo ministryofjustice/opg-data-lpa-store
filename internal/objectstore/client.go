@@ -21,6 +21,7 @@ type awsS3Client interface {
 type S3Client struct {
 	bucketName string
 	awsClient  awsS3Client
+	presigner  *s3.PresignClient
 }
 
 func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
@@ -31,6 +32,7 @@ func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
 	return &S3Client{
 		bucketName: bucketName,
 		awsClient:  awsClient,
+		presigner:  s3.NewPresignClient(awsClient),
 	}
 }
 
@@ -74,4 +76,16 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 		Path: path,
 		Hash: hex.EncodeToString(hash.Sum(nil)),
 	}, nil
+}
+
+func (c *S3Client) Presign(ctx context.Context, path string) (string, error) {
+	req, err := c.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(c.bucketName),
+		Key:    aws.String(path),
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return req.URL, nil
 }
