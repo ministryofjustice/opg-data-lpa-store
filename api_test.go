@@ -43,8 +43,7 @@ func TestJWTRequired(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodPut,
 			fmt.Sprintf("%s/lpas/%s", baseURL, makeLpaUID()),
 			strings.NewReader(`{"version":"1"}`))
-		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt("bad", authorUID))
+		withAuth(req, "bad", authorUID)
 
 		resp, _ := doRequest(req)
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
@@ -54,8 +53,7 @@ func TestJWTRequired(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodPost,
 			fmt.Sprintf("%s/lpas/%s/updates", baseURL, makeLpaUID()),
 			strings.NewReader(`{"type":"BUMP_VERSION","changes":[{"key":"/version","old":"1","new":"2"}]}`))
-		req.Header.Add("Content-Type", "application/json")
-		req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt("bad", authorUID))
+		withAuth(req, "bad", authorUID)
 
 		resp, _ := doRequest(req)
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
@@ -65,7 +63,7 @@ func TestJWTRequired(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet,
 			fmt.Sprintf("%s/lpas/%s", baseURL, makeLpaUID()),
 			nil)
-		req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt("bad", authorUID))
+		withAuth(req, "bad", authorUID)
 
 		resp, _ := doRequest(req)
 		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
@@ -99,8 +97,7 @@ func TestCreate(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodPut,
 				fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 				bytes.NewReader(inData))
-			req.Header.Add("Content-Type", "application/json")
-			req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+			withAuth(req, jwtSecretKey, authorUID)
 
 			resp, _ := doRequest(req)
 			if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
@@ -110,7 +107,7 @@ func TestCreate(t *testing.T) {
 			getReq, _ := http.NewRequest(http.MethodGet,
 				fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 				nil)
-			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+			withAuth(getReq, jwtSecretKey, authorUID)
 
 			getResp, _ := doRequest(getReq)
 			if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
@@ -168,7 +165,7 @@ func TestCreateWithImages(t *testing.T) {
 			getReq, _ := http.NewRequest(http.MethodGet,
 				fmt.Sprintf(tc.urlFormat, baseURL, lpaUID),
 				nil)
-			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+			withAuth(getReq, jwtSecretKey, authorUID)
 
 			getResp, _ := doRequest(getReq)
 			if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
@@ -208,8 +205,7 @@ func TestCreateWithMissingFields(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodPut,
 		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 		strings.NewReader(`{"version":"2"}`))
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+	withAuth(req, jwtSecretKey, authorUID)
 
 	resp, _ := doRequest(req)
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
@@ -230,7 +226,7 @@ func TestGetList(t *testing.T) {
 	getReq, _ := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("%s/lpas", baseURL),
 		strings.NewReader(fmt.Sprintf(`{"uids":["%s"]}`, strings.Join(uids, `","`))))
-	getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+	withAuth(getReq, jwtSecretKey, authorUID)
 
 	getResp, _ := doRequest(getReq)
 	assert.Equal(t, http.StatusOK, getResp.StatusCode)
@@ -288,7 +284,7 @@ func TestGetListWithImages(t *testing.T) {
 			getReq, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf(tc.urlFormat, baseURL),
 				strings.NewReader(fmt.Sprintf(`{"uids":["%s"]}`, strings.Join(uids, `","`))))
-			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+			withAuth(getReq, jwtSecretKey, authorUID)
 
 			getResp, _ := doRequest(getReq)
 			assert.Equal(t, http.StatusOK, getResp.StatusCode)
@@ -344,8 +340,7 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
 				bytes.NewReader(data))
-			req.Header.Add("Content-Type", "application/json")
-			req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+			withAuth(req, jwtSecretKey, authorUID)
 
 			resp, _ := doRequest(req)
 			assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -386,8 +381,7 @@ func TestUpdatesEnd(t *testing.T) {
 			req, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
 				bytes.NewReader(data))
-			req.Header.Add("Content-Type", "application/json")
-			req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, tc.authorUID))
+			withAuth(req, jwtSecretKey, tc.authorUID)
 
 			resp, _ := doRequest(req)
 			assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -402,8 +396,7 @@ func doCreateExample(t *testing.T, examplePath string) string {
 	req, _ := http.NewRequest(http.MethodPut,
 		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 		bytes.NewReader(exampleLpa))
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+	withAuth(req, jwtSecretKey, authorUID)
 
 	resp, _ := doRequest(req)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -436,6 +429,7 @@ func doRequest(req *http.Request) (*http.Response, error) {
 			return nil, err
 		}
 
+		req.Header.Add("Content-Type", "application/json")
 		req.Body = io.NopCloser(&reqBody)
 	}
 
@@ -450,6 +444,10 @@ func doRequest(req *http.Request) (*http.Response, error) {
 
 func makeLpaUID() string {
 	return "M-" + strings.ToUpper(uuid.NewString()[9:23])
+}
+
+func withAuth(req *http.Request, jwtSecretKey, authorUID string) {
+	req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
 }
 
 func makeJwt(secretKey, uid string) string {

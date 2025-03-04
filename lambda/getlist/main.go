@@ -27,7 +27,7 @@ type Store interface {
 }
 
 type PresignClient interface {
-	Presign(ctx context.Context, key string) (string, error)
+	PresignLpa(ctx context.Context, lpa shared.Lpa) (shared.Lpa, error)
 }
 
 type Verifier interface {
@@ -78,15 +78,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 	_, presignImages := event.QueryStringParameters["presign-images"]
 	if presignImages {
 		for i, lpa := range lpas {
-			if len(lpa.RestrictionsAndConditionsImages) > 0 {
-				for j, restrictionsImage := range lpa.RestrictionsAndConditionsImages {
-					signedURL, err := l.presignClient.Presign(ctx, restrictionsImage.Path)
-					if err != nil {
-						l.logger.Error("error signing URL", slog.String("path", restrictionsImage.Path), slog.Any("err", err))
-						return shared.ProblemInternalServerError.Respond()
-					}
-					lpas[i].RestrictionsAndConditionsImages[j].Path = signedURL
-				}
+			lpas[i], err = l.presignClient.PresignLpa(ctx, lpa)
+			if err != nil {
+				l.logger.Error("error signing URL", slog.Any("err", err))
+				return shared.ProblemInternalServerError.Respond()
 			}
 		}
 	}

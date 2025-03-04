@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
@@ -18,10 +19,14 @@ type awsS3Client interface {
 	PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error)
 }
 
+type presignClient interface {
+	PresignGetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)
+}
+
 type S3Client struct {
 	bucketName string
 	awsClient  awsS3Client
-	presigner  *s3.PresignClient
+	presigner  presignClient
 }
 
 func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
@@ -78,14 +83,20 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 	}, nil
 }
 
-func (c *S3Client) Presign(ctx context.Context, path string) (string, error) {
-	req, err := c.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(c.bucketName),
-		Key:    aws.String(path),
-	})
-	if err != nil {
-		return "", err
+func (c *S3Client) PresignLpa(ctx context.Context, lpa shared.Lpa) (shared.Lpa, error) {
+	if len(lpa.RestrictionsAndConditionsImages) > 0 {
+		for i, restrictionsImage := range lpa.RestrictionsAndConditionsImages {
+			req, err := c.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+				Bucket: aws.String(c.bucketName),
+				Key:    aws.String(restrictionsImage.Path),
+			})
+			if err != nil {
+				return lpa, err
+			}
+
+			lpa.RestrictionsAndConditionsImages[i].Path = req.URL
+		}
 	}
 
-	return req.URL, nil
+	return lpa, nil
 }
