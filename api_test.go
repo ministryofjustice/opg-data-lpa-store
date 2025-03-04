@@ -100,7 +100,9 @@ func TestCreate(t *testing.T) {
 			req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
 
 			resp, _ := doRequest(req)
-			assert.Equal(t, http.StatusCreated, resp.StatusCode)
+			if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
+				return
+			}
 
 			getReq, _ := http.NewRequest(http.MethodGet,
 				fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
@@ -108,7 +110,9 @@ func TestCreate(t *testing.T) {
 			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
 
 			getResp, _ := doRequest(getReq)
-			assert.Equal(t, http.StatusOK, getResp.StatusCode)
+			if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
+				return
+			}
 
 			var getJSON map[string]any
 			json.NewDecoder(getResp.Body).Decode(&getJSON)
@@ -121,6 +125,83 @@ func TestCreate(t *testing.T) {
 
 			getBody, _ := json.Marshal(getJSON)
 			assert.JSONEq(t, string(outData), string(getBody))
+		})
+	}
+}
+
+func TestCreateWithImages(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping api test")
+		return
+	}
+
+	testcases := map[string]struct {
+		urlFormat string
+		pathRe    func(string) string
+	}{
+		"Plain": {
+			urlFormat: "%s/lpas/%s",
+			pathRe: func(lpaUID string) string {
+				return "^" + lpaUID + "/scans/rc_0_my-restrictions.png$"
+			},
+		},
+		"Presigned": {
+			urlFormat: "%s/lpas/%s?presign-images",
+			pathRe: func(lpaUID string) string {
+				hostBucket := "http?://localstack:4566/"
+				if !strings.HasPrefix(baseURL, "http://localhost") {
+					hostBucket = "https://s3.eu-west-1.amazonaws.com/[a-z0-9\\-]+/"
+				}
+
+				return hostBucket + lpaUID + "/scans/rc_0_my-restrictions.png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&.+$"
+			},
+		},
+	}
+
+	lpaUID := makeLpaUID()
+	inData, _ := os.ReadFile("docs/example-lpa-images.json")
+
+	req, _ := http.NewRequest(http.MethodPut,
+		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
+		bytes.NewReader(inData))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+
+	resp, _ := doRequest(req)
+	if !assert.Equal(t, http.StatusCreated, resp.StatusCode) {
+		return
+	}
+
+	for scenario, tc := range testcases {
+		t.Run(scenario, func(t *testing.T) {
+			getReq, _ := http.NewRequest(http.MethodGet,
+				fmt.Sprintf(tc.urlFormat, baseURL, lpaUID),
+				nil)
+			getReq.Header.Add("X-Jwt-Authorization", "Bearer "+makeJwt(jwtSecretKey, authorUID))
+
+			getResp, _ := doRequest(getReq)
+			if !assert.Equal(t, http.StatusOK, getResp.StatusCode) {
+				return
+			}
+
+			var getJSON map[string]json.RawMessage
+			json.NewDecoder(getResp.Body).Decode(&getJSON)
+
+			var restrictionsAndConditionsImages []map[string]string
+			json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
+
+			getJSON["channel"] = json.RawMessage(`"online"`)
+			delete(getJSON, "status")
+			delete(getJSON, "uid")
+			delete(getJSON, "updatedAt")
+			delete(getJSON, "restrictionsAndConditionsImages")
+
+			outData, _ := os.ReadFile("docs/example-lpa.json")
+
+			getBody, _ := json.Marshal(getJSON)
+			assert.JSONEq(t, string(outData), string(getBody))
+
+			assert.Regexp(t, tc.pathRe(lpaUID), restrictionsAndConditionsImages[0]["path"])
 		})
 	}
 }
