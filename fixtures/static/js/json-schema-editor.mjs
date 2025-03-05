@@ -1,5 +1,6 @@
 import { get as jsonGet, set as jsonSet } from "./jsonpointer.mjs";
 import { Tabs as GovukTabs } from "../govuk-frontend.min.js";
+import { fetchSchema } from "./fetch-schema.mjs";
 
 const { Draft07 } = window.jlib;
 
@@ -46,13 +47,7 @@ export class JsonSchemaEditor {
       return;
     }
 
-    const response = await fetch(url);
-    this.schema = await response.json();
-
-    // TODO - Find a better solution
-    // HACK - Remove these from the schema so that blank values are not sent to the API
-    delete this.schema.properties.donor.properties.identityCheck;
-    delete this.schema.properties.certificateProvider.properties.identityCheck;
+    this.schema = await fetchSchema(url);
 
     const $container = document.createElement("div");
     this.$formContainer = $container;
@@ -273,9 +268,7 @@ export class JsonSchemaEditor {
 
         parents[pointer] = $detailsContent;
       } else {
-        const $div = document.createElement("div");
-        $div.innerHTML = "cannot " + schema.type;
-        $parent.appendChild($div);
+        console.error(schema);
       }
     });
   }
