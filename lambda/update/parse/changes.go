@@ -63,21 +63,34 @@ func (p *Parser) Errors() []shared.FieldError {
 type Option func(fieldOpts) fieldOpts
 
 type fieldOpts struct {
-	optional  bool
-	validator validate.Validator
+	old        any
+	optional   bool
+	validators []validate.Validator
 }
 
-// Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when the expected key is missing.
-func Optional() func(fieldOpts) fieldOpts {
+// Old provides the value to use when verifying the correct "old" value is
+// provided. The type of v must match the type of existing given to field. This
+// option is only needed when you want to track whether a change has been
+// provided.
+func Old(v any) Option {
+	return func(f fieldOpts) fieldOpts {
+		f.old = v
+		return f
+	}
+}
+
+// Optional stops [Parser.Field] or [Parser.Prefix] from adding an error when
+// the expected key is missing.
+func Optional() Option {
 	return func(f fieldOpts) fieldOpts {
 		f.optional = true
 		return f
 	}
 }
 
-func Validate(v validate.Validator) Option {
+func Validate(v ...validate.Validator) Option {
 	return func(f fieldOpts) fieldOpts {
-		f.validator = v
+		f.validators = v
 		return f
 	}
 }
@@ -105,14 +118,21 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
 			}
 
-			if !oldEqualsExisting(old, existing) {
+			compare := existing
+			if options.old != nil {
+				compare = options.old
+			}
+
+			if !oldEqualsExisting(old, compare) {
 				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
 			} else {
 				if err := json.Unmarshal(change.New, existing); err != nil {
 					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
-				} else if options.validator != nil {
-					if msg := options.validator.Valid(existing); msg != "" {
-						p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: msg})
+				} else if options.validators != nil {
+					for _, validator := range options.validators {
+						if msg := validator.Valid(existing); msg != "" {
+							p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: msg})
+						}
 					}
 				}
 			}
@@ -176,6 +196,34 @@ func oldEqualsExisting(old any, existing any) bool {
 		}
 
 		return shared.AttorneyStatus(old.(string)) == *v
+
+	case *shared.HowMakeDecisions:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.HowMakeDecisions(old.(string)) == *v
+
+	case *shared.HowStepIn:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.HowStepIn(old.(string)) == *v
+
+	case *shared.CanUse:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.CanUse(old.(string)) == *v
+
+	case *shared.LifeSustainingTreatment:
+		if old == nil {
+			return *v == ""
+		}
+
+		return shared.LifeSustainingTreatment(old.(string)) == *v
 
 	case *shared.Date:
 		if old == nil {
