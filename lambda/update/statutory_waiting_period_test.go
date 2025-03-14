@@ -82,6 +82,20 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 			},
 			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by attorneys"}},
 		},
+		"attorney, but not inactives": {
+			lpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					SignedAt:            now,
+					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
+					Attorneys:           []shared.Attorney{{SignedAt: &now}, {Status: shared.AttorneyStatusInactive}},
+					TrustCorporations: []shared.TrustCorporation{{
+						Signatories: []shared.Signatory{{SignedAt: now}},
+					}},
+				},
+			},
+			errors: nil,
+		},
 		"trust corporation": {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
