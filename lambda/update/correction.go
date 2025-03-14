@@ -9,29 +9,21 @@ import (
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
 )
 
+const signedAt = "/signedAt"
+
 type Correction struct {
-	Donor               DonorCorrection
-	Attorney            AttorneyCorrection
-	CertificateProvider CertificateProviderCorrection
-	LPASignedAt         time.Time
-}
-
-type CertificateProviderCorrection struct {
-	FirstNames string
-	LastName   string
-	Address    shared.Address
-	Email      string
-	Phone      string
-	SignedAt   time.Time
-}
-
-func (cpr CertificateProviderCorrection) Apply(lpa *shared.Lpa) {
-	lpa.CertificateProvider.FirstNames = cpr.FirstNames
-	lpa.CertificateProvider.LastName = cpr.LastName
-	lpa.CertificateProvider.Address = cpr.Address
-	lpa.CertificateProvider.Email = cpr.Email
-	lpa.CertificateProvider.Phone = cpr.Phone
-	lpa.CertificateProvider.SignedAt = &cpr.SignedAt
+	Donor                                       DonorCorrection
+	Attorney                                    AttorneyCorrection
+	CertificateProvider                         CertificateProviderCorrection
+	HowAttorneysMakeDecisions                   shared.HowMakeDecisions
+	HowAttorneysMakeDecisionsDetails            string
+	HowReplacementAttorneysStepIn               shared.HowStepIn
+	HowReplacementAttorneysStepInDetails        string
+	HowReplacementAttorneysMakeDecisions        shared.HowMakeDecisions
+	HowReplacementAttorneysMakeDecisionsDetails string
+	LifeSustainingTreatmentOption               shared.LifeSustainingTreatment
+	WhenTheLpaCanBeUsed                         shared.CanUse
+	SignedAt                                    time.Time
 }
 
 type DonorCorrection struct {
@@ -43,75 +35,132 @@ type DonorCorrection struct {
 	Email             string
 }
 
-type AttorneyCorrection struct {
-	Index      *int
+func (c DonorCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	lpa.Donor.FirstNames = c.FirstNames
+	lpa.Donor.LastName = c.LastName
+	lpa.Donor.OtherNamesKnownBy = c.OtherNamesKnownBy
+	lpa.Donor.DateOfBirth = c.DateOfBirth
+	lpa.Donor.Address = c.Address
+	lpa.Donor.Email = c.Email
+
+	return nil
+}
+
+type CertificateProviderCorrection struct {
 	FirstNames string
 	LastName   string
-	Dob        shared.Date
 	Address    shared.Address
 	Email      string
-	Mobile     string
+	Phone      string
 	SignedAt   time.Time
 }
 
-const signedAt = "/signedAt"
-
-func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !c.LPASignedAt.IsZero() && !c.LPASignedAt.Equal(lpa.SignedAt) && lpa.Channel == shared.ChannelOnline {
-		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
-	}
-
-	if c.Attorney.Index != nil && !c.Attorney.SignedAt.IsZero() && !c.Attorney.SignedAt.Equal(*lpa.Attorneys[*c.Attorney.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
-		source := "/attorney/" + strconv.Itoa(*c.Attorney.Index) + signedAt
-		return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
-	}
-
-	if !c.CertificateProvider.SignedAt.IsZero() &&
-		!c.CertificateProvider.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) &&
-		lpa.Channel == shared.ChannelOnline {
+func (c CertificateProviderCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) && lpa.Channel == shared.ChannelOnline {
 		return []shared.FieldError{{
 			Source: "/certificateProvider" + signedAt,
 			Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
 		}}
 	}
 
-	if lpa.Status == shared.LpaStatusRegistered {
-		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
-	}
-
-	c.Donor.Apply(lpa)
-	c.Attorney.Apply(lpa)
-	lpa.SignedAt = c.LPASignedAt
-
-	c.CertificateProvider.Apply(lpa)
+	lpa.CertificateProvider.FirstNames = c.FirstNames
+	lpa.CertificateProvider.LastName = c.LastName
+	lpa.CertificateProvider.Address = c.Address
+	lpa.CertificateProvider.Email = c.Email
+	lpa.CertificateProvider.Phone = c.Phone
+	lpa.CertificateProvider.SignedAt = &c.SignedAt
 
 	return nil
 }
 
-func (d DonorCorrection) Apply(lpa *shared.Lpa) {
-	lpa.Donor.FirstNames = d.FirstNames
-	lpa.Donor.LastName = d.LastName
-	lpa.Donor.OtherNamesKnownBy = d.OtherNamesKnownBy
-	lpa.Donor.DateOfBirth = d.DateOfBirth
-	lpa.Donor.Address = d.Address
-	lpa.Donor.Email = d.Email
+type AttorneyCorrection struct {
+	Index       *int
+	FirstNames  string
+	LastName    string
+	DateOfBirth shared.Date
+	Address     shared.Address
+	Email       string
+	Mobile      string
+	SignedAt    time.Time
 }
 
-func (a AttorneyCorrection) Apply(lpa *shared.Lpa) {
-	if a.Index != nil {
-		attorney := &lpa.Attorneys[*a.Index]
-		attorney.FirstNames = a.FirstNames
-		attorney.LastName = a.LastName
-		attorney.DateOfBirth = a.Dob
-		attorney.Address = a.Address
-		attorney.Email = a.Email
-		attorney.Mobile = a.Mobile
-		attorney.SignedAt = &a.SignedAt
+func (c AttorneyCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if c.Index != nil {
+		if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.Attorneys[*c.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
+			source := "/attorney/" + strconv.Itoa(*c.Index) + signedAt
+			return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
+		}
+
+		attorney := &lpa.Attorneys[*c.Index]
+		attorney.FirstNames = c.FirstNames
+		attorney.LastName = c.LastName
+		attorney.DateOfBirth = c.DateOfBirth
+		attorney.Address = c.Address
+		attorney.Email = c.Email
+		attorney.Mobile = c.Mobile
+		attorney.SignedAt = &c.SignedAt
 	}
+
+	return nil
+}
+
+func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.SignedAt) && lpa.Channel == shared.ChannelOnline {
+		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
+	}
+
+	if lpa.Status == shared.LpaStatusRegistered {
+		return []shared.FieldError{{Source: "/type", Detail: "Cannot make corrections to a Registered LPA"}}
+	}
+
+	if fieldErrors := c.Donor.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	if fieldErrors := c.CertificateProvider.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	if fieldErrors := c.Attorney.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	lpa.SignedAt = c.SignedAt
+
+	if !c.HowAttorneysMakeDecisions.Unset() {
+		lpa.HowAttorneysMakeDecisions = c.HowAttorneysMakeDecisions
+		lpa.HowAttorneysMakeDecisionsIsDefault = false
+	}
+
+	if !c.HowReplacementAttorneysMakeDecisions.Unset() {
+		lpa.HowReplacementAttorneysMakeDecisions = c.HowReplacementAttorneysMakeDecisions
+		lpa.HowReplacementAttorneysMakeDecisionsIsDefault = false
+	}
+
+	if !c.LifeSustainingTreatmentOption.Unset() {
+		lpa.LifeSustainingTreatmentOption = c.LifeSustainingTreatmentOption
+		lpa.LifeSustainingTreatmentOptionIsDefault = false
+	}
+
+	if !c.WhenTheLpaCanBeUsed.Unset() {
+		lpa.WhenTheLpaCanBeUsed = c.WhenTheLpaCanBeUsed
+		lpa.WhenTheLpaCanBeUsedIsDefault = false
+	}
+
+	lpa.HowAttorneysMakeDecisionsDetails = c.HowAttorneysMakeDecisionsDetails
+	lpa.HowReplacementAttorneysStepIn = c.HowReplacementAttorneysStepIn
+	lpa.HowReplacementAttorneysStepInDetails = c.HowReplacementAttorneysStepInDetails
+	lpa.HowReplacementAttorneysMakeDecisionsDetails = c.HowReplacementAttorneysMakeDecisionsDetails
+
+	return nil
 }
 
 func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, []shared.FieldError) {
 	var data Correction
+
+	data.SignedAt = lpa.LpaInit.SignedAt
+	data.HowReplacementAttorneysStepIn = lpa.HowReplacementAttorneysStepIn
+	data.HowReplacementAttorneysStepInDetails = lpa.HowReplacementAttorneysStepInDetails
 
 	data.Donor.FirstNames = lpa.LpaInit.Donor.FirstNames
 	data.Donor.LastName = lpa.LpaInit.Donor.LastName
@@ -119,21 +168,20 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.Donor.DateOfBirth = lpa.LpaInit.Donor.DateOfBirth
 	data.Donor.Address = lpa.LpaInit.Donor.Address
 	data.Donor.Email = lpa.LpaInit.Donor.Email
-	data.LPASignedAt = lpa.LpaInit.SignedAt
 
 	data.CertificateProvider.FirstNames = lpa.LpaInit.CertificateProvider.FirstNames
 	data.CertificateProvider.LastName = lpa.LpaInit.CertificateProvider.LastName
 	data.CertificateProvider.Address = lpa.LpaInit.CertificateProvider.Address
 	data.CertificateProvider.Email = lpa.LpaInit.CertificateProvider.Email
 	data.CertificateProvider.Phone = lpa.LpaInit.CertificateProvider.Phone
-
 	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
 		data.CertificateProvider.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
 	}
 
-	errors := parse.Changes(changes).
+	parser := parse.Changes(changes).
+		Field(signedAt, &data.SignedAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Prefix("/donor", validateDonor(&data.Donor), parse.Optional()).
-		Field(signedAt, &data.LPASignedAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Prefix("/certificateProvider", validateCertificateProvider(&data.CertificateProvider), parse.Optional()).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Each(func(i int, p *parse.Parser) []shared.FieldError {
@@ -144,7 +192,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					data.Attorney.Index = &i
 					data.Attorney.FirstNames = lpa.Attorneys[i].FirstNames
 					data.Attorney.LastName = lpa.Attorneys[i].LastName
-					data.Attorney.Dob = lpa.Attorneys[i].DateOfBirth
+					data.Attorney.DateOfBirth = lpa.Attorneys[i].DateOfBirth
 					data.Attorney.Address = lpa.Attorneys[i].Address
 					data.Attorney.Email = lpa.Attorneys[i].Email
 					data.Attorney.Mobile = lpa.Attorneys[i].Mobile
@@ -156,9 +204,85 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					return validateAttorney(&data.Attorney, p)
 				}).
 				Consumed()
-		}, parse.Optional()).
-		Prefix("/certificateProvider", validateCertificateProvider(&data.CertificateProvider), parse.Optional()).
-		Consumed()
+		}, parse.Optional())
+
+	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
+
+	if activeAttorneyCount > 1 {
+		parser.Field("/howAttorneysMakeDecisions", &data.HowAttorneysMakeDecisions,
+			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisions),
+			parse.Validate(validate.Valid()),
+			parse.Optional())
+	}
+
+	attorneysJointlyForSomeSeverallyForOthers := data.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers ||
+		data.HowAttorneysMakeDecisions.Unset() && lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers
+
+	if attorneysJointlyForSomeSeverallyForOthers {
+		parser.Field("/howAttorneysMakeDecisionsDetails", &data.HowAttorneysMakeDecisionsDetails,
+			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisionsDetails),
+			parse.Validate(validate.NotEmpty()))
+	} else {
+		parser.Field("/howAttorneysMakeDecisionsDetails", &data.HowAttorneysMakeDecisionsDetails,
+			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisionsDetails),
+			parse.Validate(validate.Empty()),
+			parse.Optional())
+	}
+
+	attorneysJointlyAndSeverally := data.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally ||
+		data.HowAttorneysMakeDecisions.Unset() && lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally
+
+	if replacementAttorneyCount > 0 && attorneysJointlyAndSeverally {
+		parser.Field("/howReplacementAttorneysStepIn", &data.HowReplacementAttorneysStepIn,
+			parse.Validate(validate.Valid()),
+			parse.Optional())
+	}
+
+	if data.HowReplacementAttorneysStepIn == shared.HowStepInAnotherWay {
+		parser.Field("/howReplacementAttorneysStepInDetails", &data.HowReplacementAttorneysStepInDetails,
+			parse.Validate(validate.NotEmpty()))
+	} else {
+		parser.Field("/howReplacementAttorneysStepInDetails", &data.HowReplacementAttorneysStepInDetails,
+			parse.Validate(validate.Empty()),
+			parse.Optional())
+	}
+
+	if replacementAttorneyCount > 1 && (data.HowReplacementAttorneysStepIn == shared.HowStepInAllCanNoLongerAct || !attorneysJointlyAndSeverally) {
+		parser.Field("/howReplacementAttorneysMakeDecisions", &data.HowReplacementAttorneysMakeDecisions,
+			parse.Old(&lpa.HowReplacementAttorneysMakeDecisions),
+			parse.Validate(validate.Valid()),
+			parse.Optional())
+	}
+
+	replacementsJointlyForSomeSeverallyForOthers := data.HowReplacementAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers ||
+		data.HowReplacementAttorneysMakeDecisions.Unset() && lpa.HowReplacementAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers
+
+	if replacementsJointlyForSomeSeverallyForOthers {
+		parser.Field("/howReplacementAttorneysMakeDecisionsDetails", &data.HowReplacementAttorneysMakeDecisionsDetails,
+			parse.Old(&lpa.HowReplacementAttorneysMakeDecisionsDetails),
+			parse.Validate(validate.NotEmpty()))
+	} else {
+		parser.Field("/howReplacementAttorneysMakeDecisionsDetails", &data.HowReplacementAttorneysMakeDecisionsDetails,
+			parse.Old(&lpa.HowReplacementAttorneysMakeDecisionsDetails),
+			parse.Validate(validate.Empty()),
+			parse.Optional())
+	}
+
+	if lpa.LpaType == shared.LpaTypePersonalWelfare {
+		parser.Field("/lifeSustainingTreatmentOption", &data.LifeSustainingTreatmentOption,
+			parse.Old(&lpa.LifeSustainingTreatmentOption),
+			parse.Validate(validate.Valid()),
+			parse.Optional())
+	}
+
+	if lpa.LpaType == shared.LpaTypePropertyAndAffairs {
+		parser.Field("/whenTheLpaCanBeUsed", &data.WhenTheLpaCanBeUsed,
+			parse.Old(&lpa.WhenTheLpaCanBeUsed),
+			parse.Validate(validate.Valid()),
+			parse.Optional())
+	}
+
+	errors := parser.Consumed()
 
 	return data, errors
 }
@@ -167,7 +291,7 @@ func validateAttorney(attorney *AttorneyCorrection, p *parse.Parser) []shared.Fi
 	return p.
 		Field("/firstNames", &attorney.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Field("/lastName", &attorney.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
-		Field("/dateOfBirth", &attorney.Dob, parse.Validate(validate.Date()), parse.Optional()).
+		Field("/dateOfBirth", &attorney.DateOfBirth, parse.Validate(validate.Date()), parse.Optional()).
 		Field("/email", &attorney.Email, parse.Optional()).
 		Field("/mobile", &attorney.Mobile, parse.Optional()).
 		Prefix("/address", validateAddress(&attorney.Address), parse.Optional()).

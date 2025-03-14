@@ -15,7 +15,7 @@ func validateAddress(prefix string, address shared.Address) []shared.FieldError 
 }
 
 func Validate(lpa shared.LpaInit) []shared.FieldError {
-	activeAttorneyCount, replacementAttorneyCount := countAttorneys(lpa.Attorneys, lpa.TrustCorporations)
+	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
 	return validate.All(
 		validate.WithSource("/lpaType", lpa.LpaType, validate.Valid()),
@@ -85,34 +85,6 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.WithSource("/witnessedByCertificateProviderAt", lpa.WitnessedByCertificateProviderAt, validate.NotEmpty()),
 		validate.WithSource("/certificateProviderNotRelatedConfirmedAt", lpa.CertificateProviderNotRelatedConfirmedAt, validate.OptionalTime()),
 	)
-}
-
-func countAttorneys(as []shared.Attorney, ts []shared.TrustCorporation) (actives, replacements int) {
-	for _, a := range as {
-		if a.Status == shared.AttorneyStatusRemoved {
-			continue
-		}
-
-		if a.Status == shared.AttorneyStatusActive {
-			actives++
-		} else if a.Status == shared.AttorneyStatusInactive && a.AppointmentType == shared.AppointmentTypeReplacement {
-			replacements++
-		}
-	}
-
-	for _, t := range ts {
-		if t.Status == shared.AttorneyStatusRemoved {
-			continue
-		}
-
-		if t.Status == shared.AttorneyStatusActive {
-			actives++
-		} else if t.Status == shared.AttorneyStatusInactive && t.AppointmentType == shared.AppointmentTypeReplacement {
-			replacements++
-		}
-	}
-
-	return actives, replacements
 }
 
 func validateAttorneys(prefix string, attorneys []shared.Attorney) []shared.FieldError {
