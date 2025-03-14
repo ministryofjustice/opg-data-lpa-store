@@ -3,7 +3,7 @@ package main
 import "github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 
 func SetDefaults(input shared.LpaInit) shared.LpaInit {
-	activeAttorneyCount, replacementAttorneyCount := countAttorneys(input.Attorneys, input.TrustCorporations)
+	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(input.Attorneys, input.TrustCorporations)
 
 	if activeAttorneyCount > 1 && input.HowAttorneysMakeDecisions.Unset() {
 		input.HowAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
