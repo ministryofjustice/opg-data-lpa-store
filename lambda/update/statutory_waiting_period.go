@@ -20,7 +20,7 @@ func (r StatutoryWaitingPeriod) Apply(lpa *shared.Lpa) []shared.FieldError {
 	}
 
 	for _, a := range lpa.Attorneys {
-		if a.Status != shared.AttorneyStatusInactive && (a.SignedAt == nil || a.SignedAt.IsZero()) {
+		if a.Status != shared.AttorneyStatusRemoved && (a.SignedAt == nil || a.SignedAt.IsZero()) {
 			return []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by attorneys"}}
 		}
 	}
