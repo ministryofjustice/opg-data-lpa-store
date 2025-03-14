@@ -27,7 +27,7 @@ func (r StatutoryWaitingPeriod) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 	for _, t := range lpa.TrustCorporations {
 		for _, s := range t.Signatories {
-			if s.SignedAt.IsZero() {
+			if t.Status != shared.AttorneyStatusRemoved && s.SignedAt.IsZero() {
 				return []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by trust corporations"}}
 			}
 		}

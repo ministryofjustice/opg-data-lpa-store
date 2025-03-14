@@ -110,6 +110,21 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 			},
 			errors: []shared.FieldError{{Source: "/type", Detail: "lpa must be signed by trust corporations"}},
 		},
+		"not removed trust corporation": {
+			lpa: &shared.Lpa{
+				Status: shared.LpaStatusInProgress,
+				LpaInit: shared.LpaInit{
+					SignedAt:            now,
+					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
+					Attorneys:           []shared.Attorney{{SignedAt: &now}},
+					TrustCorporations: []shared.TrustCorporation{{
+						Status:      shared.AttorneyStatusRemoved,
+						Signatories: []shared.Signatory{{SignedAt: now}, {}},
+					}},
+				},
+			},
+			errors: nil,
+		},
 	}
 
 	for name, tc := range testcases {
