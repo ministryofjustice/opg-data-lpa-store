@@ -101,38 +101,6 @@ func makeLpaWithDonorAndActors() shared.LpaInit {
 	}
 }
 
-func TestCountAttorneys(t *testing.T) {
-	actives, replacements := countAttorneys([]shared.Attorney{}, []shared.TrustCorporation{})
-	assert.Equal(t, 0, actives)
-	assert.Equal(t, 0, replacements)
-
-	actives, replacements = countAttorneys([]shared.Attorney{
-		{
-			Status:          shared.AttorneyStatusInactive,
-			AppointmentType: shared.AppointmentTypeReplacement,
-		},
-		{
-			Status:          shared.AttorneyStatusActive,
-			AppointmentType: shared.AppointmentTypeOriginal,
-		},
-		{
-			Status:          shared.AttorneyStatusInactive,
-			AppointmentType: shared.AppointmentTypeReplacement,
-		},
-	}, []shared.TrustCorporation{
-		{
-			Status:          shared.AttorneyStatusInactive,
-			AppointmentType: shared.AppointmentTypeReplacement,
-		},
-		{
-			Status:          shared.AttorneyStatusActive,
-			AppointmentType: shared.AppointmentTypeOriginal,
-		},
-	})
-	assert.Equal(t, 2, actives)
-	assert.Equal(t, 3, replacements)
-}
-
 func TestValidateAttorneyEmpty(t *testing.T) {
 	errors := validateAttorney("/test", shared.Attorney{})
 
