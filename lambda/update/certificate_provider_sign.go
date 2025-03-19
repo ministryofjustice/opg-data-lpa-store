@@ -54,7 +54,7 @@ func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (
 				Consumed()
 		}, parse.Optional()).
 		Field("/certificateProvider/signedAt", &data.SignedAt, parse.Validate(validate.NotEmpty())).
-		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid())).
+		Field("/certificateProvider/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid()), parse.Optional()).
 		Field("/certificateProvider/email", &data.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Field("/certificateProvider/channel", &data.Channel, parse.Validate(validate.Valid()), parse.Optional()).
 		Consumed()
