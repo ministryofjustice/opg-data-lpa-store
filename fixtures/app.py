@@ -1,8 +1,10 @@
 import requests, os, logging, sys, json, uuid
 from lib.aws_auth import AwsAuth
 from lib.jwt import generate_jwt
+from lib.api import attorney_sign, certificate_provider_sign
 from urllib.parse import quote
 
+from datetime import datetime
 from flask import Flask, render_template, request, jsonify
 from flask_wtf import CSRFProtect
 
@@ -22,6 +24,15 @@ handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
+
+DATE_FORMAT_DATEPICKER = "%d/%m/%Y"
+DATE_FORMAT_LPA_STORE = "%Y-%m-%dT12:34:00Z"
+
+
+def prepare_date(date_string: str) -> str:
+    return datetime.strptime(date_string, DATE_FORMAT_DATEPICKER).strftime(
+        DATE_FORMAT_LPA_STORE
+    )
 
 
 @app.route("/health-check", methods=["GET"])
@@ -58,7 +69,7 @@ def health_check_dependencies():
 
 
 @app.route("/", methods=["GET"])
-def get_index():
+def get_form_donor():
     base_url = os.environ["BASE_URL"]
 
     return render_template(
@@ -71,7 +82,7 @@ def get_index():
 
 
 @app.route("/", methods=["POST"])
-def post_index():
+def post_form_donor():
     aws_auth = AwsAuth()
 
     uid = request.form.get("uid", "")
@@ -106,6 +117,66 @@ def post_index():
         },
         success=resp.status_code < 400,
         error=json.loads(resp.text),
+    )
+
+
+@app.route("/form/certificate-provider", methods=["GET", "POST"])
+def get_form_cp():
+    uid = request.form.get("uid", "")
+    signed_at = request.form.get(
+        "signedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
+
+    if request.method == "POST":
+        resp = certificate_provider_sign(uid, prepare_date(signed_at))
+        success = resp.status_code < 400
+        error = json.loads(resp.text)
+    else:
+        success = None
+        error = None
+
+    return render_template(
+        "form_signature.html",
+        **{
+            "actor_type": "Certificate provider",
+            "uid": uid,
+            "signed_at": signed_at,
+        },
+        success=success,
+        error=error,
+    )
+
+
+@app.route("/form/attorney", methods=["GET", "POST"])
+def get_form_attorney():
+    uid = request.form.get("uid", "")
+    attorney_uuid = request.form.get("attorneyUuid", "")
+    signed_at = request.form.get(
+        "signedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
+
+    if request.method == "POST":
+        try:
+            resp = attorney_sign(uid, attorney_uuid, prepare_date(signed_at))
+            success = resp.status_code < 400
+            error = json.loads(resp.text)
+        except Exception as e:
+            success = False
+            error = {"detail": str(e)}
+    else:
+        success = None
+        error = None
+
+    return render_template(
+        "form_signature.html",
+        **{
+            "actor_type": "Attorney",
+            "uid": uid,
+            "attorney_uuid": attorney_uuid,
+            "signed_at": signed_at,
+        },
+        success=success,
+        error=error,
     )
 
 
