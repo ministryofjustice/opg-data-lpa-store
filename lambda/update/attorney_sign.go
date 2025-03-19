@@ -53,9 +53,9 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 					}
 
 					return p.
-						Field("/mobile", &data.Mobile).
+						Field("/mobile", &data.Mobile, parse.Optional()).
 						Field("/signedAt", &data.SignedAt, parse.Validate(validate.NotEmpty())).
-						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid())).
+						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid()), parse.Optional()).
 						Field("/channel", &data.Channel, parse.Validate(validate.Valid()), parse.Optional()).
 						Field("/email", &data.Email, parse.Optional()).
 						Consumed()

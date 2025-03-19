@@ -201,7 +201,6 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			update: shared.Update{Type: "CERTIFICATE_PROVIDER_SIGN"},
 			errors: []shared.FieldError{
 				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
-				{Source: "/changes", Detail: "missing /certificateProvider/contactLanguagePreference"},
 			},
 		},
 		"bad address": {
@@ -227,7 +226,6 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				{Source: "/changes", Detail: "missing /certificateProvider/address/town"},
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
-				{Source: "/changes", Detail: "missing /certificateProvider/contactLanguagePreference"},
 			},
 		},
 		"extra fields": {
