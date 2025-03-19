@@ -58,18 +58,8 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				Type: "ATTORNEY_SIGN",
 				Changes: []shared.Change{
 					{
-						Key: "/attorneys/0/mobile",
-						New: json.RawMessage(`"07777"`),
-						Old: jsonNull,
-					},
-					{
 						Key: "/attorneys/0/signedAt",
 						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
-						Old: jsonNull,
-					},
-					{
-						Key: "/attorneys/0/contactLanguagePreference",
-						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
 				},
