@@ -43,6 +43,31 @@ func TestFieldWhenWrongType(t *testing.T) {
 	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "unexpected type"}}, errors)
 }
 
+func TestFieldOld(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"val"`), Old: json.RawMessage(`"hey"`)},
+	}
+
+	old := "hey"
+	v := "not-hey"
+	errors := Changes(changes).Field("/thing", &v, Old(&old)).Errors()
+
+	assert.Equal(t, "val", v)
+	assert.Empty(t, errors)
+}
+
+func TestFieldOldWhenNotMatch(t *testing.T) {
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"val"`), Old: json.RawMessage(`"not-hey"`)},
+	}
+
+	old := "hey"
+	v := "not-hey"
+	errors := Changes(changes).Field("/thing", &v, Old(&old)).Errors()
+
+	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
+}
+
 func TestFieldOptional(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
