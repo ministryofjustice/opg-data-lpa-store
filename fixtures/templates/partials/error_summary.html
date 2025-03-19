@@ -1,0 +1,14 @@
+<div class="govuk-error-summary" data-module="govuk-error-summary">
+  <div role="alert">
+    <h2 class="govuk-error-summary__title">{{ error.detail }}</h2>
+    <div class="govuk-error-summary__body">
+      <ul class="govuk-list govuk-error-summary__list">
+        {% for err in error.errors %}
+        <li>
+          <a href="#f-{{err.source}}">{{ err.source }}: {{ err.detail }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
