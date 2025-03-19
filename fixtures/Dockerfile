@@ -18,6 +18,9 @@ COPY fixtures/lib lib
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/assets static
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.css static
 COPY --from=builder /app/node_modules/govuk-frontend/dist/govuk/govuk-frontend.min.js static
+COPY --from=builder /app/node_modules/@ministryofjustice/frontend/moj/assets static
+COPY --from=builder /app/node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.css static
+COPY --from=builder /app/node_modules/@ministryofjustice/frontend/moj/moj-frontend.min.js static
 COPY fixtures/static static
 COPY fixtures/templates templates
 COPY docs/schemas static/schemas

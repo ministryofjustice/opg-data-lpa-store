@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 
-{% block title %}Add a new LPA{% endblock %}
+{% block title %}{{ actor_type }} signature{% endblock %}
 
 {% block content %}
-<h1 class="govuk-heading-xl">Add a new LPA</h1>
+<h1 class="govuk-heading-xl">{{ actor_type }} signature</h1>
 
-{% if success is defined %}
 {% if success == True %}
 <div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
   aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
@@ -15,10 +14,10 @@
     </h2>
   </div>
   <div class="govuk-notification-banner__content">
-    <p class="govuk-body">LPA {{ uid }} was created</p>
+    <p class="govuk-body">{{ actor_type }} signature was submitted</p>
   </div>
 </div>
-{% else %}
+{% elif success == False %}
 <div class="govuk-error-summary" data-module="govuk-error-summary">
   <div role="alert">
     <h2 class="govuk-error-summary__title">{{ error.detail }}</h2>
@@ -34,25 +33,31 @@
   </div>
 </div>
 {% endif %}
-{% endif %}
 
 <form method="post">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
   <div class="govuk-form-group">
-    <label class="govuk-label govuk-label--m" for="f-uid">UID</label>
-    <input class="govuk-input govuk-input--width-20" id="f-uid" name="uid" type="text" value="{{ uid }}" required
-      data-module="uid-generator" />
+    <label class="govuk-label" for="f-uid">UID</label>
+    <input class="govuk-input govuk-input--width-20" id="f-uid" name="uid" type="text" value="{{ uid }}" required />
   </div>
 
+  {% if actor_type == "Attorney" %}
   <div class="govuk-form-group">
-    <label class="govuk-label govuk-label--m" for="f-json-data">
-      LPA content
-    </label>
-    <textarea class="govuk-textarea" name="json-data" id="f-json-data" required rows="10"
-      data-module="json-schema-editor" data-module-json-schema-editor-url="assets/schemas/2024-10/donor-details.json">
-      {{- json_data -}}
-    </textarea>
+    <label class="govuk-label" for="f-attorney-uuid">Attorney UUID</label>
+    <input class="govuk-input govuk-input--width-20" id="f-attorney-uuid" name="attorneyUuid" type="text"
+      value="{{ attorney_uuid }}" required />
+  </div>
+  {% endif %}
+
+  <div class="moj-datepicker" data-module="moj-date-picker">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="f-signed-at">
+        Signed at
+      </label>
+      <input class="govuk-input moj-js-datepicker-input" id="f-signed-at" name="signedAt" type="text"
+        value="{{ signed_at }}" required />
+    </div>
   </div>
 
   <button type="submit" class="govuk-button" data-module="govuk-button">
