@@ -25,9 +25,14 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+DATE_FORMAT_DATEPICKER = "%d/%m/%Y"
+DATE_FORMAT_LPA_STORE = "%Y-%m-%dT12:34:00Z"
+
 
 def prepare_date(date_string: str) -> str:
-    return datetime.strptime(date_string, "%d/%m/%Y").strftime("%Y-%m-%dT12:34:00Z")
+    return datetime.strptime(date_string, DATE_FORMAT_DATEPICKER).strftime(
+        DATE_FORMAT_LPA_STORE
+    )
 
 
 @app.route("/health-check", methods=["GET"])
@@ -118,7 +123,9 @@ def post_form_donor():
 @app.route("/form/certificate-provider", methods=["GET", "POST"])
 def get_form_cp():
     uid = request.form.get("uid", "")
-    signed_at = request.form.get("signedAt", datetime.now().strftime("%d/%m/%Y"))
+    signed_at = request.form.get(
+        "signedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
 
     if request.method == "POST":
         resp = certificate_provider_sign(uid, prepare_date(signed_at))
@@ -144,7 +151,9 @@ def get_form_cp():
 def get_form_attorney():
     uid = request.form.get("uid", "")
     attorney_uuid = request.form.get("attorneyUuid", "")
-    signed_at = request.form.get("signedAt", datetime.now().strftime("%d/%m/%Y"))
+    signed_at = request.form.get(
+        "signedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
 
     if request.method == "POST":
         try:
