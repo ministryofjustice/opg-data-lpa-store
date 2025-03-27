@@ -32,14 +32,14 @@ func (c CertificateProviderSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 func validateCertificateProviderSign(changes []shared.Change, lpa *shared.Lpa) (CertificateProviderSign, []shared.FieldError) {
 	data := CertificateProviderSign{
-		Address:                   lpa.LpaInit.CertificateProvider.Address,
-		ContactLanguagePreference: lpa.LpaInit.CertificateProvider.ContactLanguagePreference,
-		Email:                     lpa.LpaInit.CertificateProvider.Email,
-		Channel:                   lpa.LpaInit.CertificateProvider.Channel,
+		Address:                   lpa.CertificateProvider.Address,
+		ContactLanguagePreference: lpa.CertificateProvider.ContactLanguagePreference,
+		Email:                     lpa.CertificateProvider.Email,
+		Channel:                   lpa.CertificateProvider.Channel,
 	}
 
-	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
-		data.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
+	if lpa.CertificateProvider.SignedAt != nil {
+		data.SignedAt = *lpa.CertificateProvider.SignedAt
 	}
 
 	errors := parse.Changes(changes).

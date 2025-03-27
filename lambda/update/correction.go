@@ -158,24 +158,24 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, []shared.FieldError) {
 	var data Correction
 
-	data.SignedAt = lpa.LpaInit.SignedAt
+	data.SignedAt = lpa.SignedAt
 	data.HowReplacementAttorneysStepIn = lpa.HowReplacementAttorneysStepIn
 	data.HowReplacementAttorneysStepInDetails = lpa.HowReplacementAttorneysStepInDetails
 
-	data.Donor.FirstNames = lpa.LpaInit.Donor.FirstNames
-	data.Donor.LastName = lpa.LpaInit.Donor.LastName
-	data.Donor.OtherNamesKnownBy = lpa.LpaInit.Donor.OtherNamesKnownBy
-	data.Donor.DateOfBirth = lpa.LpaInit.Donor.DateOfBirth
-	data.Donor.Address = lpa.LpaInit.Donor.Address
-	data.Donor.Email = lpa.LpaInit.Donor.Email
+	data.Donor.FirstNames = lpa.Donor.FirstNames
+	data.Donor.LastName = lpa.Donor.LastName
+	data.Donor.OtherNamesKnownBy = lpa.Donor.OtherNamesKnownBy
+	data.Donor.DateOfBirth = lpa.Donor.DateOfBirth
+	data.Donor.Address = lpa.Donor.Address
+	data.Donor.Email = lpa.Donor.Email
 
-	data.CertificateProvider.FirstNames = lpa.LpaInit.CertificateProvider.FirstNames
-	data.CertificateProvider.LastName = lpa.LpaInit.CertificateProvider.LastName
-	data.CertificateProvider.Address = lpa.LpaInit.CertificateProvider.Address
-	data.CertificateProvider.Email = lpa.LpaInit.CertificateProvider.Email
-	data.CertificateProvider.Phone = lpa.LpaInit.CertificateProvider.Phone
-	if lpa.LpaInit.CertificateProvider.SignedAt != nil {
-		data.CertificateProvider.SignedAt = *lpa.LpaInit.CertificateProvider.SignedAt
+	data.CertificateProvider.FirstNames = lpa.CertificateProvider.FirstNames
+	data.CertificateProvider.LastName = lpa.CertificateProvider.LastName
+	data.CertificateProvider.Address = lpa.CertificateProvider.Address
+	data.CertificateProvider.Email = lpa.CertificateProvider.Email
+	data.CertificateProvider.Phone = lpa.CertificateProvider.Phone
+	if lpa.CertificateProvider.SignedAt != nil {
+		data.CertificateProvider.SignedAt = *lpa.CertificateProvider.SignedAt
 	}
 
 	parser := parse.Changes(changes).
@@ -210,7 +210,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 
 	if activeAttorneyCount > 1 {
 		parser.Field("/howAttorneysMakeDecisions", &data.HowAttorneysMakeDecisions,
-			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisions),
+			parse.Old(&lpa.HowAttorneysMakeDecisions),
 			parse.Validate(validate.Valid()),
 			parse.Optional())
 	}
@@ -220,11 +220,11 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 
 	if attorneysJointlyForSomeSeverallyForOthers {
 		parser.Field("/howAttorneysMakeDecisionsDetails", &data.HowAttorneysMakeDecisionsDetails,
-			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisionsDetails),
+			parse.Old(&lpa.HowAttorneysMakeDecisionsDetails),
 			parse.Validate(validate.NotEmpty()))
 	} else {
 		parser.Field("/howAttorneysMakeDecisionsDetails", &data.HowAttorneysMakeDecisionsDetails,
-			parse.Old(&lpa.LpaInit.HowAttorneysMakeDecisionsDetails),
+			parse.Old(&lpa.HowAttorneysMakeDecisionsDetails),
 			parse.Validate(validate.Empty()),
 			parse.Optional())
 	}

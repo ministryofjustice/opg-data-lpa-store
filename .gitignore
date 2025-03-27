@@ -25,3 +25,5 @@ docs/architecture/dsl/**/workspace.json
 # caches
 .cache
 .gocache
+# test output
+test-results

@@ -120,14 +120,7 @@ services:
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
-    command: golangci-lint run --timeout 5m --out-format=colored-line-number ./lambda/get/... ./lambda/create/... ./lambda/update/...
-
-  gosec:
-    image: securego/gosec:2.22.1
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: -exclude-dir=.gocache -fmt sarif -out /app/results.sarif /app/...
+    command: golangci-lint run --timeout 5m --enable gosec --output.text.path stdout --output.sarif.path test-results/golangci-lint.sarif ./lambda/get/... ./lambda/create/... ./lambda/update/...
 
   pact-verifier:
     image: pactfoundation/pact-ref-verifier

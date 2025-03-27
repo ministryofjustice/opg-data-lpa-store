@@ -230,9 +230,10 @@ func TestEach(t *testing.T) {
 
 	var v, w string
 	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		if i == 0 {
+		switch i {
+		case 0:
 			p.Field("/thing", &v)
-		} else if i == 1 {
+		case 1:
 			p.Field("/other", &w)
 		}
 		return p.Consumed()

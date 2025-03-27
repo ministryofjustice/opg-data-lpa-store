@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	ctx           = context.WithValue(context.Background(), (*string)(nil), "testing")
-	expectedError = errors.New("err")
+	ctx        = context.WithValue(context.Background(), (*string)(nil), "testing")
+	errExample = errors.New("err")
 )
 
 func TestLambdaHandleEvent(t *testing.T) {
@@ -125,7 +125,7 @@ func TestLambdaHandleEventWhenPresignImagesErrors(t *testing.T) {
 	presignClient := newMockPresignClient(t)
 	presignClient.EXPECT().
 		PresignLpa(ctx, lpa).
-		Return(shared.Lpa{}, expectedError)
+		Return(shared.Lpa{}, errExample)
 
 	lambda := &Lambda{
 		verifier:      verifier,
@@ -150,7 +150,7 @@ func TestLambdaHandleEventWhenUnauthorised(t *testing.T) {
 	verifier := newMockVerifier(t)
 	verifier.EXPECT().
 		VerifyHeader(req).
-		Return(nil, expectedError)
+		Return(nil, errExample)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -218,12 +218,12 @@ func TestLambdaHandleEventWhenStoreErrors(t *testing.T) {
 	logger.EXPECT().
 		Debug("Successfully parsed JWT from event header")
 	logger.EXPECT().
-		Error("error fetching LPA", slog.Any("err", expectedError))
+		Error("error fetching LPA", slog.Any("err", errExample))
 
 	store := newMockStore(t)
 	store.EXPECT().
 		Get(ctx, "my-uid").
-		Return(shared.Lpa{}, expectedError)
+		Return(shared.Lpa{}, errExample)
 
 	lambda := &Lambda{
 		verifier: verifier,
