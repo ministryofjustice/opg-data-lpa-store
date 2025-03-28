@@ -125,7 +125,7 @@ func TestConfirmIdentityDonorMismatchWithExistingLpaFails(t *testing.T) {
 		{Source: "/changes/0/old", Detail: "does not match existing value"},
 		{Source: "/changes/1/old", Detail: "does not match existing value"},
 	}, errors)
-	assert.Equal(t, existingLpa.LpaInit.Donor.IdentityCheck, idCheckComplete.IdentityCheck)
+	assert.Equal(t, existingLpa.Donor.IdentityCheck, idCheckComplete.IdentityCheck)
 	assert.Equal(t, donor, idCheckComplete.Actor)
 }
 

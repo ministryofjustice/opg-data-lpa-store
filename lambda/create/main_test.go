@@ -16,11 +16,11 @@ import (
 )
 
 var (
-	ctx           = context.WithValue(context.Background(), (*string)(nil), "testing")
-	expectedError = errors.New("err")
-	testNow       = time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)
-	testNowFn     = func() time.Time { return testNow }
-	validLpaInit  = shared.LpaInit{
+	ctx          = context.WithValue(context.Background(), (*string)(nil), "testing")
+	errExample   = errors.New("err")
+	testNow      = time.Date(2024, time.January, 2, 12, 13, 14, 15, time.UTC)
+	testNowFn    = func() time.Time { return testNow }
+	validLpaInit = shared.LpaInit{
 		LpaType:  shared.LpaTypePropertyAndAffairs,
 		Channel:  shared.ChannelOnline,
 		Language: shared.LangEn,
@@ -349,7 +349,7 @@ func TestLambdaHandleEventWhenUnauthorised(t *testing.T) {
 	verifier := newMockVerifier(t)
 	verifier.EXPECT().
 		VerifyHeader(req).
-		Return(nil, expectedError)
+		Return(nil, errExample)
 
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -427,7 +427,7 @@ func TestLambdaHandleEventWhenUploadFileErrors(t *testing.T) {
 	logger.EXPECT().
 		Debug("Successfully parsed JWT from event header")
 	logger.EXPECT().
-		Error("error saving restrictions and conditions image", slog.Any("err", expectedError))
+		Error("error saving restrictions and conditions image", slog.Any("err", errExample))
 
 	store := newMockStore(t)
 	store.EXPECT().
@@ -437,7 +437,7 @@ func TestLambdaHandleEventWhenUploadFileErrors(t *testing.T) {
 	staticLpaStorage := newMockS3Client(t)
 	staticLpaStorage.EXPECT().
 		UploadFile(ctx, shared.FileUpload{Filename: "restriction.jpg", Data: "some-base64"}, "my-uid/scans/rc_0_restriction.jpg").
-		Return(shared.File{}, expectedError)
+		Return(shared.File{}, errExample)
 
 	lambda := &Lambda{
 		verifier:         verifier,
@@ -473,7 +473,7 @@ func TestLambdaHandleEventWhenSendLpaUpdatedErrors(t *testing.T) {
 	logger.EXPECT().
 		Debug("Successfully parsed JWT from event header")
 	logger.EXPECT().
-		Error("unexpected error occurred", slog.Any("err", expectedError))
+		Error("unexpected error occurred", slog.Any("err", errExample))
 
 	store := newMockStore(t)
 	store.EXPECT().
@@ -494,7 +494,7 @@ func TestLambdaHandleEventWhenSendLpaUpdatedErrors(t *testing.T) {
 			Uid:        "my-uid",
 			ChangeType: "CREATE",
 		}).
-		Return(expectedError)
+		Return(errExample)
 
 	lambda := &Lambda{
 		verifier:         verifier,
