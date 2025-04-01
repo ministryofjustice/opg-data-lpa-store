@@ -69,7 +69,7 @@ jobs:
           aws-region: eu-west-1
           role-duration-seconds: 3600
           role-session-name: OPGLpaStoreGithubAction
-      - uses: webfactory/ssh-agent@v0.9.0
+      - uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.allowlist_deploy_key }}
 
