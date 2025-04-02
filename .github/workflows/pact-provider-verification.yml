@@ -15,9 +15,9 @@ jobs:
     name: Provider verification
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - run: make build up
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v5.4.0
         with:
           go-version: 'stable'
       - run: echo "JWT=$(go run scripts/make_jwt.go)" >> "$GITHUB_ENV"
