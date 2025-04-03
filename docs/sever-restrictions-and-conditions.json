@@ -1,0 +1,10 @@
+{
+    "type": "SEVER_RESTRICTIONS_AND_CONDITIONS",
+    "changes": [
+        {
+            "key": "/restrictionsAndConditions",
+            "new": "I do not want to be put into a care home",
+            "old": "I do not want to be put into a care home unless x"
+        }
+    ]
+}
