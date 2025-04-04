@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
@@ -15,6 +16,7 @@ type AttorneySign struct {
 	ContactLanguagePreference shared.Lang
 	Channel                   shared.Channel
 	Email                     string
+	AttorneyUID               string
 }
 
 func (a AttorneySign) Apply(lpa *shared.Lpa) []shared.FieldError {
@@ -37,19 +39,36 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 	errors := parse.Changes(changes).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					if data.Index != nil && *data.Index != i {
-						return p.OutOfRange()
+				Each(func(i string, p *parse.Parser) []shared.FieldError {
+					var attorneyIdx int
+
+					if len(p.UidChanges) == 0 {
+						i, err := strconv.Atoi(i)
+						if err != nil {
+							return p.OutOfRange()
+						}
+
+						if data.Index != nil && *data.Index != i {
+							return p.OutOfRange()
+						}
+
+						attorneyIdx = i
+					} else {
+						var ok bool
+						attorneyIdx, ok = lpa.FindAttorneyIndex(i)
+						if !ok {
+							return p.OutOfRange()
+						}
 					}
 
-					data.Index = &i
-					data.Mobile = lpa.Attorneys[i].Mobile
-					data.ContactLanguagePreference = lpa.Attorneys[i].ContactLanguagePreference
-					data.Channel = lpa.Attorneys[i].Channel
-					data.Email = lpa.Attorneys[i].Email
+					data.Index = &attorneyIdx
+					data.Mobile = lpa.Attorneys[attorneyIdx].Mobile
+					data.ContactLanguagePreference = lpa.Attorneys[attorneyIdx].ContactLanguagePreference
+					data.Channel = lpa.Attorneys[attorneyIdx].Channel
+					data.Email = lpa.Attorneys[attorneyIdx].Email
 
-					if lpa.Attorneys[i].SignedAt != nil {
-						data.SignedAt = *lpa.Attorneys[i].SignedAt
+					if lpa.Attorneys[attorneyIdx].SignedAt != nil {
+						data.SignedAt = *lpa.Attorneys[attorneyIdx].SignedAt
 					}
 
 					return p.

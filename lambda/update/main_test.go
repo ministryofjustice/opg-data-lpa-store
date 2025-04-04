@@ -112,7 +112,7 @@ func TestHandleEvent(t *testing.T) {
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"},{"key":"/certificateProvider/channel","old":"paper","new":"online"}]}`,
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":"a@example.com","new":"b@example.com"},{"key":"/certificateProvider/channel","old":"paper","new":"online"},{"key":"/certificateProvider/address/line1","old":null,"new":"Line 1"},{"key":"/certificateProvider/address/town","old":null,"new":"Town"},{"key":"/certificateProvider/address/country","old":null,"new":"GB"}]}`,
 	})
 
 	assert.Nil(t, err)
@@ -127,6 +127,11 @@ func TestHandleEvent(t *testing.T) {
 				ContactLanguagePreference: shared.LangEn,
 				Channel:                   shared.ChannelOnline,
 				Email:                     "b@example.com",
+				Address: shared.Address{
+					Line1:   "Line 1",
+					Town:    "Town",
+					Country: "GB",
+				},
 			},
 		},
 	}, store.put)
@@ -159,6 +164,21 @@ func TestHandleEvent(t *testing.T) {
 					Key: "/certificateProvider/channel",
 					Old: json.RawMessage(`"paper"`),
 					New: json.RawMessage(`"online"`),
+				},
+				{
+					Key: "/certificateProvider/address/line1",
+					Old: jsonNull,
+					New: json.RawMessage(`"Line 1"`),
+				},
+				{
+					Key: "/certificateProvider/address/town",
+					Old: jsonNull,
+					New: json.RawMessage(`"Town"`),
+				},
+				{
+					Key: "/certificateProvider/address/country",
+					Old: jsonNull,
+					New: json.RawMessage(`"GB"`),
 				},
 			},
 		},
@@ -201,7 +221,7 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.Equal(t, 400, resp.StatusCode)
-	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"missing /certificateProvider/signedAt"}]}`, resp.Body)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/positionChanges","detail":"missing /certificateProvider/address/line1"},{"source":"/positionChanges","detail":"missing /certificateProvider/address/town"},{"source":"/positionChanges","detail":"missing /certificateProvider/address/country"},{"source":"/positionChanges","detail":"missing /certificateProvider/signedAt"}]}`, resp.Body)
 }
 
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
@@ -296,7 +316,7 @@ func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":null,"new":"a@example.com"}]}`,
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":null,"new":"b@example.com"},{"key":"/certificateProvider/channel","old":null,"new":"online"},{"key":"/certificateProvider/address/line1","old":null,"new":"Line 1"},{"key":"/certificateProvider/address/town","old":null,"new":"Town"},{"key":"/certificateProvider/address/country","old":null,"new":"GB"}]}`,
 	})
 
 	client.AssertExpectations(t)

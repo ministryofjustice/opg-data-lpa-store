@@ -29,6 +29,20 @@
       "status": "active",
       "appointmentType": "original",
       "channel": "paper"
+    },
+    {
+      "uid": "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3e",
+      "firstNames": "Germaine",
+      "lastName": "Seakrest",
+      "address": {
+        "line1": "81 NighOnTimeWeBuiltIt Street",
+        "town": "Mahhhhhhhhhh",
+        "country": "GB"
+      },
+      "dateOfBirth": "1982-08-20",
+      "status": "active",
+      "appointmentType": "original",
+      "channel": "paper"
     }
   ],
   "trustCorporations": [
