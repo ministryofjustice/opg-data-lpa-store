@@ -200,7 +200,10 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 			lpa:    &shared.Lpa{},
 			update: shared.Update{Type: "CERTIFICATE_PROVIDER_SIGN"},
 			errors: []shared.FieldError{
-				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/signedAt"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/address/line1"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/address/town"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/address/country"},
 			},
 		},
 		"bad address": {
@@ -221,11 +224,11 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: "unexpected type"},
-				{Source: "/changes", Detail: "missing /certificateProvider/address/line1"},
-				{Source: "/changes", Detail: "missing /certificateProvider/address/town"},
-				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
-				{Source: "/changes", Detail: "missing /certificateProvider/signedAt"},
+				{Source: "/positionChanges/0/new", Detail: "unexpected type"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/address/line1"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/address/town"},
+				{Source: "/positionChanges/1/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/positionChanges", Detail: "missing /certificateProvider/signedAt"},
 			},
 		},
 		"extra fields": {
@@ -253,10 +256,25 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"123 Main St"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"Homeland"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"GB"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/2", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/2", Detail: "unexpected change provided"},
 			},
 		},
 		"invalid contact language": {
@@ -279,10 +297,25 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"123 Main St"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"Homeland"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"GB"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/1/new", Detail: "invalid value"},
+				{Source: "/positionChanges/1/new", Detail: "invalid value"},
 			},
 		},
 	}
