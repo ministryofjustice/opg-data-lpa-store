@@ -1,10 +1,11 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
-	"strconv"
 )
 
 type ChangeAttorney struct {
@@ -36,17 +37,28 @@ func (a ChangeAttorney) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 func validateChangeAttorney(changes []shared.Change, lpa *shared.Lpa) (ChangeAttorney, []shared.FieldError) {
 	var data ChangeAttorney
-	key := -1
+	changeAttorneyStatusIdx := -1
 
 	errors := parse.Changes(changes).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					key++
-					data.ChangeAttorneyStatus = append(data.ChangeAttorneyStatus, ChangeAttorneyStatus{Index: &i, Status: lpa.Attorneys[i].Status})
+				EachKey(func(key string, p *parse.Parser) []shared.FieldError {
+					var attorneyIdx int
+
+					attorneyIdx, err := strconv.Atoi(key)
+					if err != nil {
+						var ok bool
+						attorneyIdx, ok = lpa.FindAttorneyIndex(key)
+						if !ok {
+							return p.OutOfRange()
+						}
+					}
+
+					changeAttorneyStatusIdx++
+					data.ChangeAttorneyStatus = append(data.ChangeAttorneyStatus, ChangeAttorneyStatus{Index: &attorneyIdx, Status: lpa.Attorneys[attorneyIdx].Status})
 
 					return p.
-						Field("/status", &data.ChangeAttorneyStatus[key].Status, parse.Validate(validate.Valid())).
+						Field("/status", &data.ChangeAttorneyStatus[changeAttorneyStatusIdx].Status, parse.Validate(validate.Valid())).
 						Consumed()
 				}).
 				Consumed()
