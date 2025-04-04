@@ -313,7 +313,7 @@ func TestGetListWithImages(t *testing.T) {
 	}
 }
 
-func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping api test")
 		return
@@ -325,6 +325,7 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 	}{
 		{name: "CertificateProviderSign", path: "docs/certificate-provider-sign.json"},
 		{name: "AttorneySign", path: "docs/attorney-sign.json"},
+		{name: "AttorneySign referenced by UID", path: "docs/attorney-sign-uid.json"},
 		{name: "TrustCorporationSign", path: "docs/trust-corporation-sign.json"},
 		{name: "DonorConfirmIdentity", path: "docs/donor-confirm-identity.json"},
 		{name: "CertificateProviderConfirmIdentity", path: "docs/certificate-provider-confirm-identity.json"},

@@ -2,6 +2,7 @@ package parse
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 	"time"
 
@@ -29,7 +30,7 @@ func TestFieldWhenMissing(t *testing.T) {
 	var v string
 	errors := Changes(changes).Field("/thing", &v).Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes", Detail: "missing /thing"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/positionChanges", Detail: "missing /thing"}}, errors)
 }
 
 func TestFieldWhenWrongType(t *testing.T) {
@@ -40,7 +41,7 @@ func TestFieldWhenWrongType(t *testing.T) {
 	var v int
 	errors := Changes(changes).Field("/thing", &v).Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "unexpected type"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/positionChanges/0/new", Detail: "unexpected type"}}, errors)
 }
 
 func TestFieldOld(t *testing.T) {
@@ -65,7 +66,7 @@ func TestFieldOldWhenNotMatch(t *testing.T) {
 	v := "not-hey"
 	errors := Changes(changes).Field("/thing", &v, Old(&old)).Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/positionChanges/0/old", Detail: "does not match existing value"}}, errors)
 }
 
 func TestFieldOptional(t *testing.T) {
@@ -112,7 +113,7 @@ func TestFieldValidateWhenInvalid(t *testing.T) {
 		Field("/thing", &v, Validate(validate.NotEmpty())).
 		Errors()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0/new", Detail: "field is required"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/positionChanges/0/new", Detail: "field is required"}}, errors)
 }
 
 func TestFieldOldString(t *testing.T) {
@@ -189,7 +190,7 @@ func TestFieldWhenOldDoesNotMatchExisting(t *testing.T) {
 			v := "existing"
 			errors := Changes(changes).Field("/thing", &v).Errors()
 
-			assert.Equal(t, []shared.FieldError{{Source: "/changes/0/old", Detail: "does not match existing value"}}, errors)
+			assert.Equal(t, []shared.FieldError{{Source: "/positionChanges/0/old", Detail: "does not match existing value"}}, errors)
 		})
 	}
 }
@@ -208,7 +209,7 @@ func TestConsumedWhenNot(t *testing.T) {
 
 	errors := Changes(changes).Consumed()
 
-	assert.Equal(t, []shared.FieldError{{Source: "/changes/0", Detail: "unexpected change provided"}}, errors)
+	assert.Equal(t, []shared.FieldError{{Source: "/positionChanges/0", Detail: "unexpected change provided"}}, errors)
 }
 
 func TestConsumedWhenConsumed(t *testing.T) {
@@ -229,11 +230,11 @@ func TestEach(t *testing.T) {
 	}
 
 	var v, w string
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
 		switch i {
-		case 0:
+		case "0":
 			p.Field("/thing", &v)
-		case 1:
+		case "1":
 			p.Field("/other", &w)
 		}
 		return p.Consumed()
@@ -250,29 +251,29 @@ func TestEachWhenNonIndexedKey(t *testing.T) {
 		{Key: "/-/other", New: json.RawMessage(`"other"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
 		var v any
 		p.Field("/thing", v)
 		return p.Errors()
 	}).Errors()
 
 	assert.Equal(t, []shared.FieldError{
-		{Source: "/changes/0/key", Detail: "require index"},
-		{Source: "/changes/1/key", Detail: "require index"},
+		{Source: "/positionChanges/0/key", Detail: "require index"},
+		{Source: "/positionChanges/1/key", Detail: "require index"},
 	}, errors)
 }
 
 func TestEachWhenRequired(t *testing.T) {
-	changes := []shared.Change{}
+	changes := []shared.Change{{Key: "/0/thing", New: json.RawMessage(`"val"`), Old: json.RawMessage(`"old"`)}}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		var v any
-		p.Field("/thing", v)
+	existing := "old"
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		p.Field("/thing", &existing)
 		return p.Errors()
-	}, 0).Errors()
+	}, 1).Errors()
 
 	assert.Equal(t, []shared.FieldError{
-		{Source: "/changes", Detail: "missing /0/thing"},
+		{Source: "/positionChanges", Detail: "missing /1/thing"},
 	}, errors)
 }
 
@@ -283,8 +284,9 @@ func TestEachWhenOutOfRange(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		if i > 0 {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		idx, _ := strconv.Atoi(i)
+		if idx > 0 {
 			return p.OutOfRange()
 		}
 
@@ -292,8 +294,8 @@ func TestEachWhenOutOfRange(t *testing.T) {
 	}).Errors()
 
 	assert.ElementsMatch(t, []shared.FieldError{
-		{Source: "/changes/1/key", Detail: "index out of range"},
-		{Source: "/changes/2/key", Detail: "index out of range"},
+		{Source: "/positionChanges/1/key", Detail: "index out of range"},
+		{Source: "/positionChanges/2/key", Detail: "index out of range"},
 	}, errors)
 }
 
@@ -304,8 +306,9 @@ func TestEachWhenNotConsumed(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		if i == 0 {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		idx, _ := strconv.Atoi(i)
+		if idx == 0 {
 			var v string
 			p.Field("/thing", &v)
 		}
@@ -314,8 +317,8 @@ func TestEachWhenNotConsumed(t *testing.T) {
 	}).Errors()
 
 	assert.ElementsMatch(t, []shared.FieldError{
-		{Source: "/changes/1", Detail: "unexpected change provided"},
-		{Source: "/changes/2", Detail: "unexpected change provided"},
+		{Source: "/positionChanges/1", Detail: "unexpected change provided"},
+		{Source: "/positionChanges/2", Detail: "unexpected change provided"},
 	}, errors)
 }
 
@@ -351,8 +354,8 @@ func TestPrefixWhenNotConsumed(t *testing.T) {
 
 	assert.Equal(t, "val", v)
 	assert.ElementsMatch(t, []shared.FieldError{
-		{Source: "/changes/1", Detail: "unexpected change provided"},
-		{Source: "/changes/2", Detail: "unexpected change provided"},
+		{Source: "/positionChanges/1", Detail: "unexpected change provided"},
+		{Source: "/positionChanges/2", Detail: "unexpected change provided"},
 	}, errors)
 }
 
@@ -362,7 +365,7 @@ func TestPrefixWhenMissing(t *testing.T) {
 	errors := Changes(changes).Prefix("/a", func(p *Parser) []shared.FieldError { return nil }).Consumed()
 
 	assert.ElementsMatch(t, []shared.FieldError{
-		{Source: "/changes", Detail: "missing /a/..."},
+		{Source: "/positionChanges", Detail: "missing /a/..."},
 	}, errors)
 }
 
