@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestChangeAttorneysApply(t *testing.T) {
@@ -99,6 +100,63 @@ func TestValidateUpdateChangeAttorneys(t *testing.T) {
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
 				{Status: shared.AttorneyStatusActive}, {Status: shared.AttorneyStatusInactive},
+			}}},
+			errors: []shared.FieldError{
+				{Source: "/changes/0/new", Detail: "invalid value"},
+			},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			_, errors := validateUpdate(tc.update, tc.lpa)
+			assert.ElementsMatch(t, tc.errors, errors)
+		})
+	}
+}
+
+func TestValidateUpdateChangeAttorneysWithUIDReferences(t *testing.T) {
+	testcases := map[string]struct {
+		update shared.Update
+		lpa    *shared.Lpa
+		errors []shared.FieldError
+	}{
+		"valid - with previous values": {
+			update: shared.Update{
+				Type: "CHANGE_ATTORNEYS",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/status",
+						New: json.RawMessage(`"removed"`),
+						Old: json.RawMessage(`"active"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3e/status",
+						New: json.RawMessage(`"active"`),
+						Old: json.RawMessage(`"inactive"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3c"}, Status: shared.AttorneyStatusActive},
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Status: shared.AttorneyStatusActive},
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3e"}, Status: shared.AttorneyStatusInactive},
+			}}},
+		},
+		"invalid status": {
+			update: shared.Update{
+				Type: "CHANGE_ATTORNEYS",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/status",
+						New: json.RawMessage(`"in-progress"`),
+						Old: json.RawMessage(`"active"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Status: shared.AttorneyStatusActive},
+				{Status: shared.AttorneyStatusInactive},
 			}}},
 			errors: []shared.FieldError{
 				{Source: "/changes/0/new", Detail: "invalid value"},
