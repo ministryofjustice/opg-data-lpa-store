@@ -2,6 +2,7 @@ package parse
 
 import (
 	"encoding/json"
+	"strconv"
 	"testing"
 	"time"
 
@@ -229,11 +230,11 @@ func TestEach(t *testing.T) {
 	}
 
 	var v, w string
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
 		switch i {
-		case 0:
+		case "0":
 			p.Field("/thing", &v)
-		case 1:
+		case "1":
 			p.Field("/other", &w)
 		}
 		return p.Consumed()
@@ -250,7 +251,7 @@ func TestEachWhenNonIndexedKey(t *testing.T) {
 		{Key: "/-/other", New: json.RawMessage(`"other"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
 		var v any
 		p.Field("/thing", v)
 		return p.Errors()
@@ -263,16 +264,16 @@ func TestEachWhenNonIndexedKey(t *testing.T) {
 }
 
 func TestEachWhenRequired(t *testing.T) {
-	changes := []shared.Change{}
+	changes := []shared.Change{{Key: "/0/thing", New: json.RawMessage(`"val"`), Old: json.RawMessage(`"old"`)}}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		var v any
-		p.Field("/thing", v)
+	existing := "old"
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		p.Field("/thing", &existing)
 		return p.Errors()
-	}, 0).Errors()
+	}, 1).Errors()
 
 	assert.Equal(t, []shared.FieldError{
-		{Source: "/changes", Detail: "missing /0/thing"},
+		{Source: "/changes", Detail: "missing /1/thing"},
 	}, errors)
 }
 
@@ -283,8 +284,9 @@ func TestEachWhenOutOfRange(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		if i > 0 {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		idx, _ := strconv.Atoi(i)
+		if idx > 0 {
 			return p.OutOfRange()
 		}
 
@@ -304,8 +306,9 @@ func TestEachWhenNotConsumed(t *testing.T) {
 		{Key: "/2/thing", New: json.RawMessage(`"val"`), Old: jsonNull},
 	}
 
-	errors := Changes(changes).Each(func(i int, p *Parser) []shared.FieldError {
-		if i == 0 {
+	errors := Changes(changes).Each(func(i string, p *Parser) []shared.FieldError {
+		idx, _ := strconv.Atoi(i)
+		if idx == 0 {
 			var v string
 			p.Field("/thing", &v)
 		}
