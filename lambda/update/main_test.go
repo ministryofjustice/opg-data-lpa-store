@@ -296,7 +296,7 @@ func TestHandleEventWhenSendLpaUpdatedFailed(t *testing.T) {
 	}
 
 	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
-		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":null,"new":"a@example.com"}]}`,
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"},{"key":"/certificateProvider/contactLanguagePreference","old":null,"new":"en"},{"key":"/certificateProvider/email","old":null,"new":"b@example.com"}]}`,
 	})
 
 	client.AssertExpectations(t)

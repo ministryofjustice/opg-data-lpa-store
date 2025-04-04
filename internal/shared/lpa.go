@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"strconv"
 	"time"
 )
 
@@ -70,4 +71,32 @@ const (
 
 func (l LpaStatus) IsValid() bool {
 	return l == LpaStatusInProgress || l == LpaStatusStatutoryWaitingPeriod || l == LpaStatusRegistered || l == LpaStatusCannotRegister || l == LpaStatusWithdrawn || l == LpaStatusCancelled || l == LpaStatusDoNotRegister || l == LpaStatusExpired
+}
+
+func (l Lpa) FindAttorneyIndex(changeKey string) (int, bool) {
+	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(l.Attorneys) {
+		return idx, true
+	}
+
+	for i, attorney := range l.Attorneys {
+		if attorney.UID == changeKey {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+func (l Lpa) FindTrustCorporationIndex(changeKey string) (int, bool) {
+	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(l.TrustCorporations) {
+		return idx, true
+	}
+
+	for i, tc := range l.TrustCorporations {
+		if tc.UID == changeKey {
+			return i, true
+		}
+	}
+
+	return 0, false
 }

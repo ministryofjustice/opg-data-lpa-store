@@ -253,6 +253,21 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 						New: json.RawMessage(`"a@example.com"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"123 Main St"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"Homeland"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"GB"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -277,6 +292,21 @@ func TestValidateUpdateCertificateProviderSign(t *testing.T) {
 					{
 						Key: "/certificateProvider/email",
 						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/line1",
+						New: json.RawMessage(`"123 Main St"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/town",
+						New: json.RawMessage(`"Homeland"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/certificateProvider/address/country",
+						New: json.RawMessage(`"GB"`),
 						Old: jsonNull,
 					},
 				},

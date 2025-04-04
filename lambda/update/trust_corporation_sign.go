@@ -40,14 +40,19 @@ func validateTrustCorporationSign(changes []shared.Change, lpa *shared.Lpa) (Tru
 	errors := parse.Changes(changes).
 		Prefix("/trustCorporations", func(prefix *parse.Parser) []shared.FieldError {
 			return prefix.
-				Each(func(i int, each *parse.Parser) []shared.FieldError {
-					if data.Index != nil && *data.Index != i {
+				EachKey(func(key string, each *parse.Parser) []shared.FieldError {
+					trustCorporationIdx, ok := lpa.FindTrustCorporationIndex(key)
+					if !ok {
 						return each.OutOfRange()
 					}
 
-					data.Index = &i
-					data.Email = lpa.TrustCorporations[i].Email
-					data.Channel = lpa.TrustCorporations[i].Channel
+					if data.Index != nil && *data.Index != trustCorporationIdx {
+						return each.OutOfRange()
+					}
+
+					data.Index = &trustCorporationIdx
+					data.Email = lpa.TrustCorporations[trustCorporationIdx].Email
+					data.Channel = lpa.TrustCorporations[trustCorporationIdx].Channel
 
 					return each.
 						Field("/mobile", &data.Mobile).
