@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestOpgChangeStatusToCannotRegisterApply(t *testing.T) {
@@ -155,7 +156,7 @@ func TestValidateUpdateOPGChangeStatus(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: "invalid value"},
+				{Source: "/positionChanges/0/new", Detail: "invalid value"},
 			},
 		},
 	}
