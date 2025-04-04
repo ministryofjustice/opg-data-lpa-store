@@ -37,19 +37,21 @@ func validateAttorneySign(changes []shared.Change, lpa *shared.Lpa) (AttorneySig
 	errors := parse.Changes(changes).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					if data.Index != nil && *data.Index != i {
+				EachKey(func(key string, p *parse.Parser) []shared.FieldError {
+					attorneyIdx, ok := lpa.FindAttorneyIndex(key)
+
+					if !ok || (data.Index != nil && *data.Index != attorneyIdx) {
 						return p.OutOfRange()
 					}
 
-					data.Index = &i
-					data.Mobile = lpa.Attorneys[i].Mobile
-					data.ContactLanguagePreference = lpa.Attorneys[i].ContactLanguagePreference
-					data.Channel = lpa.Attorneys[i].Channel
-					data.Email = lpa.Attorneys[i].Email
+					data.Index = &attorneyIdx
+					data.Mobile = lpa.Attorneys[attorneyIdx].Mobile
+					data.ContactLanguagePreference = lpa.Attorneys[attorneyIdx].ContactLanguagePreference
+					data.Channel = lpa.Attorneys[attorneyIdx].Channel
+					data.Email = lpa.Attorneys[attorneyIdx].Email
 
-					if lpa.Attorneys[i].SignedAt != nil {
-						data.SignedAt = *lpa.Attorneys[i].SignedAt
+					if lpa.Attorneys[attorneyIdx].SignedAt != nil {
+						data.SignedAt = *lpa.Attorneys[attorneyIdx].SignedAt
 					}
 
 					return p.
