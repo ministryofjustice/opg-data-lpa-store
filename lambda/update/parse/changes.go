@@ -3,6 +3,7 @@ package parse
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -18,37 +19,76 @@ type changeWithPosition struct {
 }
 
 func (p changeWithPosition) Source(after string) string {
-	return fmt.Sprintf("/changes/%d%s", p.pos, after)
+	return fmt.Sprintf("/positionChanges/%d%s", p.pos, after)
+}
+
+type changeWithUID struct {
+	shared.Change
+	uid string
+	pos int
+}
+
+func (p changeWithUID) Source(after string) string {
+	return fmt.Sprintf("/uidChanges/%d%s", p.pos, after)
 }
 
 type Parser struct {
-	root    string
-	changes []changeWithPosition
-	errors  []shared.FieldError
+	root            string
+	positionChanges []changeWithPosition
+	UidChanges      []changeWithUID
+	errors          []shared.FieldError
 }
 
-// Changes constructs a new [Parser] for a set of changes.
+// Changes constructs a new [Parser] for a set of positionChanges.
 func Changes(changes []shared.Change) *Parser {
-	cs := make([]changeWithPosition, len(changes))
-	for i, change := range changes {
-		cs[i] = changeWithPosition{Change: change, pos: i}
+	parser := &Parser{}
+
+	if len(changes) > 0 {
+		uuidPattern := `/[^/]+/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/`
+		re := regexp.MustCompile(uuidPattern)
+		match := re.FindStringSubmatch(changes[0].Key)
+		foundUUID := ""
+
+		if len(match) > 1 {
+			foundUUID = match[1]
+		}
+
+		// need to account for cases where the first change isn;t a uid but others are (not supported - maybe throw error? Also think about non indexed changes like donor and CP hmmmmm
+
+		for i, change := range changes {
+			if foundUUID != "" {
+				parser.UidChanges = append(parser.UidChanges, changeWithUID{Change: change, pos: i, uid: foundUUID})
+			} else {
+				parser.positionChanges = append(parser.positionChanges, changeWithPosition{Change: change, pos: i})
+			}
+		}
 	}
 
-	return &Parser{changes: cs}
+	// check length of both and throw error if both contain elements?
+
+	return parser
 }
 
-// Consumed checks the [Parser] has used all of the changes. It adds an error for any unparsed changes.
+// Consumed checks the [Parser] has used all of the positionChanges. It adds an error for any unparsed positionChanges.
 func (p *Parser) Consumed() []shared.FieldError {
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
+		p.errors = append(p.errors, shared.FieldError{Source: change.Source(""), Detail: "unexpected change provided"})
+	}
+
+	for _, change := range p.UidChanges {
 		p.errors = append(p.errors, shared.FieldError{Source: change.Source(""), Detail: "unexpected change provided"})
 	}
 
 	return p.errors
 }
 
-// OutOfRange can be used with [Parser.Each] when the index is not in an expected range. It adds an out of range error for all changes.
+// OutOfRange can be used with [Parser.Each] when the index is not in an expected range. It adds an out of range error for all positionChanges.
 func (p *Parser) OutOfRange() []shared.FieldError {
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
+		p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "index out of range"})
+	}
+
+	for _, change := range p.UidChanges {
 		p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "index out of range"})
 	}
 
@@ -111,7 +151,7 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 		options = opt(options)
 	}
 
-	for i, change := range p.changes {
+	for i, change := range p.positionChanges {
 		if change.Key == key {
 			var old any
 			if err := json.Unmarshal(change.Old, &old); err != nil {
@@ -135,14 +175,44 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 				}
 			}
 
-			p.changes = slices.Delete(p.changes, i, i+1)
+			p.positionChanges = slices.Delete(p.positionChanges, i, i+1)
+			return p
+		}
+	}
+
+	for i, change := range p.UidChanges {
+		if change.Key == key {
+			var old any
+			if err := json.Unmarshal(change.Old, &old); err != nil {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "error marshalling old value"})
+			}
+
+			compare := existing
+			if options.old != nil {
+				compare = options.old
+			}
+
+			if !oldEqualsExisting(old, compare) {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/old"), Detail: "does not match existing value"})
+			} else {
+				if err := json.Unmarshal(change.New, existing); err != nil {
+					p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: "unexpected type"})
+				} else if options.validator != nil {
+					if msg := options.validator.Valid(existing); msg != "" {
+						p.errors = append(p.errors, shared.FieldError{Source: change.Source("/new"), Detail: msg})
+					}
+				}
+			}
+
+			p.UidChanges = slices.Delete(p.UidChanges, i, i+1)
 			return p
 		}
 	}
 
 	if !options.optional {
-		p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + key})
+		p.errors = append(p.errors, shared.FieldError{Source: "/positionChanges", Detail: "missing " + p.root + key})
 	}
+
 	return p
 }
 
@@ -266,56 +336,100 @@ func oldEqualsExisting(old any, existing any) bool {
 //		s = append(s, v)
 //		return p.Consumed()
 //	})
-func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int) *Parser {
-	indexedChanges := map[int][]changeWithPosition{}
+func (p *Parser) Each(fn func(string, *Parser) []shared.FieldError, required ...int) *Parser {
+	if len(p.positionChanges) > 0 {
+		indexedChanges := map[int][]changeWithPosition{}
 
-	for _, idx := range required {
-		indexedChanges[idx] = []changeWithPosition{}
+		for _, idx := range required {
+			indexedChanges[idx] = []changeWithPosition{}
+		}
+
+		for _, change := range p.positionChanges {
+			parts := strings.SplitN(change.Key, "/", 3)
+			if len(parts) != 3 || parts[0] != "" {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
+				continue
+			}
+
+			idx, err := strconv.Atoi(parts[1])
+			if err != nil {
+				p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
+				continue
+			}
+
+			indexedChanges[idx] = append(indexedChanges[idx], changeWithPosition{
+				Change: shared.Change{Key: "/" + parts[2], Old: change.Old, New: change.New},
+				pos:    change.pos,
+			})
+		}
+
+		// because we should be going through all the positionChanges, or they 'require index' so are not valid to use
+		p.positionChanges = []changeWithPosition{}
+
+		// so we always run through in a consistent order
+		indexes := make([]int, 0, len(indexedChanges))
+		for k := range indexedChanges {
+			indexes = append(indexes, k)
+		}
+		slices.Sort(indexes)
+
+		for _, idx := range indexes {
+			changes := indexedChanges[idx]
+			subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), positionChanges: changes}
+			fn(strconv.Itoa(idx), subParser)
+			p.errors = append(p.errors, subParser.errors...)
+		}
+
+		return p
 	}
 
-	for _, change := range p.changes {
+	// account for required - need to check index matches? Only being used for 0 in trust corps right now
+
+	uidChanges := map[string][]changeWithUID{}
+
+	for _, change := range p.UidChanges {
 		parts := strings.SplitN(change.Key, "/", 3)
 		if len(parts) != 3 || parts[0] != "" {
 			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
 			continue
 		}
 
-		idx, err := strconv.Atoi(parts[1])
-		if err != nil {
-			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
+		if parts[1] == "" {
+			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require uid"})
 			continue
 		}
 
-		indexedChanges[idx] = append(indexedChanges[idx], changeWithPosition{
+		uidChanges[parts[1]] = append(uidChanges[parts[1]], changeWithUID{
 			Change: shared.Change{Key: "/" + parts[2], Old: change.Old, New: change.New},
 			pos:    change.pos,
+			uid:    change.uid,
 		})
 	}
 
-	// because we should be going through all the changes, or they 'require index' so are not valid to use
-	p.changes = []changeWithPosition{}
+	// because we should be going through all the positionChanges, or they 'require index' so are not valid to use
+	p.UidChanges = []changeWithUID{}
 
 	// so we always run through in a consistent order
-	indexes := make([]int, 0, len(indexedChanges))
-	for k := range indexedChanges {
-		indexes = append(indexes, k)
+	uids := make([]string, 0, len(uidChanges))
+	for k := range uidChanges {
+		uids = append(uids, k)
 	}
-	slices.Sort(indexes)
+	slices.Sort(uids)
 
-	for _, idx := range indexes {
-		changes := indexedChanges[idx]
-		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), changes: changes}
-		fn(idx, subParser)
+	for _, uid := range uids {
+		changes := uidChanges[uid]
+		subParser := &Parser{root: p.root + "/" + uid, UidChanges: changes}
+		fn(uid, subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}
 
 	return p
 }
 
-// Prefix will run fn with a [Parser] of any changes with the specified prefix. It
+// Prefix will run fn with a [Parser] of any positionChanges with the specified prefix. It
 // will add an error if the prefix does not exist.
 //
-// Consider the changes:
+// Consider the positionChanges:
 //
 //	{"key": "/thing/name", "old": null, "new": "a string"}
 //	{"key": "/thing/size", "old": null, "new": 5}
@@ -329,35 +443,67 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 //			Consumed()
 //	})
 func (p *Parser) Prefix(prefix string, fn func(*Parser) []shared.FieldError, opts ...Option) *Parser {
-	var matching, remaining []changeWithPosition
+	var indexMatching, indexRemaining []changeWithPosition
+	var uidMatching, uidRemaining []changeWithUID
 
 	options := fieldOpts{}
 	for _, opt := range opts {
 		options = opt(options)
 	}
 
-	for _, change := range p.changes {
-		if strings.HasPrefix(change.Key, prefix+"/") {
-			matching = append(matching, changeWithPosition{
-				Change: shared.Change{Key: change.Key[len(prefix):], Old: change.Old, New: change.New},
-				pos:    change.pos,
-			})
-		} else {
-			remaining = append(remaining, change)
+	subParser := &Parser{root: p.root + prefix}
+
+	if len(p.positionChanges) > 0 {
+		for _, change := range p.positionChanges {
+			if strings.HasPrefix(change.Key, prefix+"/") {
+				indexMatching = append(indexMatching, changeWithPosition{
+					Change: shared.Change{Key: change.Key[len(prefix):], Old: change.Old, New: change.New},
+					pos:    change.pos,
+				})
+			} else {
+				indexRemaining = append(indexRemaining, change)
+			}
 		}
-	}
 
-	p.changes = remaining
+		p.positionChanges = indexRemaining
 
-	if len(matching) == 0 {
-		if !options.optional {
-			p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + prefix + "/..."})
+		if len(indexMatching) == 0 {
+			if !options.optional {
+				p.errors = append(p.errors, shared.FieldError{Source: "/positionChanges", Detail: "missing " + p.root + prefix + "/..."})
+			}
+		} else {
+			subParser.positionChanges = indexMatching
+		}
+	} else if len(p.UidChanges) > 0 {
+		for _, change := range p.UidChanges {
+			if strings.HasPrefix(change.Key, prefix+"/") {
+				uidMatching = append(uidMatching, changeWithUID{
+					Change: shared.Change{Key: change.Key[len(prefix):], Old: change.Old, New: change.New},
+					uid:    change.uid,
+					pos:    change.pos,
+				})
+			} else {
+				uidRemaining = append(uidRemaining, change)
+			}
+		}
+
+		p.UidChanges = uidRemaining
+
+		if len(uidMatching) == 0 {
+			if !options.optional {
+				p.errors = append(p.errors, shared.FieldError{Source: "/uidChanges", Detail: "missing " + p.root + prefix + "/..."})
+			}
+		} else {
+			subParser.UidChanges = uidMatching
 		}
 	} else {
-		subParser := &Parser{root: p.root + prefix, changes: matching}
-		fn(subParser)
-		p.errors = append(p.errors, subParser.errors...)
+		if !options.optional {
+			p.errors = append(p.errors, shared.FieldError{Source: "/positionChanges", Detail: "missing " + p.root + prefix + "/..."})
+		}
 	}
+
+	fn(subParser)
+	p.errors = append(p.errors, subParser.errors...)
 
 	return p
 }

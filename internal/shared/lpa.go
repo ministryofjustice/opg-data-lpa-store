@@ -71,3 +71,23 @@ const (
 func (l LpaStatus) IsValid() bool {
 	return l == LpaStatusInProgress || l == LpaStatusStatutoryWaitingPeriod || l == LpaStatusRegistered || l == LpaStatusCannotRegister || l == LpaStatusWithdrawn || l == LpaStatusCancelled || l == LpaStatusDoNotRegister || l == LpaStatusExpired
 }
+
+func (l Lpa) FindAttorneyIndex(uid string) (int, bool) {
+	for i, attorney := range l.Attorneys {
+		if attorney.UID == uid {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+func (l Lpa) FindTrustCorporationIndex(uid string) (int, bool) {
+	for i, trustCorporation := range l.TrustCorporations {
+		if trustCorporation.UID == uid {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
