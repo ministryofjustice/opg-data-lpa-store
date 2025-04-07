@@ -329,6 +329,7 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 		{name: "DonorConfirmIdentity", path: "docs/donor-confirm-identity.json"},
 		{name: "CertificateProviderConfirmIdentity", path: "docs/certificate-provider-confirm-identity.json"},
 		{name: "StatutoryWaitingPeriod", path: "docs/statutory-waiting-period.json"},
+		{name: "SeverRestrictionsAndConditions", path: "docs/sever-restrictions-and-conditions.json"},
 	}
 
 	lpaUID := doCreateExample(t, examplePath)
