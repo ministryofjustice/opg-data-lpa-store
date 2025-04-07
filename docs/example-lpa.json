@@ -63,5 +63,6 @@
   "signedAt": "2024-01-10T23:00:00Z",
   "witnessedByCertificateProviderAt": "2024-01-11T01:00:00Z",
   "certificateProviderNotRelatedConfirmedAt": "2024-01-11T22:00:00Z",
-  "howAttorneysMakeDecisions": "jointly"
+  "howAttorneysMakeDecisions": "jointly",
+  "restrictionsAndConditions": "I do not want to be put into a care home unless x"
 }
