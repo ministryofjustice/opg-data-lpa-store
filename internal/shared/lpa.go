@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"regexp"
 	"time"
 )
 
@@ -70,4 +71,33 @@ const (
 
 func (l LpaStatus) IsValid() bool {
 	return l == LpaStatusInProgress || l == LpaStatusStatutoryWaitingPeriod || l == LpaStatusRegistered || l == LpaStatusCannotRegister || l == LpaStatusWithdrawn || l == LpaStatusCancelled || l == LpaStatusDoNotRegister || l == LpaStatusExpired
+}
+
+func (l Lpa) FindAttorneyIndex(changeKey string) (int, bool) {
+	for i, attorney := range l.Attorneys {
+		if attorney.UID == changeKey {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+func (l Lpa) FindTrustCorporationIndex(changeKey string) (int, bool) {
+	uuidPattern := `/[^/]+/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/`
+	re := regexp.MustCompile(uuidPattern)
+	match := re.FindStringSubmatch(changeKey)
+	foundUUID := ""
+
+	if len(match) > 1 {
+		foundUUID = match[1]
+	}
+
+	for i, trustCorporation := range l.TrustCorporations {
+		if trustCorporation.UID == foundUUID {
+			return i, true
+		}
+	}
+
+	return 0, false
 }
