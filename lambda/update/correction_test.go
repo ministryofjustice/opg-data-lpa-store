@@ -584,12 +584,12 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: fieldRequired},
-				{Source: "/changes/1/new", Detail: fieldRequired},
-				{Source: "/changes/2/new", Detail: fieldRequired},
-				{Source: "/changes/3/new", Detail: fieldRequired},
-				{Source: "/changes/4/new", Detail: fieldRequired},
-				{Source: "/changes/5/new", Detail: fieldRequired},
+				{Source: "/positionChanges/0/new", Detail: fieldRequired},
+				{Source: "/positionChanges/1/new", Detail: fieldRequired},
+				{Source: "/positionChanges/2/new", Detail: fieldRequired},
+				{Source: "/positionChanges/3/new", Detail: fieldRequired},
+				{Source: "/positionChanges/4/new", Detail: fieldRequired},
+				{Source: "/positionChanges/5/new", Detail: fieldRequired},
 			},
 		},
 		"invalid country": {
@@ -610,9 +610,9 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0/new", Detail: "must be a valid ISO-3166-1 country code"},
-				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
-				{Source: "/changes/2/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/positionChanges/0/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/positionChanges/1/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/positionChanges/2/new", Detail: "must be a valid ISO-3166-1 country code"},
 			},
 		},
 		"cannot change attorney decisions": {
@@ -625,7 +625,7 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/0", Detail: "unexpected change provided"},
 			},
 		},
 		"cannot change replacement attorneys step in": {
@@ -642,7 +642,7 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/0", Detail: "unexpected change provided"},
 			},
 		},
 		"cannot change replacement attorney decisions": {
@@ -656,8 +656,8 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0", Detail: "unexpected change provided"},
-				{Source: "/changes/1", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/0", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/1", Detail: "unexpected change provided"},
 			},
 		},
 		"cannot change life sustaining treatment": {
@@ -671,7 +671,7 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/0", Detail: "unexpected change provided"},
 			},
 		},
 		"cannot change when can use": {
@@ -685,7 +685,7 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			errors: []shared.FieldError{
-				{Source: "/changes/0", Detail: "unexpected change provided"},
+				{Source: "/positionChanges/0", Detail: "unexpected change provided"},
 			},
 		},
 	}

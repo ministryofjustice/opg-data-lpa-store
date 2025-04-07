@@ -15,40 +15,42 @@ import (
 type changeWithPosition struct {
 	shared.Change
 	pos int
+	uid string
 }
 
 func (p changeWithPosition) Source(after string) string {
-	return fmt.Sprintf("/changes/%d%s", p.pos, after)
+	return fmt.Sprintf("/positionChanges/%d%s", p.pos, after)
 }
 
 type Parser struct {
-	root    string
-	changes []changeWithPosition
-	errors  []shared.FieldError
+	root            string
+	positionChanges []changeWithPosition
+	errors          []shared.FieldError
 }
 
-// Changes constructs a new [Parser] for a set of changes.
+// Changes constructs a new [Parser] for a set of positionChanges.
 func Changes(changes []shared.Change) *Parser {
-	cs := make([]changeWithPosition, len(changes))
+	parser := &Parser{}
+
 	for i, change := range changes {
-		cs[i] = changeWithPosition{Change: change, pos: i}
+		parser.positionChanges = append(parser.positionChanges, changeWithPosition{Change: change, pos: i})
 	}
 
-	return &Parser{changes: cs}
+	return parser
 }
 
-// Consumed checks the [Parser] has used all of the changes. It adds an error for any unparsed changes.
+// Consumed checks the [Parser] has used all of the positionChanges. It adds an error for any unparsed positionChanges.
 func (p *Parser) Consumed() []shared.FieldError {
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
 		p.errors = append(p.errors, shared.FieldError{Source: change.Source(""), Detail: "unexpected change provided"})
 	}
 
 	return p.errors
 }
 
-// OutOfRange can be used with [Parser.Each] when the index is not in an expected range. It adds an out of range error for all changes.
+// OutOfRange can be used with [Parser.Each] when the index is not in an expected range. It adds an out of range error for all positionChanges.
 func (p *Parser) OutOfRange() []shared.FieldError {
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
 		p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "index out of range"})
 	}
 
@@ -111,7 +113,7 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 		options = opt(options)
 	}
 
-	for i, change := range p.changes {
+	for i, change := range p.positionChanges {
 		if change.Key == key {
 			var old any
 			if err := json.Unmarshal(change.Old, &old); err != nil {
@@ -135,14 +137,15 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 				}
 			}
 
-			p.changes = slices.Delete(p.changes, i, i+1)
+			p.positionChanges = slices.Delete(p.positionChanges, i, i+1)
 			return p
 		}
 	}
 
 	if !options.optional {
-		p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + key})
+		p.errors = append(p.errors, shared.FieldError{Source: "/positionChanges", Detail: "missing " + p.root + key})
 	}
+
 	return p
 }
 
@@ -266,14 +269,14 @@ func oldEqualsExisting(old any, existing any) bool {
 //		s = append(s, v)
 //		return p.Consumed()
 //	})
-func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int) *Parser {
+func (p *Parser) Each(fn func(string, *Parser) []shared.FieldError, required ...int) *Parser {
 	indexedChanges := map[int][]changeWithPosition{}
 
 	for _, idx := range required {
 		indexedChanges[idx] = []changeWithPosition{}
 	}
 
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
 		parts := strings.SplitN(change.Key, "/", 3)
 		if len(parts) != 3 || parts[0] != "" {
 			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
@@ -292,8 +295,8 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 		})
 	}
 
-	// because we should be going through all the changes, or they 'require index' so are not valid to use
-	p.changes = []changeWithPosition{}
+	// because we should be going through all the positionChanges, or they 'require index' so are not valid to use
+	p.positionChanges = []changeWithPosition{}
 
 	// so we always run through in a consistent order
 	indexes := make([]int, 0, len(indexedChanges))
@@ -304,7 +307,57 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 
 	for _, idx := range indexes {
 		changes := indexedChanges[idx]
-		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), changes: changes}
+		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), positionChanges: changes}
+		fn(strconv.Itoa(idx), subParser)
+		p.errors = append(p.errors, subParser.errors...)
+	}
+
+	return p
+}
+
+// EachKey will run fn with a [Parser] for any indexed keys. If required is specified
+// then those indexes must exist.
+//
+// Consider the changes:
+//
+//	{"key": "/0/thing", "old": null, "new": "a string"}
+//	{"key": "/1/thing", "old": null, "new": "another string"}
+//
+// Then to parse to a list of strings s do:
+//
+//	parser.Each(func(i int, p *Parser) {
+//		var v string
+//		p.Field("/thing", v)
+//		s = append(s, v)
+//		return p.Consumed()
+//	})
+func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
+	fieldChanges := make(map[string][]changeWithPosition, len(p.positionChanges))
+
+	for _, change := range p.positionChanges {
+		parts := strings.SplitN(change.Key, "/", 3)
+		if len(parts) != 3 || parts[0] != "" {
+			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
+			continue
+		}
+
+		if parts[1] == "" {
+			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index"})
+			continue
+		}
+
+		fieldChanges[parts[1]] = append(fieldChanges[parts[1]], changeWithPosition{
+			Change: shared.Change{Key: "/" + parts[2], Old: change.Old, New: change.New},
+			pos:    change.pos,
+		})
+	}
+
+	// all changes to check are passed to sub-parser, so remove from this parser
+	p.positionChanges = []changeWithPosition{}
+
+	for idx, _ := range fieldChanges {
+		changes := fieldChanges[idx]
+		subParser := &Parser{root: p.root + "/" + idx, positionChanges: changes}
 		fn(idx, subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}
@@ -312,10 +365,10 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 	return p
 }
 
-// Prefix will run fn with a [Parser] of any changes with the specified prefix. It
+// Prefix will run fn with a [Parser] of any positionChanges with the specified prefix. It
 // will add an error if the prefix does not exist.
 //
-// Consider the changes:
+// Consider the positionChanges:
 //
 //	{"key": "/thing/name", "old": null, "new": "a string"}
 //	{"key": "/thing/size", "old": null, "new": 5}
@@ -336,7 +389,7 @@ func (p *Parser) Prefix(prefix string, fn func(*Parser) []shared.FieldError, opt
 		options = opt(options)
 	}
 
-	for _, change := range p.changes {
+	for _, change := range p.positionChanges {
 		if strings.HasPrefix(change.Key, prefix+"/") {
 			matching = append(matching, changeWithPosition{
 				Change: shared.Change{Key: change.Key[len(prefix):], Old: change.Old, New: change.New},
@@ -347,14 +400,14 @@ func (p *Parser) Prefix(prefix string, fn func(*Parser) []shared.FieldError, opt
 		}
 	}
 
-	p.changes = remaining
+	p.positionChanges = remaining
 
 	if len(matching) == 0 {
 		if !options.optional {
-			p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + prefix + "/..."})
+			p.errors = append(p.errors, shared.FieldError{Source: "/positionChanges", Detail: "missing " + p.root + prefix + "/..."})
 		}
 	} else {
-		subParser := &Parser{root: p.root + prefix, changes: matching}
+		subParser := &Parser{root: p.root + prefix, positionChanges: matching}
 		fn(subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}
