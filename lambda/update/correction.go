@@ -184,21 +184,32 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 		Prefix("/certificateProvider", validateCertificateProvider(&data.CertificateProvider), parse.Optional()).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					if data.Attorney.Index != nil && *data.Attorney.Index != i {
+				EachKey(func(key string, p *parse.Parser) []shared.FieldError {
+					var attorneyIdx int
+
+					attorneyIdx, err := strconv.Atoi(key)
+					if err != nil {
+						var ok bool
+						attorneyIdx, ok = lpa.FindAttorneyIndex(key)
+						if !ok {
+							return p.OutOfRange()
+						}
+					}
+
+					if data.Attorney.Index != nil && *data.Attorney.Index != attorneyIdx {
 						return p.OutOfRange()
 					}
 
-					data.Attorney.Index = &i
-					data.Attorney.FirstNames = lpa.Attorneys[i].FirstNames
-					data.Attorney.LastName = lpa.Attorneys[i].LastName
-					data.Attorney.DateOfBirth = lpa.Attorneys[i].DateOfBirth
-					data.Attorney.Address = lpa.Attorneys[i].Address
-					data.Attorney.Email = lpa.Attorneys[i].Email
-					data.Attorney.Mobile = lpa.Attorneys[i].Mobile
+					data.Attorney.Index = &attorneyIdx
+					data.Attorney.FirstNames = lpa.Attorneys[attorneyIdx].FirstNames
+					data.Attorney.LastName = lpa.Attorneys[attorneyIdx].LastName
+					data.Attorney.DateOfBirth = lpa.Attorneys[attorneyIdx].DateOfBirth
+					data.Attorney.Address = lpa.Attorneys[attorneyIdx].Address
+					data.Attorney.Email = lpa.Attorneys[attorneyIdx].Email
+					data.Attorney.Mobile = lpa.Attorneys[attorneyIdx].Mobile
 
-					if lpa.Attorneys[i].SignedAt != nil {
-						data.Attorney.SignedAt = *lpa.Attorneys[i].SignedAt
+					if lpa.Attorneys[attorneyIdx].SignedAt != nil {
+						data.Attorney.SignedAt = *lpa.Attorneys[attorneyIdx].SignedAt
 					}
 
 					return validateAttorney(&data.Attorney, p)
