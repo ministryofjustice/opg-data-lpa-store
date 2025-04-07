@@ -179,6 +179,7 @@ func TestCreateWithImages(t *testing.T) {
 			json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
 
 			getJSON["channel"] = json.RawMessage(`"online"`)
+			getJSON["restrictionsAndConditions"] = json.RawMessage(`"I do not want to be put into a care home unless x"`)
 			delete(getJSON, "status")
 			delete(getJSON, "uid")
 			delete(getJSON, "updatedAt")
@@ -329,6 +330,7 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 		{name: "DonorConfirmIdentity", path: "docs/donor-confirm-identity.json"},
 		{name: "CertificateProviderConfirmIdentity", path: "docs/certificate-provider-confirm-identity.json"},
 		{name: "StatutoryWaitingPeriod", path: "docs/statutory-waiting-period.json"},
+		{name: "SeverRestrictionsAndConditions", path: "docs/sever-restrictions-and-conditions.json"},
 	}
 
 	lpaUID := doCreateExample(t, examplePath)
@@ -337,12 +339,24 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 		t.Run(step.name, func(t *testing.T) {
 			data, _ := os.ReadFile(step.path)
 
+			var requestData map[string]interface{}
+			if err := json.Unmarshal(data, &requestData); err != nil {
+				t.Fatalf("Failed to unmarshal JSON: %v", err)
+			}
+
+			// Log the type of 'new'
+
 			req, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
 				bytes.NewReader(data))
 			withAuth(req, jwtSecretKey, authorUID)
 
 			resp, _ := doRequest(req)
+			if resp.StatusCode != http.StatusCreated {
+
+				body, _ := io.ReadAll(resp.Body)
+				t.Fatalf("Step %s failed: expected 201, got %d\nResponse body:\n%s", step.name, resp.StatusCode, string(body))
+			}
 			assert.Equal(t, http.StatusCreated, resp.StatusCode)
 		})
 	}
