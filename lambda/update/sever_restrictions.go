@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
-	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
 )
 
@@ -22,7 +21,7 @@ func validateSeverRestrictions(changes []shared.Change, lpa *shared.Lpa) (SeverR
 	data.restrictionsAndConditions = lpa.RestrictionsAndConditions
 
 	errors := parse.Changes(changes).
-		Field("/restrictionsAndConditions", &data.restrictionsAndConditions, parse.Validate(validate.Valid())).
+		Field("/restrictionsAndConditions", &data.restrictionsAndConditions, parse.Optional()).
 		Consumed()
 
 	return data, errors
