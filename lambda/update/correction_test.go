@@ -414,6 +414,44 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 		},
+		"valid attorney update with UID reference": {
+			changes: []shared.Change{
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/firstNames", New: json.RawMessage(`"Shanelle"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/lastName", New: json.RawMessage(`"Kerluke"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/dateOfBirth", New: json.RawMessage(`"1949-10-20"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email", New: json.RawMessage(`"test@test.com"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile", New: json.RawMessage(`"123456789"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/line1", New: json.RawMessage(`"13 Park Avenue"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/town", New: json.RawMessage(`"Clwyd"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/postcode", New: json.RawMessage(`"OH03 2LM"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/country", New: json.RawMessage(`"GB"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Attorneys: []shared.Attorney{
+						{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}},
+					},
+				},
+			},
+			expected: Correction{
+				Attorney: AttorneyCorrection{
+					Index:       ptrTo(0),
+					FirstNames:  "Shanelle",
+					LastName:    "Kerluke",
+					DateOfBirth: createDate("1949-10-20"),
+					Email:       "test@test.com",
+					Mobile:      "123456789",
+					Address: shared.Address{
+						Line1:    "13 Park Avenue",
+						Town:     "Clwyd",
+						Postcode: "OH03 2LM",
+						Country:  "GB",
+					},
+					SignedAt: now,
+				},
+			},
+		},
 		"valid replacement attorney update": {
 			changes: []shared.Change{
 				{Key: "/attorneys/1/firstNames", New: json.RawMessage(`"Anthony"`), Old: jsonNull},
@@ -430,6 +468,42 @@ func TestValidateCorrection(t *testing.T) {
 							Status:          shared.AttorneyStatusActive,
 						},
 						{
+							AppointmentType: shared.AppointmentTypeReplacement,
+							Status:          shared.AttorneyStatusInactive,
+						},
+					},
+				},
+			},
+			expected: Correction{
+				Attorney: AttorneyCorrection{
+					Index:       ptrTo(1),
+					FirstNames:  "Anthony",
+					LastName:    "Leannon",
+					DateOfBirth: createDate("1963-11-08"),
+					Address: shared.Address{
+						Town:    "Cheshire",
+						Country: "GB",
+					},
+				},
+			},
+		},
+		"valid replacement attorney update with UID reference": {
+			changes: []shared.Change{
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/firstNames", New: json.RawMessage(`"Anthony"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/lastName", New: json.RawMessage(`"Leannon"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/dateOfBirth", New: json.RawMessage(`"1963-11-08"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/town", New: json.RawMessage(`"Cheshire"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/country", New: json.RawMessage(`"GB"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Attorneys: []shared.Attorney{
+						{
+							AppointmentType: shared.AppointmentTypeOriginal,
+							Status:          shared.AttorneyStatusActive,
+						},
+						{
+							Person:          shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"},
 							AppointmentType: shared.AppointmentTypeReplacement,
 							Status:          shared.AttorneyStatusInactive,
 						},
@@ -592,6 +666,31 @@ func TestValidateCorrection(t *testing.T) {
 				{Source: "/changes/5/new", Detail: fieldRequired},
 			},
 		},
+		"missing required fields with UID reference": {
+			changes: []shared.Change{
+				{Key: "/donor/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/donor/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/certificateProvider/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/certificateProvider/lastName", New: jsonNull, Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Donor:               shared.Donor{},
+					Attorneys:           []shared.Attorney{{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}}},
+					CertificateProvider: shared.CertificateProvider{},
+				},
+			},
+			errors: []shared.FieldError{
+				{Source: "/changes/0/new", Detail: fieldRequired},
+				{Source: "/changes/1/new", Detail: fieldRequired},
+				{Source: "/changes/2/new", Detail: fieldRequired},
+				{Source: "/changes/3/new", Detail: fieldRequired},
+				{Source: "/changes/4/new", Detail: fieldRequired},
+				{Source: "/changes/5/new", Detail: fieldRequired},
+			},
+		},
 		"invalid country": {
 			changes: []shared.Change{
 				{Key: "/donor/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
@@ -604,6 +703,29 @@ func TestValidateCorrection(t *testing.T) {
 						Address: shared.Address{},
 					},
 					Attorneys: []shared.Attorney{{}},
+					CertificateProvider: shared.CertificateProvider{
+						Address: shared.Address{},
+					},
+				},
+			},
+			errors: []shared.FieldError{
+				{Source: "/changes/0/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/changes/2/new", Detail: "must be a valid ISO-3166-1 country code"},
+			},
+		},
+		"invalid country with UID reference": {
+			changes: []shared.Change{
+				{Key: "/donor/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+				{Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+				{Key: "/certificateProvider/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Donor: shared.Donor{
+						Address: shared.Address{},
+					},
+					Attorneys: []shared.Attorney{{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}}},
 					CertificateProvider: shared.CertificateProvider{
 						Address: shared.Address{},
 					},

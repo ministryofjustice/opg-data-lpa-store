@@ -280,3 +280,240 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateUpdateAttorneySignActorUID(t *testing.T) {
+	now := time.Now()
+	yesterday := time.Now()
+
+	testcases := map[string]struct {
+		update shared.Update
+		lpa    *shared.Lpa
+		errors []shared.FieldError
+	}{
+		"valid - no previous values": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339Nano) + `"`),
+						Old: jsonNull,
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}},
+			}}},
+		},
+		"valid - with previous values": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: json.RawMessage(`"06666"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+						New: json.RawMessage(`"online"`),
+						Old: json.RawMessage(`"paper"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+			}}},
+		},
+		"missing all": {
+			update: shared.Update{Type: "ATTORNEY_SIGN"},
+			errors: []shared.FieldError{
+				{Source: "/changes", Detail: "missing /attorneys/..."},
+			},
+		},
+		"extra fields": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+						New: json.RawMessage(`"0777"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/donor/firstNames",
+						New: json.RawMessage(`"John"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/firstNames",
+						New: json.RawMessage(`"John"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+						New: json.RawMessage(`"paper"`),
+						Old: jsonNull,
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}},
+			}}},
+			errors: []shared.FieldError{
+				{Source: "/changes/3", Detail: "unexpected change provided"},
+				{Source: "/changes/4", Detail: "unexpected change provided"},
+			},
+		},
+		"invalid contact language and channel": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+						New: json.RawMessage(`"xy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+						New: json.RawMessage(`"digital"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: jsonNull,
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}},
+			}}},
+			errors: []shared.FieldError{
+				{Source: "/changes/2/new", Detail: "invalid value"},
+				{Source: "/changes/3/new", Detail: "invalid value"},
+			},
+		},
+		"multiple attorneys - multiple attorney changes": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+						New: json.RawMessage(`"0777"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3e/signedAt",
+						New: json.RawMessage(`"` + time.Now().Format(time.RFC3339) + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+						New: json.RawMessage(`"a@example.com"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+						New: json.RawMessage(`"online"`),
+						Old: jsonNull,
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}},
+			}}},
+			errors: []shared.FieldError{
+				{Source: "/changes/1/key", Detail: "index out of range"},
+				{Source: "/changes", Detail: "missing /attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt"},
+			},
+		},
+		"multiple attorneys - single attorney change": {
+			update: shared.Update{
+				Type: "ATTORNEY_SIGN",
+				Changes: []shared.Change{
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+						New: json.RawMessage(`"07777"`),
+						Old: json.RawMessage(`"06666"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+						New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`),
+						Old: json.RawMessage(`"` + yesterday.Format(time.RFC3339Nano) + `"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+						New: json.RawMessage(`"online"`),
+						Old: json.RawMessage(`"paper"`),
+					},
+					{
+						Key: "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+						New: json.RawMessage(`"b@example.com"`),
+						Old: json.RawMessage(`"a@example.com"`),
+					},
+				},
+			},
+			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
+				{}, {Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+			}}},
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			_, errors := validateUpdate(tc.update, tc.lpa)
+			assert.ElementsMatch(t, tc.errors, errors)
+		})
+	}
+}
