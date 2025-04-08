@@ -29,12 +29,13 @@ type Parser struct {
 
 // Changes constructs a new [Parser] for a set of changes.
 func Changes(changes []shared.Change) *Parser {
-	cs := make([]changeWithPosition, len(changes))
+	parser := &Parser{}
+
 	for i, change := range changes {
-		cs[i] = changeWithPosition{Change: change, pos: i}
+		parser.changes = append(parser.changes, changeWithPosition{Change: change, pos: i})
 	}
 
-	return &Parser{changes: cs}
+	return parser
 }
 
 // Consumed checks the [Parser] has used all of the changes. It adds an error for any unparsed changes.
@@ -143,6 +144,7 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 	if !options.optional {
 		p.errors = append(p.errors, shared.FieldError{Source: "/changes", Detail: "missing " + p.root + key})
 	}
+
 	return p
 }
 
@@ -305,6 +307,49 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 	for _, idx := range indexes {
 		changes := indexedChanges[idx]
 		subParser := &Parser{root: p.root + "/" + strconv.Itoa(idx), changes: changes}
+		fn(idx, subParser)
+		p.errors = append(p.errors, subParser.errors...)
+	}
+
+	return p
+}
+
+// EachKey will run fn with a [Parser] for any indexed or uid keys.
+//
+// Consider the changes:
+//
+//	{"key": "/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/thing", "old": null, "new": "a string"}
+//	{"key": "/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/thing", "old": null, "new": "another string"}
+//
+// Then to parse to a map of strings m do:
+//
+//	parser.EachKey(func(k string, p *Parser) {
+//		var v string
+//		p.Field("/thing", v)
+//		m[k] = v
+//		return p.Consumed()
+//	})
+func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
+	fieldChanges := make(map[string][]changeWithPosition, len(p.changes))
+
+	for _, change := range p.changes {
+		parts := strings.SplitN(change.Key, "/", 3)
+		if len(parts) != 3 || parts[1] == "" || parts[0] != "" {
+			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index or actor UID"})
+			continue
+		}
+
+		fieldChanges[parts[1]] = append(fieldChanges[parts[1]], changeWithPosition{
+			Change: shared.Change{Key: "/" + parts[2], Old: change.Old, New: change.New},
+			pos:    change.pos,
+		})
+	}
+
+	// all changes are valid, so remove from current parser
+	p.changes = []changeWithPosition{}
+
+	for idx, changes := range fieldChanges {
+		subParser := &Parser{root: p.root + "/" + idx, changes: changes}
 		fn(idx, subParser)
 		p.errors = append(p.errors, subParser.errors...)
 	}

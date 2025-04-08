@@ -1,0 +1,30 @@
+{
+    "type": "ATTORNEY_SIGN",
+    "changes": [
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/mobile",
+            "new": "07700900000",
+            "old": null
+        },
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/signedAt",
+            "new": "2024-01-13T22:00:00Z",
+            "old": null
+        },
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
+            "new": "en",
+            "old": null
+        },
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/channel",
+            "new": "online",
+            "old": "paper"
+        },
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+            "new": "a@example.com",
+            "old": null
+        }
+    ]
+}

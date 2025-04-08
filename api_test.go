@@ -314,7 +314,7 @@ func TestGetListWithImages(t *testing.T) {
 	}
 }
 
-func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
+func TestUpdate(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping api test")
 		return
@@ -345,6 +345,37 @@ func TestUpdateToStatutoryWaitingPeriod(t *testing.T) {
 			}
 
 			// Log the type of 'new'
+
+			req, _ := http.NewRequest(http.MethodPost,
+				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
+				bytes.NewReader(data))
+			withAuth(req, jwtSecretKey, authorUID)
+
+			resp, _ := doRequest(req)
+			assert.Equal(t, http.StatusCreated, resp.StatusCode)
+		})
+	}
+}
+
+func TestUpdateUIDReferences(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping api test")
+		return
+	}
+
+	steps := []struct {
+		name string
+		path string
+	}{
+		{name: "AttorneySign", path: "docs/attorney-sign-uid.json"},
+		{name: "TrustCorporationSign", path: "docs/trust-corporation-sign-uid.json"},
+	}
+
+	lpaUID := doCreateExample(t, examplePath)
+
+	for _, step := range steps {
+		t.Run(step.name, func(t *testing.T) {
+			data, _ := os.ReadFile(step.path)
 
 			req, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
