@@ -30,6 +30,7 @@ var (
 	jwtSecretKey = cmp.Or(os.Getenv("JWT_SECRET_KEY"), "mysupersecrettestkeythatis128bits")
 
 	examplePath      = "docs/example-lpa.json"
+	examplePaperPath = "docs/example-lpa-all-paper.json"
 	exampleImagePath = "docs/example-lpa-images.json"
 )
 
@@ -344,7 +345,40 @@ func TestUpdate(t *testing.T) {
 				t.Fatalf("Failed to unmarshal JSON: %v", err)
 			}
 
-			// Log the type of 'new'
+			req, _ := http.NewRequest(http.MethodPost,
+				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
+				bytes.NewReader(data))
+			withAuth(req, jwtSecretKey, authorUID)
+
+			resp, _ := doRequest(req)
+			assert.Equal(t, http.StatusCreated, resp.StatusCode)
+		})
+	}
+}
+
+func TestUpdateAllPaper(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping api test")
+		return
+	}
+
+	steps := []struct {
+		name string
+		path string
+	}{
+		{name: "PaperCertificateProviderAccessOnline", path: "docs/paper-certificate-provider-access-online.json"},
+	}
+
+	lpaUID := doCreateExample(t, examplePaperPath)
+
+	for _, step := range steps {
+		t.Run(step.name, func(t *testing.T) {
+			data, _ := os.ReadFile(step.path)
+
+			var requestData map[string]interface{}
+			if err := json.Unmarshal(data, &requestData); err != nil {
+				t.Fatalf("Failed to unmarshal JSON: %v", err)
+			}
 
 			req, _ := http.NewRequest(http.MethodPost,
 				fmt.Sprintf("%s/lpas/%s/updates", baseURL, lpaUID),
