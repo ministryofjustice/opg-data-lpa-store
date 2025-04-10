@@ -1,0 +1,10 @@
+{
+    "type": "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE",
+    "changes": [
+        {
+            "key": "/certificateProvider/email",
+            "new": "c@example.com",
+            "old": ""
+        }
+    ]
+}
