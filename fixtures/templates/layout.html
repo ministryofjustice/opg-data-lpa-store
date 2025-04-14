@@ -68,11 +68,11 @@
     crossorigin="anonymous"></script>
   <script type="module">
     import { initAll as govukInitAll } from "/assets/govuk-frontend.min.js";
-    import "/assets/moj-frontend.min.js";
+    import { initAll as mojInitAll } from "/assets/moj-frontend.min.js";
     import { initAll as appInitAll } from "/assets/js/main.mjs";
 
     govukInitAll();
-    window.MOJFrontend.initAll();
+    mojInitAll();
     appInitAll();
   </script>
 </body>
