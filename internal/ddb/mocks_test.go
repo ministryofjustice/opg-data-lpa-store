@@ -40,13 +40,15 @@ func (_m *mockDynamodbClient) EXPECT() *mockDynamodbClient_Expecter {
 
 // BatchGetItem provides a mock function for the type mockDynamodbClient
 func (_mock *mockDynamodbClient) BatchGetItem(ctx context.Context, params *dynamodb.BatchGetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for BatchGetItem")
@@ -54,8 +56,8 @@ func (_mock *mockDynamodbClient) BatchGetItem(ctx context.Context, params *dynam
 
 	var r0 *dynamodb.BatchGetItemOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.BatchGetItemInput, []func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) (*dynamodb.BatchGetItemOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.BatchGetItemInput, ...func(*dynamodb.Options)) *dynamodb.BatchGetItemOutput); ok {
 		r0 = returnFunc(ctx, params, optFns...)
@@ -111,13 +113,15 @@ func (_c *mockDynamodbClient_BatchGetItem_Call) RunAndReturn(run func(ctx contex
 
 // GetItem provides a mock function for the type mockDynamodbClient
 func (_mock *mockDynamodbClient) GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetItem")
@@ -125,8 +129,8 @@ func (_mock *mockDynamodbClient) GetItem(ctx context.Context, params *dynamodb.G
 
 	var r0 *dynamodb.GetItemOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.GetItemInput, []func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.GetItemInput, ...func(*dynamodb.Options)) *dynamodb.GetItemOutput); ok {
 		r0 = returnFunc(ctx, params, optFns...)
@@ -182,13 +186,15 @@ func (_c *mockDynamodbClient_GetItem_Call) RunAndReturn(run func(ctx context.Con
 
 // PutItem provides a mock function for the type mockDynamodbClient
 func (_mock *mockDynamodbClient) PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PutItem")
@@ -196,8 +202,8 @@ func (_mock *mockDynamodbClient) PutItem(ctx context.Context, params *dynamodb.P
 
 	var r0 *dynamodb.PutItemOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.PutItemInput, []func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.PutItemInput, ...func(*dynamodb.Options)) *dynamodb.PutItemOutput); ok {
 		r0 = returnFunc(ctx, params, optFns...)
@@ -253,13 +259,15 @@ func (_c *mockDynamodbClient_PutItem_Call) RunAndReturn(run func(ctx context.Con
 
 // TransactWriteItems provides a mock function for the type mockDynamodbClient
 func (_mock *mockDynamodbClient) TransactWriteItems(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TransactWriteItems")
@@ -267,8 +275,8 @@ func (_mock *mockDynamodbClient) TransactWriteItems(ctx context.Context, params 
 
 	var r0 *dynamodb.TransactWriteItemsOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, []func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.TransactWriteItemsInput, ...func(*dynamodb.Options)) *dynamodb.TransactWriteItemsOutput); ok {
 		r0 = returnFunc(ctx, params, optFns...)

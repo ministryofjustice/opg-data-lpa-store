@@ -115,11 +115,10 @@ func (_m *mockLogger) EXPECT() *mockLogger_Expecter {
 
 // Debug provides a mock function for the type mockLogger
 func (_mock *mockLogger) Debug(s string, vs ...any) {
-	if len(vs) > 0 {
-		_mock.Called(s, vs)
-	} else {
-		_mock.Called(s)
-	}
+	var _ca []interface{}
+	_ca = append(_ca, s)
+	_ca = append(_ca, vs...)
+	_mock.Called(_ca...)
 	return
 }
 
@@ -161,11 +160,10 @@ func (_c *mockLogger_Debug_Call) RunAndReturn(run func(s string, vs ...any)) *mo
 
 // Error provides a mock function for the type mockLogger
 func (_mock *mockLogger) Error(s string, vs ...any) {
-	if len(vs) > 0 {
-		_mock.Called(s, vs)
-	} else {
-		_mock.Called(s)
-	}
+	var _ca []interface{}
+	_ca = append(_ca, s)
+	_ca = append(_ca, vs...)
+	_mock.Called(_ca...)
 	return
 }
 
@@ -207,11 +205,10 @@ func (_c *mockLogger_Error_Call) RunAndReturn(run func(s string, vs ...any)) *mo
 
 // Info provides a mock function for the type mockLogger
 func (_mock *mockLogger) Info(s string, vs ...any) {
-	if len(vs) > 0 {
-		_mock.Called(s, vs)
-	} else {
-		_mock.Called(s)
-	}
+	var _ca []interface{}
+	_ca = append(_ca, s)
+	_ca = append(_ca, vs...)
+	_mock.Called(_ca...)
 	return
 }
 

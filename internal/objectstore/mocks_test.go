@@ -41,13 +41,15 @@ func (_m *mockAwsS3Client) EXPECT() *mockAwsS3Client_Expecter {
 
 // PutObject provides a mock function for the type mockAwsS3Client
 func (_mock *mockAwsS3Client) PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
-	var tmpRet mock.Arguments
-	if len(opts) > 0 {
-		tmpRet = _mock.Called(ctx, input, opts)
-	} else {
-		tmpRet = _mock.Called(ctx, input)
+	// func(*s3.Options)
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, input)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PutObject")
@@ -55,8 +57,8 @@ func (_mock *mockAwsS3Client) PutObject(ctx context.Context, input *s3.PutObject
 
 	var r0 *s3.PutObjectOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.PutObjectInput, []func(*s3.Options)) (*s3.PutObjectOutput, error)); ok {
-		return returnFunc(ctx, input, opts)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) (*s3.PutObjectOutput, error)); ok {
+		return returnFunc(ctx, input, opts...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.PutObjectInput, ...func(*s3.Options)) *s3.PutObjectOutput); ok {
 		r0 = returnFunc(ctx, input, opts...)
@@ -139,13 +141,15 @@ func (_m *mockPresignClient) EXPECT() *mockPresignClient_Expecter {
 
 // PresignGetObject provides a mock function for the type mockPresignClient
 func (_mock *mockPresignClient) PresignGetObject(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*s3.PresignOptions)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PresignGetObject")
@@ -153,8 +157,8 @@ func (_mock *mockPresignClient) PresignGetObject(ctx context.Context, params *s3
 
 	var r0 *v4.PresignedHTTPRequest
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.GetObjectInput, []func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.GetObjectInput, ...func(*s3.PresignOptions)) (*v4.PresignedHTTPRequest, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.GetObjectInput, ...func(*s3.PresignOptions)) *v4.PresignedHTTPRequest); ok {
 		r0 = returnFunc(ctx, params, optFns...)

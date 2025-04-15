@@ -40,13 +40,15 @@ func (_m *mockEventBridgeClient) EXPECT() *mockEventBridgeClient_Expecter {
 
 // PutEvents provides a mock function for the type mockEventBridgeClient
 func (_mock *mockEventBridgeClient) PutEvents(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error) {
-	var tmpRet mock.Arguments
-	if len(optFns) > 0 {
-		tmpRet = _mock.Called(ctx, params, optFns)
-	} else {
-		tmpRet = _mock.Called(ctx, params)
+	// func(*eventbridge.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
 	}
-	ret := tmpRet
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PutEvents")
@@ -54,8 +56,8 @@ func (_mock *mockEventBridgeClient) PutEvents(ctx context.Context, params *event
 
 	var r0 *eventbridge.PutEventsOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *eventbridge.PutEventsInput, []func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)); ok {
-		return returnFunc(ctx, params, optFns)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *eventbridge.PutEventsInput, ...func(*eventbridge.Options)) (*eventbridge.PutEventsOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, *eventbridge.PutEventsInput, ...func(*eventbridge.Options)) *eventbridge.PutEventsOutput); ok {
 		r0 = returnFunc(ctx, params, optFns...)

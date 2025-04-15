@@ -1,8 +1,10 @@
 all: true
-dir: '{{.InterfaceDir}}'
+dir: "{{.InterfaceDir}}"
 structname: mock{{.InterfaceName|firstUpper}}
-pkgname: '{{.SrcPackageName}}'
+pkgname: "{{.SrcPackageName}}"
 template: testify
+template-data:
+  unroll-variadic: true
 packages:
   github.com/ministryofjustice/opg-data-lpa-store/internal/ddb: {}
   github.com/ministryofjustice/opg-data-lpa-store/internal/event: {}
