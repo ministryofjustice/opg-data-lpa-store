@@ -20,7 +20,7 @@ func (c PaperCertificateProviderAccessOnline) Apply(lpa *shared.Lpa) []shared.Fi
 	return nil
 }
 
-func validatePaperCertificateProviderAccessOnline(changes []shared.Change, lpa *shared.Lpa) (Applyable, []shared.FieldError) {
+func validatePaperCertificateProviderAccessOnline(changes []shared.Change) (Applyable, []shared.FieldError) {
 	var data PaperCertificateProviderAccessOnline
 	errors := parse.Changes(changes).
 		Field("/certificateProvider/email", &data.Email, parse.Validate(validate.NotEmpty())).

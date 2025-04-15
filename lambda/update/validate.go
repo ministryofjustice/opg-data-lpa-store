@@ -41,7 +41,9 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 	case "SEVER_RESTRICTIONS_AND_CONDITIONS":
 		return validateSeverRestrictions(update.Changes, lpa)
 	case "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE":
-		return validatePaperCertificateProviderAccessOnline(update.Changes, lpa)
+		return validatePaperCertificateProviderAccessOnline(update.Changes)
+	case "PAPER_ATTORNEY_ACCESS_ONLINE":
+		return validatePaperAttorneyAccessOnline(update.Changes, lpa)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
