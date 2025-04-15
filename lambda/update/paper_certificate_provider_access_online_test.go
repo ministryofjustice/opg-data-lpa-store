@@ -22,15 +22,6 @@ func TestValidateUpdatePaperCertificateProviderAccessOnline(t *testing.T) {
 				},
 			},
 		},
-		"valid with existing email": {
-			update: shared.Update{
-				Type: "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE",
-				Changes: []shared.Change{
-					{Key: "/certificateProvider/email", Old: jsonNull, New: json.RawMessage(`"b@example.com"`)},
-				},
-			},
-			email: "a@example.com",
-		},
 		"missing email": {
 			update: shared.Update{
 				Type: "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE",

@@ -1,0 +1,10 @@
+{
+    "type": "PAPER_ATTORNEY_ACCESS_ONLINE",
+    "changes": [
+        {
+            "key": "/attorneys/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/email",
+            "new": "c@example.com",
+            "old": ""
+        }
+    ]
+}
