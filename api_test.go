@@ -356,7 +356,7 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestUpdateAllPaper(t *testing.T) {
+func TestUpdatePaper(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping api test")
 		return
@@ -367,6 +367,7 @@ func TestUpdateAllPaper(t *testing.T) {
 		path string
 	}{
 		{name: "PaperCertificateProviderAccessOnline", path: "docs/paper-certificate-provider-access-online.json"},
+		{name: "PaperAttorneyAccessOnline", path: "docs/paper-attorney-access-online.json"},
 	}
 
 	lpaUID := doCreateExample(t, examplePaperPath)
