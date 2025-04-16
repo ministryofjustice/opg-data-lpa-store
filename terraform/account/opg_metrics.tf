@@ -3,7 +3,7 @@ data "aws_default_tags" "current" {
 }
 
 data "aws_secretsmanager_secret" "opg_metrics_api_key" {
-  name     = "opg-metrics-api-key/mrlpa-${data.aws_default_tags.current.tags.environment-name}"
+  name     = "opg-metrics-api-key/mrlpa-${data.aws_default_tags.current.tags.account}"
   provider = aws.shared_eu_west_1
 }
 
