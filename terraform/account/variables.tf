@@ -7,6 +7,7 @@ variable "accounts" {
       shared_account_id                  = string
       jwt_key_cross_account_access       = list(string)
       jwt_key_cross_account_access_roles = list(string)
+      opg_metrics_endpoint               = string
     })
   )
 }
