@@ -4,8 +4,10 @@ variable "accounts" {
       account_id                         = string
       account_name                       = string
       is_production                      = bool
+      shared_account_id                  = string
       jwt_key_cross_account_access       = list(string)
       jwt_key_cross_account_access_roles = list(string)
+      opg_metrics_endpoint               = string
     })
   )
 }
