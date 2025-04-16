@@ -17,7 +17,7 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
-    session_name = "terraform-session"
+    session_name = "lpa-store-terraform-session"
   }
 
   default_tags {
@@ -31,7 +31,7 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
-    session_name = "terraform-session"
+    session_name = "lpa-store-terraform-session"
   }
 
   default_tags {
@@ -45,7 +45,7 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account.account_id}:role/${var.default_role}"
-    session_name = "terraform-session"
+    session_name = "lpa-store-terraform-session"
   }
 
   default_tags {
@@ -59,7 +59,7 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::311462405659:role/${var.management_role}"
-    session_name = "terraform-session"
+    session_name = "lpa-store-terraform-session"
   }
 
   default_tags {
@@ -73,7 +73,35 @@ provider "aws" {
 
   assume_role {
     role_arn     = "arn:aws:iam::311462405659:role/${var.management_role}"
-    session_name = "terraform-session"
+    session_name = "lpa-store-terraform-session"
+  }
+
+  default_tags {
+    tags = local.default_tags
+  }
+}
+
+provider "aws" {
+  alias  = "shared_eu_west_1"
+  region = "eu-west-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    session_name = "lpa-store-terraform-session"
+  }
+
+  default_tags {
+    tags = local.default_tags
+  }
+}
+
+provider "aws" {
+  alias  = "shared_eu_west_2"
+  region = "eu-west-2"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    session_name = "lpa-store-terraform-session"
   }
 
   default_tags {
