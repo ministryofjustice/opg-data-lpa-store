@@ -17,7 +17,7 @@ data "aws_ssm_parameter" "opg_metrics_arn" {
 
 resource "aws_iam_role_policy" "opg_metrics" {
   name     = "opg-metrics-${data.aws_region.current.name}"
-  role     = "opg-metrics-${data.aws_default_tags.current.tags.environment-name}"
+  role     = aws_iam_role.opg_metrics.name
   policy   = data.aws_iam_policy_document.opg_metrics.json
   provider = aws.eu_west_1
 }
@@ -38,7 +38,7 @@ resource "aws_cloudwatch_event_target" "opg_metrics" {
   arn            = data.aws_ssm_parameter.opg_metrics_arn.insecure_value
   event_bus_name = aws_cloudwatch_event_bus.main.name
   rule           = aws_cloudwatch_event_rule.metric_events.name
-  role_arn       = var.opg_metrics_api_destination_role.arn
+  role_arn       = aws_iam_role.opg_metrics.arn
   http_target {
     header_parameters = {
       Content-Type = "application/json"
