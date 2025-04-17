@@ -16,7 +16,8 @@ resource "aws_cloudwatch_event_rule" "source_events_to_sirius" {
   name           = "${local.environment_name}-source-events-to-sirius"
   state          = "ENABLED"
   event_pattern = jsonencode({
-    source = ["opg.poas.lpastore"]
+    source      = ["opg.poas.lpastore"]
+    detail-type = [{ "anything-but" : { "prefix" : "metric" } }]
   })
 
   provider = aws.eu_west_1
