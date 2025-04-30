@@ -41,6 +41,7 @@ data "aws_iam_policy_document" "lambda_s3_policy" {
       "${var.lpa_store_static_bucket.arn}/*",
     ]
     actions = [
+      "s3:GetObject",
       "s3:PutObject"
     ]
   }
