@@ -331,12 +331,17 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 //	})
 func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
 	fieldChanges := make(map[string][]changeWithPosition, len(p.changes))
+	keysOriginalOrder := []string{}
 
 	for _, change := range p.changes {
 		parts := strings.SplitN(change.Key, "/", 3)
 		if len(parts) != 3 || parts[1] == "" || parts[0] != "" {
 			p.errors = append(p.errors, shared.FieldError{Source: change.Source("/key"), Detail: "require index or actor UID"})
 			continue
+		}
+
+		if !slices.Contains(keysOriginalOrder, parts[1]) {
+			keysOriginalOrder = append(keysOriginalOrder, parts[1])
 		}
 
 		fieldChanges[parts[1]] = append(fieldChanges[parts[1]], changeWithPosition{
@@ -348,7 +353,8 @@ func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
 	// all changes are valid, so remove from current parser
 	p.changes = []changeWithPosition{}
 
-	for idx, changes := range fieldChanges {
+	for _, idx := range keysOriginalOrder {
+		changes := fieldChanges[idx]
 		subParser := &Parser{root: p.root + "/" + idx, changes: changes}
 		fn(idx, subParser)
 		p.errors = append(p.errors, subParser.errors...)
