@@ -8,6 +8,8 @@
   "branchNameStrict": true,
   "commitMessageAction": "Renovate Update",
   "labels": ["Dependencies", "Renovate"],
+  "configMigration": true,
+  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
       "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
