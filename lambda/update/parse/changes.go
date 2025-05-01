@@ -331,7 +331,7 @@ func (p *Parser) Each(fn func(int, *Parser) []shared.FieldError, required ...int
 //	})
 func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
 	fieldChanges := make(map[string][]changeWithPosition, len(p.changes))
-	keysOrdered := []string{}
+	keysOriginalOrder := []string{}
 
 	for _, change := range p.changes {
 		parts := strings.SplitN(change.Key, "/", 3)
@@ -340,8 +340,8 @@ func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
 			continue
 		}
 
-		if !slices.Contains(keysOrdered, parts[1]) {
-			keysOrdered = append(keysOrdered, parts[1])
+		if !slices.Contains(keysOriginalOrder, parts[1]) {
+			keysOriginalOrder = append(keysOriginalOrder, parts[1])
 		}
 
 		fieldChanges[parts[1]] = append(fieldChanges[parts[1]], changeWithPosition{
@@ -353,7 +353,7 @@ func (p *Parser) EachKey(fn func(string, *Parser) []shared.FieldError) *Parser {
 	// all changes are valid, so remove from current parser
 	p.changes = []changeWithPosition{}
 
-	for _, idx := range keysOrdered {
+	for _, idx := range keysOriginalOrder {
 		changes := fieldChanges[idx]
 		subParser := &Parser{root: p.root + "/" + idx, changes: changes}
 		fn(idx, subParser)
