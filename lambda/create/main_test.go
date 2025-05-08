@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"regexp"
 	"testing"
 	"time"
 
@@ -495,6 +496,116 @@ func TestLambdaHandleEventWhenSendLpaUpdatedErrors(t *testing.T) {
 			ChangeType: "CREATE",
 		}).
 		Return(errExample)
+
+	lambda := &Lambda{
+		verifier:         verifier,
+		logger:           logger,
+		store:            store,
+		staticLpaStorage: staticLpaStorage,
+		eventClient:      eventClient,
+		now:              testNowFn,
+	}
+
+	resp, err := lambda.HandleEvent(ctx, req)
+	assert.Nil(t, err)
+	assert.Equal(t, events.APIGatewayProxyResponse{
+		StatusCode: 201,
+		Body:       "{}",
+	}, resp)
+}
+
+func TestLambdaHandleEventAddsActorUids(t *testing.T) {
+	body, _ := json.Marshal(shared.LpaInit{
+		Channel: shared.ChannelPaper,
+		Donor: shared.Donor{
+			Person: shared.Person{
+				FirstNames: "donor-firstname",
+				LastName:   "donor-lastname",
+			},
+		},
+		CertificateProvider: shared.CertificateProvider{
+			Person: shared.Person{
+				FirstNames: "certificate-provider-firstname",
+				LastName:   "certificate-provider-lastname",
+			},
+		},
+		Attorneys: []shared.Attorney{
+			{
+				Person: shared.Person{
+					FirstNames: "attorney-firstname",
+					LastName:   "attorney-lastname",
+				},
+				AppointmentType: shared.AppointmentTypeOriginal,
+			},
+			{
+				Person: shared.Person{
+					FirstNames: "attorney2-firstname",
+					LastName:   "attorney2-lastname",
+				},
+				AppointmentType: shared.AppointmentTypeReplacement,
+			},
+		},
+		TrustCorporations: []shared.TrustCorporation{
+			{},
+			{UID: "76fca433-639c-4119-8b3b-6f1e5d82de55"},
+		},
+		PeopleToNotify: []shared.PersonToNotify{
+			{Person: shared.Person{UID: "752f2031-66c6-412d-b8b8-3f9d56bb6e86"}},
+			{},
+		},
+		IndependentWitness:  &shared.IndependentWitness{},
+		AuthorisedSignatory: &shared.AuthorisedSignatory{},
+	})
+
+	uuidRegex := regexp.MustCompile("^[0-f]{8}-[0-f]{4}-[0-f]{4}-[0-f]{4}-[0-f]{12}$")
+
+	req := events.APIGatewayProxyRequest{
+		PathParameters: map[string]string{"uid": "my-uid"},
+		Body:           string(body),
+	}
+
+	verifier := newMockVerifier(t)
+	verifier.EXPECT().
+		VerifyHeader(req).
+		Return(nil, nil)
+
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		Debug("Successfully parsed JWT from event header")
+	logger.EXPECT().
+		Info("encountered validation errors in lpa", mock.Anything)
+
+	store := newMockStore(t)
+	store.EXPECT().
+		Get(ctx, "my-uid").
+		Return(shared.Lpa{}, nil)
+	store.EXPECT().
+		Put(ctx, mock.MatchedBy(func(lpa shared.Lpa) bool {
+			return uuidRegex.MatchString(lpa.Donor.UID) &&
+				uuidRegex.MatchString(lpa.CertificateProvider.UID) &&
+				uuidRegex.MatchString(lpa.Attorneys[0].UID) &&
+				uuidRegex.MatchString(lpa.Attorneys[1].UID) &&
+				uuidRegex.MatchString(lpa.TrustCorporations[0].UID) &&
+				lpa.TrustCorporations[1].UID == "76fca433-639c-4119-8b3b-6f1e5d82de55" &&
+				lpa.PeopleToNotify[0].UID == "752f2031-66c6-412d-b8b8-3f9d56bb6e86" &&
+				uuidRegex.MatchString(lpa.PeopleToNotify[1].UID) &&
+				uuidRegex.MatchString(lpa.IndependentWitness.UID) &&
+				uuidRegex.MatchString(lpa.AuthorisedSignatory.UID)
+		})).
+		Return(nil)
+
+	staticLpaStorage := newMockS3Client(t)
+	staticLpaStorage.EXPECT().
+		Put(ctx, "my-uid/donor-executed-lpa.json", mock.Anything).
+		Return(nil)
+
+	eventClient := newMockEventClient(t)
+	eventClient.EXPECT().
+		SendLpaUpdated(ctx, event.LpaUpdated{
+			Uid:        "my-uid",
+			ChangeType: "CREATE",
+		}).
+		Return(nil)
 
 	lambda := &Lambda{
 		verifier:         verifier,

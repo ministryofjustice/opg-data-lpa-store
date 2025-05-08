@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/google/uuid"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/ddb"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/event"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
@@ -120,6 +121,41 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 				return shared.ProblemInternalServerError.Respond()
 			}
 		}
+	}
+
+	// add UIDs to actors
+	if data.Donor.UID == "" {
+		data.Donor.UID = uuid.NewString()
+	}
+
+	if data.CertificateProvider.UID == "" {
+		data.CertificateProvider.UID = uuid.NewString()
+	}
+
+	for i := range data.Attorneys {
+		if data.Attorneys[i].UID == "" {
+			data.Attorneys[i].UID = uuid.NewString()
+		}
+	}
+
+	for i := range data.TrustCorporations {
+		if data.TrustCorporations[i].UID == "" {
+			data.TrustCorporations[i].UID = uuid.NewString()
+		}
+	}
+
+	for i := range data.PeopleToNotify {
+		if data.PeopleToNotify[i].UID == "" {
+			data.PeopleToNotify[i].UID = uuid.NewString()
+		}
+	}
+
+	if data.IndependentWitness != nil && data.IndependentWitness.UID == "" {
+		data.IndependentWitness.UID = uuid.NewString()
+	}
+
+	if data.AuthorisedSignatory != nil && data.AuthorisedSignatory.UID == "" {
+		data.AuthorisedSignatory.UID = uuid.NewString()
 	}
 
 	// save
