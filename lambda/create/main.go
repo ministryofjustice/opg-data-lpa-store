@@ -144,6 +144,20 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		}
 	}
 
+	for i := range data.PeopleToNotify {
+		if data.PeopleToNotify[i].UID == "" {
+			data.PeopleToNotify[i].UID = uuid.NewString()
+		}
+	}
+
+	if data.IndependentWitness != nil && data.IndependentWitness.UID == "" {
+		data.IndependentWitness.UID = uuid.NewString()
+	}
+
+	if data.AuthorisedSignatory != nil && data.AuthorisedSignatory.UID == "" {
+		data.AuthorisedSignatory.UID = uuid.NewString()
+	}
+
 	// save
 	if err := l.store.Put(ctx, data); err != nil {
 		l.logger.Error("error saving LPA", slog.Any("err", err))
