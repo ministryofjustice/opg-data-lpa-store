@@ -1,15 +1,13 @@
 module "eu_west_1" {
   source = "./region"
 
-  allowed_arns                    = local.environment.allowed_arns
-  allowed_wildcard_arns           = local.environment.allowed_wildcard_arns
-  account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 100
   dynamodb_arn                    = aws_dynamodb_table.deeds_table.arn
   dynamodb_arn_changes            = aws_dynamodb_table.changes_table.arn
   dynamodb_name                   = aws_dynamodb_table.deeds_table.name
   dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
+  environment                     = local.environment
   environment_name                = local.environment_name
   event_bus                       = aws_cloudwatch_event_bus.main
   has_fixtures                    = local.environment.has_fixtures
@@ -26,15 +24,13 @@ module "eu_west_1" {
 module "eu_west_2" {
   source = "./region"
 
-  allowed_arns                    = local.environment.allowed_arns
-  allowed_wildcard_arns           = local.environment.allowed_wildcard_arns
-  account_name                    = local.environment.account_name
   app_version                     = var.app_version
   dns_weighting                   = 0
   dynamodb_arn                    = aws_dynamodb_table_replica.deeds_table.arn
   dynamodb_arn_changes            = aws_dynamodb_table_replica.changes_table.arn
   dynamodb_name                   = aws_dynamodb_table.deeds_table.name
   dynamodb_name_changes           = aws_dynamodb_table.changes_table.name
+  environment                     = local.environment
   environment_name                = local.environment_name
   event_bus                       = aws_cloudwatch_event_bus.main
   has_fixtures                    = false
