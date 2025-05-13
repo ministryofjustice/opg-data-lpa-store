@@ -12,18 +12,11 @@ resource "aws_api_gateway_rest_api" "lpa_store" {
   name        = "lpa-store-${var.environment_name}"
   description = "API Gateway for LPA Store - ${var.environment_name}"
   body        = local.template_file
+  policy      = data.aws_iam_policy_document.lpa_store.json
 
   endpoint_configuration {
     types = ["REGIONAL"]
   }
-
-  provider = aws.region
-}
-
-
-resource "aws_api_gateway_rest_api_policy" "lpa_store" {
-  rest_api_id = aws_api_gateway_rest_api.lpa_store.id
-  policy      = data.aws_iam_policy_document.lpa_store.json
 
   provider = aws.region
 }
@@ -35,8 +28,7 @@ resource "aws_api_gateway_deployment" "lpa_store" {
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_rest_api.lpa_store.body,
-      var.allowed_arns,
-      var.allowed_wildcard_arns,
+      data.aws_iam_policy_document.lpa_store.json,
     ]))
   }
 
@@ -44,10 +36,7 @@ resource "aws_api_gateway_deployment" "lpa_store" {
     create_before_destroy = true
   }
 
-  depends_on = [
-    aws_api_gateway_rest_api.lpa_store,
-    aws_api_gateway_rest_api_policy.lpa_store
-  ]
+  depends_on = [aws_api_gateway_rest_api.lpa_store]
 
   provider = aws.region
 }
@@ -117,16 +106,18 @@ resource "aws_api_gateway_account" "api_gateway" {
 
 
 data "aws_iam_policy_document" "lpa_store" {
-  policy_id                 = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-resource-policy"
-  override_policy_documents = length(var.allowed_wildcard_arns) > 0 ? [data.aws_iam_policy_document.lpa_store_wildcard.json] : null
-
+  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-resource-policy"
+  override_policy_documents = concat(
+    length(var.environment.allowed_wildcard_arns) > 0 ? [data.aws_iam_policy_document.lpa_store_wildcard.json] : [],
+    local.ip_restrictions_enabled ? [data.aws_iam_policy_document.lpa_rest_api_ip_restriction_policy[0].json] : []
+  )
   statement {
     sid    = "AllowExecutionFromAllowedARNs"
     effect = "Allow"
 
     principals {
       type        = "AWS"
-      identifiers = var.allowed_arns
+      identifiers = var.environment.allowed_arns
     }
 
     actions   = ["execute-api:Invoke"]
@@ -143,7 +134,7 @@ data "aws_iam_policy_document" "lpa_store" {
     }
 
     actions   = ["execute-api:Invoke"]
-    resources = ["execute-api:/${local.stage_name}/GET/health-check"]
+    resources = ["arn:aws:execute-api:${data.aws_region.current.name}:${var.environment.account_id}:*/current/GET/health-check"]
   }
 }
 
@@ -164,9 +155,53 @@ data "aws_iam_policy_document" "lpa_store_wildcard" {
     condition {
       test     = "ArnEquals"
       variable = "aws:PrincipalArn"
-      values   = var.allowed_wildcard_arns
+      values   = var.environment.allowed_wildcard_arns
     }
   }
+}
+
+data "aws_iam_policy_document" "lpa_rest_api_ip_restriction_policy" {
+  count = local.ip_restrictions_enabled ? 1 : 0
+  statement {
+    sid    = "DenyExecuteByNoneAllowedIPRanges"
+    effect = "Deny"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions       = ["execute-api:Invoke"]
+    not_resources = ["arn:aws:execute-api:eu-west-?:${var.environment.account_id}:*/*/*/health-check"]
+    condition {
+      test     = "NotIpAddress"
+      variable = "aws:SourceIp"
+      values   = sensitive(local.allow_list_mapping[var.environment.account_name])
+    }
+  }
+}
+
+module "allow_list" {
+  source = "git@github.com:ministryofjustice/opg-terraform-aws-moj-ip-allow-list.git?ref=v3.4.0"
+}
+
+locals {
+  allow_list_mapping = {
+    development = concat(
+      module.allow_list.use_an_lpa_development,
+      module.allow_list.mr_lpa_development,
+      module.allow_list.sirius_dev_allow_list,
+    )
+    preproduction = concat(
+      module.allow_list.use_an_lpa_preproduction,
+      module.allow_list.mr_lpa_preproduction,
+      module.allow_list.sirius_pre_allow_list,
+    )
+    production = concat(
+      module.allow_list.use_an_lpa_production,
+      module.allow_list.mr_lpa_production,
+      module.allow_list.sirius_prod_allow_list,
+    )
+  }
+  ip_restrictions_enabled = contains(["preproduction", "production"], var.environment.account_name)
 }
 
 resource "aws_lambda_permission" "api_gateway_invoke" {
