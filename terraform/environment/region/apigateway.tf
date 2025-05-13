@@ -12,18 +12,11 @@ resource "aws_api_gateway_rest_api" "lpa_store" {
   name        = "lpa-store-${var.environment_name}"
   description = "API Gateway for LPA Store - ${var.environment_name}"
   body        = local.template_file
+  policy      = data.aws_iam_policy_document.lpa_store.json
 
   endpoint_configuration {
     types = ["REGIONAL"]
   }
-
-  provider = aws.region
-}
-
-
-resource "aws_api_gateway_rest_api_policy" "lpa_store" {
-  rest_api_id = aws_api_gateway_rest_api.lpa_store.id
-  policy      = data.aws_iam_policy_document.lpa_store.json
 
   provider = aws.region
 }
@@ -35,8 +28,7 @@ resource "aws_api_gateway_deployment" "lpa_store" {
   triggers = {
     redeployment = sha1(jsonencode([
       aws_api_gateway_rest_api.lpa_store.body,
-      var.allowed_arns,
-      var.allowed_wildcard_arns,
+      data.aws_iam_policy_document.lpa_store.json,
     ]))
   }
 
