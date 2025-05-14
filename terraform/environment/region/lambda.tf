@@ -12,7 +12,7 @@ module "lambda" {
   for_each = local.functions
   source   = "../../modules/lambda"
 
-  account_name          = var.account_name
+  account_name          = var.environment.account_name
   environment_name      = var.environment_name
   lambda_name           = each.key
   ecr_image_uri         = "${data.aws_ecr_repository.lambda[each.key].repository_url}:${var.app_version}"

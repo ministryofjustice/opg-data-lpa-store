@@ -1,21 +1,15 @@
-variable "allowed_arns" {
-  description = "List of external ARNs allowed to access the API Gateway"
-  type        = list(string)
-}
-
-variable "allowed_wildcard_arns" {
-  description = "List of wildcard-containing external ARNs allowed to access the API Gateway"
-  type        = list(string)
-}
-
-variable "account_name" {
-  description = "Name of AWS account"
-  type        = string
-}
-
 variable "app_version" {
   description = "Version of application to deploy"
   type        = string
+}
+
+variable "environment" {
+  type = object({
+    account_id            = string
+    account_name          = string
+    allowed_arns          = list(string)
+    allowed_wildcard_arns = optional(list(string), [])
+  })
 }
 
 variable "dns_weighting" {
