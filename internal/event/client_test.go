@@ -41,6 +41,32 @@ func TestClientSendLpaUpdated(t *testing.T) {
 
 	client := &Client{svc: eventBridgeClient, eventBusName: eventBusName}
 
-	err := client.SendLpaUpdated(ctx, event)
+	err := client.SendLpaUpdated(ctx, event, nil)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestClientSendLpaUpdatedWithMetric(t *testing.T) {
+	event := LpaUpdated{Uid: "M-1234-1234-1234", ChangeType: "CREATE"}
+
+	eventBridgeClient := newMockEventBridgeClient(t)
+	eventBridgeClient.EXPECT().
+		PutEvents(ctx, &eventbridge.PutEventsInput{
+			Entries: []types.PutEventsRequestEntry{{
+				EventBusName: aws.String(eventBusName),
+				Source:       aws.String(source),
+				DetailType:   aws.String("lpa-updated"),
+				Detail:       aws.String(`{"uid":"M-1234-1234-1234","changeType":"CREATE"}`),
+			}, {
+				EventBusName: aws.String(eventBusName),
+				Source:       aws.String(source),
+				DetailType:   aws.String("metric"),
+				Detail:       aws.String(`{"metrics":[{"Project":"X","Category":"Y","Subcategory":"","Environment":"","MeasureName":"","MeasureValue":"","MeasureValueType":"","Time":""}]}`),
+			}},
+		}).
+		Return(nil, expectedError)
+
+	client := &Client{svc: eventBridgeClient, eventBusName: eventBusName}
+
+	err := client.SendLpaUpdated(ctx, event, &Metric{Project: "X", Category: "Y"})
 	assert.Equal(t, expectedError, err)
 }

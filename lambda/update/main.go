@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -19,11 +20,12 @@ import (
 )
 
 type EventClient interface {
-	SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error
+	SendLpaUpdated(ctx context.Context, event event.LpaUpdated, metric *event.Metric) error
 }
 
 type Logger interface {
 	Error(string, ...any)
+	Warn(string, ...any)
 	Info(string, ...any)
 	Debug(string, ...any)
 }
@@ -41,7 +43,9 @@ type Lambda struct {
 	eventClient EventClient
 	store       Store
 	verifier    Verifier
+	environment string
 	logger      Logger
+	now         func() time.Time
 }
 
 func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -94,11 +98,35 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 
 	update.Id = uuid.NewString()
 	update.Uid = lpa.Uid
-	update.Applied = time.Now().UTC().Format(time.RFC3339)
+	update.Applied = l.now().UTC().Format(time.RFC3339)
 
 	if err := l.store.PutChanges(ctx, lpa, update); err != nil {
 		l.logger.Error("error saving changes", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
+	}
+
+	var measureName string
+	switch applyable.(type) {
+	case AttorneySign:
+		measureName = "ATTORNEY"
+	case CertificateProviderSign:
+		measureName = "CERTIFICATEPROVIDER"
+	case TrustCorporationSign:
+		measureName = "TRUSTCORPORATION"
+	}
+
+	var metric *event.Metric
+	if measureName != "" {
+		metric = &event.Metric{
+			Project:          "MRLPA",
+			Category:         "metric",
+			Subcategory:      "FunnelCompletionRate",
+			Environment:      l.environment,
+			MeasureName:      measureName,
+			MeasureValue:     "1",
+			MeasureValueType: "BIGINT",
+			Time:             strconv.FormatInt(l.now().UnixMilli(), 10),
+		}
 	}
 
 	body, err := json.Marshal(lpa)
@@ -107,13 +135,10 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemInternalServerError.Respond()
 	}
 
-	// send lpa-updated event
-	err = l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
+	if err := l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid:        lpa.Uid,
 		ChangeType: update.Type,
-	})
-
-	if err != nil {
+	}, metric); err != nil {
 		l.logger.Error("unexpected error occurred", slog.Any("err", err))
 	}
 
@@ -146,8 +171,10 @@ func main() {
 			os.Getenv("DDB_TABLE_NAME_DEEDS"),
 			os.Getenv("DDB_TABLE_NAME_CHANGES"),
 		),
-		verifier: shared.NewJWTVerifier(cfg, logger),
-		logger:   logger,
+		verifier:    shared.NewJWTVerifier(cfg, logger),
+		environment: os.Getenv("ENVIRONMENT"),
+		logger:      logger,
+		now:         time.Now,
 	}
 
 	lambda.Start(l.HandleEvent)
