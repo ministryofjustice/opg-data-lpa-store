@@ -27,23 +27,35 @@ func NewClient(cfg aws.Config, eventBusName string) *Client {
 	}
 }
 
-func (c *Client) SendLpaUpdated(ctx context.Context, event LpaUpdated) error {
-	return c.send(ctx, "lpa-updated", event)
-}
-
-func (c *Client) send(ctx context.Context, eventType string, detail any) error {
-	v, err := json.Marshal(detail)
+func (c *Client) SendLpaUpdated(ctx context.Context, event LpaUpdated, metric *Metric) error {
+	v, err := json.Marshal(event)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.svc.PutEvents(ctx, &eventbridge.PutEventsInput{
-		Entries: []types.PutEventsRequestEntry{{
+	entries := []types.PutEventsRequestEntry{{
+		EventBusName: aws.String(c.eventBusName),
+		Source:       aws.String(source),
+		DetailType:   aws.String("lpa-updated"),
+		Detail:       aws.String(string(v)),
+	}}
+
+	if metric != nil {
+		metricData, err := json.Marshal(Metrics{Metrics: []*Metric{metric}})
+		if err != nil {
+			return err
+		}
+
+		entries = append(entries, types.PutEventsRequestEntry{
 			EventBusName: aws.String(c.eventBusName),
 			Source:       aws.String(source),
-			DetailType:   aws.String(eventType),
-			Detail:       aws.String(string(v)),
-		}},
+			DetailType:   aws.String("metric"),
+			Detail:       aws.String(string(metricData)),
+		})
+	}
+
+	_, err = c.svc.PutEvents(ctx, &eventbridge.PutEventsInput{
+		Entries: entries,
 	})
 
 	return err

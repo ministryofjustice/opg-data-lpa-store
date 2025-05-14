@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 	"regexp"
+	"strconv"
 	"testing"
 	"time"
 
@@ -180,6 +181,15 @@ func TestLambdaHandleEvent(t *testing.T) {
 				SendLpaUpdated(ctx, event.LpaUpdated{
 					Uid:        "my-uid",
 					ChangeType: "CREATE",
+				}, &event.Metric{
+					Project:          "MRLPA",
+					Category:         "metric",
+					Subcategory:      "FunnelCompletionRate",
+					Environment:      "E",
+					MeasureName:      "DONOR",
+					MeasureValue:     "1",
+					MeasureValueType: "BIGINT",
+					Time:             strconv.FormatInt(testNow.UnixMilli(), 10),
 				}).
 				Return(nil)
 
@@ -190,6 +200,7 @@ func TestLambdaHandleEvent(t *testing.T) {
 				staticLpaStorage: staticLpaStorage,
 				eventClient:      eventClient,
 				now:              testNowFn,
+				environment:      "E",
 			}
 
 			resp, err := lambda.HandleEvent(ctx, req)
@@ -254,7 +265,7 @@ func TestLambdaHandleEventWhenPaperSubmissionContainsImages(t *testing.T) {
 		SendLpaUpdated(ctx, event.LpaUpdated{
 			Uid:        "my-uid",
 			ChangeType: "CREATE",
-		}).
+		}, mock.Anything).
 		Return(nil)
 
 	lambda := &Lambda{
@@ -321,7 +332,7 @@ func TestLambdaHandleEventWhenPaperSubmissionHasValidationErrors(t *testing.T) {
 		SendLpaUpdated(ctx, event.LpaUpdated{
 			Uid:        "my-uid",
 			ChangeType: "CREATE",
-		}).
+		}, mock.Anything).
 		Return(nil)
 
 	lambda := &Lambda{
@@ -494,7 +505,7 @@ func TestLambdaHandleEventWhenSendLpaUpdatedErrors(t *testing.T) {
 		SendLpaUpdated(ctx, event.LpaUpdated{
 			Uid:        "my-uid",
 			ChangeType: "CREATE",
-		}).
+		}, mock.Anything).
 		Return(errExample)
 
 	lambda := &Lambda{
@@ -604,6 +615,15 @@ func TestLambdaHandleEventAddsActorUids(t *testing.T) {
 		SendLpaUpdated(ctx, event.LpaUpdated{
 			Uid:        "my-uid",
 			ChangeType: "CREATE",
+		}, &event.Metric{
+			Project:          "MRLPA",
+			Category:         "metric",
+			Subcategory:      "FunnelCompletionRate",
+			Environment:      "E",
+			MeasureName:      "DONOR",
+			MeasureValue:     "1",
+			MeasureValueType: "BIGINT",
+			Time:             strconv.FormatInt(testNow.UnixMilli(), 10),
 		}).
 		Return(nil)
 
@@ -613,6 +633,7 @@ func TestLambdaHandleEventAddsActorUids(t *testing.T) {
 		store:            store,
 		staticLpaStorage: staticLpaStorage,
 		eventClient:      eventClient,
+		environment:      "E",
 		now:              testNowFn,
 	}
 
