@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -21,11 +22,12 @@ import (
 )
 
 type EventClient interface {
-	SendLpaUpdated(ctx context.Context, event event.LpaUpdated) error
+	SendLpaUpdated(ctx context.Context, event event.LpaUpdated, metric *event.Metric) error
 }
 
 type Logger interface {
 	Error(string, ...any)
+	Warn(string, ...any)
 	Info(string, ...any)
 	Debug(string, ...any)
 }
@@ -50,6 +52,7 @@ type Lambda struct {
 	store            Store
 	verifier         Verifier
 	logger           Logger
+	environment      string
 	now              func() time.Time
 }
 
@@ -176,6 +179,15 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	if err := l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid:        uid,
 		ChangeType: "CREATE",
+	}, &event.Metric{
+		Project:          "MRLPA",
+		Category:         "metric",
+		Subcategory:      "FunnelCompletionRate",
+		Environment:      l.environment,
+		MeasureName:      "DONOR",
+		MeasureValue:     "1",
+		MeasureValueType: "BIGINT",
+		Time:             strconv.FormatInt(l.now().UnixMilli(), 10),
 	}); err != nil {
 		l.logger.Error("unexpected error occurred", slog.Any("err", err))
 	}
@@ -214,9 +226,10 @@ func main() {
 			cfg,
 			os.Getenv("S3_BUCKET_NAME_ORIGINAL"),
 		),
-		verifier: shared.NewJWTVerifier(cfg, logger),
-		logger:   logger,
-		now:      time.Now,
+		verifier:    shared.NewJWTVerifier(cfg, logger),
+		logger:      logger,
+		environment: os.Getenv("ENVIRONMENT"),
+		now:         time.Now,
 	}
 
 	lambda.Start(l.HandleEvent)
