@@ -106,13 +106,25 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	}
 
 	var measureName string
-	switch applyable.(type) {
+	switch v := applyable.(type) {
 	case AttorneySign:
-		measureName = "ATTORNEY"
+		if v.Channel == shared.ChannelOnline {
+			measureName = "ONLINEATTORNEY"
+		} else {
+			measureName = "PAPERATTORNEY"
+		}
 	case CertificateProviderSign:
-		measureName = "CERTIFICATEPROVIDER"
+		if v.Channel == shared.ChannelOnline {
+			measureName = "ONLINECERTIFICATEPROVIDER"
+		} else {
+			measureName = "PAPERCERTIFICATEPROVIDER"
+		}
 	case TrustCorporationSign:
-		measureName = "TRUSTCORPORATION"
+		if v.Channel == shared.ChannelOnline {
+			measureName = "ONLINETRUSTCORPORATION"
+		} else {
+			measureName = "PAPERTRUSTCORPORATION"
+		}
 	}
 
 	var metric *event.Metric
