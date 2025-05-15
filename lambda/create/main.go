@@ -175,6 +175,11 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		return shared.ProblemInternalServerError.Respond()
 	}
 
+	measureName := "ONLINEDONOR"
+	if data.Channel == shared.ChannelPaper {
+		measureName = "PAPERDONOR"
+	}
+
 	// send lpa-updated event
 	if err := l.eventClient.SendLpaUpdated(ctx, event.LpaUpdated{
 		Uid:        uid,
@@ -184,7 +189,7 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		Category:         "metric",
 		Subcategory:      "FunnelCompletionRate",
 		Environment:      l.environment,
-		MeasureName:      "DONOR",
+		MeasureName:      measureName,
 		MeasureValue:     "1",
 		MeasureValueType: "BIGINT",
 		Time:             strconv.FormatInt(l.now().UnixMilli(), 10),

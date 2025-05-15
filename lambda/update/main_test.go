@@ -113,7 +113,7 @@ func TestHandleEvent(t *testing.T) {
 			Category:         "metric",
 			Subcategory:      "FunnelCompletionRate",
 			Environment:      "ENVIRONMENT",
-			MeasureName:      "CERTIFICATEPROVIDER",
+			MeasureName:      "ONLINECERTIFICATEPROVIDER",
 			MeasureValue:     "1",
 			MeasureValueType: "BIGINT",
 			Time:             strconv.FormatInt(testNow.UnixMilli(), 10),

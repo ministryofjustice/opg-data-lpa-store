@@ -94,21 +94,21 @@ func TestLambdaHandleEvent(t *testing.T) {
 	paperLpaInit := validLpaInit
 	paperLpaInit.Channel = shared.ChannelPaper
 
-	paperWithDefault := validLpaInit
-	paperLpaInit.Channel = shared.ChannelPaper
+	paperWithDefault := paperLpaInit
 	paperWithDefault.WhenTheLpaCanBeUsed = shared.CanUseUnset
 
-	paperWithDefaultLpa := validLpaInit
-	paperLpaInit.Channel = shared.ChannelPaper
+	paperWithDefaultLpa := paperLpaInit
 	paperWithDefaultLpa.WhenTheLpaCanBeUsed = shared.CanUseWhenHasCapacity
 	paperWithDefaultLpa.WhenTheLpaCanBeUsedIsDefault = true
 
 	testcases := map[string]struct {
-		input shared.LpaInit
-		lpa   shared.Lpa
+		input       shared.LpaInit
+		measureName string
+		lpa         shared.Lpa
 	}{
 		"online": {
-			input: validLpaInit,
+			input:       validLpaInit,
+			measureName: "ONLINEDONOR",
 			lpa: shared.Lpa{
 				Uid:       "my-uid",
 				Status:    shared.LpaStatusInProgress,
@@ -117,7 +117,8 @@ func TestLambdaHandleEvent(t *testing.T) {
 			},
 		},
 		"online with default": {
-			input: onlineWithDefault,
+			input:       onlineWithDefault,
+			measureName: "ONLINEDONOR",
 			lpa: shared.Lpa{
 				Uid:       "my-uid",
 				Status:    shared.LpaStatusInProgress,
@@ -126,7 +127,8 @@ func TestLambdaHandleEvent(t *testing.T) {
 			},
 		},
 		"paper": {
-			input: paperLpaInit,
+			input:       paperLpaInit,
+			measureName: "PAPERDONOR",
 			lpa: shared.Lpa{
 				Uid:       "my-uid",
 				Status:    shared.LpaStatusInProgress,
@@ -135,7 +137,8 @@ func TestLambdaHandleEvent(t *testing.T) {
 			},
 		},
 		"paper with default": {
-			input: paperWithDefault,
+			input:       paperWithDefault,
+			measureName: "PAPERDONOR",
 			lpa: shared.Lpa{
 				Uid:       "my-uid",
 				Status:    shared.LpaStatusInProgress,
@@ -186,7 +189,7 @@ func TestLambdaHandleEvent(t *testing.T) {
 					Category:         "metric",
 					Subcategory:      "FunnelCompletionRate",
 					Environment:      "E",
-					MeasureName:      "DONOR",
+					MeasureName:      tc.measureName,
 					MeasureValue:     "1",
 					MeasureValueType: "BIGINT",
 					Time:             strconv.FormatInt(testNow.UnixMilli(), 10),
@@ -620,7 +623,7 @@ func TestLambdaHandleEventAddsActorUids(t *testing.T) {
 			Category:         "metric",
 			Subcategory:      "FunnelCompletionRate",
 			Environment:      "E",
-			MeasureName:      "DONOR",
+			MeasureName:      "PAPERDONOR",
 			MeasureValue:     "1",
 			MeasureValueType: "BIGINT",
 			Time:             strconv.FormatInt(testNow.UnixMilli(), 10),
