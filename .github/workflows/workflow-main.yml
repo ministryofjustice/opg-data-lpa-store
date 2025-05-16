@@ -123,3 +123,17 @@ jobs:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-integration-env:
+    name: Deploy Integration Environment
+    needs: [deploy-production-env, generate-tag]
+    uses: ./.github/workflows/env-deploy.yml
+    with:
+      workspace_name: integration
+      version_tag: ${{ needs.generate-tag.outputs.tag }}
+      apply: true
+    secrets:
+      allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      github_access_token: ${{ secrets.GITHUB_TOKEN }}

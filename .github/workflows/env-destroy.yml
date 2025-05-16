@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Error if protected
-        if: ${{ contains(fromJSON('["development", "preproduction", "production", "demo"]'), inputs.workspace_name) }}
+        if: ${{ contains(fromJSON('["development", "preproduction", "production", "demo", "integration"]'), inputs.workspace_name) }}
         run: |
           echo "Cannot destroy protected Environment"
           exit 1
