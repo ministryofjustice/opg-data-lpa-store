@@ -69,7 +69,7 @@ func Validate(lpa shared.LpaInit) []shared.FieldError {
 		validate.IfElse(lpa.HowReplacementAttorneysStepIn == shared.HowStepInAnotherWay,
 			validate.WithSource("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails, validate.NotEmpty()),
 			validate.WithSource("/howReplacementAttorneysStepInDetails", lpa.HowReplacementAttorneysStepInDetails, validate.Empty())),
-		validate.IfElse(replacementAttorneyCount > 1 && (lpa.HowReplacementAttorneysStepIn == shared.HowStepInAllCanNoLongerAct || lpa.HowAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyAndSeverally),
+		validate.IfElse(replacementAttorneyCount > 1 && (activeAttorneyCount == 1 || lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointly || (lpa.HowAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyAndSeverally && lpa.HowReplacementAttorneysStepIn == shared.HowStepInAllCanNoLongerAct)),
 			validate.WithSource("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions, validate.Valid()),
 			validate.WithSource("/howReplacementAttorneysMakeDecisions", lpa.HowReplacementAttorneysMakeDecisions, validate.Unset())),
 		validate.IfElse(lpa.HowReplacementAttorneysMakeDecisions == shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,

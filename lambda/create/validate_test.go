@@ -326,7 +326,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 			lpa: func() shared.LpaInit {
 				lpa := makeLpaWithDonorAndActors()
 
-				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney()}
+				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney(), makeAttorney()}
 
 				return lpa
 			},
@@ -393,7 +393,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 		"multiple replacement attorneys mixed without details": {
 			lpa: func() shared.LpaInit {
 				lpa := makeLpaWithDonorAndActors()
-				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney()}
+				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney(), makeAttorney()}
 				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers
 
 				return lpa
@@ -406,7 +406,7 @@ func TestValidateLpaInvalid(t *testing.T) {
 			lpa: func() shared.LpaInit {
 				lpa := makeLpaWithDonorAndActors()
 
-				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney()}
+				lpa.Attorneys = []shared.Attorney{makeReplacementAttorney(), makeReplacementAttorney(), makeAttorney()}
 				lpa.HowReplacementAttorneysMakeDecisions = shared.HowMakeDecisionsJointly
 				lpa.HowReplacementAttorneysMakeDecisionsDetails = "something"
 
