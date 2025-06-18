@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSeverRestrictionsApply(t *testing.T) {
@@ -28,6 +29,12 @@ func TestSeverRestrictionsApply(t *testing.T) {
 			LpaInit: shared.LpaInit{
 				RestrictionsAndConditions: tc.newRestriction,
 			},
+			RestrictionsAndConditionsImages: []shared.File{
+				{
+					Path: "folder/test.png",
+					Hash: "fake-hash",
+				},
+			},
 		}
 
 		s := SeverRestrictions{
@@ -38,6 +45,7 @@ func TestSeverRestrictionsApply(t *testing.T) {
 			errors := s.Apply(lpa)
 			assert.Empty(t, errors)
 			assert.Equal(t, s.restrictionsAndConditions, lpa.RestrictionsAndConditions)
+			assert.Len(t, lpa.RestrictionsAndConditionsImages, 0)
 		})
 	}
 }

@@ -11,6 +11,7 @@ type SeverRestrictions struct {
 
 func (r SeverRestrictions) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.RestrictionsAndConditions = r.restrictionsAndConditions
+	lpa.RestrictionsAndConditionsImages = []shared.File{}
 
 	return nil
 }
