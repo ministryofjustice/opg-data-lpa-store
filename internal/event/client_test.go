@@ -60,7 +60,7 @@ func TestClientSendLpaUpdatedWithMetric(t *testing.T) {
 				EventBusName: aws.String(eventBusName),
 				Source:       aws.String(source),
 				DetailType:   aws.String("metric"),
-				Detail:       aws.String(`{"metrics":[{"Project":"X","Category":"Y","Subcategory":"","Environment":"","MeasureName":"","MeasureValue":"","MeasureValueType":"","Time":""}]}`),
+				Detail:       aws.String(`{"metrics":[{"metric":{"Project":"X","Category":"Y","Subcategory":"","Environment":"","MeasureName":"","MeasureValue":"","MeasureValueType":"","Time":""}}]}`),
 			}},
 		}).
 		Return(nil, expectedError)

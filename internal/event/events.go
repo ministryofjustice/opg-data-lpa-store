@@ -5,8 +5,12 @@ type LpaUpdated struct {
 	ChangeType string `json:"changeType"`
 }
 
-type Metrics struct {
-	Metrics []*Metric `json:"metrics"`
+type metrics struct {
+	Metrics []metricWrapper `json:"metrics"`
+}
+
+type metricWrapper struct {
+	Metric *Metric `json:"metric"`
 }
 
 type Metric struct {
