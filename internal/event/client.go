@@ -41,7 +41,11 @@ func (c *Client) SendLpaUpdated(ctx context.Context, event LpaUpdated, metric *M
 	}}
 
 	if metric != nil {
-		metricData, err := json.Marshal(Metrics{Metrics: []*Metric{metric}})
+		metricData, err := json.Marshal(Metrics{
+			Metrics: []MetricWrapper{{
+				Metric: metric,
+			}},
+		})
 		if err != nil {
 			return err
 		}
