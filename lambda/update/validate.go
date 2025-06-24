@@ -38,6 +38,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validateCorrection(update.Changes, lpa)
 	case "CHANGE_ATTORNEYS":
 		return validateChangeAttorney(update.Changes, lpa)
+	case "ATTORNEY_DECISIONS":
+		return validateAttorneyDecisions(update.Changes, lpa)
 	case "SEVER_RESTRICTIONS_AND_CONDITIONS":
 		return validateSeverRestrictions(update.Changes, lpa)
 	case "PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE":
