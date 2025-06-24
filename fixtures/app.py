@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, jsonify
 from flask_wtf import CSRFProtect
 
 app = Flask(__name__, static_url_path="/assets")
+app.config['MAX_FORM_MEMORY_SIZE'] = 50 * (2 ** 10) ** 2
 app.config.update(
     SECRET_KEY=uuid.uuid4().__str__(),
 )
