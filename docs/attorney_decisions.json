@@ -1,0 +1,10 @@
+{
+  "type": "ATTORNEY_DECISIONS",
+  "changes": [
+    {
+      "key": "/attorneys/0/cannotMakeJointDecisions",
+      "new": true,
+      "old": false
+    }
+  ]
+}
