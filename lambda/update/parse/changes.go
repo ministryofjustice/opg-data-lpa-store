@@ -247,6 +247,13 @@ func oldEqualsExisting(old any, existing any) bool {
 
 		return old.(int) == *v
 
+	case *bool:
+		if old == nil {
+			return !*v
+		}
+
+		return old.(bool) == *v
+
 	default:
 		return false
 	}
