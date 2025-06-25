@@ -9,28 +9,81 @@ import (
 )
 
 func TestAttorneyDecisionsApply(t *testing.T) {
+	attorneyIndex0 := 0
+	attorneyIndex1 := 1
+	lpa := &shared.Lpa{
+		Status: shared.LpaStatusInProgress,
+		LpaInit: shared.LpaInit{
+			Attorneys: []shared.Attorney{
+				{Person: shared.Person{UID: "a"}, AppointmentType: shared.AppointmentTypeOriginal},
+				{Person: shared.Person{UID: "b"}, AppointmentType: shared.AppointmentTypeReplacement},
+			},
+			HowAttorneysMakeDecisions:            shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+			HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+		},
+	}
+
+	c := AttorneyDecision{
+		ChangeAttorneyDecisions: []ChangeAttorneyDecisions{
+			{
+				Index:     &attorneyIndex0,
+				Decisions: true,
+			},
+			{
+				Index:     &attorneyIndex1,
+				Decisions: false,
+			},
+		},
+	}
+
+	errors := c.Apply(lpa)
+	assert.Empty(t, errors)
+	assert.Equal(t, c.ChangeAttorneyDecisions[0].Decisions, lpa.LpaInit.Attorneys[0].CannotMakeJointDecisions)
+	assert.Equal(t, c.ChangeAttorneyDecisions[1].Decisions, lpa.LpaInit.Attorneys[1].CannotMakeJointDecisions)
+}
+
+func TestAttorneyDecisionsApplyErrors(t *testing.T) {
 
 	testcases := map[string]struct {
-		appointmentType shared.HowMakeDecisions
+		howMakeDecisions shared.HowMakeDecisions
+		appointmentType  shared.AppointmentType
 	}{
-		"Jointly for some severally for others": {
-			appointmentType: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+		"Sole - Original attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsUnset,
+			appointmentType:  shared.AppointmentTypeOriginal,
+		},
+		"Sole - Replacement attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsUnset,
+			appointmentType:  shared.AppointmentTypeReplacement,
+		},
+		"Jointly - Original attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsJointly,
+			appointmentType:  shared.AppointmentTypeOriginal,
+		},
+		"Jointly - Replacement attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsJointly,
+			appointmentType:  shared.AppointmentTypeReplacement,
+		},
+		"Jointly and severally - Original attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
+			appointmentType:  shared.AppointmentTypeOriginal,
+		},
+		"Jointly and severally - Replacement attorney": {
+			howMakeDecisions: shared.HowMakeDecisionsJointlyAndSeverally,
+			appointmentType:  shared.AppointmentTypeReplacement,
 		},
 	}
 
 	for scenario, tc := range testcases {
 		attorneyIndex0 := 0
-		attorneyIndex1 := 1
 		lpa := &shared.Lpa{
 			Status: shared.LpaStatusInProgress,
 			LpaInit: shared.LpaInit{
 				Attorneys: []shared.Attorney{
-					{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive, AppointmentType: shared.AppointmentTypeOriginal},
-					{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, AppointmentType: shared.AppointmentTypeReplacement},
-					{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusInactive, AppointmentType: shared.AppointmentTypeReplacement},
+					{Person: shared.Person{UID: "a"}, AppointmentType: tc.appointmentType},
 				},
-				HowAttorneysMakeDecisions:            tc.appointmentType,
-				HowReplacementAttorneysMakeDecisions: tc.appointmentType,
+				HowAttorneysMakeDecisions:            tc.howMakeDecisions,
+				HowReplacementAttorneysMakeDecisions: tc.howMakeDecisions,
 			},
 		}
 
@@ -40,18 +93,18 @@ func TestAttorneyDecisionsApply(t *testing.T) {
 					Index:     &attorneyIndex0,
 					Decisions: true,
 				},
-				{
-					Index:     &attorneyIndex1,
-					Decisions: false,
-				},
 			},
 		}
 
 		t.Run(scenario, func(t *testing.T) {
 			errors := c.Apply(lpa)
-			assert.Empty(t, errors)
-			assert.Equal(t, c.ChangeAttorneyDecisions[0].Decisions, lpa.LpaInit.Attorneys[0].CannotMakeJointDecisions)
-			assert.Equal(t, c.ChangeAttorneyDecisions[1].Decisions, lpa.LpaInit.Attorneys[1].CannotMakeJointDecisions)
+			assert.Equal(t, errors,
+				[]shared.FieldError{
+					{
+						Source: "/attorneys/0/cannotMakeJointDecisions",
+						Detail: "The appointment type must be jointly for some and severally for others",
+					},
+				})
 		})
 	}
 }
@@ -73,9 +126,8 @@ func TestValidateDecisions(t *testing.T) {
 		Status: shared.LpaStatusInProgress,
 		LpaInit: shared.LpaInit{
 			Attorneys: []shared.Attorney{
-				{Person: shared.Person{UID: "a"}, Status: shared.AttorneyStatusActive, AppointmentType: shared.AppointmentTypeOriginal},
-				{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, AppointmentType: shared.AppointmentTypeReplacement},
-				{Person: shared.Person{UID: "c"}, Status: shared.AttorneyStatusInactive, AppointmentType: shared.AppointmentTypeReplacement},
+				{Person: shared.Person{UID: "a"}, AppointmentType: shared.AppointmentTypeOriginal},
+				{Person: shared.Person{UID: "b"}, AppointmentType: shared.AppointmentTypeReplacement},
 			},
 			HowAttorneysMakeDecisions:            shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
 			HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
