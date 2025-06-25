@@ -19,11 +19,8 @@ func (a AttorneyDecision) Apply(lpa *shared.Lpa) []shared.FieldError {
 	for _, changeAttorneyDecisions := range a.ChangeAttorneyDecisions {
 		source := "/attorneys/" + strconv.Itoa(*changeAttorneyDecisions.Index) + "/cannotMakeJointDecisions"
 
-		if lpa.HowAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers && lpa.Attorneys[*changeAttorneyDecisions.Index].AppointmentType == shared.AppointmentTypeOriginal {
-			return []shared.FieldError{{Source: source, Detail: "The appointment type must be jointly for some and severally for others"}}
-		}
-
-		if lpa.HowReplacementAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers && lpa.Attorneys[*changeAttorneyDecisions.Index].AppointmentType == shared.AppointmentTypeReplacement {
+		if (lpa.HowAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers && lpa.Attorneys[*changeAttorneyDecisions.Index].AppointmentType == shared.AppointmentTypeOriginal) ||
+			(lpa.HowReplacementAttorneysMakeDecisions != shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers && lpa.Attorneys[*changeAttorneyDecisions.Index].AppointmentType == shared.AppointmentTypeReplacement) {
 			return []shared.FieldError{{Source: source, Detail: "The appointment type must be jointly for some and severally for others"}}
 		}
 
