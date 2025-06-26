@@ -32,17 +32,23 @@ func (a AttorneyDecision) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 func validateAttorneyDecisions(changes []shared.Change, lpa *shared.Lpa) (AttorneyDecision, []shared.FieldError) {
 	var data AttorneyDecision
-	key := -1
+	i := -1
 
 	errors := parse.Changes(changes).
 		Prefix("/attorneys", func(p *parse.Parser) []shared.FieldError {
 			return p.
-				Each(func(i int, p *parse.Parser) []shared.FieldError {
-					key++
-					data.ChangeAttorneyDecisions = append(data.ChangeAttorneyDecisions, ChangeAttorneyDecisions{Index: &i, Decisions: lpa.Attorneys[i].CannotMakeJointDecisions})
+				EachKey(func(key string, p *parse.Parser) []shared.FieldError {
+					i++
+
+					attorneyIdx, ok := lpa.FindAttorneyIndex(key)
+					if !ok {
+						return p.OutOfRange()
+					}
+
+					data.ChangeAttorneyDecisions = append(data.ChangeAttorneyDecisions, ChangeAttorneyDecisions{Index: &attorneyIdx, Decisions: lpa.Attorneys[attorneyIdx].CannotMakeJointDecisions})
 
 					return p.
-						Field("/cannotMakeJointDecisions", &data.ChangeAttorneyDecisions[key].Decisions).
+						Field("/cannotMakeJointDecisions", &data.ChangeAttorneyDecisions[i].Decisions).
 						Consumed()
 				}).
 				Consumed()

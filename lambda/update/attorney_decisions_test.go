@@ -111,29 +111,44 @@ func TestAttorneyDecisionsApplyErrors(t *testing.T) {
 
 func TestValidateDecisions(t *testing.T) {
 
-	update := shared.Update{
-		Type: "ATTORNEY_DECISIONS",
-		Changes: []shared.Change{
-			{
-				Key: "/attorneys/0/cannotMakeJointDecisions",
-				New: json.RawMessage("true"),
-				Old: json.RawMessage("false"),
-			},
+	testcases := map[string]struct {
+		Key string
+	}{
+		"Key uses attorney index": {
+			Key: "/attorneys/0/cannotMakeJointDecisions",
+		},
+		"Key uses attorney uid": {
+			Key: "/attorneys/b/cannotMakeJointDecisions",
 		},
 	}
 
-	lpa := &shared.Lpa{
-		Status: shared.LpaStatusInProgress,
-		LpaInit: shared.LpaInit{
-			Attorneys: []shared.Attorney{
-				{Person: shared.Person{UID: "a"}, AppointmentType: shared.AppointmentTypeOriginal},
-				{Person: shared.Person{UID: "b"}, AppointmentType: shared.AppointmentTypeReplacement},
+	for scenario, tc := range testcases {
+		update := shared.Update{
+			Type: "ATTORNEY_DECISIONS",
+			Changes: []shared.Change{
+				{
+					Key: tc.Key,
+					New: json.RawMessage("true"),
+					Old: json.RawMessage("false"),
+				},
 			},
-			HowAttorneysMakeDecisions:            shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-			HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-		},
-	}
+		}
 
-	_, errors := validateUpdate(update, lpa)
-	assert.ElementsMatch(t, errors, errors)
+		lpa := &shared.Lpa{
+			Status: shared.LpaStatusInProgress,
+			LpaInit: shared.LpaInit{
+				Attorneys: []shared.Attorney{
+					{Person: shared.Person{UID: "a"}, AppointmentType: shared.AppointmentTypeOriginal},
+					{Person: shared.Person{UID: "b"}, AppointmentType: shared.AppointmentTypeReplacement},
+				},
+				HowAttorneysMakeDecisions:            shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+				HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+			},
+		}
+
+		t.Run(scenario, func(t *testing.T) {
+			_, errors := validateUpdate(update, lpa)
+			assert.ElementsMatch(t, errors, errors)
+		})
+	}
 }
