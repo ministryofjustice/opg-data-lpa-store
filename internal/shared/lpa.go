@@ -45,6 +45,8 @@ type Lpa struct {
 	RestrictionsAndConditionsImages []File     `json:"restrictionsAndConditionsImages,omitempty"`
 }
 
+type Note map[string]interface{}
+
 type LpaType string
 
 const (
