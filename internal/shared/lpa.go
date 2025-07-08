@@ -76,12 +76,12 @@ func (l LpaStatus) IsValid() bool {
 	return l == LpaStatusInProgress || l == LpaStatusStatutoryWaitingPeriod || l == LpaStatusRegistered || l == LpaStatusCannotRegister || l == LpaStatusWithdrawn || l == LpaStatusCancelled || l == LpaStatusDoNotRegister || l == LpaStatusExpired
 }
 
-func (l Lpa) FindAttorneyIndex(changeKey string) (int, bool) {
-	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(l.Attorneys) {
+func (lpa *Lpa) FindAttorneyIndex(changeKey string) (int, bool) {
+	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(lpa.Attorneys) {
 		return idx, true
 	}
 
-	for i, attorney := range l.Attorneys {
+	for i, attorney := range lpa.Attorneys {
 		if attorney.UID == changeKey {
 			return i, true
 		}
@@ -90,16 +90,20 @@ func (l Lpa) FindAttorneyIndex(changeKey string) (int, bool) {
 	return 0, false
 }
 
-func (l Lpa) FindTrustCorporationIndex(changeKey string) (int, bool) {
-	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(l.TrustCorporations) {
+func (lpa *Lpa) FindTrustCorporationIndex(changeKey string) (int, bool) {
+	if idx, err := strconv.Atoi(changeKey); err == nil && idx < len(lpa.TrustCorporations) {
 		return idx, true
 	}
 
-	for i, tc := range l.TrustCorporations {
+	for i, tc := range lpa.TrustCorporations {
 		if tc.UID == changeKey {
 			return i, true
 		}
 	}
 
 	return 0, false
+}
+
+func (lpa *Lpa) AddNote(note Note) {
+	lpa.Notes = append(lpa.Notes, note)
 }
