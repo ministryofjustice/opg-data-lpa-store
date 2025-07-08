@@ -30,6 +30,33 @@ func TestChangeAttorneysApply(t *testing.T) {
 	errors := changeAttorney.Apply(lpa)
 	assert.Empty(t, errors)
 	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
+	assert.Empty(t, lpa.Notes)
+}
+
+func TestChangeAttorneysApplySetAttorneyInactive(t *testing.T) {
+	attorneyIndex := 1
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Attorneys: []shared.Attorney{
+				{}, {},
+			},
+		},
+	}
+
+	changeAttorney := ChangeAttorney{
+		ChangeAttorneyStatus: []ChangeAttorneyStatus{
+			{
+				Index:  &attorneyIndex,
+				Status: shared.AttorneyStatusRemoved,
+			},
+		},
+	}
+
+	errors := changeAttorney.Apply(lpa)
+	assert.Empty(t, errors)
+	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
+	assert.Equal(t, 1, len(lpa.Notes))
+	assert.Equal(t, "ATTORNEY_REMOVED_V1", lpa.Notes[0]["type"])
 }
 
 func TestChangeAttorneysIncorrectStatus(t *testing.T) {
