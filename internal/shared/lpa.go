@@ -43,6 +43,7 @@ type Lpa struct {
 	RegistrationDate                *time.Time `json:"registrationDate,omitempty"`
 	UpdatedAt                       time.Time  `json:"updatedAt"`
 	RestrictionsAndConditionsImages []File     `json:"restrictionsAndConditionsImages,omitempty"`
+	Notes                           []Note     `json:"notes,omitempty"`
 }
 
 type Note map[string]interface{}
