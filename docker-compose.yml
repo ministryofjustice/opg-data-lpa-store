@@ -101,7 +101,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:4.5
+    image: localstack/localstack:4.6
     ports:
       - "4566:4566"
     volumes:
@@ -116,7 +116,7 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v2.1.6
+    image: golangci/golangci-lint:v2.2.1
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
