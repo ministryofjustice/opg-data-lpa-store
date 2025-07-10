@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/validate"
@@ -30,6 +31,18 @@ func (a ChangeAttorney) Apply(lpa *shared.Lpa) []shared.FieldError {
 		}
 
 		lpa.Attorneys[*changeAttorneyStatus.Index].Status = changeAttorneyStatus.Status
+
+		if changeAttorneyStatus.Status == shared.AttorneyStatusRemoved {
+			attorneyRemovedNote := shared.Note{
+				"type":     "ATTORNEY_REMOVED_V1",
+				"datetime": time.Now().Format(time.RFC3339),
+				"values": map[string]string{
+					"fullName": lpa.Attorneys[*changeAttorneyStatus.Index].FirstNames + " " + lpa.Attorneys[*changeAttorneyStatus.Index].LastName,
+				},
+			}
+
+			lpa.AddNote(attorneyRemovedNote)
+		}
 	}
 
 	return nil
