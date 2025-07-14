@@ -55,7 +55,7 @@ func TestChangeAttorneysApplySetAttorneyInactive(t *testing.T) {
 	errors := changeAttorney.Apply(lpa)
 	assert.Empty(t, errors)
 	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
-	assert.Equal(t, 1, len(lpa.Notes))
+	assert.Len(t, lpa.Notes, 1)
 	assert.Equal(t, "ATTORNEY_REMOVED_V1", lpa.Notes[0]["type"])
 }
 
