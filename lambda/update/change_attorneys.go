@@ -43,6 +43,18 @@ func (a ChangeAttorney) Apply(lpa *shared.Lpa) []shared.FieldError {
 
 			lpa.AddNote(attorneyRemovedNote)
 		}
+
+		if changeAttorneyStatus.Status == shared.AttorneyStatusActive && lpa.Attorneys[*changeAttorneyStatus.Index].AppointmentType == shared.AppointmentTypeReplacement {
+			replacementAttorneyEnabledNote := shared.Note{
+				"type":     "REPLACEMENT_ATTORNEY_ENABLED_V1",
+				"datetime": time.Now().Format(time.RFC3339),
+				"values": map[string]string{
+					"fullName": lpa.Attorneys[*changeAttorneyStatus.Index].FirstNames + " " + lpa.Attorneys[*changeAttorneyStatus.Index].LastName,
+				},
+			}
+
+			lpa.AddNote(replacementAttorneyEnabledNote)
+		}
 	}
 
 	return nil

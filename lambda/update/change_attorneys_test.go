@@ -198,3 +198,29 @@ func TestValidateUpdateChangeAttorneysWithUIDReferences(t *testing.T) {
 		})
 	}
 }
+
+func TestChangeAttorneysEnableReplacementAttorney(t *testing.T) {
+	attorneyIndex := 1
+	lpa := &shared.Lpa{
+		LpaInit: shared.LpaInit{
+			Attorneys: []shared.Attorney{
+				{}, {AppointmentType: shared.AppointmentTypeReplacement},
+			},
+		},
+	}
+
+	changeAttorney := ChangeAttorney{
+		ChangeAttorneyStatus: []ChangeAttorneyStatus{
+			{
+				Index:  &attorneyIndex,
+				Status: shared.AttorneyStatusActive,
+			},
+		},
+	}
+
+	errors := changeAttorney.Apply(lpa)
+	assert.Empty(t, errors)
+	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
+	assert.Equal(t, 1, len(lpa.Notes))
+	assert.Equal(t, "REPLACEMENT_ATTORNEY_ENABLED_V1", lpa.Notes[0]["type"])
+}
