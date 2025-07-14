@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/ministryofjustice/opg-data-lpa-store/lambda/update/parse"
 )
@@ -12,6 +14,24 @@ type SeverRestrictions struct {
 func (r SeverRestrictions) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.RestrictionsAndConditions = r.restrictionsAndConditions
 	lpa.RestrictionsAndConditionsImages = []shared.File{}
+
+	var updatedRestrictionsAndConditions string
+
+	if lpa.RestrictionsAndConditions == "" {
+		updatedRestrictionsAndConditions = "All restrictions have been severed from the LPA"
+	} else {
+		updatedRestrictionsAndConditions = lpa.RestrictionsAndConditions
+	}
+
+	severRestrictionsAndConditionsNote := shared.Note{
+		"type":     "SEVER_RESTRICTIONS_AND_CONDITIONS_V1",
+		"datetime": time.Now().Format(time.RFC3339),
+		"values": map[string]string{
+			"updatedRestrictionsAndConditions": updatedRestrictionsAndConditions,
+		},
+	}
+
+	lpa.AddNote(severRestrictionsAndConditionsNote)
 
 	return nil
 }
