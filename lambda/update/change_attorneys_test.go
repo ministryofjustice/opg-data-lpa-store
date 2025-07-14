@@ -204,7 +204,19 @@ func TestChangeAttorneysEnableReplacementAttorney(t *testing.T) {
 	lpa := &shared.Lpa{
 		LpaInit: shared.LpaInit{
 			Attorneys: []shared.Attorney{
-				{}, {AppointmentType: shared.AppointmentTypeReplacement},
+				{
+					Person: shared.Person{
+						FirstNames: "Arun",
+						LastName:   "Brar",
+					},
+				},
+				{
+					Person: shared.Person{
+						FirstNames: "Charles",
+						LastName:   "Dent",
+					},
+					AppointmentType: shared.AppointmentTypeReplacement,
+				},
 			},
 		},
 	}
@@ -219,8 +231,12 @@ func TestChangeAttorneysEnableReplacementAttorney(t *testing.T) {
 	}
 
 	errors := changeAttorney.Apply(lpa)
+
+	noteValues := lpa.Notes[0]["values"].(map[string]string)
+
 	assert.Empty(t, errors)
 	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
-	assert.Equal(t, 1, len(lpa.Notes))
+	assert.Len(t, lpa.Notes, 1)
 	assert.Equal(t, "REPLACEMENT_ATTORNEY_ENABLED_V1", lpa.Notes[0]["type"])
+	assert.Equal(t, "Charles Dent", noteValues["fullName"])
 }
