@@ -9,25 +9,27 @@ import (
 )
 
 func TestSeverRestrictionsApply(t *testing.T) {
-
 	testcases := map[string]struct {
-		newRestriction string
-		oldRestriction string
+		newRestriction                   string
+		oldRestriction                   string
+		updatedRestrictionsAndConditions string
 	}{
 		"change restrictions": {
-			newRestriction: "I do want",
-			oldRestriction: "I do not want to x",
+			newRestriction:                   "I do want",
+			oldRestriction:                   "I do not want to x",
+			updatedRestrictionsAndConditions: "I do want",
 		},
 		"can blank restrictions": {
-			newRestriction: "",
-			oldRestriction: "I want to x",
+			newRestriction:                   "",
+			oldRestriction:                   "I want to x",
+			updatedRestrictionsAndConditions: "All restrictions have been severed from the LPA",
 		},
 	}
 
 	for scenario, tc := range testcases {
 		lpa := &shared.Lpa{
 			LpaInit: shared.LpaInit{
-				RestrictionsAndConditions: tc.newRestriction,
+				RestrictionsAndConditions: tc.oldRestriction,
 			},
 			RestrictionsAndConditionsImages: []shared.File{
 				{
@@ -38,14 +40,21 @@ func TestSeverRestrictionsApply(t *testing.T) {
 		}
 
 		s := SeverRestrictions{
-			restrictionsAndConditions: tc.oldRestriction,
+			restrictionsAndConditions: tc.newRestriction,
 		}
 
 		t.Run(scenario, func(t *testing.T) {
 			errors := s.Apply(lpa)
+
+			noteValues := lpa.Notes[0]["values"].(map[string]string)
+
 			assert.Empty(t, errors)
-			assert.Equal(t, s.restrictionsAndConditions, lpa.RestrictionsAndConditions)
+			assert.Equal(t, tc.newRestriction, lpa.RestrictionsAndConditions)
 			assert.Len(t, lpa.RestrictionsAndConditionsImages, 0)
+			assert.Len(t, lpa.Notes, 1)
+			assert.Equal(t, "SEVER_RESTRICTIONS_AND_CONDITIONS_V1", lpa.Notes[0]["type"])
+			assert.Len(t, noteValues, 1)
+			assert.Equal(t, tc.updatedRestrictionsAndConditions, noteValues["updatedRestrictionsAndConditions"])
 		})
 	}
 }
