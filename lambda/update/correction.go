@@ -63,6 +63,19 @@ func (c CertificateProviderCorrection) Apply(lpa *shared.Lpa) []shared.FieldErro
 		}}
 	}
 
+	if lpa.CertificateProvider.FirstNames != c.FirstNames || lpa.CertificateProvider.LastName != c.LastName {
+		nameChangeNote := shared.Note{
+			"type":     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
+			"datetime": time.Now().Format(time.RFC3339),
+			"values": map[string]string{
+				"oldName": lpa.CertificateProvider.FirstNames + " " + lpa.CertificateProvider.LastName,
+				"newName": c.FirstNames + " " + c.LastName,
+			},
+		}
+
+		lpa.AddNote(nameChangeNote)
+	}
+
 	lpa.CertificateProvider.FirstNames = c.FirstNames
 	lpa.CertificateProvider.LastName = c.LastName
 	lpa.CertificateProvider.Address = c.Address
