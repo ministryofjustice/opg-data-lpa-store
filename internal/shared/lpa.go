@@ -69,7 +69,7 @@ const (
 	LpaStatusWithdrawn              = LpaStatus("withdrawn")
 	LpaStatusCancelled              = LpaStatus("cancelled")
 	LpaStatusDoNotRegister          = LpaStatus("do-not-register")
-	LpaStatusExpired                = LpaStatus("expired ")
+	LpaStatusExpired                = LpaStatus("expired")
 )
 
 func (l LpaStatus) IsValid() bool {
