@@ -220,9 +220,9 @@ func TestCorrectionApply(t *testing.T) {
 					},
 				},
 				Notes: []shared.Note{{
-					"type":     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
-					"datetime": nowFormatted,
-					"values": map[string]string{
+					Type:     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
+					Datetime: nowFormatted,
+					Values: map[string]string{
 						"oldName": "Branson Conn",
 						"newName": "Lynn Christiansen",
 					},

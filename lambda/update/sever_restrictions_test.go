@@ -46,15 +46,13 @@ func TestSeverRestrictionsApply(t *testing.T) {
 		t.Run(scenario, func(t *testing.T) {
 			errors := s.Apply(lpa)
 
-			noteValues := lpa.Notes[0]["values"].(map[string]string)
-
 			assert.Empty(t, errors)
 			assert.Equal(t, tc.newRestriction, lpa.RestrictionsAndConditions)
 			assert.Len(t, lpa.RestrictionsAndConditionsImages, 0)
 			assert.Len(t, lpa.Notes, 1)
-			assert.Equal(t, "SEVER_RESTRICTIONS_AND_CONDITIONS_V1", lpa.Notes[0]["type"])
-			assert.Len(t, noteValues, 1)
-			assert.Equal(t, tc.updatedRestrictionsAndConditions, noteValues["updatedRestrictionsAndConditions"])
+			assert.Equal(t, "SEVER_RESTRICTIONS_AND_CONDITIONS_V1", lpa.Notes[0].Type)
+			assert.Len(t, lpa.Notes[0].Values, 1)
+			assert.Equal(t, tc.updatedRestrictionsAndConditions, lpa.Notes[0].Values["updatedRestrictionsAndConditions"])
 		})
 	}
 }

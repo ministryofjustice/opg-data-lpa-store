@@ -24,9 +24,9 @@ func (r SeverRestrictions) Apply(lpa *shared.Lpa) []shared.FieldError {
 	}
 
 	severRestrictionsAndConditionsNote := shared.Note{
-		"type":     "SEVER_RESTRICTIONS_AND_CONDITIONS_V1",
-		"datetime": time.Now().Format(time.RFC3339),
-		"values": map[string]string{
+		Type:     "SEVER_RESTRICTIONS_AND_CONDITIONS_V1",
+		Datetime: time.Now().Format(time.RFC3339),
+		Values: map[string]string{
 			"updatedRestrictionsAndConditions": updatedRestrictionsAndConditions,
 		},
 	}
