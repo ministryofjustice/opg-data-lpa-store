@@ -21,6 +21,7 @@ func ptrTo[T any](v T) *T {
 
 func TestCorrectionApply(t *testing.T) {
 	now := time.Now()
+	nowFormatted := time.Now().Format(time.RFC3339)
 	yesterday := now.AddDate(0, 0, -1)
 	twoDaysAgo := time.Now().AddDate(0, 0, -2)
 
@@ -61,7 +62,7 @@ func TestCorrectionApply(t *testing.T) {
 			},
 			errors: []shared.FieldError{{Source: "/signedAt", Detail: "LPA Signed on date cannot be changed for online LPAs"}},
 		},
-		"decisions correcton": {
+		"decisions correction": {
 			correction: Correction{
 				HowAttorneysMakeDecisions:                   shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
 				HowAttorneysMakeDecisionsDetails:            "this way",
@@ -101,7 +102,7 @@ func TestCorrectionApply(t *testing.T) {
 				},
 			},
 		},
-		"donor correcton": {
+		"donor correction": {
 			correction: Correction{
 				Donor: DonorCorrection{
 					FirstNames:        "Jane",
@@ -218,6 +219,14 @@ func TestCorrectionApply(t *testing.T) {
 						SignedAt: &yesterday,
 					},
 				},
+				Notes: []shared.Note{{
+					"type":     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
+					"datetime": nowFormatted,
+					"values": map[string]string{
+						"oldName": "Branson Conn",
+						"newName": "Lynn Christiansen",
+					},
+				}},
 			},
 		},
 		"certificate provider cannot change signed at": {
