@@ -46,7 +46,11 @@ type Lpa struct {
 	Notes                           []Note     `json:"notes,omitempty"`
 }
 
-type Note map[string]interface{}
+type Note struct {
+	Type     string            `json:"type"`
+	Datetime string            `json:"datetime"`
+	Values   map[string]string `json:"values"`
+}
 
 type LpaType string
 

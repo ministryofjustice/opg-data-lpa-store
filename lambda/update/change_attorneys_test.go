@@ -61,13 +61,11 @@ func TestChangeAttorneysApplySetAttorneyInactive(t *testing.T) {
 
 	errors := changeAttorney.Apply(lpa)
 
-	noteValues := lpa.Notes[0]["values"].(map[string]string)
-
 	assert.Empty(t, errors)
 	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
 	assert.Len(t, lpa.Notes, 1)
-	assert.Equal(t, "ATTORNEY_REMOVED_V1", lpa.Notes[0]["type"])
-	assert.Equal(t, "Charles Dent", noteValues["fullName"])
+	assert.Equal(t, "ATTORNEY_REMOVED_V1", lpa.Notes[0].Type)
+	assert.Equal(t, "Charles Dent", lpa.Notes[0].Values["fullName"])
 }
 
 func TestChangeAttorneysIncorrectStatus(t *testing.T) {
@@ -243,11 +241,9 @@ func TestChangeAttorneysEnableReplacementAttorney(t *testing.T) {
 
 	errors := changeAttorney.Apply(lpa)
 
-	noteValues := lpa.Notes[0]["values"].(map[string]string)
-
 	assert.Empty(t, errors)
 	assert.Equal(t, changeAttorney.ChangeAttorneyStatus[0].Status, lpa.Attorneys[attorneyIndex].Status)
 	assert.Len(t, lpa.Notes, 1)
-	assert.Equal(t, "REPLACEMENT_ATTORNEY_ENABLED_V1", lpa.Notes[0]["type"])
-	assert.Equal(t, "Charles Dent", noteValues["fullName"])
+	assert.Equal(t, "REPLACEMENT_ATTORNEY_ENABLED_V1", lpa.Notes[0].Type)
+	assert.Equal(t, "Charles Dent", lpa.Notes[0].Values["fullName"])
 }
