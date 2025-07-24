@@ -163,6 +163,13 @@ func TestCorrectionApply(t *testing.T) {
 					},
 					Attorneys: []shared.Attorney{},
 				},
+				Notes: []shared.Note{{
+					Type:     "DONOR_NAME_CHANGE_V1",
+					Datetime: nowFormatted,
+					Values: map[string]string{
+						"newName": "Jane Smith",
+					},
+				}},
 			},
 		},
 		"certificate provider correction": {
@@ -223,7 +230,6 @@ func TestCorrectionApply(t *testing.T) {
 					Type:     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
 					Datetime: nowFormatted,
 					Values: map[string]string{
-						"oldName": "Branson Conn",
 						"newName": "Lynn Christiansen",
 					},
 				}},

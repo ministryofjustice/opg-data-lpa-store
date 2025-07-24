@@ -36,6 +36,18 @@ type DonorCorrection struct {
 }
 
 func (c DonorCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if lpa.Donor.FirstNames != c.FirstNames || lpa.Donor.LastName != c.LastName {
+		donorNameChangeNote := shared.Note{
+			Type:     "DONOR_NAME_CHANGE_V1",
+			Datetime: time.Now().Format(time.RFC3339),
+			Values: map[string]string{
+				"newName": c.FirstNames + " " + c.LastName,
+			},
+		}
+
+		lpa.AddNote(donorNameChangeNote)
+	}
+
 	lpa.Donor.FirstNames = c.FirstNames
 	lpa.Donor.LastName = c.LastName
 	lpa.Donor.OtherNamesKnownBy = c.OtherNamesKnownBy
@@ -68,7 +80,6 @@ func (c CertificateProviderCorrection) Apply(lpa *shared.Lpa) []shared.FieldErro
 			Type:     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
 			Datetime: time.Now().Format(time.RFC3339),
 			Values: map[string]string{
-				"oldName": lpa.CertificateProvider.FirstNames + " " + lpa.CertificateProvider.LastName,
 				"newName": c.FirstNames + " " + c.LastName,
 			},
 		}
