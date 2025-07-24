@@ -230,7 +230,6 @@ func TestCorrectionApply(t *testing.T) {
 					Type:     "CERTIFICATE_PROVIDER_NAME_CHANGE_V1",
 					Datetime: nowFormatted,
 					Values: map[string]string{
-						"oldName": "Branson Conn",
 						"newName": "Lynn Christiansen",
 					},
 				}},
