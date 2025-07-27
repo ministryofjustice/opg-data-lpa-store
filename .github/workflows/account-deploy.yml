@@ -32,7 +32,7 @@ jobs:
       - uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091367 # v1.0.7
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@464975f6f9e628ffcece3db87ecb819d8d391ab6 # v3.1.6
+        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@78208f9a60e457c51a35a5fd8502606d734981eb # v4.0.0
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
