@@ -48,6 +48,22 @@ func (c DonorCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
 		lpa.AddNote(donorNameChangeNote)
 	}
 
+	if lpa.Donor.DateOfBirth != c.DateOfBirth {
+		oldDobBytes, _ := lpa.Donor.DateOfBirth.MarshalText()
+		newDobBytes, _ := c.DateOfBirth.MarshalText()
+
+		donorDobChangeNote := shared.Note{
+			Type:     "DONOR_DOB_CHANGE_V1",
+			Datetime: time.Now().Format(time.RFC3339),
+			Values: map[string]string{
+				"oldDob": string(oldDobBytes),
+				"newDob": string(newDobBytes),
+			},
+		}
+
+		lpa.AddNote(donorDobChangeNote)
+	}
+
 	lpa.Donor.FirstNames = c.FirstNames
 	lpa.Donor.LastName = c.LastName
 	lpa.Donor.OtherNamesKnownBy = c.OtherNamesKnownBy
