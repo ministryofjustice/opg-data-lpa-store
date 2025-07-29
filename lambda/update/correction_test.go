@@ -163,13 +163,23 @@ func TestCorrectionApply(t *testing.T) {
 					},
 					Attorneys: []shared.Attorney{},
 				},
-				Notes: []shared.Note{{
-					Type:     "DONOR_NAME_CHANGE_V1",
-					Datetime: nowFormatted,
-					Values: map[string]string{
-						"newName": "Jane Smith",
+				Notes: []shared.Note{
+					{
+						Type:     "DONOR_NAME_CHANGE_V1",
+						Datetime: nowFormatted,
+						Values: map[string]string{
+							"newName": "Jane Smith",
+						},
 					},
-				}},
+					{
+						Type:     "DONOR_DOB_CHANGE_V1",
+						Datetime: nowFormatted,
+						Values: map[string]string{
+							"oldDob": "1990-01-02",
+							"newDob": "2000-11-11",
+						},
+					},
+				},
 			},
 		},
 		"certificate provider correction": {
