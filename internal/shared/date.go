@@ -65,3 +65,10 @@ func (d Date) MarshalDynamoDBAttributeValue() (types.AttributeValue, error) {
 
 	return attributevalue.Marshal(string(bytes))
 }
+
+func (d Date) DateOnlyText() string {
+	if d.t.IsZero() {
+		return ""
+	}
+	return d.t.Format(time.DateOnly)
+}
