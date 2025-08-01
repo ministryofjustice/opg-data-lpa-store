@@ -175,7 +175,6 @@ func TestCorrectionApply(t *testing.T) {
 						Type:     "DONOR_DOB_CHANGE_V1",
 						Datetime: nowFormatted,
 						Values: map[string]string{
-							"oldDob": "1990-01-02",
 							"newDob": "2000-11-11",
 						},
 					},
