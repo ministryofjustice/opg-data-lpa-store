@@ -172,7 +172,6 @@ func handlePactState(r *http.Request) error {
 				{
 					"uid": "1d95993a-ffbb-484c-b2fe-f4cca51801da",
 					"name": "Trust us Corp.",
-					"companyNumber": "666123321",
 					"address": {
 						"line1": "103 Line 1",
 						"town": "Town",
