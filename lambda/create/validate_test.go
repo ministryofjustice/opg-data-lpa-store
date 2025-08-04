@@ -69,7 +69,6 @@ func makeTrustCorporation() shared.TrustCorporation {
 	return shared.TrustCorporation{
 		UID:             "af2f7aa6-2f8e-4311-af2a-4855c4686d30",
 		Name:            "corp",
-		CompanyNumber:   "5",
 		Email:           "corp@example.com",
 		Address:         validAddress,
 		AppointmentType: shared.AppointmentTypeOriginal,
@@ -149,7 +148,6 @@ func TestValidateTrustCorporationEmpty(t *testing.T) {
 	assert.ElementsMatch(t, []shared.FieldError{
 		{Source: "/test/uid", Detail: "field is required"},
 		{Source: "/test/name", Detail: "field is required"},
-		{Source: "/test/companyNumber", Detail: "field is required"},
 		{Source: "/test/appointmentType", Detail: "field is required"},
 		{Source: "/test/status", Detail: "field is required"},
 		{Source: "/test/address/line1", Detail: "field is required"},

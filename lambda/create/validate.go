@@ -135,7 +135,6 @@ func validateTrustCorporation(prefix string, trustCorporation shared.TrustCorpor
 	return validate.All(
 		validate.WithSource(fmt.Sprintf("%s/uid", prefix), trustCorporation.UID, validate.UUID()),
 		validate.WithSource(fmt.Sprintf("%s/name", prefix), trustCorporation.Name, validate.NotEmpty()),
-		validate.WithSource(fmt.Sprintf("%s/companyNumber", prefix), trustCorporation.CompanyNumber, validate.NotEmpty()),
 		validateAddress(fmt.Sprintf("%s/address", prefix), trustCorporation.Address),
 		validate.WithSource(fmt.Sprintf("%s/status", prefix), trustCorporation.Status, validate.Valid()),
 		validate.WithSource(fmt.Sprintf("%s/channel", prefix), trustCorporation.Channel, validate.Valid()),

@@ -93,7 +93,7 @@ type Attorney struct {
 type TrustCorporation struct {
 	UID                       string          `json:"uid"`
 	Name                      string          `json:"name"`
-	CompanyNumber             string          `json:"companyNumber"`
+	CompanyNumber             string          `json:"companyNumber,omitempty"`
 	Email                     string          `json:"email,omitempty"`
 	AppointmentType           AppointmentType `json:"appointmentType"`
 	Address                   Address         `json:"address"`
