@@ -12,7 +12,7 @@ data "aws_default_tags" "default" {
 
 data "aws_vpc" "main" {
   filter {
-    name   = "tag:name"
+    name   = "tag:Name"
     values = ["opg-data-lpa-store-${var.environment.account_name}-vpc"]
   }
 
