@@ -63,16 +63,32 @@ type mockEventClient_SendLpaUpdated_Call struct {
 }
 
 // SendLpaUpdated is a helper method to define mock.On call
-//   - ctx
-//   - event1
-//   - metric
+//   - ctx context.Context
+//   - event1 event.LpaUpdated
+//   - metric *event.Metric
 func (_e *mockEventClient_Expecter) SendLpaUpdated(ctx interface{}, event1 interface{}, metric interface{}) *mockEventClient_SendLpaUpdated_Call {
 	return &mockEventClient_SendLpaUpdated_Call{Call: _e.mock.On("SendLpaUpdated", ctx, event1, metric)}
 }
 
 func (_c *mockEventClient_SendLpaUpdated_Call) Run(run func(ctx context.Context, event1 event.LpaUpdated, metric *event.Metric)) *mockEventClient_SendLpaUpdated_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(event.LpaUpdated), args[2].(*event.Metric))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 event.LpaUpdated
+		if args[1] != nil {
+			arg1 = args[1].(event.LpaUpdated)
+		}
+		var arg2 *event.Metric
+		if args[2] != nil {
+			arg2 = args[2].(*event.Metric)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
 	})
 	return _c
 }
@@ -129,8 +145,8 @@ type mockLogger_Debug_Call struct {
 }
 
 // Debug is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Debug(s interface{}, vs ...interface{}) *mockLogger_Debug_Call {
 	return &mockLogger_Debug_Call{Call: _e.mock.On("Debug",
 		append([]interface{}{s}, vs...)...)}
@@ -138,13 +154,22 @@ func (_e *mockLogger_Expecter) Debug(s interface{}, vs ...interface{}) *mockLogg
 
 func (_c *mockLogger_Debug_Call) Run(run func(s string, vs ...any)) *mockLogger_Debug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -174,8 +199,8 @@ type mockLogger_Error_Call struct {
 }
 
 // Error is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Error(s interface{}, vs ...interface{}) *mockLogger_Error_Call {
 	return &mockLogger_Error_Call{Call: _e.mock.On("Error",
 		append([]interface{}{s}, vs...)...)}
@@ -183,13 +208,22 @@ func (_e *mockLogger_Expecter) Error(s interface{}, vs ...interface{}) *mockLogg
 
 func (_c *mockLogger_Error_Call) Run(run func(s string, vs ...any)) *mockLogger_Error_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -219,8 +253,8 @@ type mockLogger_Info_Call struct {
 }
 
 // Info is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Info(s interface{}, vs ...interface{}) *mockLogger_Info_Call {
 	return &mockLogger_Info_Call{Call: _e.mock.On("Info",
 		append([]interface{}{s}, vs...)...)}
@@ -228,13 +262,22 @@ func (_e *mockLogger_Expecter) Info(s interface{}, vs ...interface{}) *mockLogge
 
 func (_c *mockLogger_Info_Call) Run(run func(s string, vs ...any)) *mockLogger_Info_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -264,8 +307,8 @@ type mockLogger_Warn_Call struct {
 }
 
 // Warn is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Warn(s interface{}, vs ...interface{}) *mockLogger_Warn_Call {
 	return &mockLogger_Warn_Call{Call: _e.mock.On("Warn",
 		append([]interface{}{s}, vs...)...)}
@@ -273,13 +316,22 @@ func (_e *mockLogger_Expecter) Warn(s interface{}, vs ...interface{}) *mockLogge
 
 func (_c *mockLogger_Warn_Call) Run(run func(s string, vs ...any)) *mockLogger_Warn_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -353,15 +405,26 @@ type mockStore_Get_Call struct {
 }
 
 // Get is a helper method to define mock.On call
-//   - ctx
-//   - uid
+//   - ctx context.Context
+//   - uid string
 func (_e *mockStore_Expecter) Get(ctx interface{}, uid interface{}) *mockStore_Get_Call {
 	return &mockStore_Get_Call{Call: _e.mock.On("Get", ctx, uid)}
 }
 
 func (_c *mockStore_Get_Call) Run(run func(ctx context.Context, uid string)) *mockStore_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -399,16 +462,32 @@ type mockStore_PutChanges_Call struct {
 }
 
 // PutChanges is a helper method to define mock.On call
-//   - ctx
-//   - data
-//   - update
+//   - ctx context.Context
+//   - data any
+//   - update shared.Update
 func (_e *mockStore_Expecter) PutChanges(ctx interface{}, data interface{}, update interface{}) *mockStore_PutChanges_Call {
 	return &mockStore_PutChanges_Call{Call: _e.mock.On("PutChanges", ctx, data, update)}
 }
 
 func (_c *mockStore_PutChanges_Call) Run(run func(ctx context.Context, data any, update shared.Update)) *mockStore_PutChanges_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(any), args[2].(shared.Update))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		var arg2 shared.Update
+		if args[2] != nil {
+			arg2 = args[2].(shared.Update)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
 	})
 	return _c
 }
@@ -484,14 +563,20 @@ type mockVerifier_VerifyHeader_Call struct {
 }
 
 // VerifyHeader is a helper method to define mock.On call
-//   - aPIGatewayProxyRequest
+//   - aPIGatewayProxyRequest events.APIGatewayProxyRequest
 func (_e *mockVerifier_Expecter) VerifyHeader(aPIGatewayProxyRequest interface{}) *mockVerifier_VerifyHeader_Call {
 	return &mockVerifier_VerifyHeader_Call{Call: _e.mock.On("VerifyHeader", aPIGatewayProxyRequest)}
 }
 
 func (_c *mockVerifier_VerifyHeader_Call) Run(run func(aPIGatewayProxyRequest events.APIGatewayProxyRequest)) *mockVerifier_VerifyHeader_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(events.APIGatewayProxyRequest))
+		var arg0 events.APIGatewayProxyRequest
+		if args[0] != nil {
+			arg0 = args[0].(events.APIGatewayProxyRequest)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
@@ -558,14 +643,20 @@ type mockApplyable_Apply_Call struct {
 }
 
 // Apply is a helper method to define mock.On call
-//   - lpa
+//   - lpa *shared.Lpa
 func (_e *mockApplyable_Expecter) Apply(lpa interface{}) *mockApplyable_Apply_Call {
 	return &mockApplyable_Apply_Call{Call: _e.mock.On("Apply", lpa)}
 }
 
 func (_c *mockApplyable_Apply_Call) Run(run func(lpa *shared.Lpa)) *mockApplyable_Apply_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*shared.Lpa))
+		var arg0 *shared.Lpa
+		if args[0] != nil {
+			arg0 = args[0].(*shared.Lpa)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }
