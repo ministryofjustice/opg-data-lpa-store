@@ -2,6 +2,7 @@ package getstatic
 
 import (
 	"context"
+	"fmt"
 	"github.com/aws/aws-lambda-go/lambda"
 	"log/slog"
 	"os"
@@ -48,7 +49,8 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 		Body:       "{\"code\":\"INTERNAL_SERVER_ERROR\",\"detail\":\"Internal server error\"}",
 	}
 
-	data, err := l.staticLpaStorage.Get(ctx, event.PathParameters["uid"])
+	objectKey := fmt.Sprintf("%s/donor-executed-lpa.json", event.PathParameters["uid"])
+	data, err := l.staticLpaStorage.Get(ctx, objectKey)
 	if err != nil {
 		l.logger.Error("error fetching static LPA", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()

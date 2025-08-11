@@ -58,7 +58,7 @@ func TestLambdaHandleEventStaticLpaNotFound(t *testing.T) {
 
 	staticLpaStorage := newMockS3Client(t)
 	staticLpaStorage.EXPECT().
-		Get(ctx, "my-uid").
+		Get(ctx, "my-uid/donor-executed-lpa.json").
 		Return("", errExample)
 
 	logger.EXPECT().
@@ -94,7 +94,7 @@ func TestLambdaHandleEventStaticLpaReturned(t *testing.T) {
 
 	staticLpaStorage := newMockS3Client(t)
 	staticLpaStorage.EXPECT().
-		Get(ctx, "my-uid").
+		Get(ctx, "my-uid/donor-executed-lpa.json").
 		Return("Static LPA data", nil)
 
 	lambda := &Lambda{
