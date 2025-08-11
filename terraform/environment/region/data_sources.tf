@@ -11,15 +11,11 @@ data "aws_default_tags" "default" {
 }
 
 data "aws_vpc" "main" {
-  # filter {
-  #   name   = "tag:Name"
-  #   values = ["opg-data-lpa-store-${var.environment.account_name}-vpc"]
-  # }
-
   filter {
-    name   = "is-default"
-    values = ["false"]
+    name   = "tag:Name"
+    values = ["opg-data-lpa-store-${var.environment.account_name}-vpc"]
   }
+
   provider = aws.region
 }
 
