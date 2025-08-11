@@ -16,6 +16,11 @@ data "aws_vpc" "main" {
     values = ["opg-data-lpa-store-${var.environment.account_name}-vpc"]
   }
 
+  filter {
+    name   = "tag:Name"
+    values = ["opg-data-lpa-store-${var.environment.account_name}-vpc"]
+  }
+
   provider = aws.region
 }
 
