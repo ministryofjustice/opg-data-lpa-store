@@ -116,12 +116,12 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist]
+    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getstatic]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
     ports:
-      - 9000:8080
+      - 8999:8080
 
   localstack:
     image: localstack/localstack:4.6
