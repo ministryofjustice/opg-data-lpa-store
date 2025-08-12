@@ -107,6 +107,11 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						New: json.RawMessage(`"cy"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/0/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			lpa: &shared.Lpa{
@@ -396,6 +401,11 @@ func TestValidateUpdateTrustCorporationSignUIDReferences(t *testing.T) {
 					{
 						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
 						New: json.RawMessage(`"cy"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
 						Old: jsonNull,
 					},
 				},
