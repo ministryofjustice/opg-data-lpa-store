@@ -3,11 +3,11 @@ package getstatic
 import (
 	"context"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
 	"log/slog"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/objectstore"
