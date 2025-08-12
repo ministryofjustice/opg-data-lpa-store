@@ -4,6 +4,7 @@ locals {
     "create",
     "get",
     "getlist",
+    "getstatic",
     "update",
   ])
 }
