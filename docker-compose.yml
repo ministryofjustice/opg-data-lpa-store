@@ -121,7 +121,7 @@ services:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
     ports:
-      - 8999:8080
+      - 9000:8080
 
   localstack:
     image: localstack/localstack:4.6
