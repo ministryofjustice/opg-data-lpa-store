@@ -42,7 +42,8 @@
       },
       "status": "active",
       "appointmentType": "original",
-      "channel": "paper"
+      "channel": "paper",
+      "companyNUmber": "ABCD1234"
     }
   ],
   "certificateProvider": {
