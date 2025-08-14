@@ -22,6 +22,11 @@
       "old": null
     },
     {
+      "key": "/trustCorporations/0/companyNumber",
+      "new": "ABCD1234",
+      "old": "ABCD1234"
+    },
+    {
       "key": "/trustCorporations/0/signatories/0/firstNames",
       "new": "Sam",
       "old": null

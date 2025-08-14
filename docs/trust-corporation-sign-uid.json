@@ -22,6 +22,11 @@
       "old": null
     },
     {
+      "key": "/trustCorporations/1d95993a-ffbb-484c-b2fe-f4cca51801da/companyNumber",
+      "new": "ABCD1234",
+      "old": "ABCD1234"
+    },
+    {
       "key": "/trustCorporations/1d95993a-ffbb-484c-b2fe-f4cca51801da/signatories/0/firstNames",
       "new": "Sam",
       "old": null
