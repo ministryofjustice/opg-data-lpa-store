@@ -48,7 +48,7 @@ func TestClientPutChanges(t *testing.T) {
 						"applied": &types.AttributeValueMemberS{Value: "2024-01-01Tsomething"},
 						"author":  &types.AttributeValueMemberS{Value: "an-author"},
 						"type":    &types.AttributeValueMemberS{Value: "a-type"},
-						"change": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						"changes": &types.AttributeValueMemberL{Value: []types.AttributeValue{
 							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
 								"Key": &types.AttributeValueMemberS{Value: "a-key"},
 								"Old": &types.AttributeValueMemberB{Value: []byte("old")},

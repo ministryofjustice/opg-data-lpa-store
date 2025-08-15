@@ -39,7 +39,7 @@ func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update)
 		"applied": update.Applied,
 		"author":  update.Author,
 		"type":    update.Type,
-		"change":  update.Changes,
+		"changes": update.Changes,
 	})
 
 	item, err := attributevalue.MarshalMapWithOptions(data, encoderOptions)
@@ -111,8 +111,6 @@ func (c *Client) Get(ctx context.Context, uid string) (shared.Lpa, error) {
 }
 
 func (c *Client) GetChanges(ctx context.Context, uid string) ([]shared.Update, error) {
-	// do we want to paginate the results on the way out????
-
 	var response *dynamodb.QueryOutput
 	var updates []shared.Update
 
