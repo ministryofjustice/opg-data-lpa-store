@@ -37,8 +37,7 @@ func TestValidateUpdatePaperCertificateProviderAccessOnline(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
-			_, errors := validateUpdate(tc.update, &shared.Lpa{LpaInit: shared.LpaInit{CertificateProvider: shared.CertificateProvider{Email: tc.email}},
-			})
+			_, errors := validateUpdate(tc.update, &shared.Lpa{LpaInit: shared.LpaInit{CertificateProvider: shared.CertificateProvider{Email: tc.email}}})
 			assert.ElementsMatch(t, tc.errors, errors)
 		})
 	}

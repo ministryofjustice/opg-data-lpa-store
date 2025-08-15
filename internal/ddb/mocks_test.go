@@ -80,9 +80,9 @@ type mockDynamodbClient_BatchGetItem_Call struct {
 }
 
 // BatchGetItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.BatchGetItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) BatchGetItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_BatchGetItem_Call {
 	return &mockDynamodbClient_BatchGetItem_Call{Call: _e.mock.On("BatchGetItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -90,13 +90,27 @@ func (_e *mockDynamodbClient_Expecter) BatchGetItem(ctx interface{}, params inte
 
 func (_c *mockDynamodbClient_BatchGetItem_Call) Run(run func(ctx context.Context, params *dynamodb.BatchGetItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_BatchGetItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.BatchGetItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.BatchGetItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.BatchGetItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -153,9 +167,9 @@ type mockDynamodbClient_GetItem_Call struct {
 }
 
 // GetItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.GetItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) GetItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_GetItem_Call {
 	return &mockDynamodbClient_GetItem_Call{Call: _e.mock.On("GetItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -163,13 +177,27 @@ func (_e *mockDynamodbClient_Expecter) GetItem(ctx interface{}, params interface
 
 func (_c *mockDynamodbClient_GetItem_Call) Run(run func(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_GetItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.GetItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.GetItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.GetItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -226,9 +254,9 @@ type mockDynamodbClient_PutItem_Call struct {
 }
 
 // PutItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.PutItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) PutItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_PutItem_Call {
 	return &mockDynamodbClient_PutItem_Call{Call: _e.mock.On("PutItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -236,13 +264,27 @@ func (_e *mockDynamodbClient_Expecter) PutItem(ctx interface{}, params interface
 
 func (_c *mockDynamodbClient_PutItem_Call) Run(run func(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_PutItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.PutItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.PutItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.PutItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -253,6 +295,93 @@ func (_c *mockDynamodbClient_PutItem_Call) Return(putItemOutput *dynamodb.PutIte
 }
 
 func (_c *mockDynamodbClient_PutItem_Call) RunAndReturn(run func(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)) *mockDynamodbClient_PutItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Query provides a mock function for the type mockDynamodbClient
+func (_mock *mockDynamodbClient) Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Query")
+	}
+
+	var r0 *dynamodb.QueryOutput
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) *dynamodb.QueryOutput); ok {
+		r0 = returnFunc(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.QueryOutput)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = returnFunc(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockDynamodbClient_Query_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Query'
+type mockDynamodbClient_Query_Call struct {
+	*mock.Call
+}
+
+// Query is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *dynamodb.QueryInput
+//   - optFns ...func(*dynamodb.Options)
+func (_e *mockDynamodbClient_Expecter) Query(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_Query_Call {
+	return &mockDynamodbClient_Query_Call{Call: _e.mock.On("Query",
+		append([]interface{}{ctx, params}, optFns...)...)}
+}
+
+func (_c *mockDynamodbClient_Query_Call) Run(run func(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_Query_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.QueryInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.QueryInput)
+		}
+		var arg2 []func(*dynamodb.Options)
+		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*dynamodb.Options))
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Query_Call) Return(queryOutput *dynamodb.QueryOutput, err error) *mockDynamodbClient_Query_Call {
+	_c.Call.Return(queryOutput, err)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Query_Call) RunAndReturn(run func(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)) *mockDynamodbClient_Query_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -299,9 +428,9 @@ type mockDynamodbClient_TransactWriteItems_Call struct {
 }
 
 // TransactWriteItems is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.TransactWriteItemsInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) TransactWriteItems(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_TransactWriteItems_Call {
 	return &mockDynamodbClient_TransactWriteItems_Call{Call: _e.mock.On("TransactWriteItems",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -309,13 +438,27 @@ func (_e *mockDynamodbClient_Expecter) TransactWriteItems(ctx interface{}, param
 
 func (_c *mockDynamodbClient_TransactWriteItems_Call) Run(run func(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_TransactWriteItems_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.TransactWriteItemsInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.TransactWriteItemsInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.TransactWriteItemsInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -326,6 +469,219 @@ func (_c *mockDynamodbClient_TransactWriteItems_Call) Return(transactWriteItemsO
 }
 
 func (_c *mockDynamodbClient_TransactWriteItems_Call) RunAndReturn(run func(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)) *mockDynamodbClient_TransactWriteItems_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// newMockQueryPaginator creates a new instance of mockQueryPaginator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func newMockQueryPaginator(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *mockQueryPaginator {
+	mock := &mockQueryPaginator{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// mockQueryPaginator is an autogenerated mock type for the QueryPaginator type
+type mockQueryPaginator struct {
+	mock.Mock
+}
+
+type mockQueryPaginator_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockQueryPaginator) EXPECT() *mockQueryPaginator_Expecter {
+	return &mockQueryPaginator_Expecter{mock: &_m.Mock}
+}
+
+// HasMorePages provides a mock function for the type mockQueryPaginator
+func (_mock *mockQueryPaginator) HasMorePages() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasMorePages")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// mockQueryPaginator_HasMorePages_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasMorePages'
+type mockQueryPaginator_HasMorePages_Call struct {
+	*mock.Call
+}
+
+// HasMorePages is a helper method to define mock.On call
+func (_e *mockQueryPaginator_Expecter) HasMorePages() *mockQueryPaginator_HasMorePages_Call {
+	return &mockQueryPaginator_HasMorePages_Call{Call: _e.mock.On("HasMorePages")}
+}
+
+func (_c *mockQueryPaginator_HasMorePages_Call) Run(run func()) *mockQueryPaginator_HasMorePages_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *mockQueryPaginator_HasMorePages_Call) Return(b bool) *mockQueryPaginator_HasMorePages_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *mockQueryPaginator_HasMorePages_Call) RunAndReturn(run func() bool) *mockQueryPaginator_HasMorePages_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// NextPage provides a mock function for the type mockQueryPaginator
+func (_mock *mockQueryPaginator) NextPage(ctx context.Context) (*dynamodb.QueryOutput, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NextPage")
+	}
+
+	var r0 *dynamodb.QueryOutput
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (*dynamodb.QueryOutput, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) *dynamodb.QueryOutput); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.QueryOutput)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockQueryPaginator_NextPage_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NextPage'
+type mockQueryPaginator_NextPage_Call struct {
+	*mock.Call
+}
+
+// NextPage is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *mockQueryPaginator_Expecter) NextPage(ctx interface{}) *mockQueryPaginator_NextPage_Call {
+	return &mockQueryPaginator_NextPage_Call{Call: _e.mock.On("NextPage", ctx)}
+}
+
+func (_c *mockQueryPaginator_NextPage_Call) Run(run func(ctx context.Context)) *mockQueryPaginator_NextPage_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *mockQueryPaginator_NextPage_Call) Return(queryOutput *dynamodb.QueryOutput, err error) *mockQueryPaginator_NextPage_Call {
+	_c.Call.Return(queryOutput, err)
+	return _c
+}
+
+func (_c *mockQueryPaginator_NextPage_Call) RunAndReturn(run func(ctx context.Context) (*dynamodb.QueryOutput, error)) *mockQueryPaginator_NextPage_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// newMockPaginatorFactory creates a new instance of mockPaginatorFactory. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func newMockPaginatorFactory(t interface {
+	mock.TestingT
+	Cleanup(func())
+}) *mockPaginatorFactory {
+	mock := &mockPaginatorFactory{}
+	mock.Mock.Test(t)
+
+	t.Cleanup(func() { mock.AssertExpectations(t) })
+
+	return mock
+}
+
+// mockPaginatorFactory is an autogenerated mock type for the PaginatorFactory type
+type mockPaginatorFactory struct {
+	mock.Mock
+}
+
+type mockPaginatorFactory_Expecter struct {
+	mock *mock.Mock
+}
+
+func (_m *mockPaginatorFactory) EXPECT() *mockPaginatorFactory_Expecter {
+	return &mockPaginatorFactory_Expecter{mock: &_m.Mock}
+}
+
+// NewQueryPaginator provides a mock function for the type mockPaginatorFactory
+func (_mock *mockPaginatorFactory) NewQueryPaginator(input *dynamodb.QueryInput) QueryPaginator {
+	ret := _mock.Called(input)
+
+	if len(ret) == 0 {
+		panic("no return value specified for NewQueryPaginator")
+	}
+
+	var r0 QueryPaginator
+	if returnFunc, ok := ret.Get(0).(func(*dynamodb.QueryInput) QueryPaginator); ok {
+		r0 = returnFunc(input)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(QueryPaginator)
+		}
+	}
+	return r0
+}
+
+// mockPaginatorFactory_NewQueryPaginator_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'NewQueryPaginator'
+type mockPaginatorFactory_NewQueryPaginator_Call struct {
+	*mock.Call
+}
+
+// NewQueryPaginator is a helper method to define mock.On call
+//   - input *dynamodb.QueryInput
+func (_e *mockPaginatorFactory_Expecter) NewQueryPaginator(input interface{}) *mockPaginatorFactory_NewQueryPaginator_Call {
+	return &mockPaginatorFactory_NewQueryPaginator_Call{Call: _e.mock.On("NewQueryPaginator", input)}
+}
+
+func (_c *mockPaginatorFactory_NewQueryPaginator_Call) Run(run func(input *dynamodb.QueryInput)) *mockPaginatorFactory_NewQueryPaginator_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *dynamodb.QueryInput
+		if args[0] != nil {
+			arg0 = args[0].(*dynamodb.QueryInput)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *mockPaginatorFactory_NewQueryPaginator_Call) Return(queryPaginator QueryPaginator) *mockPaginatorFactory_NewQueryPaginator_Call {
+	_c.Call.Return(queryPaginator)
+	return _c
+}
+
+func (_c *mockPaginatorFactory_NewQueryPaginator_Call) RunAndReturn(run func(input *dynamodb.QueryInput) QueryPaginator) *mockPaginatorFactory_NewQueryPaginator_Call {
 	_c.Call.Return(run)
 	return _c
 }
