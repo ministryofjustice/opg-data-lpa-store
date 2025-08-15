@@ -109,6 +109,7 @@ services:
       AWS_SECRET_ACCESS_KEY: localstack
       DDB_TABLE_NAME_DEEDS: deeds
       DDB_TABLE_NAME_CHANGES: changes
+      S3_BUCKET_NAME_ORIGINAL: opg-lpa-store-static-eu-west-1
       EVENT_BUS_NAME: local-main
       JWT_SECRET_KEY_ARN: local/jwt-key
     volumes:

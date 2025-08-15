@@ -1,13 +1,14 @@
-package getstatic
+package main
 
 import (
 	"context"
 	"errors"
-	"github.com/stretchr/testify/mock"
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 var (
@@ -43,39 +44,61 @@ func TestLambdaHandleEventHeadersNotVerified(t *testing.T) {
 }
 
 func TestLambdaHandleEventStaticLpaNotFound(t *testing.T) {
-	req := events.APIGatewayProxyRequest{
-		PathParameters: map[string]string{"uid": "my-uid"},
+	testcases := map[string]map[string]any{
+		"generic error, 500 response": {
+			"error":                errExample,
+			"expectedResponseCode": 500,
+			"expectedResponseBody": `{"code":"INTERNAL_SERVER_ERROR","detail":"Internal server error"}`,
+		},
+		"NoSuchUpload error, 404 response": {
+			"error":                &types.NoSuchUpload{},
+			"expectedResponseCode": 404,
+			"expectedResponseBody": `{"code":"NOT_FOUND","detail":"Record not found"}`,
+		},
+		"NoSuchKey error, 404 response": {
+			"error":                &types.NoSuchKey{},
+			"expectedResponseCode": 404,
+			"expectedResponseBody": `{"code":"NOT_FOUND","detail":"Record not found"}`,
+		},
 	}
 
-	verifier := newMockVerifier(t)
-	verifier.EXPECT().
-		VerifyHeader(req).
-		Return(nil, nil)
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			req := events.APIGatewayProxyRequest{
+				PathParameters: map[string]string{"uid": "my-uid"},
+			}
 
-	logger := newMockLogger(t)
-	logger.EXPECT().
-		Debug("Successfully parsed JWT from event header")
+			verifier := newMockVerifier(t)
+			verifier.EXPECT().
+				VerifyHeader(req).
+				Return(nil, nil)
 
-	staticLpaStorage := newMockS3Client(t)
-	staticLpaStorage.EXPECT().
-		Get(ctx, "my-uid/donor-executed-lpa.json").
-		Return("", errExample)
+			logger := newMockLogger(t)
+			logger.EXPECT().
+				Debug("Successfully parsed JWT from event header")
 
-	logger.EXPECT().
-		Error("error fetching static LPA", mock.Anything)
+			staticLpaStorage := newMockS3Client(t)
+			staticLpaStorage.EXPECT().
+				Get(ctx, "my-uid/donor-executed-lpa.json").
+				Return("", tc["error"].(error))
 
-	lambda := &Lambda{
-		verifier:         verifier,
-		logger:           logger,
-		staticLpaStorage: staticLpaStorage,
+			logger.EXPECT().
+				Error("error fetching static LPA", mock.Anything)
+
+			lambda := &Lambda{
+				verifier:         verifier,
+				logger:           logger,
+				staticLpaStorage: staticLpaStorage,
+			}
+
+			resp, err := lambda.HandleEvent(ctx, req)
+			assert.Nil(t, err)
+			assert.Equal(t, events.APIGatewayProxyResponse{
+				StatusCode: tc["expectedResponseCode"].(int),
+				Body:       tc["expectedResponseBody"].(string),
+			}, resp)
+		})
 	}
-
-	resp, err := lambda.HandleEvent(ctx, req)
-	assert.Nil(t, err)
-	assert.Equal(t, events.APIGatewayProxyResponse{
-		StatusCode: 500,
-		Body:       `{"code":"INTERNAL_SERVER_ERROR","detail":"Internal server error"}`,
-	}, resp)
 }
 
 func TestLambdaHandleEventStaticLpaReturned(t *testing.T) {
