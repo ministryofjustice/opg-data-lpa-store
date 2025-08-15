@@ -19,17 +19,52 @@ type dynamodbClient interface {
 	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 }
 
+type QueryPaginator interface {
+	HasMorePages() bool
+	NextPage(ctx context.Context) (*dynamodb.QueryOutput, error)
+}
+
+type PaginatorFactory interface {
+	NewQueryPaginator(input *dynamodb.QueryInput) QueryPaginator
+}
+
+type awsPaginator struct {
+	p *dynamodb.QueryPaginator
+}
+
+func (a *awsPaginator) HasMorePages() bool {
+	return a.p.HasMorePages()
+}
+
+func (a *awsPaginator) NextPage(ctx context.Context) (*dynamodb.QueryOutput, error) {
+	return a.p.NextPage(ctx)
+}
+
+type awsPaginatorFactory struct {
+	svc *dynamodb.Client
+}
+
+func (f *awsPaginatorFactory) NewQueryPaginator(input *dynamodb.QueryInput) QueryPaginator {
+	return &awsPaginator{
+		p: dynamodb.NewQueryPaginator(f.svc, input),
+	}
+}
+
 type Client struct {
 	svc              dynamodbClient
 	tableName        string
 	changesTableName string
+	paginatorFactory PaginatorFactory
 }
 
 func New(cfg aws.Config, tableName, changesTableName string) *Client {
+	svc := dynamodb.NewFromConfig(cfg)
+
 	return &Client{
-		svc:              dynamodb.NewFromConfig(cfg),
+		svc:              svc,
 		tableName:        tableName,
 		changesTableName: changesTableName,
+		paginatorFactory: &awsPaginatorFactory{svc: svc},
 	}
 }
 
@@ -121,7 +156,7 @@ func (c *Client) GetChanges(ctx context.Context, uid string) ([]shared.Update, e
 		return nil, err
 	}
 
-	queryPaginator := dynamodb.NewQueryPaginator(c.svc, &dynamodb.QueryInput{
+	queryPaginator := c.paginatorFactory.NewQueryPaginator(&dynamodb.QueryInput{
 		TableName:                 aws.String(c.changesTableName),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),

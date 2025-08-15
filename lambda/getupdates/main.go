@@ -51,12 +51,12 @@ func (l *Lambda) HandleEvent(ctx context.Context, event events.APIGatewayProxyRe
 
 	changes, err := l.store.GetChanges(ctx, event.PathParameters["uid"])
 	if err != nil {
-		l.logger.Error("error fetching LPA", slog.Any("err", err))
+		l.logger.Error("error fetching updates", slog.Any("err", err))
 		return shared.ProblemInternalServerError.Respond()
 	}
 
 	if len(changes) == 0 {
-		l.logger.Debug("No changes found")
+		l.logger.Debug("No updates found")
 		return shared.ProblemNotFoundRequest.Respond()
 	}
 
