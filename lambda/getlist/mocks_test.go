@@ -54,8 +54,8 @@ type mockLogger_Debug_Call struct {
 }
 
 // Debug is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Debug(s interface{}, vs ...interface{}) *mockLogger_Debug_Call {
 	return &mockLogger_Debug_Call{Call: _e.mock.On("Debug",
 		append([]interface{}{s}, vs...)...)}
@@ -63,13 +63,22 @@ func (_e *mockLogger_Expecter) Debug(s interface{}, vs ...interface{}) *mockLogg
 
 func (_c *mockLogger_Debug_Call) Run(run func(s string, vs ...any)) *mockLogger_Debug_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -99,8 +108,8 @@ type mockLogger_Error_Call struct {
 }
 
 // Error is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Error(s interface{}, vs ...interface{}) *mockLogger_Error_Call {
 	return &mockLogger_Error_Call{Call: _e.mock.On("Error",
 		append([]interface{}{s}, vs...)...)}
@@ -108,13 +117,22 @@ func (_e *mockLogger_Expecter) Error(s interface{}, vs ...interface{}) *mockLogg
 
 func (_c *mockLogger_Error_Call) Run(run func(s string, vs ...any)) *mockLogger_Error_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -144,8 +162,8 @@ type mockLogger_Info_Call struct {
 }
 
 // Info is a helper method to define mock.On call
-//   - s
-//   - vs
+//   - s string
+//   - vs ...any
 func (_e *mockLogger_Expecter) Info(s interface{}, vs ...interface{}) *mockLogger_Info_Call {
 	return &mockLogger_Info_Call{Call: _e.mock.On("Info",
 		append([]interface{}{s}, vs...)...)}
@@ -153,13 +171,22 @@ func (_e *mockLogger_Expecter) Info(s interface{}, vs ...interface{}) *mockLogge
 
 func (_c *mockLogger_Info_Call) Run(run func(s string, vs ...any)) *mockLogger_Info_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 []any
 		variadicArgs := make([]any, len(args)-1)
 		for i, a := range args[1:] {
 			if a != nil {
 				variadicArgs[i] = a.(any)
 			}
 		}
-		run(args[0].(string), variadicArgs...)
+		arg1 = variadicArgs
+		run(
+			arg0,
+			arg1...,
+		)
 	})
 	return _c
 }
@@ -235,15 +262,26 @@ type mockStore_GetList_Call struct {
 }
 
 // GetList is a helper method to define mock.On call
-//   - ctx
-//   - uids
+//   - ctx context.Context
+//   - uids []string
 func (_e *mockStore_Expecter) GetList(ctx interface{}, uids interface{}) *mockStore_GetList_Call {
 	return &mockStore_GetList_Call{Call: _e.mock.On("GetList", ctx, uids)}
 }
 
 func (_c *mockStore_GetList_Call) Run(run func(ctx context.Context, uids []string)) *mockStore_GetList_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].([]string))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []string
+		if args[1] != nil {
+			arg1 = args[1].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -317,15 +355,26 @@ type mockPresignClient_PresignLpa_Call struct {
 }
 
 // PresignLpa is a helper method to define mock.On call
-//   - ctx
-//   - lpa
+//   - ctx context.Context
+//   - lpa shared.Lpa
 func (_e *mockPresignClient_Expecter) PresignLpa(ctx interface{}, lpa interface{}) *mockPresignClient_PresignLpa_Call {
 	return &mockPresignClient_PresignLpa_Call{Call: _e.mock.On("PresignLpa", ctx, lpa)}
 }
 
 func (_c *mockPresignClient_PresignLpa_Call) Run(run func(ctx context.Context, lpa shared.Lpa)) *mockPresignClient_PresignLpa_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(shared.Lpa))
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 shared.Lpa
+		if args[1] != nil {
+			arg1 = args[1].(shared.Lpa)
+		}
+		run(
+			arg0,
+			arg1,
+		)
 	})
 	return _c
 }
@@ -401,14 +450,20 @@ type mockVerifier_VerifyHeader_Call struct {
 }
 
 // VerifyHeader is a helper method to define mock.On call
-//   - aPIGatewayProxyRequest
+//   - aPIGatewayProxyRequest events.APIGatewayProxyRequest
 func (_e *mockVerifier_Expecter) VerifyHeader(aPIGatewayProxyRequest interface{}) *mockVerifier_VerifyHeader_Call {
 	return &mockVerifier_VerifyHeader_Call{Call: _e.mock.On("VerifyHeader", aPIGatewayProxyRequest)}
 }
 
 func (_c *mockVerifier_VerifyHeader_Call) Run(run func(aPIGatewayProxyRequest events.APIGatewayProxyRequest)) *mockVerifier_VerifyHeader_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(events.APIGatewayProxyRequest))
+		var arg0 events.APIGatewayProxyRequest
+		if args[0] != nil {
+			arg0 = args[0].(events.APIGatewayProxyRequest)
+		}
+		run(
+			arg0,
+		)
 	})
 	return _c
 }

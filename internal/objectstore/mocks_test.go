@@ -39,6 +39,93 @@ func (_m *mockAwsS3Client) EXPECT() *mockAwsS3Client_Expecter {
 	return &mockAwsS3Client_Expecter{mock: &_m.Mock}
 }
 
+// GetObject provides a mock function for the type mockAwsS3Client
+func (_mock *mockAwsS3Client) GetObject(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options)) (*s3.GetObjectOutput, error) {
+	// func(*s3.Options)
+	_va := make([]interface{}, len(opts))
+	for _i := range opts {
+		_va[_i] = opts[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, input)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetObject")
+	}
+
+	var r0 *s3.GetObjectOutput
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) (*s3.GetObjectOutput, error)); ok {
+		return returnFunc(ctx, input, opts...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) *s3.GetObjectOutput); ok {
+		r0 = returnFunc(ctx, input, opts...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*s3.GetObjectOutput)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) error); ok {
+		r1 = returnFunc(ctx, input, opts...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockAwsS3Client_GetObject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetObject'
+type mockAwsS3Client_GetObject_Call struct {
+	*mock.Call
+}
+
+// GetObject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - input *s3.GetObjectInput
+//   - opts ...func(*s3.Options)
+func (_e *mockAwsS3Client_Expecter) GetObject(ctx interface{}, input interface{}, opts ...interface{}) *mockAwsS3Client_GetObject_Call {
+	return &mockAwsS3Client_GetObject_Call{Call: _e.mock.On("GetObject",
+		append([]interface{}{ctx, input}, opts...)...)}
+}
+
+func (_c *mockAwsS3Client_GetObject_Call) Run(run func(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options))) *mockAwsS3Client_GetObject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *s3.GetObjectInput
+		if args[1] != nil {
+			arg1 = args[1].(*s3.GetObjectInput)
+		}
+		var arg2 []func(*s3.Options)
+		variadicArgs := make([]func(*s3.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*s3.Options))
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *mockAwsS3Client_GetObject_Call) Return(getObjectOutput *s3.GetObjectOutput, err error) *mockAwsS3Client_GetObject_Call {
+	_c.Call.Return(getObjectOutput, err)
+	return _c
+}
+
+func (_c *mockAwsS3Client_GetObject_Call) RunAndReturn(run func(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options)) (*s3.GetObjectOutput, error)) *mockAwsS3Client_GetObject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PutObject provides a mock function for the type mockAwsS3Client
 func (_mock *mockAwsS3Client) PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error) {
 	// func(*s3.Options)
@@ -81,9 +168,9 @@ type mockAwsS3Client_PutObject_Call struct {
 }
 
 // PutObject is a helper method to define mock.On call
-//   - ctx
-//   - input
-//   - opts
+//   - ctx context.Context
+//   - input *s3.PutObjectInput
+//   - opts ...func(*s3.Options)
 func (_e *mockAwsS3Client_Expecter) PutObject(ctx interface{}, input interface{}, opts ...interface{}) *mockAwsS3Client_PutObject_Call {
 	return &mockAwsS3Client_PutObject_Call{Call: _e.mock.On("PutObject",
 		append([]interface{}{ctx, input}, opts...)...)}
@@ -91,13 +178,27 @@ func (_e *mockAwsS3Client_Expecter) PutObject(ctx interface{}, input interface{}
 
 func (_c *mockAwsS3Client_PutObject_Call) Run(run func(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options))) *mockAwsS3Client_PutObject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *s3.PutObjectInput
+		if args[1] != nil {
+			arg1 = args[1].(*s3.PutObjectInput)
+		}
+		var arg2 []func(*s3.Options)
 		variadicArgs := make([]func(*s3.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*s3.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*s3.PutObjectInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -181,9 +282,9 @@ type mockPresignClient_PresignGetObject_Call struct {
 }
 
 // PresignGetObject is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *s3.GetObjectInput
+//   - optFns ...func(*s3.PresignOptions)
 func (_e *mockPresignClient_Expecter) PresignGetObject(ctx interface{}, params interface{}, optFns ...interface{}) *mockPresignClient_PresignGetObject_Call {
 	return &mockPresignClient_PresignGetObject_Call{Call: _e.mock.On("PresignGetObject",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -191,13 +292,27 @@ func (_e *mockPresignClient_Expecter) PresignGetObject(ctx interface{}, params i
 
 func (_c *mockPresignClient_PresignGetObject_Call) Run(run func(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions))) *mockPresignClient_PresignGetObject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *s3.GetObjectInput
+		if args[1] != nil {
+			arg1 = args[1].(*s3.GetObjectInput)
+		}
+		var arg2 []func(*s3.PresignOptions)
 		variadicArgs := make([]func(*s3.PresignOptions), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*s3.PresignOptions))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*s3.GetObjectInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
