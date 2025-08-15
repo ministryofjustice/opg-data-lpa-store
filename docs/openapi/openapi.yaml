@@ -169,16 +169,16 @@ paths:
           description: Updates found
           content:
             application/json:
-            schema:
-              allOf:
-                - $ref: "#/components/schemas/Update"
-                - type: object
-                  properties:
-                    applied:
-                      type: string
-                      format: date-time
-                    author:
-                      type: string
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Update"
+                  - type: object
+                    properties:
+                      applied:
+                        type: string
+                        format: date-time
+                      author:
+                        type: string
         "400":
           description: Invalid request
           content:
@@ -312,17 +312,25 @@ components:
       properties:
         type:
           enum:
-            - CERTIFICATE_PROVIDER_SIGN
-            - ATTORNEY_SIGN
-            - TRUST_CORPORATION_SIGN
-            - PERFECT
-            - STATUTORY_WAITING_PERIOD
-            - REGISTER
-            - CERTIFICATE_PROVIDER_OPT_OUT
-            - DONOR_CONFIRM_IDENTITY
-            - CERTIFICATE_PROVIDER_CONFIRM_IDENTITY
-            - DONOR_WITHDRAW_LPA
+            - ATTORNEY_DECISIONS
             - ATTORNEY_OPT_OUT
+            - ATTORNEY_SIGN
+            - CERTIFICATE_PROVIDER_CONFIRM_IDENTITY
+            - CERTIFICATE_PROVIDER_OPT_OUT
+            - CERTIFICATE_PROVIDER_SIGN
+            - CHANGE_ATTORNEYS
+            - CORRECTION
+            - DONOR_CONFIRM_IDENTITY
+            - DONOR_WITHDRAW_LPA
+            - OPG_STATUS_CHANGE
+            - PAPER_ATTORNEY_ACCESS_ONLINE
+            - PAPER_CERTIFICATE_PROVIDER_ACCESS_ONLINE
+            - PERFECT
+            - REGISTER
+            - SEVER_RESTRICTIONS_AND_CONDITIONS
+            - STATUTORY_WAITING_PERIOD
+            - TRUST_CORPORATION_OPT_OUT
+            - TRUST_CORPORATION_SIGN
         changes:
           type: array
           items:
