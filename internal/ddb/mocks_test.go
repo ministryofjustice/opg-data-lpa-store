@@ -80,9 +80,9 @@ type mockDynamodbClient_BatchGetItem_Call struct {
 }
 
 // BatchGetItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.BatchGetItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) BatchGetItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_BatchGetItem_Call {
 	return &mockDynamodbClient_BatchGetItem_Call{Call: _e.mock.On("BatchGetItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -90,13 +90,27 @@ func (_e *mockDynamodbClient_Expecter) BatchGetItem(ctx interface{}, params inte
 
 func (_c *mockDynamodbClient_BatchGetItem_Call) Run(run func(ctx context.Context, params *dynamodb.BatchGetItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_BatchGetItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.BatchGetItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.BatchGetItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.BatchGetItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -153,9 +167,9 @@ type mockDynamodbClient_GetItem_Call struct {
 }
 
 // GetItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.GetItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) GetItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_GetItem_Call {
 	return &mockDynamodbClient_GetItem_Call{Call: _e.mock.On("GetItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -163,13 +177,27 @@ func (_e *mockDynamodbClient_Expecter) GetItem(ctx interface{}, params interface
 
 func (_c *mockDynamodbClient_GetItem_Call) Run(run func(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_GetItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.GetItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.GetItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.GetItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -226,9 +254,9 @@ type mockDynamodbClient_PutItem_Call struct {
 }
 
 // PutItem is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.PutItemInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) PutItem(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_PutItem_Call {
 	return &mockDynamodbClient_PutItem_Call{Call: _e.mock.On("PutItem",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -236,13 +264,27 @@ func (_e *mockDynamodbClient_Expecter) PutItem(ctx interface{}, params interface
 
 func (_c *mockDynamodbClient_PutItem_Call) Run(run func(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_PutItem_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.PutItemInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.PutItemInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.PutItemInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -253,6 +295,93 @@ func (_c *mockDynamodbClient_PutItem_Call) Return(putItemOutput *dynamodb.PutIte
 }
 
 func (_c *mockDynamodbClient_PutItem_Call) RunAndReturn(run func(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)) *mockDynamodbClient_PutItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Query provides a mock function for the type mockDynamodbClient
+func (_mock *mockDynamodbClient) Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
+	// func(*dynamodb.Options)
+	_va := make([]interface{}, len(optFns))
+	for _i := range optFns {
+		_va[_i] = optFns[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, ctx, params)
+	_ca = append(_ca, _va...)
+	ret := _mock.Called(_ca...)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Query")
+	}
+
+	var r0 *dynamodb.QueryOutput
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)); ok {
+		return returnFunc(ctx, params, optFns...)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) *dynamodb.QueryOutput); ok {
+		r0 = returnFunc(ctx, params, optFns...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dynamodb.QueryOutput)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, *dynamodb.QueryInput, ...func(*dynamodb.Options)) error); ok {
+		r1 = returnFunc(ctx, params, optFns...)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// mockDynamodbClient_Query_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Query'
+type mockDynamodbClient_Query_Call struct {
+	*mock.Call
+}
+
+// Query is a helper method to define mock.On call
+//   - ctx context.Context
+//   - params *dynamodb.QueryInput
+//   - optFns ...func(*dynamodb.Options)
+func (_e *mockDynamodbClient_Expecter) Query(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_Query_Call {
+	return &mockDynamodbClient_Query_Call{Call: _e.mock.On("Query",
+		append([]interface{}{ctx, params}, optFns...)...)}
+}
+
+func (_c *mockDynamodbClient_Query_Call) Run(run func(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_Query_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.QueryInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.QueryInput)
+		}
+		var arg2 []func(*dynamodb.Options)
+		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
+		for i, a := range args[2:] {
+			if a != nil {
+				variadicArgs[i] = a.(func(*dynamodb.Options))
+			}
+		}
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
+	})
+	return _c
+}
+
+func (_c *mockDynamodbClient_Query_Call) Return(queryOutput *dynamodb.QueryOutput, err error) *mockDynamodbClient_Query_Call {
+	_c.Call.Return(queryOutput, err)
+	return _c
+}
+
+func (_c *mockDynamodbClient_Query_Call) RunAndReturn(run func(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)) *mockDynamodbClient_Query_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -299,9 +428,9 @@ type mockDynamodbClient_TransactWriteItems_Call struct {
 }
 
 // TransactWriteItems is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *dynamodb.TransactWriteItemsInput
+//   - optFns ...func(*dynamodb.Options)
 func (_e *mockDynamodbClient_Expecter) TransactWriteItems(ctx interface{}, params interface{}, optFns ...interface{}) *mockDynamodbClient_TransactWriteItems_Call {
 	return &mockDynamodbClient_TransactWriteItems_Call{Call: _e.mock.On("TransactWriteItems",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -309,13 +438,27 @@ func (_e *mockDynamodbClient_Expecter) TransactWriteItems(ctx interface{}, param
 
 func (_c *mockDynamodbClient_TransactWriteItems_Call) Run(run func(ctx context.Context, params *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options))) *mockDynamodbClient_TransactWriteItems_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *dynamodb.TransactWriteItemsInput
+		if args[1] != nil {
+			arg1 = args[1].(*dynamodb.TransactWriteItemsInput)
+		}
+		var arg2 []func(*dynamodb.Options)
 		variadicArgs := make([]func(*dynamodb.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*dynamodb.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*dynamodb.TransactWriteItemsInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }

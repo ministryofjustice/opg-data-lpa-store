@@ -48,6 +48,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
 		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "update"
+	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "getupdates"
 	} else if r.URL.Path == "/lpas" && r.Method == http.MethodPost {
 		lambdaName = "getlist"
 		bs := reqBody.Bytes()

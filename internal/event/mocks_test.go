@@ -80,9 +80,9 @@ type mockEventBridgeClient_PutEvents_Call struct {
 }
 
 // PutEvents is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *eventbridge.PutEventsInput
+//   - optFns ...func(*eventbridge.Options)
 func (_e *mockEventBridgeClient_Expecter) PutEvents(ctx interface{}, params interface{}, optFns ...interface{}) *mockEventBridgeClient_PutEvents_Call {
 	return &mockEventBridgeClient_PutEvents_Call{Call: _e.mock.On("PutEvents",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -90,13 +90,27 @@ func (_e *mockEventBridgeClient_Expecter) PutEvents(ctx interface{}, params inte
 
 func (_c *mockEventBridgeClient_PutEvents_Call) Run(run func(ctx context.Context, params *eventbridge.PutEventsInput, optFns ...func(*eventbridge.Options))) *mockEventBridgeClient_PutEvents_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *eventbridge.PutEventsInput
+		if args[1] != nil {
+			arg1 = args[1].(*eventbridge.PutEventsInput)
+		}
+		var arg2 []func(*eventbridge.Options)
 		variadicArgs := make([]func(*eventbridge.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*eventbridge.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*eventbridge.PutEventsInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
