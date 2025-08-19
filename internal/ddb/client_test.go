@@ -232,6 +232,7 @@ func TestClientGetChanges(t *testing.T) {
 	}
 
 	s := "#0 = :0"
+	scanIndexForward := false
 	paginatorFactory.EXPECT().
 		NewQueryPaginator(&dynamodb.QueryInput{
 			TableName:                aws.String(changesTableName),
@@ -240,6 +241,7 @@ func TestClientGetChanges(t *testing.T) {
 				":0": &types.AttributeValueMemberS{Value: "my-uid"},
 			},
 			KeyConditionExpression: &s,
+			ScanIndexForward:       &scanIndexForward,
 		}).
 		Return(queryPaginator)
 
@@ -293,6 +295,7 @@ func TestClientGetChangesErrorOnQuery(t *testing.T) {
 	queryPaginator := newMockQueryPaginator(t)
 
 	s := "#0 = :0"
+	scanIndexForward := false
 	paginatorFactory.EXPECT().
 		NewQueryPaginator(&dynamodb.QueryInput{
 			TableName:                aws.String(changesTableName),
@@ -301,6 +304,7 @@ func TestClientGetChangesErrorOnQuery(t *testing.T) {
 				":0": &types.AttributeValueMemberS{Value: "my-uid"},
 			},
 			KeyConditionExpression: &s,
+			ScanIndexForward:       &scanIndexForward,
 		}).
 		Return(queryPaginator)
 

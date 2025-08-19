@@ -156,11 +156,13 @@ func (c *Client) GetChanges(ctx context.Context, uid string) ([]shared.Update, e
 		return nil, err
 	}
 
+	scanIndexForward := false
 	queryPaginator := c.paginatorFactory.NewQueryPaginator(&dynamodb.QueryInput{
 		TableName:                 aws.String(c.changesTableName),
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
+		ScanIndexForward:          &scanIndexForward,
 	})
 	for queryPaginator.HasMorePages() {
 		response, err = queryPaginator.NextPage(ctx)
