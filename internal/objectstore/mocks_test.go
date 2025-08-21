@@ -81,9 +81,9 @@ type mockAwsS3Client_PutObject_Call struct {
 }
 
 // PutObject is a helper method to define mock.On call
-//   - ctx
-//   - input
-//   - opts
+//   - ctx context.Context
+//   - input *s3.PutObjectInput
+//   - opts ...func(*s3.Options)
 func (_e *mockAwsS3Client_Expecter) PutObject(ctx interface{}, input interface{}, opts ...interface{}) *mockAwsS3Client_PutObject_Call {
 	return &mockAwsS3Client_PutObject_Call{Call: _e.mock.On("PutObject",
 		append([]interface{}{ctx, input}, opts...)...)}
@@ -91,13 +91,27 @@ func (_e *mockAwsS3Client_Expecter) PutObject(ctx interface{}, input interface{}
 
 func (_c *mockAwsS3Client_PutObject_Call) Run(run func(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options))) *mockAwsS3Client_PutObject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *s3.PutObjectInput
+		if args[1] != nil {
+			arg1 = args[1].(*s3.PutObjectInput)
+		}
+		var arg2 []func(*s3.Options)
 		variadicArgs := make([]func(*s3.Options), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*s3.Options))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*s3.PutObjectInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
@@ -181,9 +195,9 @@ type mockPresignClient_PresignGetObject_Call struct {
 }
 
 // PresignGetObject is a helper method to define mock.On call
-//   - ctx
-//   - params
-//   - optFns
+//   - ctx context.Context
+//   - params *s3.GetObjectInput
+//   - optFns ...func(*s3.PresignOptions)
 func (_e *mockPresignClient_Expecter) PresignGetObject(ctx interface{}, params interface{}, optFns ...interface{}) *mockPresignClient_PresignGetObject_Call {
 	return &mockPresignClient_PresignGetObject_Call{Call: _e.mock.On("PresignGetObject",
 		append([]interface{}{ctx, params}, optFns...)...)}
@@ -191,13 +205,27 @@ func (_e *mockPresignClient_Expecter) PresignGetObject(ctx interface{}, params i
 
 func (_c *mockPresignClient_PresignGetObject_Call) Run(run func(ctx context.Context, params *s3.GetObjectInput, optFns ...func(*s3.PresignOptions))) *mockPresignClient_PresignGetObject_Call {
 	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *s3.GetObjectInput
+		if args[1] != nil {
+			arg1 = args[1].(*s3.GetObjectInput)
+		}
+		var arg2 []func(*s3.PresignOptions)
 		variadicArgs := make([]func(*s3.PresignOptions), len(args)-2)
 		for i, a := range args[2:] {
 			if a != nil {
 				variadicArgs[i] = a.(func(*s3.PresignOptions))
 			}
 		}
-		run(args[0].(context.Context), args[1].(*s3.GetObjectInput), variadicArgs...)
+		arg2 = variadicArgs
+		run(
+			arg0,
+			arg1,
+			arg2...,
+		)
 	})
 	return _c
 }
