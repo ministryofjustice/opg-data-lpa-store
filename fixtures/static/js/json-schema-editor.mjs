@@ -206,6 +206,10 @@ export class JsonSchemaEditor {
         $input.type = schema.format === "date" ? "date" : "text";
         $input.classList.add("govuk-input");
 
+        if (pointer.endsWith("/country")) {
+          $input.setAttribute("list", "country-list");
+        }
+
         $parent.appendChild(this.createGovukFormGroup(nub, $input));
       } else if (
         schema.type === "object" &&
