@@ -301,16 +301,13 @@
     },
     "TrustCorporation": {
       "type": "object",
-      "required": ["name", "companyNumber", "address", "status", "channel", "uid"],
+      "required": ["name", "address", "status", "channel", "uid"],
       "properties": {
         "uid": {
           "type": "string",
           "format": "uuid"
         },
         "name": {
-          "type": "string"
-        },
-        "companyNumber": {
           "type": "string"
         },
         "email": {

@@ -12,6 +12,7 @@ type TrustCorporationSign struct {
 	Email                     string
 	Index                     *int
 	Mobile                    string
+	CompanyNumber             string
 	Signatories               [2]shared.Signatory
 }
 
@@ -24,6 +25,7 @@ func (a TrustCorporationSign) Apply(lpa *shared.Lpa) []shared.FieldError {
 	lpa.TrustCorporations[*a.Index].ContactLanguagePreference = a.ContactLanguagePreference
 	lpa.TrustCorporations[*a.Index].Channel = a.Channel
 	lpa.TrustCorporations[*a.Index].Email = a.Email
+	lpa.TrustCorporations[*a.Index].CompanyNumber = a.CompanyNumber
 
 	if a.Signatories[1].IsZero() {
 		lpa.TrustCorporations[*a.Index].Signatories = a.Signatories[:1]
@@ -50,10 +52,12 @@ func validateTrustCorporationSign(changes []shared.Change, lpa *shared.Lpa) (Tru
 					data.Index = &trustCorporationIdx
 					data.Email = lpa.TrustCorporations[trustCorporationIdx].Email
 					data.Channel = lpa.TrustCorporations[trustCorporationIdx].Channel
+					data.CompanyNumber = lpa.TrustCorporations[trustCorporationIdx].CompanyNumber
 
 					return each.
 						Field("/mobile", &data.Mobile).
 						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid())).
+						Field("/companyNumber", &data.CompanyNumber, parse.Validate(validate.NotEmpty())).
 						Field("/email", &data.Email, parse.Optional()).
 						Field("/channel", &data.Channel, parse.Validate(validate.Valid()), parse.Optional()).
 						Prefix("/signatories", func(prefix *parse.Parser) []shared.FieldError {

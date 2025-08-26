@@ -101,3 +101,41 @@ func TestDateDynamoDB(t *testing.T) {
 		})
 	}
 }
+
+func TestDateOnlyText(t *testing.T) {
+	testcases := map[string]struct {
+		date     Date
+		expected string
+	}{
+		"valid date": {
+			date:     Date{t: time.Date(2000, time.November, 11, 0, 0, 0, 0, time.UTC)},
+			expected: "2000-11-11",
+		},
+		"different valid date": {
+			date:     Date{t: time.Date(1985, time.May, 15, 0, 0, 0, 0, time.UTC)},
+			expected: "1985-05-15",
+		},
+		"zero date": {
+			date:     Date{},
+			expected: "",
+		},
+		"malformed date but valid time": {
+			date: Date{
+				t:           time.Date(2023, time.December, 25, 0, 0, 0, 0, time.UTC),
+				IsMalformed: true,
+			},
+			expected: "2023-12-25",
+		},
+		"leap year": {
+			date:     Date{t: time.Date(2000, time.February, 29, 0, 0, 0, 0, time.UTC)},
+			expected: "2000-02-29",
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			result := tc.date.DateOnlyText()
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}

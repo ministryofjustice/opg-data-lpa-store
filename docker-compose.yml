@@ -92,6 +92,29 @@ services:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
+  lambda-getupdates:
+    image: lpa-store/lambda/api-getupdates
+    depends_on:
+      localstack:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./lambda/Dockerfile
+      args:
+        - DIR=getupdates
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+      DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
+      EVENT_BUS_NAME: local-main
+      JWT_SECRET_KEY_ARN: local/jwt-key
+    volumes:
+      - "./lambda/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+
   lambda-getstatic:
     image: lpa-store/lambda/api-getstatic
     depends_on:
@@ -117,7 +140,7 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getstatic]
+    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates, lambda-getstatic]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
@@ -125,7 +148,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:4.6
+    image: localstack/localstack:4.7
     ports:
       - "4566:4566"
     volumes:
@@ -140,7 +163,7 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v2.3.0
+    image: golangci/golangci-lint:v2.3.1
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app

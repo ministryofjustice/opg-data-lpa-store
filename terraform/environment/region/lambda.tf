@@ -5,6 +5,7 @@ locals {
     "get",
     "getlist",
     "getstatic",
+    "getupdates",
     "update",
   ])
 }

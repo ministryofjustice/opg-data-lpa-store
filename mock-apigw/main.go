@@ -49,6 +49,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
 		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "update"
+	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "getupdates"
 	} else if r.URL.Path == "/lpas" && r.Method == http.MethodPost {
 		lambdaName = "getlist"
 		bs := reqBody.Bytes()
@@ -176,7 +179,6 @@ func handlePactState(r *http.Request) error {
 				{
 					"uid": "1d95993a-ffbb-484c-b2fe-f4cca51801da",
 					"name": "Trust us Corp.",
-					"companyNumber": "666123321",
 					"address": {
 						"line1": "103 Line 1",
 						"town": "Town",
