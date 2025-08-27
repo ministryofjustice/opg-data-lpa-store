@@ -115,8 +115,32 @@ services:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
+  lambda-getstatic:
+    image: lpa-store/lambda/api-getstatic
+    depends_on:
+      localstack:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./lambda/Dockerfile
+      args:
+        - DIR=getstatic
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+      DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
+      S3_BUCKET_NAME_ORIGINAL: opg-lpa-store-static-eu-west-1
+      EVENT_BUS_NAME: local-main
+      JWT_SECRET_KEY_ARN: local/jwt-key
+    volumes:
+      - "./lambda/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates]
+    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates, lambda-getstatic]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile

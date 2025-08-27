@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"io"
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -155,4 +157,51 @@ func TestS3ClientPresignLpaWhenError(t *testing.T) {
 		RestrictionsAndConditionsImages: []shared.File{{Path: "x.jpg", Hash: "xxx"}},
 	})
 	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestS3ClientGetNoObjectFound(t *testing.T) {
+	awsS3Client := newMockAwsS3Client(t)
+	awsS3Client.EXPECT().
+		GetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String("bucket1"),
+			Key:    aws.String("uid"),
+		}).
+		Return(nil, expectedError).
+		Once()
+
+	client := &S3Client{
+		bucketName: "bucket1",
+		awsClient:  awsS3Client,
+	}
+
+	_, err := client.Get(ctx, "uid")
+
+	assert.ErrorIs(t, err, expectedError)
+}
+
+func TestS3ClientGetObjectFound(t *testing.T) {
+	r := strings.NewReader("Static LPA data")
+
+	goo := &s3.GetObjectOutput{
+		Body: io.NopCloser(r),
+	}
+
+	awsS3Client := newMockAwsS3Client(t)
+	awsS3Client.EXPECT().
+		GetObject(ctx, &s3.GetObjectInput{
+			Bucket: aws.String("bucket1"),
+			Key:    aws.String("uid"),
+		}).
+		Return(goo, nil).
+		Once()
+
+	client := &S3Client{
+		bucketName: "bucket1",
+		awsClient:  awsS3Client,
+	}
+
+	body, err := client.Get(ctx, "uid")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "Static LPA data", body)
 }

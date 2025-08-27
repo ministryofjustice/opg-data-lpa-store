@@ -13,5 +13,6 @@ packages:
   github.com/ministryofjustice/opg-data-lpa-store/lambda/create: {}
   github.com/ministryofjustice/opg-data-lpa-store/lambda/get: {}
   github.com/ministryofjustice/opg-data-lpa-store/lambda/getlist: {}
+  github.com/ministryofjustice/opg-data-lpa-store/lambda/getstatic: {}
   github.com/ministryofjustice/opg-data-lpa-store/lambda/update: {}
   github.com/ministryofjustice/opg-data-lpa-store/lambda/getupdates: {}

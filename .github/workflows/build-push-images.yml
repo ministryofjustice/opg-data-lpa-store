@@ -39,6 +39,8 @@ jobs:
             container: lambda-create
           - ecr_repository: lpa-store/lambda/api-get
             container: lambda-get
+          - ecr_repository: lpa-store/lambda/api-getstatic
+            container: lambda-getstatic
           - ecr_repository: lpa-store/lambda/api-update
             container: lambda-update
           - ecr_repository: lpa-store/lambda/api-getlist

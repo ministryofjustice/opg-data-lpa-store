@@ -5,7 +5,7 @@ help:
 	@grep --no-filename -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 build: ## Build containers
-	docker compose build --parallel lambda-create lambda-update lambda-get lambda-getlist lambda-getupdates apigw
+	docker compose build --parallel lambda-create lambda-update lambda-get lambda-getlist lambda-getupdates lambda-getstatic apigw
 
 up: ## Start application
 	docker compose up -d --build apigw
@@ -47,5 +47,5 @@ up-fixtures: ## Bring up fixtures UI locally
 build-apigw-openapi-spec:
 	yq -n 'load("./docs/openapi/openapi.yaml") * load("./docs/openapi/openapi-aws.override.yaml")' > ./docs/openapi/openapi-aws.compiled.yaml
 
-tail-logs: ## tails logs for lambda-create lambda-update lambda-get lambda-getlist apigw
-	docker compose --ansi=always logs lambda-create lambda-update lambda-get lambda-getlist lambda-getupdates apigw -f
+tail-logs: ## tails logs for lambda-create lambda-update lambda-get lambda-getlist lambda-getupdates lambda-getstatic apigw
+	docker compose --ansi=always logs lambda-create lambda-update lambda-get lambda-getlist lambda-getupdates lambda-getstatic apigw -f

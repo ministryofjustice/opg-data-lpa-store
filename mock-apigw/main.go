@@ -18,6 +18,7 @@ import (
 
 var LPAPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})$")
 var UpdatePath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/updates$")
+var GetStaticPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/static$")
 var uidMap = map[string]string{}
 
 func delegateHandler(w http.ResponseWriter, r *http.Request) {
@@ -58,6 +59,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 			bs = bytes.ReplaceAll(bs, []byte(oldUID), []byte(newUID))
 		}
 		reqBody = *bytes.NewBuffer(bs)
+	} else if GetStaticPath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = GetStaticPath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "getstatic"
 	}
 
 	if newUID, ok := uidMap[uid]; ok {

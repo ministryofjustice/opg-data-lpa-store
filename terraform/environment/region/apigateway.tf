@@ -6,6 +6,7 @@ locals {
     lambda_update_invoke_arn  = module.lambda["update"].invoke_arn
     lambda_getupdates_invoke_arn  = module.lambda["getupdates"].invoke_arn
     lambda_getlist_invoke_arn = module.lambda["getlist"].invoke_arn
+    lambda_getstatic_invoke_arn = module.lambda["getstatic"].invoke_arn
   })
 }
 
