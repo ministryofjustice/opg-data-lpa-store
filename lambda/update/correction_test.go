@@ -181,6 +181,26 @@ func TestCorrectionApply(t *testing.T) {
 				},
 			},
 		},
+		"donor date of birth cannot change after identity check": {
+			correction: Correction{
+				Donor: DonorCorrection{
+					DateOfBirth: createDate("2000-11-11"),
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					Channel: "online",
+					Donor: shared.Donor{
+						DateOfBirth: createDate("2002-12-12"),
+						IdentityCheck: &shared.IdentityCheck{
+							CheckedAt: yesterday,
+							Type:      shared.IdentityCheckTypeOneLogin,
+						},
+					},
+				},
+			},
+			errors: []shared.FieldError{{Source: "/donor/dateOfBirth", Detail: "The donor's date of birth cannot be changed once the identity check is complete"}},
+		},
 		"certificate provider correction": {
 			correction: Correction{
 				CertificateProvider: CertificateProviderCorrection{
