@@ -36,7 +36,10 @@ type DonorCorrection struct {
 }
 
 func (c DonorCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if lpa.Donor.IdentityCheck != nil && !c.DateOfBirth.IsZero() && c.DateOfBirth != lpa.Donor.DateOfBirth {
+	isIdCheckComplete := lpa.Donor.IdentityCheck != nil
+	isDobChangeRequested := !c.DateOfBirth.IsZero() && c.DateOfBirth != lpa.Donor.DateOfBirth
+
+	if isIdCheckComplete && isDobChangeRequested {
 		return []shared.FieldError{{
 			Source: "/donor/dateOfBirth",
 			Detail: "The donor's date of birth cannot be changed once the identity check is complete",
