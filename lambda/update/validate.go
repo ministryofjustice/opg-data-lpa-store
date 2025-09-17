@@ -46,6 +46,8 @@ func validateUpdate(update shared.Update, lpa *shared.Lpa) (Applyable, []shared.
 		return validatePaperCertificateProviderAccessOnline(update.Changes)
 	case "PAPER_ATTORNEY_ACCESS_ONLINE":
 		return validatePaperAttorneyAccessOnline(update.Changes, lpa)
+	case "POST_REGISTRATION_CORRECTION":
+		return validatePostRegistrationCorrection(update.Changes, lpa)
 	default:
 		return nil, []shared.FieldError{{Source: "/type", Detail: "invalid value"}}
 	}
