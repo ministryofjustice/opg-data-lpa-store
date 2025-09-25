@@ -160,7 +160,10 @@ func (c AttorneyAppointmentPreRegistrationCorrection) Apply(lpa *shared.Lpa) []s
 }
 
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.SignedAt) && lpa.Channel == shared.ChannelOnline {
+	isInvalidOnlineLPASignedAtChange := !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.SignedAt) &&
+		lpa.Channel == shared.ChannelOnline
+
+	if isInvalidOnlineLPASignedAtChange {
 		return []shared.FieldError{{Source: signedAt, Detail: "LPA Signed on date cannot be changed for online LPAs"}}
 	}
 
