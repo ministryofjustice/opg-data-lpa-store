@@ -33,8 +33,10 @@ func TestCorrectionApply(t *testing.T) {
 	}{
 		"registered cannot change anything": {
 			correction: Correction{
-				Donor: DonorCorrection{
-					FirstNames: "Jane",
+				Donor: DonorPreRegistrationCorrection{
+					shared.DonorCorrection{
+						FirstNames: "Jane",
+					},
 				},
 			},
 			lpa: &shared.Lpa{
@@ -64,14 +66,18 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"decisions correction": {
 			correction: Correction{
-				HowAttorneysMakeDecisions:                   shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-				HowAttorneysMakeDecisionsDetails:            "this way",
-				HowReplacementAttorneysMakeDecisions:        shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-				HowReplacementAttorneysMakeDecisionsDetails: "that way",
-				HowReplacementAttorneysStepIn:               shared.HowStepInAnotherWay,
-				HowReplacementAttorneysStepInDetails:        "another way",
-				WhenTheLpaCanBeUsed:                         shared.CanUseWhenCapacityLost,
-				LifeSustainingTreatmentOption:               shared.LifeSustainingTreatmentOptionA,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						HowAttorneysMakeDecisions:                   shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+						HowAttorneysMakeDecisionsDetails:            "this way",
+						HowReplacementAttorneysMakeDecisions:        shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+						HowReplacementAttorneysMakeDecisionsDetails: "that way",
+						HowReplacementAttorneysStepIn:               shared.HowStepInAnotherWay,
+						HowReplacementAttorneysStepInDetails:        "another way",
+						WhenTheLpaCanBeUsed:                         shared.CanUseWhenCapacityLost,
+						LifeSustainingTreatmentOption:               shared.LifeSustainingTreatmentOptionA,
+					},
+				},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -104,18 +110,20 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"donor correction": {
 			correction: Correction{
-				Donor: DonorCorrection{
-					FirstNames:        "Jane",
-					LastName:          "Smith",
-					OtherNamesKnownBy: "Janey",
-					DateOfBirth:       createDate("2000-11-11"),
-					Address: shared.Address{
-						Line1:    "456 Another St",
-						Town:     "Othertown",
-						Postcode: "B22 A11",
-						Country:  "IE",
+				Donor: DonorPreRegistrationCorrection{
+					shared.DonorCorrection{
+						FirstNames:        "Jane",
+						LastName:          "Smith",
+						OtherNamesKnownBy: "Janey",
+						DateOfBirth:       createDate("2000-11-11"),
+						Address: shared.Address{
+							Line1:    "456 Another St",
+							Town:     "Othertown",
+							Postcode: "B22 A11",
+							Country:  "IE",
+						},
+						Email: "jane.smith@example.com",
 					},
-					Email: "jane.smith@example.com",
 				},
 				SignedAt: now,
 			},
@@ -183,8 +191,10 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"donor date of birth cannot change after identity check": {
 			correction: Correction{
-				Donor: DonorCorrection{
-					DateOfBirth: createDate("2000-11-11"),
+				Donor: DonorPreRegistrationCorrection{
+					shared.DonorCorrection{
+						DateOfBirth: createDate("2000-11-11"),
+					},
 				},
 			},
 			lpa: &shared.Lpa{
@@ -203,18 +213,20 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"certificate provider correction": {
 			correction: Correction{
-				CertificateProvider: CertificateProviderCorrection{
-					FirstNames: "Lynn",
-					LastName:   "Christiansen",
-					Address: shared.Address{
-						Line1:    "653 Prosacco Avenue",
-						Town:     "Long Larkin",
-						Postcode: "RC18 6RZ",
-						Country:  "UK",
+				CertificateProvider: CertificateProviderPreRegistrationCorrection{
+					shared.CertificateProviderCorrection{
+						FirstNames: "Lynn",
+						LastName:   "Christiansen",
+						Address: shared.Address{
+							Line1:    "653 Prosacco Avenue",
+							Town:     "Long Larkin",
+							Postcode: "RC18 6RZ",
+							Country:  "UK",
+						},
+						Email:    "Lynn.Christiansen@example.com",
+						Phone:    "01003 19993",
+						SignedAt: yesterday,
 					},
-					Email:    "Lynn.Christiansen@example.com",
-					Phone:    "01003 19993",
-					SignedAt: yesterday,
 				},
 			},
 			lpa: &shared.Lpa{
@@ -266,8 +278,10 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"certificate provider cannot change signed at": {
 			correction: Correction{
-				CertificateProvider: CertificateProviderCorrection{
-					SignedAt: now,
+				CertificateProvider: CertificateProviderPreRegistrationCorrection{
+					shared.CertificateProviderCorrection{
+						SignedAt: now,
+					},
 				},
 			},
 			lpa: &shared.Lpa{
@@ -285,20 +299,22 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"attorney correction": {
 			correction: Correction{
-				Attorney: AttorneyCorrection{
-					Index:       ptrTo(1),
-					FirstNames:  "Jane",
-					LastName:    "Smith",
-					DateOfBirth: createDate("2000-11-11"),
-					Address: shared.Address{
-						Line1:    "456 Another St",
-						Town:     "Othertown",
-						Postcode: "B22 A11",
-						Country:  "GB",
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:       ptrTo(1),
+						FirstNames:  "Jane",
+						LastName:    "Smith",
+						DateOfBirth: createDate("2000-11-11"),
+						Address: shared.Address{
+							Line1:    "456 Another St",
+							Town:     "Othertown",
+							Postcode: "B22 A11",
+							Country:  "GB",
+						},
+						Email:    "jane.smith@example.com",
+						Mobile:   "987654321",
+						SignedAt: now,
 					},
-					Email:    "jane.smith@example.com",
-					Mobile:   "987654321",
-					SignedAt: now,
 				},
 			},
 			lpa: &shared.Lpa{
@@ -353,9 +369,11 @@ func TestCorrectionApply(t *testing.T) {
 		},
 		"attorney cannot change signed at": {
 			correction: Correction{
-				Attorney: AttorneyCorrection{
-					Index:    ptrTo(0),
-					SignedAt: now,
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:    ptrTo(0),
+						SignedAt: now,
+					},
 				},
 			},
 			lpa: &shared.Lpa{
@@ -410,12 +428,14 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				Donor: DonorCorrection{
-					FirstNames:        "Jane",
-					LastName:          "Doe",
-					OtherNamesKnownBy: "Janey",
-					Email:             "jane.doe@example.com",
-					DateOfBirth:       createDate("2000-01-01"),
+				Donor: DonorPreRegistrationCorrection{
+					shared.DonorCorrection{
+						FirstNames:        "Jane",
+						LastName:          "Doe",
+						OtherNamesKnownBy: "Janey",
+						Email:             "jane.doe@example.com",
+						DateOfBirth:       createDate("2000-01-01"),
+					},
 				},
 				SignedAt: now,
 			},
@@ -441,20 +461,22 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				Attorney: AttorneyCorrection{
-					Index:       ptrTo(0),
-					FirstNames:  "Shanelle",
-					LastName:    "Kerluke",
-					DateOfBirth: createDate("1949-10-20"),
-					Email:       "test@test.com",
-					Mobile:      "123456789",
-					Address: shared.Address{
-						Line1:    "13 Park Avenue",
-						Town:     "Clwyd",
-						Postcode: "OH03 2LM",
-						Country:  "GB",
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:       ptrTo(0),
+						FirstNames:  "Shanelle",
+						LastName:    "Kerluke",
+						DateOfBirth: createDate("1949-10-20"),
+						Email:       "test@test.com",
+						Mobile:      "123456789",
+						Address: shared.Address{
+							Line1:    "13 Park Avenue",
+							Town:     "Clwyd",
+							Postcode: "OH03 2LM",
+							Country:  "GB",
+						},
+						SignedAt: now,
 					},
-					SignedAt: now,
 				},
 			},
 		},
@@ -479,20 +501,22 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				Attorney: AttorneyCorrection{
-					Index:       ptrTo(0),
-					FirstNames:  "Shanelle",
-					LastName:    "Kerluke",
-					DateOfBirth: createDate("1949-10-20"),
-					Email:       "test@test.com",
-					Mobile:      "123456789",
-					Address: shared.Address{
-						Line1:    "13 Park Avenue",
-						Town:     "Clwyd",
-						Postcode: "OH03 2LM",
-						Country:  "GB",
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:       ptrTo(0),
+						FirstNames:  "Shanelle",
+						LastName:    "Kerluke",
+						DateOfBirth: createDate("1949-10-20"),
+						Email:       "test@test.com",
+						Mobile:      "123456789",
+						Address: shared.Address{
+							Line1:    "13 Park Avenue",
+							Town:     "Clwyd",
+							Postcode: "OH03 2LM",
+							Country:  "GB",
+						},
+						SignedAt: now,
 					},
-					SignedAt: now,
 				},
 			},
 		},
@@ -519,14 +543,16 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				Attorney: AttorneyCorrection{
-					Index:       ptrTo(1),
-					FirstNames:  "Anthony",
-					LastName:    "Leannon",
-					DateOfBirth: createDate("1963-11-08"),
-					Address: shared.Address{
-						Town:    "Cheshire",
-						Country: "GB",
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:       ptrTo(1),
+						FirstNames:  "Anthony",
+						LastName:    "Leannon",
+						DateOfBirth: createDate("1963-11-08"),
+						Address: shared.Address{
+							Town:    "Cheshire",
+							Country: "GB",
+						},
 					},
 				},
 			},
@@ -555,14 +581,16 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				Attorney: AttorneyCorrection{
-					Index:       ptrTo(1),
-					FirstNames:  "Anthony",
-					LastName:    "Leannon",
-					DateOfBirth: createDate("1963-11-08"),
-					Address: shared.Address{
-						Town:    "Cheshire",
-						Country: "GB",
+				Attorney: AttorneyPreRegistrationCorrection{
+					shared.AttorneyCorrection{
+						Index:       ptrTo(1),
+						FirstNames:  "Anthony",
+						LastName:    "Leannon",
+						DateOfBirth: createDate("1963-11-08"),
+						Address: shared.Address{
+							Town:    "Cheshire",
+							Country: "GB",
+						},
 					},
 				},
 			},
@@ -581,12 +609,14 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				CertificateProvider: CertificateProviderCorrection{
-					FirstNames: "Trinity",
-					LastName:   "Monahan",
-					Email:      "Trinity.Monahan@example.com",
-					Phone:      "01697 233 415",
-					SignedAt:   now,
+				CertificateProvider: CertificateProviderPreRegistrationCorrection{
+					shared.CertificateProviderCorrection{
+						FirstNames: "Trinity",
+						LastName:   "Monahan",
+						Email:      "Trinity.Monahan@example.com",
+						Phone:      "01697 233 415",
+						SignedAt:   now,
+					},
 				},
 			},
 		},
@@ -601,7 +631,11 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						HowAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+					},
+				},
 			},
 		},
 		"valid replacement attorneys step in update": {
@@ -618,7 +652,11 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				HowReplacementAttorneysStepIn: shared.HowStepInOneCanNoLongerAct,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						HowReplacementAttorneysStepIn: shared.HowStepInOneCanNoLongerAct,
+					},
+				},
 			},
 		},
 		"valid replacement attorney decisions update": {
@@ -635,7 +673,11 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						HowReplacementAttorneysMakeDecisions: shared.HowMakeDecisionsJointly,
+					},
+				},
 			},
 		},
 		"valid replacement attorney decisions with details update": {
@@ -653,8 +695,12 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				HowReplacementAttorneysMakeDecisions:        shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
-				HowReplacementAttorneysMakeDecisionsDetails: "blah",
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						HowReplacementAttorneysMakeDecisions:        shared.HowMakeDecisionsJointlyForSomeSeverallyForOthers,
+						HowReplacementAttorneysMakeDecisionsDetails: "blah",
+					},
+				},
 			},
 		},
 		"valid life sustaining treatment update": {
@@ -668,7 +714,11 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionB,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						LifeSustainingTreatmentOption: shared.LifeSustainingTreatmentOptionB,
+					},
+				},
 			},
 		},
 		"valid when can use update": {
@@ -682,7 +732,11 @@ func TestValidateCorrection(t *testing.T) {
 				},
 			},
 			expected: Correction{
-				WhenTheLpaCanBeUsed: shared.CanUseWhenCapacityLost,
+				AttorneyAppointmentType: AttorneyAppointmentPreRegistrationCorrection{
+					shared.AttorneyAppointmentTypeCorrection{
+						WhenTheLpaCanBeUsed: shared.CanUseWhenCapacityLost,
+					},
+				},
 			},
 		},
 		"missing required fields": {
