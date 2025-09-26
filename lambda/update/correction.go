@@ -16,7 +16,7 @@ type Correction struct {
 	Attorney                AttorneyPreRegistrationCorrection
 	CertificateProvider     CertificateProviderPreRegistrationCorrection
 	AttorneyAppointmentType AttorneyAppointmentPreRegistrationCorrection
-	TrustCorporation        TrustCorporationCorrection
+	TrustCorporation        TrustCorporationPreRegistrationCorrection
 	SignedAt                time.Time
 }
 
@@ -127,17 +127,11 @@ func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.Field
 	return nil
 }
 
-type TrustCorporationCorrection struct {
-	Index         *int
-	Name          string
-	CompanyNumber string
-	Email         string
-	Address       shared.Address
-	Mobile        string
-	Signatories   [2]shared.Signatory
+type TrustCorporationPreRegistrationCorrection struct {
+	shared.TrustCorporationCorrection
 }
 
-func (c TrustCorporationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+func (c TrustCorporationPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if c.Index != nil {
 		trustCorporation := &lpa.TrustCorporations[*c.Index]
 
@@ -299,7 +293,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					return validateTrustCorporation(&data.TrustCorporation, p)
 				}).
 				Consumed()
-		})
+		}, parse.Optional())
 
 	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
@@ -420,7 +414,7 @@ func validateCertificateProvider(certificateProvider *CertificateProviderPreRegi
 	}
 }
 
-func validateTrustCorporation(trustCorporation *TrustCorporationCorrection, p *parse.Parser) []shared.FieldError {
+func validateTrustCorporation(trustCorporation *TrustCorporationPreRegistrationCorrection, p *parse.Parser) []shared.FieldError {
 	return p.
 		Field("/name", &trustCorporation.Name, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Field("/companyNumber", &trustCorporation.CompanyNumber, parse.Validate(validate.NotEmpty()), parse.Optional()).
