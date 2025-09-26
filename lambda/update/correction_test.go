@@ -367,6 +367,90 @@ func TestCorrectionApply(t *testing.T) {
 				},
 			},
 		},
+		"trust corporation correction": {
+			correction: Correction{
+				TrustCorporation: TrustCorporationCorrection{
+					Index:         ptrTo(0),
+					Name:          "Webster Mraz Limited",
+					CompanyNumber: "315724446",
+					Email:         "Webster.Mraz@example.com",
+					Address: shared.Address{
+						Line1:    "518 Gussie Meadows",
+						Town:     "Hamill",
+						Postcode: "RD3 8OI",
+						Country:  "GB",
+					},
+					Mobile: "0809 694 3813",
+					Signatories: [2]shared.Signatory{{
+						FirstNames:        "Raphael",
+						LastName:          "Hansen",
+						ProfessionalTitle: "Prof.",
+						SignedAt:          now,
+					}, {
+						FirstNames:        "Marianna",
+						LastName:          "Quigley",
+						ProfessionalTitle: "Dr.",
+						SignedAt:          now,
+					}},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{
+						Name:          "Stacey Wilderman Limited",
+						CompanyNumber: "096912473",
+						Email:         "Stacey.Wilderman@example.com",
+						Address: shared.Address{
+							Line1:    "127 Vicarage Close",
+							Town:     "Wehnerfield",
+							Postcode: "WB74 0BF",
+							Country:  "GB",
+						},
+						Status: shared.AttorneyStatusActive,
+						Mobile: "0191 996 6889",
+						Signatories: []shared.Signatory{{
+							FirstNames:        "Miracle",
+							LastName:          "Morar",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}, {
+							FirstNames:        "Miracle",
+							LastName:          "Morar",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}},
+					}},
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{
+						Name:          "Webster Mraz Limited",
+						CompanyNumber: "315724446",
+						Email:         "Webster.Mraz@example.com",
+						Address: shared.Address{
+							Line1:    "518 Gussie Meadows",
+							Town:     "Hamill",
+							Postcode: "RD3 8OI",
+							Country:  "GB",
+						},
+						Status: shared.AttorneyStatusActive,
+						Mobile: "0809 694 3813",
+						Signatories: []shared.Signatory{{
+							FirstNames:        "Raphael",
+							LastName:          "Hansen",
+							ProfessionalTitle: "Prof.",
+							SignedAt:          yesterday,
+						}, {
+							FirstNames:        "Marianna",
+							LastName:          "Quigley",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}},
+					}},
+				},
+			},
+		},
 		"attorney cannot change signed at": {
 			correction: Correction{
 				Attorney: AttorneyPreRegistrationCorrection{

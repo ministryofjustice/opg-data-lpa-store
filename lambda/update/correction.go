@@ -16,6 +16,7 @@ type Correction struct {
 	Attorney                AttorneyPreRegistrationCorrection
 	CertificateProvider     CertificateProviderPreRegistrationCorrection
 	AttorneyAppointmentType AttorneyAppointmentPreRegistrationCorrection
+	TrustCorporation        TrustCorporationCorrection
 	SignedAt                time.Time
 }
 
@@ -126,6 +127,36 @@ func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.Field
 	return nil
 }
 
+type TrustCorporationCorrection struct {
+	Index         *int
+	Name          string
+	CompanyNumber string
+	Email         string
+	Address       shared.Address
+	Mobile        string
+	Signatories   [2]shared.Signatory
+}
+
+func (c TrustCorporationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if c.Index != nil {
+		trustCorporation := &lpa.TrustCorporations[*c.Index]
+
+		trustCorporation.Name = c.Name
+		trustCorporation.CompanyNumber = c.CompanyNumber
+		trustCorporation.Email = c.Email
+		trustCorporation.Address = c.Address
+		trustCorporation.Mobile = c.Mobile
+
+		for i, tcs := range c.Signatories {
+			trustCorporation.Signatories[i].FirstNames = tcs.FirstNames
+			trustCorporation.Signatories[i].LastName = tcs.LastName
+			trustCorporation.Signatories[i].ProfessionalTitle = tcs.ProfessionalTitle
+		}
+	}
+
+	return nil
+}
+
 type AttorneyAppointmentPreRegistrationCorrection struct {
 	shared.AttorneyAppointmentTypeCorrection
 }
@@ -180,6 +211,10 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	}
 
 	if fieldErrors := c.Attorney.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	if fieldErrors := c.TrustCorporation.Apply(lpa); len(fieldErrors) > 0 {
 		return fieldErrors
 	}
 
@@ -243,7 +278,28 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					return validateAttorney(&data.Attorney, p)
 				}).
 				Consumed()
-		}, parse.Optional())
+		}, parse.Optional()).
+		Prefix("/trustCorporations", func(p *parse.Parser) []shared.FieldError {
+			return p.
+				EachKey(func(key string, p *parse.Parser) []shared.FieldError {
+					i, ok := lpa.FindTrustCorporationIndex(key)
+
+					if !ok || (data.TrustCorporation.Index != nil && *data.TrustCorporation.Index != i) {
+						return p.OutOfRange()
+					}
+
+					data.TrustCorporation.Index = &i
+					data.TrustCorporation.Name = lpa.TrustCorporations[i].Name
+					data.TrustCorporation.CompanyNumber = lpa.TrustCorporations[i].CompanyNumber
+					data.TrustCorporation.Email = lpa.TrustCorporations[i].Email
+					data.TrustCorporation.Address = lpa.TrustCorporations[i].Address
+					data.TrustCorporation.Mobile = lpa.TrustCorporations[i].Mobile
+					data.TrustCorporation.Signatories = [2]shared.Signatory(lpa.TrustCorporations[i].Signatories[:2])
+
+					return validateTrustCorporation(&data.TrustCorporation, p)
+				}).
+				Consumed()
+		})
 
 	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
@@ -364,6 +420,27 @@ func validateCertificateProvider(certificateProvider *CertificateProviderPreRegi
 	}
 }
 
+func validateTrustCorporation(trustCorporation *TrustCorporationCorrection, p *parse.Parser) []shared.FieldError {
+	return p.
+		Field("/name", &trustCorporation.Name, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/companyNumber", &trustCorporation.CompanyNumber, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/email", &trustCorporation.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Prefix("/address", validateAddress(&trustCorporation.Address), parse.Optional()).
+		Field("/mobile", &trustCorporation.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Prefix("/signatories", func(p *parse.Parser) []shared.FieldError {
+			return p.
+				Each(func(i int, p *parse.Parser) []shared.FieldError {
+					if i > 1 {
+						return p.OutOfRange()
+					}
+
+					return validateSignatory(&trustCorporation.Signatories[i], p)
+				}).
+				Consumed()
+		}).
+		Consumed()
+}
+
 func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.FieldError {
 	return func(p *parse.Parser) []shared.FieldError {
 		return p.
@@ -375,4 +452,12 @@ func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.Fie
 			Field("/country", &address.Country, parse.Validate(validate.Country()), parse.Optional()).
 			Consumed()
 	}
+}
+
+func validateSignatory(signatory *shared.Signatory, p *parse.Parser) []shared.FieldError {
+	return p.
+		Field("/firstNames", &signatory.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/lastName", &signatory.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/professionalTitle", &signatory.ProfessionalTitle, parse.Optional()).
+		Consumed()
 }
