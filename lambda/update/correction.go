@@ -421,9 +421,9 @@ func validateTrustCorporation(trustCorporation *TrustCorporationPreRegistrationC
 	return p.
 		Field("/name", &trustCorporation.Name, parse.Validate(validate.NotEmpty()), parse.Optional()).
 		Field("/companyNumber", &trustCorporation.CompanyNumber, parse.Validate(validate.NotEmpty()), parse.Optional()).
-		Field("/email", &trustCorporation.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/email", &trustCorporation.Email, parse.Optional()).
 		Prefix("/address", validateAddress(&trustCorporation.Address), parse.Optional()).
-		Field("/mobile", &trustCorporation.Email, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/mobile", &trustCorporation.Mobile, parse.Optional()).
 		Prefix("/signatories", func(p *parse.Parser) []shared.FieldError {
 			return p.
 				Each(func(i int, p *parse.Parser) []shared.FieldError {
@@ -434,7 +434,7 @@ func validateTrustCorporation(trustCorporation *TrustCorporationPreRegistrationC
 					return validateSignatory(&trustCorporation.Signatories[i], p)
 				}).
 				Consumed()
-		}).
+		}, parse.Optional()).
 		Consumed()
 }
 
