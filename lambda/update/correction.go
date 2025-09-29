@@ -98,7 +98,10 @@ func (c CertificateProviderPreRegistrationCorrection) Apply(lpa *shared.Lpa) []s
 	lpa.CertificateProvider.Address = c.Address
 	lpa.CertificateProvider.Email = c.Email
 	lpa.CertificateProvider.Phone = c.Phone
-	lpa.CertificateProvider.SignedAt = &c.SignedAt
+
+	if !c.SignedAt.IsZero() {
+		lpa.CertificateProvider.SignedAt = &c.SignedAt
+	}
 
 	return nil
 }

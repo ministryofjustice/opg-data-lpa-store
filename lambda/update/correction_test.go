@@ -103,7 +103,6 @@ func TestCorrectionApply(t *testing.T) {
 					HowReplacementAttorneysStepInDetails:        "another way",
 					WhenTheLpaCanBeUsed:                         shared.CanUseWhenCapacityLost,
 					LifeSustainingTreatmentOption:               shared.LifeSustainingTreatmentOptionA,
-					CertificateProvider:                         shared.CertificateProvider{SignedAt: &time.Time{}},
 					Attorneys:                                   []shared.Attorney{},
 				},
 			},
@@ -165,10 +164,7 @@ func TestCorrectionApply(t *testing.T) {
 						},
 						Email: "jane.smith@example.com",
 					},
-					SignedAt: now,
-					CertificateProvider: shared.CertificateProvider{
-						SignedAt: &time.Time{},
-					},
+					SignedAt:  now,
 					Attorneys: []shared.Attorney{},
 				},
 				Notes: []shared.Note{
@@ -342,9 +338,6 @@ func TestCorrectionApply(t *testing.T) {
 			},
 			expected: &shared.Lpa{
 				LpaInit: shared.LpaInit{
-					CertificateProvider: shared.CertificateProvider{
-						SignedAt: &time.Time{},
-					},
 					Attorneys: []shared.Attorney{
 						{},
 						{
