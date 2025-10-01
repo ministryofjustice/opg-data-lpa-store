@@ -291,7 +291,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					data.TrustCorporation.Email = lpa.TrustCorporations[i].Email
 					data.TrustCorporation.Address = lpa.TrustCorporations[i].Address
 					data.TrustCorporation.Mobile = lpa.TrustCorporations[i].Mobile
-					data.TrustCorporation.Signatories = [2]shared.Signatory(lpa.TrustCorporations[i].Signatories[:2])
+					data.TrustCorporation.Signatories = lpa.TrustCorporations[i].Signatories[:]
 
 					return validateTrustCorporation(&data.TrustCorporation, p)
 				}).

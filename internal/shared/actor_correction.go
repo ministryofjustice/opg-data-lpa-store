@@ -40,7 +40,7 @@ type TrustCorporationCorrection struct {
 	Email         string
 	Address       Address
 	Mobile        string
-	Signatories   [2]Signatory
+	Signatories   []Signatory
 }
 
 type AttorneyAppointmentTypeCorrection struct {

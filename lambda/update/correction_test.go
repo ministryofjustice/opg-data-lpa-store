@@ -375,7 +375,7 @@ func TestCorrectionApply(t *testing.T) {
 							Country:  "GB",
 						},
 						Mobile: "0809 694 3813",
-						Signatories: [2]shared.Signatory{{
+						Signatories: []shared.Signatory{{
 							FirstNames:        "Raphael",
 							LastName:          "Hansen",
 							ProfessionalTitle: "Prof.",
@@ -834,9 +834,7 @@ func TestValidateCorrection(t *testing.T) {
 					Donor:               shared.Donor{},
 					Attorneys:           []shared.Attorney{{}},
 					CertificateProvider: shared.CertificateProvider{},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{}, {}},
-					}},
+					TrustCorporations:   []shared.TrustCorporation{{}},
 				},
 			},
 			errors: []shared.FieldError{
@@ -891,9 +889,7 @@ func TestValidateCorrection(t *testing.T) {
 					CertificateProvider: shared.CertificateProvider{
 						Address: shared.Address{},
 					},
-					TrustCorporations: []shared.TrustCorporation{{
-						Signatories: []shared.Signatory{{}, {}},
-					}},
+					TrustCorporations: []shared.TrustCorporation{{}},
 				},
 			},
 			errors: []shared.FieldError{
@@ -1051,7 +1047,7 @@ func TestValidateCorrection(t *testing.T) {
 							Postcode: "DB2 2RT",
 							Country:  "GB",
 						},
-						Signatories: [2]shared.Signatory{
+						Signatories: []shared.Signatory{
 							{
 								FirstNames: "Charlie",
 								LastName:   "Pollich",
