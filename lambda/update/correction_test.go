@@ -103,7 +103,6 @@ func TestCorrectionApply(t *testing.T) {
 					HowReplacementAttorneysStepInDetails:        "another way",
 					WhenTheLpaCanBeUsed:                         shared.CanUseWhenCapacityLost,
 					LifeSustainingTreatmentOption:               shared.LifeSustainingTreatmentOptionA,
-					CertificateProvider:                         shared.CertificateProvider{SignedAt: &time.Time{}},
 					Attorneys:                                   []shared.Attorney{},
 				},
 			},
@@ -165,10 +164,7 @@ func TestCorrectionApply(t *testing.T) {
 						},
 						Email: "jane.smith@example.com",
 					},
-					SignedAt: now,
-					CertificateProvider: shared.CertificateProvider{
-						SignedAt: &time.Time{},
-					},
+					SignedAt:  now,
 					Attorneys: []shared.Attorney{},
 				},
 				Notes: []shared.Note{
@@ -342,9 +338,6 @@ func TestCorrectionApply(t *testing.T) {
 			},
 			expected: &shared.Lpa{
 				LpaInit: shared.LpaInit{
-					CertificateProvider: shared.CertificateProvider{
-						SignedAt: &time.Time{},
-					},
 					Attorneys: []shared.Attorney{
 						{},
 						{
@@ -364,6 +357,92 @@ func TestCorrectionApply(t *testing.T) {
 							SignedAt: &now,
 						},
 					},
+				},
+			},
+		},
+		"trust corporation correction": {
+			correction: Correction{
+				TrustCorporation: TrustCorporationPreRegistrationCorrection{
+					shared.TrustCorporationCorrection{
+						Index:         ptrTo(0),
+						Name:          "Webster Mraz Limited",
+						CompanyNumber: "315724446",
+						Email:         "Webster.Mraz@example.com",
+						Address: shared.Address{
+							Line1:    "518 Gussie Meadows",
+							Town:     "Hamill",
+							Postcode: "RD3 8OI",
+							Country:  "GB",
+						},
+						Mobile: "0809 694 3813",
+						Signatories: []shared.Signatory{{
+							FirstNames:        "Raphael",
+							LastName:          "Hansen",
+							ProfessionalTitle: "Prof.",
+							SignedAt:          now,
+						}, {
+							FirstNames:        "Marianna",
+							LastName:          "Quigley",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          now,
+						}},
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{
+						Name:          "Stacey Wilderman Limited",
+						CompanyNumber: "096912473",
+						Email:         "Stacey.Wilderman@example.com",
+						Address: shared.Address{
+							Line1:    "127 Vicarage Close",
+							Town:     "Wehnerfield",
+							Postcode: "WB74 0BF",
+							Country:  "GB",
+						},
+						Status: shared.AttorneyStatusActive,
+						Mobile: "0191 996 6889",
+						Signatories: []shared.Signatory{{
+							FirstNames:        "Miracle",
+							LastName:          "Morar",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}, {
+							FirstNames:        "Miracle",
+							LastName:          "Morar",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}},
+					}},
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{
+						Name:          "Webster Mraz Limited",
+						CompanyNumber: "315724446",
+						Email:         "Webster.Mraz@example.com",
+						Address: shared.Address{
+							Line1:    "518 Gussie Meadows",
+							Town:     "Hamill",
+							Postcode: "RD3 8OI",
+							Country:  "GB",
+						},
+						Status: shared.AttorneyStatusActive,
+						Mobile: "0809 694 3813",
+						Signatories: []shared.Signatory{{
+							FirstNames:        "Raphael",
+							LastName:          "Hansen",
+							ProfessionalTitle: "Prof.",
+							SignedAt:          yesterday,
+						}, {
+							FirstNames:        "Marianna",
+							LastName:          "Quigley",
+							ProfessionalTitle: "Dr.",
+							SignedAt:          yesterday,
+						}},
+					}},
 				},
 			},
 		},
@@ -747,12 +826,15 @@ func TestValidateCorrection(t *testing.T) {
 				{Key: "/attorneys/0/lastName", New: jsonNull, Old: jsonNull},
 				{Key: "/certificateProvider/firstNames", New: jsonNull, Old: jsonNull},
 				{Key: "/certificateProvider/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/trustCorporations/0/name", New: jsonNull, Old: jsonNull},
+				{Key: "/trustCorporations/0/companyNumber", New: jsonNull, Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					Donor:               shared.Donor{},
 					Attorneys:           []shared.Attorney{{}},
 					CertificateProvider: shared.CertificateProvider{},
+					TrustCorporations:   []shared.TrustCorporation{{}},
 				},
 			},
 			errors: []shared.FieldError{
@@ -762,6 +844,8 @@ func TestValidateCorrection(t *testing.T) {
 				{Source: "/changes/3/new", Detail: fieldRequired},
 				{Source: "/changes/4/new", Detail: fieldRequired},
 				{Source: "/changes/5/new", Detail: fieldRequired},
+				{Source: "/changes/6/new", Detail: fieldRequired},
+				{Source: "/changes/7/new", Detail: fieldRequired},
 			},
 		},
 		"missing required fields with UID reference": {
@@ -794,6 +878,7 @@ func TestValidateCorrection(t *testing.T) {
 				{Key: "/donor/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 				{Key: "/attorneys/0/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 				{Key: "/certificateProvider/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+				{Key: "/trustCorporations/0/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -804,12 +889,14 @@ func TestValidateCorrection(t *testing.T) {
 					CertificateProvider: shared.CertificateProvider{
 						Address: shared.Address{},
 					},
+					TrustCorporations: []shared.TrustCorporation{{}},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/0/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes/2/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/changes/3/new", Detail: "must be a valid ISO-3166-1 country code"},
 			},
 		},
 		"invalid country with UID reference": {
@@ -906,6 +993,72 @@ func TestValidateCorrection(t *testing.T) {
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/0", Detail: "unexpected change provided"},
+			},
+		},
+		"valid trust corporation update": {
+			changes: []shared.Change{
+				{Key: "/trustCorporations/0/name", New: json.RawMessage(`"Burley Gottlieb Limited"`), Old: json.RawMessage(`"Cecil Harper Limited"`)},
+				{Key: "/trustCorporations/0/companyNumber", New: json.RawMessage(`"710228347"`), Old: json.RawMessage(`"634843055"`)},
+				{Key: "/trustCorporations/0/address/line1", New: json.RawMessage(`"7 Paxton Drove"`), Old: json.RawMessage(`"37 Niko Wynd"`)},
+				{Key: "/trustCorporations/0/address/line2", New: json.RawMessage(`"Kessler"`), Old: json.RawMessage(`"Upper Vonford"`)},
+				{Key: "/trustCorporations/0/address/line3", New: json.RawMessage(`"Nienowbury"`), Old: json.RawMessage(`"Upton Stanton"`)},
+				{Key: "/trustCorporations/0/address/town", New: json.RawMessage(`"Cormier"`), Old: json.RawMessage(`"Conroy"`)},
+				{Key: "/trustCorporations/0/address/postcode", New: json.RawMessage(`"DB2 2RT"`), Old: json.RawMessage(`"SE64 1ZD"`)},
+				{Key: "/trustCorporations/0/address/country", New: json.RawMessage(`"GB"`), Old: json.RawMessage(`"GB"`)},
+				{Key: "/trustCorporations/0/signatories/0/firstNames", New: json.RawMessage(`"Charlie"`), Old: json.RawMessage(`"Virginie"`)},
+				{Key: "/trustCorporations/0/signatories/0/lastName", New: json.RawMessage(`"Pollich"`), Old: json.RawMessage(`"Reichert"`)},
+				{Key: "/trustCorporations/0/signatories/1/firstNames", New: json.RawMessage(`"Norene"`), Old: json.RawMessage(`"Modesto"`)},
+				{Key: "/trustCorporations/0/signatories/1/lastName", New: json.RawMessage(`"Marks"`), Old: json.RawMessage(`"Adams"`)},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					TrustCorporations: []shared.TrustCorporation{{
+						Name:          "Cecil Harper Limited",
+						CompanyNumber: "634843055",
+						Address: shared.Address{
+							Line1:    "37 Niko Wynd",
+							Line2:    "Upper Vonford",
+							Line3:    "Upton Stanton",
+							Town:     "Conroy",
+							Postcode: "SE64 1ZD",
+							Country:  "GB",
+						},
+						Signatories: []shared.Signatory{{
+							FirstNames: "Virginie",
+							LastName:   "Reichert",
+						}, {
+							FirstNames: "Modesto",
+							LastName:   "Adams",
+						}},
+					}},
+				},
+			},
+			expected: Correction{
+				TrustCorporation: TrustCorporationPreRegistrationCorrection{
+					shared.TrustCorporationCorrection{
+						Index:         ptrTo(0),
+						Name:          "Burley Gottlieb Limited",
+						CompanyNumber: "710228347",
+						Address: shared.Address{
+							Line1:    "7 Paxton Drove",
+							Line2:    "Kessler",
+							Line3:    "Nienowbury",
+							Town:     "Cormier",
+							Postcode: "DB2 2RT",
+							Country:  "GB",
+						},
+						Signatories: []shared.Signatory{
+							{
+								FirstNames: "Charlie",
+								LastName:   "Pollich",
+							},
+							{
+								FirstNames: "Norene",
+								LastName:   "Marks",
+							},
+						},
+					},
+				},
 			},
 		},
 	}

@@ -33,6 +33,16 @@ type AttorneyCorrection struct {
 	AppointmentType          AppointmentType
 }
 
+type TrustCorporationCorrection struct {
+	Index         *int
+	Name          string
+	CompanyNumber string
+	Email         string
+	Address       Address
+	Mobile        string
+	Signatories   []Signatory
+}
+
 type AttorneyAppointmentTypeCorrection struct {
 	HowAttorneysMakeDecisions                   HowMakeDecisions
 	HowAttorneysMakeDecisionsDetails            string
