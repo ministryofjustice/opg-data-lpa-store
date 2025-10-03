@@ -145,8 +145,32 @@ func handlePactState(r *http.Request) error {
 		newUID := randomUID()
 		uidMap[oldUID] = newUID
 
-		url := fmt.Sprintf("http://localhost:8080/lpas/%s", oldUID)
-		body := `{
+		createLPA(newUID, r.Header.Clone())
+	}
+
+	existsWithChangesRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists and has changes$`)
+	if matches := existsWithChangesRe.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+
+		createLPA(newUID, r.Header.Clone())
+		addLPAUpdate(newUID, r.Header.Clone())
+	}
+
+	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)
+	if matches := doesNotExistRe.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+	}
+
+	return nil
+}
+
+func createLPA(uid string, headers http.Header) error {
+	url := fmt.Sprintf("http://localhost:8080/lpas/%s", uid)
+	body := `{
 			"lpaType": "personal-welfare",
 			"channel": "online",
 			"language": "en",
@@ -211,29 +235,54 @@ func handlePactState(r *http.Request) error {
 			"howAttorneysMakeDecisions": "jointly"
 		}`
 
-		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
-		if err != nil {
-			return err
-		}
-
-		req.Header = r.Header.Clone()
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-
-		if resp.StatusCode >= 400 {
-			return fmt.Errorf("request failed with status code %d", resp.StatusCode)
-		}
+	req, err := http.NewRequest("PUT", url, strings.NewReader(body))
+	if err != nil {
+		return err
 	}
 
-	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)
-	if matches := doesNotExistRe.FindStringSubmatch(state.State); len(matches) > 0 {
-		oldUID := matches[1]
-		newUID := randomUID()
-		uidMap[oldUID] = newUID
+	req.Header = headers
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("request failed with status code %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+func addLPAUpdate(uid string, headers http.Header) error {
+	url := fmt.Sprintf("http://localhost:8080/lpas/%s/updates", uid)
+	body := `{
+			"type": "CORRECTION",
+			"changes": [
+					{
+							"key": "/donor/lastName",
+							"new": "Perkins",
+							"old": "Zoller"
+					}
+			]
+	}`
+
+	req, err := http.NewRequest("POST", url, strings.NewReader(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header = headers
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("request failed with status code %d", resp.StatusCode)
 	}
 
 	return nil
