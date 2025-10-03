@@ -17,6 +17,8 @@ type Correction struct {
 	CertificateProvider     CertificateProviderPreRegistrationCorrection
 	AttorneyAppointmentType AttorneyAppointmentPreRegistrationCorrection
 	TrustCorporation        TrustCorporationPreRegistrationCorrection
+	AuthorisedSignatory     AuthorisedSignatoryPreRegistrationCorrection
+	IndependentWitness      IndependentWitnessPreRegistrationCorrection
 	SignedAt                time.Time
 }
 
@@ -187,6 +189,46 @@ func (c AttorneyAppointmentPreRegistrationCorrection) Apply(lpa *shared.Lpa) []s
 	return nil
 }
 
+type AuthorisedSignatoryPreRegistrationCorrection struct {
+	shared.AuthorisedSignatoryCorrection
+}
+
+func (c AuthorisedSignatoryPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if c.FirstNames != "" && c.LastName != "" {
+		as := &shared.AuthorisedSignatory{
+			Person: shared.Person{
+				FirstNames: c.FirstNames,
+				LastName:   c.LastName,
+			},
+		}
+
+		lpa.AuthorisedSignatory = as
+	}
+
+	return nil
+}
+
+type IndependentWitnessPreRegistrationCorrection struct {
+	shared.IndependentWitnessCorrection
+}
+
+func (c IndependentWitnessPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if c.FirstNames != "" && c.LastName != "" && c.Phone != "" && !c.Address.IsZero() {
+		iw := &shared.IndependentWitness{
+			Person: shared.Person{
+				FirstNames: c.FirstNames,
+				LastName:   c.LastName,
+			},
+			Phone:   c.Phone,
+			Address: c.Address,
+		}
+
+		lpa.IndependentWitness = iw
+	}
+
+	return nil
+}
+
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	isInvalidOnlineLPASignedAtChange := !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.SignedAt) &&
 		lpa.Channel == shared.ChannelOnline
@@ -216,6 +258,14 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	}
 
 	if fieldErrors := c.AttorneyAppointmentType.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	if fieldErrors := c.AuthorisedSignatory.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
+	if fieldErrors := c.IndependentWitness.Apply(lpa); len(fieldErrors) > 0 {
 		return fieldErrors
 	}
 
@@ -296,7 +346,9 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					return validateTrustCorporation(&data.TrustCorporation, p)
 				}).
 				Consumed()
-		}, parse.Optional())
+		}, parse.Optional()).
+		Prefix("/authorisedSignatory", validateAuthorisedSignatory(&data.AuthorisedSignatory), parse.Optional()).
+		Prefix("/independentWitness", validateIndependentWitness(&data.IndependentWitness), parse.Optional())
 
 	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 
@@ -436,6 +488,26 @@ func validateTrustCorporation(trustCorporation *TrustCorporationPreRegistrationC
 				Consumed()
 		}, parse.Optional()).
 		Consumed()
+}
+
+func validateAuthorisedSignatory(as *AuthorisedSignatoryPreRegistrationCorrection) func(p *parse.Parser) []shared.FieldError {
+	return func(p *parse.Parser) []shared.FieldError {
+		return p.
+			Field("/firstNames", &as.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Field("/lastName", &as.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Consumed()
+	}
+}
+
+func validateIndependentWitness(iw *IndependentWitnessPreRegistrationCorrection) func(p *parse.Parser) []shared.FieldError {
+	return func(p *parse.Parser) []shared.FieldError {
+		return p.
+			Field("/firstNames", &iw.FirstNames, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Field("/lastName", &iw.LastName, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Field("/phone", &iw.Phone, parse.Validate(validate.NotEmpty()), parse.Optional()).
+			Prefix("/address", validateAddress(&iw.Address), parse.Optional()).
+			Consumed()
+	}
 }
 
 func validateAddress(address *shared.Address) func(p *parse.Parser) []shared.FieldError {
