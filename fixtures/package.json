@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ministryofjustice/frontend": "^5.0.0",
+    "@ministryofjustice/frontend": "^6.0.0",
     "govuk-frontend": "^5.2.0"
   }
 }
