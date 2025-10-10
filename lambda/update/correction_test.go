@@ -554,6 +554,28 @@ func TestCorrectionApply(t *testing.T) {
 				},
 			},
 		},
+		"witnessed by": {
+			correction: Correction{
+				WitnessedBy: WitnessedByPreRegistrationCorrection{
+					shared.WitnessedByCorrection{
+						WitnessedByCertificateProviderAt: now,
+						WitnessedByIndependentWitnessAt:  now,
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					WitnessedByCertificateProviderAt: yesterday,
+					WitnessedByIndependentWitnessAt:  &yesterday,
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					WitnessedByCertificateProviderAt: now,
+					WitnessedByIndependentWitnessAt:  &now,
+				},
+			},
+		},
 	}
 
 	for scenario, tc := range testcases {
@@ -1206,6 +1228,36 @@ func TestValidateCorrection(t *testing.T) {
 							Postcode: "BA7 5IB",
 							Country:  "GB",
 						},
+					},
+				},
+			},
+		},
+		"invalid date values": {
+			changes: []shared.Change{
+				{Key: "/witnessedByCertificateProviderAt", New: json.RawMessage(`"Invalid"`), Old: jsonNull},
+				{Key: "/witnessedByIndependentWitnessAt", New: json.RawMessage(`"Invalid"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			errors: []shared.FieldError{
+				{Source: "/changes/0/new", Detail: "unexpected type"},
+				{Source: "/changes/1/new", Detail: "unexpected type"},
+			},
+		},
+		"valid witnessed by update": {
+			changes: []shared.Change{
+				{Key: "/witnessedByCertificateProviderAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+				{Key: "/witnessedByIndependentWitnessAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			expected: Correction{
+				WitnessedBy: WitnessedByPreRegistrationCorrection{
+					shared.WitnessedByCorrection{
+						WitnessedByCertificateProviderAt: now,
+						WitnessedByIndependentWitnessAt:  now,
 					},
 				},
 			},

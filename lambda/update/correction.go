@@ -19,6 +19,7 @@ type Correction struct {
 	TrustCorporation        TrustCorporationPreRegistrationCorrection
 	AuthorisedSignatory     AuthorisedSignatoryPreRegistrationCorrection
 	IndependentWitness      IndependentWitnessPreRegistrationCorrection
+	WitnessedBy             WitnessedByPreRegistrationCorrection
 	SignedAt                time.Time
 }
 
@@ -229,6 +230,22 @@ func (c IndependentWitnessPreRegistrationCorrection) Apply(lpa *shared.Lpa) []sh
 	return nil
 }
 
+type WitnessedByPreRegistrationCorrection struct {
+	shared.WitnessedByCorrection
+}
+
+func (c WitnessedByPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if !c.WitnessedByCertificateProviderAt.IsZero() {
+		lpa.WitnessedByCertificateProviderAt = c.WitnessedByCertificateProviderAt
+	}
+
+	if !c.WitnessedByIndependentWitnessAt.IsZero() {
+		lpa.WitnessedByIndependentWitnessAt = &c.WitnessedByIndependentWitnessAt
+	}
+
+	return nil
+}
+
 func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 	isInvalidOnlineLPASignedAtChange := !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.SignedAt) &&
 		lpa.Channel == shared.ChannelOnline
@@ -269,6 +286,10 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return fieldErrors
 	}
 
+	if fieldErrors := c.WitnessedBy.Apply(lpa); len(fieldErrors) > 0 {
+		return fieldErrors
+	}
+
 	lpa.SignedAt = c.SignedAt
 
 	return nil
@@ -295,6 +316,11 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.CertificateProvider.Phone = lpa.CertificateProvider.Phone
 	if lpa.CertificateProvider.SignedAt != nil {
 		data.CertificateProvider.SignedAt = *lpa.CertificateProvider.SignedAt
+	}
+
+	data.WitnessedBy.WitnessedByCertificateProviderAt = lpa.WitnessedByCertificateProviderAt
+	if lpa.WitnessedByIndependentWitnessAt != nil {
+		data.WitnessedBy.WitnessedByIndependentWitnessAt = *lpa.WitnessedByIndependentWitnessAt
 	}
 
 	parser := parse.Changes(changes).
@@ -348,7 +374,9 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 				Consumed()
 		}, parse.Optional()).
 		Prefix("/authorisedSignatory", validateAuthorisedSignatory(&data.AuthorisedSignatory), parse.Optional()).
-		Prefix("/independentWitness", validateIndependentWitness(&data.IndependentWitness), parse.Optional())
+		Prefix("/independentWitness", validateIndependentWitness(&data.IndependentWitness), parse.Optional()).
+		Field("/witnessedByCertificateProviderAt", &data.WitnessedBy.WitnessedByCertificateProviderAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
+		Field("/witnessedByIndependentWitnessAt", &data.WitnessedBy.WitnessedByIndependentWitnessAt, parse.Validate(validate.NotEmpty()), parse.Optional())
 
 	activeAttorneyCount, replacementAttorneyCount := shared.CountAttorneys(lpa.Attorneys, lpa.TrustCorporations)
 

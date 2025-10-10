@@ -65,3 +65,8 @@ type IndependentWitnessCorrection struct {
 	Phone      string
 	Address    Address
 }
+
+type WitnessedByCorrection struct {
+	WitnessedByCertificateProviderAt time.Time
+	WitnessedByIndependentWitnessAt  time.Time
+}
