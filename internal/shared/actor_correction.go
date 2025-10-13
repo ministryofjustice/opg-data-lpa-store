@@ -53,3 +53,20 @@ type AttorneyAppointmentTypeCorrection struct {
 	LifeSustainingTreatmentOption               LifeSustainingTreatment
 	WhenTheLpaCanBeUsed                         CanUse
 }
+
+type AuthorisedSignatoryCorrection struct {
+	FirstNames string
+	LastName   string
+}
+
+type IndependentWitnessCorrection struct {
+	FirstNames string
+	LastName   string
+	Phone      string
+	Address    Address
+}
+
+type WitnessedByCorrection struct {
+	WitnessedByCertificateProviderAt time.Time
+	WitnessedByIndependentWitnessAt  time.Time
+}

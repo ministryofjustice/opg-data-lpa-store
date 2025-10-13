@@ -467,6 +467,115 @@ func TestCorrectionApply(t *testing.T) {
 			},
 			errors: []shared.FieldError{{Source: "/attorney/0/signedAt", Detail: "The attorney signed at date cannot be changed for online LPA"}},
 		},
+		"authorised signatory": {
+			correction: Correction{
+				AuthorisedSignatory: AuthorisedSignatoryPreRegistrationCorrection{
+					shared.AuthorisedSignatoryCorrection{
+						FirstNames: "Jamar",
+						LastName:   "Dakota",
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					AuthorisedSignatory: &shared.AuthorisedSignatory{
+						Person: shared.Person{
+							FirstNames: "Mafalda",
+							LastName:   "Kuhic",
+						},
+					},
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					AuthorisedSignatory: &shared.AuthorisedSignatory{
+						Person: shared.Person{
+							FirstNames: "Jamar",
+							LastName:   "Dakota",
+						},
+					},
+				},
+			},
+		},
+		"independent witness": {
+			correction: Correction{
+				IndependentWitness: IndependentWitnessPreRegistrationCorrection{
+					shared.IndependentWitnessCorrection{
+						FirstNames: "Shaniya",
+						LastName:   "Rowan",
+						Phone:      "0955 305 0174",
+						Address: shared.Address{
+							Line1:    "798 Genevieve Drove",
+							Line2:    "Hudsonwood",
+							Line3:    "Hellerwick",
+							Town:     "Wuckert",
+							Postcode: "AN85 0JJ",
+							Country:  "GB",
+						},
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					IndependentWitness: &shared.IndependentWitness{
+						Person: shared.Person{
+							FirstNames: "Donald",
+							LastName:   "Rowe",
+						},
+						Phone: "0115 592 8043",
+						Address: shared.Address{
+							Line1:    "3 Station Road",
+							Line2:    "Ziemann",
+							Line3:    "Wuckert",
+							Town:     "Avon",
+							Postcode: "NE0 8KM",
+							Country:  "GB",
+						},
+					},
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					IndependentWitness: &shared.IndependentWitness{
+						Person: shared.Person{
+							FirstNames: "Shaniya",
+							LastName:   "Rowan",
+						},
+						Phone: "0955 305 0174",
+						Address: shared.Address{
+							Line1:    "798 Genevieve Drove",
+							Line2:    "Hudsonwood",
+							Line3:    "Hellerwick",
+							Town:     "Wuckert",
+							Postcode: "AN85 0JJ",
+							Country:  "GB",
+						},
+					},
+				},
+			},
+		},
+		"witnessed by": {
+			correction: Correction{
+				WitnessedBy: WitnessedByPreRegistrationCorrection{
+					shared.WitnessedByCorrection{
+						WitnessedByCertificateProviderAt: now,
+						WitnessedByIndependentWitnessAt:  now,
+					},
+				},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					WitnessedByCertificateProviderAt: yesterday,
+					WitnessedByIndependentWitnessAt:  &yesterday,
+				},
+			},
+			expected: &shared.Lpa{
+				LpaInit: shared.LpaInit{
+					WitnessedByCertificateProviderAt: now,
+					WitnessedByIndependentWitnessAt:  &now,
+				},
+			},
+		},
 	}
 
 	for scenario, tc := range testcases {
@@ -828,6 +937,11 @@ func TestValidateCorrection(t *testing.T) {
 				{Key: "/certificateProvider/lastName", New: jsonNull, Old: jsonNull},
 				{Key: "/trustCorporations/0/name", New: jsonNull, Old: jsonNull},
 				{Key: "/trustCorporations/0/companyNumber", New: jsonNull, Old: jsonNull},
+				{Key: "/authorisedSignatory/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/authorisedSignatory/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/independentWitness/firstNames", New: jsonNull, Old: jsonNull},
+				{Key: "/independentWitness/lastName", New: jsonNull, Old: jsonNull},
+				{Key: "/independentWitness/phone", New: jsonNull, Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -846,6 +960,11 @@ func TestValidateCorrection(t *testing.T) {
 				{Source: "/changes/5/new", Detail: fieldRequired},
 				{Source: "/changes/6/new", Detail: fieldRequired},
 				{Source: "/changes/7/new", Detail: fieldRequired},
+				{Source: "/changes/8/new", Detail: fieldRequired},
+				{Source: "/changes/9/new", Detail: fieldRequired},
+				{Source: "/changes/10/new", Detail: fieldRequired},
+				{Source: "/changes/11/new", Detail: fieldRequired},
+				{Source: "/changes/12/new", Detail: fieldRequired},
 			},
 		},
 		"missing required fields with UID reference": {
@@ -879,6 +998,7 @@ func TestValidateCorrection(t *testing.T) {
 				{Key: "/attorneys/0/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 				{Key: "/certificateProvider/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 				{Key: "/trustCorporations/0/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
+				{Key: "/independentWitness/address/country", New: json.RawMessage(`"United Kingdom"`), Old: jsonNull},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -897,6 +1017,7 @@ func TestValidateCorrection(t *testing.T) {
 				{Source: "/changes/1/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes/2/new", Detail: "must be a valid ISO-3166-1 country code"},
 				{Source: "/changes/3/new", Detail: "must be a valid ISO-3166-1 country code"},
+				{Source: "/changes/4/new", Detail: "must be a valid ISO-3166-1 country code"},
 			},
 		},
 		"invalid country with UID reference": {
@@ -1057,6 +1178,86 @@ func TestValidateCorrection(t *testing.T) {
 								LastName:   "Marks",
 							},
 						},
+					},
+				},
+			},
+		},
+		"valid authorised signatory update": {
+			changes: []shared.Change{
+				{Key: "/authorisedSignatory/firstNames", New: json.RawMessage(`"Orlando"`), Old: jsonNull},
+				{Key: "/authorisedSignatory/lastName", New: json.RawMessage(`"Breitenberg"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			expected: Correction{
+				AuthorisedSignatory: AuthorisedSignatoryPreRegistrationCorrection{
+					AuthorisedSignatoryCorrection: shared.AuthorisedSignatoryCorrection{
+						FirstNames: "Orlando",
+						LastName:   "Breitenberg",
+					},
+				},
+			},
+		},
+		"valid independent witness update": {
+			changes: []shared.Change{
+				{Key: "/independentWitness/firstNames", New: json.RawMessage(`"Cleora"`), Old: jsonNull},
+				{Key: "/independentWitness/lastName", New: json.RawMessage(`"Koss"`), Old: jsonNull},
+				{Key: "/independentWitness/phone", New: json.RawMessage(`"016977 8334"`), Old: jsonNull},
+				{Key: "/independentWitness/address/line1", New: json.RawMessage(`"48 Upton Mead"`), Old: jsonNull},
+				{Key: "/independentWitness/address/line2", New: json.RawMessage(`"Willms"`), Old: jsonNull},
+				{Key: "/independentWitness/address/line3", New: json.RawMessage(`"Kertzmannstone"`), Old: jsonNull},
+				{Key: "/independentWitness/address/town", New: json.RawMessage(`"Devon"`), Old: jsonNull},
+				{Key: "/independentWitness/address/postcode", New: json.RawMessage(`"BA7 5IB"`), Old: jsonNull},
+				{Key: "/independentWitness/address/country", New: json.RawMessage(`"GB"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			expected: Correction{
+				IndependentWitness: IndependentWitnessPreRegistrationCorrection{
+					IndependentWitnessCorrection: shared.IndependentWitnessCorrection{
+						FirstNames: "Cleora",
+						LastName:   "Koss",
+						Phone:      "016977 8334",
+						Address: shared.Address{
+							Line1:    "48 Upton Mead",
+							Line2:    "Willms",
+							Line3:    "Kertzmannstone",
+							Town:     "Devon",
+							Postcode: "BA7 5IB",
+							Country:  "GB",
+						},
+					},
+				},
+			},
+		},
+		"invalid date values": {
+			changes: []shared.Change{
+				{Key: "/witnessedByCertificateProviderAt", New: json.RawMessage(`"Invalid"`), Old: jsonNull},
+				{Key: "/witnessedByIndependentWitnessAt", New: json.RawMessage(`"Invalid"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			errors: []shared.FieldError{
+				{Source: "/changes/0/new", Detail: "unexpected type"},
+				{Source: "/changes/1/new", Detail: "unexpected type"},
+			},
+		},
+		"valid witnessed by update": {
+			changes: []shared.Change{
+				{Key: "/witnessedByCertificateProviderAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+				{Key: "/witnessedByIndependentWitnessAt", New: json.RawMessage(`"` + now.Format(time.RFC3339Nano) + `"`), Old: jsonNull},
+			},
+			lpa: &shared.Lpa{
+				LpaInit: shared.LpaInit{},
+			},
+			expected: Correction{
+				WitnessedBy: WitnessedByPreRegistrationCorrection{
+					shared.WitnessedByCorrection{
+						WitnessedByCertificateProviderAt: now,
+						WitnessedByIndependentWitnessAt:  now,
 					},
 				},
 			},
