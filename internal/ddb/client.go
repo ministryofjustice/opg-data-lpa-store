@@ -70,6 +70,7 @@ func New(cfg aws.Config, tableName, changesTableName string) *Client {
 
 func (c *Client) PutChanges(ctx context.Context, data any, update shared.Update) error {
 	changesItem, _ := attributevalue.MarshalMap(map[string]interface{}{
+		"id":      update.Id,
 		"uid":     update.Uid,
 		"applied": update.Applied,
 		"author":  update.Author,
