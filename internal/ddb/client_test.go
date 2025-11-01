@@ -44,6 +44,7 @@ func TestClientPutChanges(t *testing.T) {
 				Put: &types.Put{
 					TableName: aws.String(changesTableName),
 					Item: map[string]types.AttributeValue{
+						"id":      &types.AttributeValueMemberS{Value: "123"},
 						"uid":     &types.AttributeValueMemberS{Value: "a-uid"},
 						"applied": &types.AttributeValueMemberS{Value: "2024-01-01Tsomething"},
 						"author":  &types.AttributeValueMemberS{Value: "an-author"},
@@ -68,6 +69,7 @@ func TestClientPutChanges(t *testing.T) {
 	}
 
 	err := client.PutChanges(ctx, map[string]string{"hey": "hello"}, shared.Update{
+		Id:      "123",
 		Uid:     "a-uid",
 		Applied: "2024-01-01Tsomething",
 		Author:  "an-author",
@@ -153,7 +155,7 @@ func TestClientGetList(t *testing.T) {
 		}).
 		Return(&dynamodb.BatchGetItemOutput{
 			Responses: map[string][]map[string]types.AttributeValue{
-				tableName: []map[string]types.AttributeValue{{
+				tableName: {{
 					"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
 					"lpaType": &types.AttributeValueMemberS{Value: "property-and-affairs"},
 				}, {
@@ -197,6 +199,7 @@ func TestClientGetChanges(t *testing.T) {
 	page1 := &dynamodb.QueryOutput{
 		Items: []map[string]types.AttributeValue{
 			{
+				"id":      &types.AttributeValueMemberS{Value: "1231"},
 				"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
 				"applied": &types.AttributeValueMemberS{Value: "2024-01-01T00:00:00Z"},
 				"author":  &types.AttributeValueMemberS{Value: "author-1"},
@@ -216,6 +219,7 @@ func TestClientGetChanges(t *testing.T) {
 	page2 := &dynamodb.QueryOutput{
 		Items: []map[string]types.AttributeValue{
 			{
+				"id":      &types.AttributeValueMemberS{Value: "1232"},
 				"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
 				"applied": &types.AttributeValueMemberS{Value: "2024-01-02T00:00:00Z"},
 				"author":  &types.AttributeValueMemberS{Value: "author-2"},
@@ -261,6 +265,7 @@ func TestClientGetChanges(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, []shared.Update{
 		{
+			Id:      "1231",
 			Uid:     "my-uid",
 			Applied: "2024-01-01T00:00:00Z",
 			Author:  "author-1",
@@ -274,6 +279,7 @@ func TestClientGetChanges(t *testing.T) {
 			},
 		},
 		{
+			Id:      "1232",
 			Uid:     "my-uid",
 			Applied: "2024-01-02T00:00:00Z",
 			Author:  "author-2",
