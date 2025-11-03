@@ -3,7 +3,7 @@ Flask-WTF==1.2.2
 requests==2.32.5
 Jinja2==3.1.6
 jsonschema==4.25.1
-boto3==1.40.58
-botocore==1.40.58
-awscrt==0.28.2
+boto3==1.40.63
+botocore==1.40.63
+awscrt==0.28.3
 pyjwt==2.10.1
