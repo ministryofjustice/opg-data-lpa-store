@@ -4,11 +4,15 @@ import (
 	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 func GetEventHeader(headerName string, event events.APIGatewayProxyRequest) []string {
-	headerValues, ok := event.MultiValueHeaders[strings.Title(headerName)]
+	titleCaser := cases.Title(language.English)
+	titleHeader := titleCaser.String(headerName)
 
+	headerValues, ok := event.MultiValueHeaders[titleHeader]
 	if !ok {
 		headerValues, ok = event.MultiValueHeaders[strings.ToLower(headerName)]
 	}

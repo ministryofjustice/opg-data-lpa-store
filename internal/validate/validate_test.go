@@ -7,11 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var validAddress = shared.Address{
-	Line1:   "123 Main St",
-	Country: "GB",
-}
-
 func newDate(date string) shared.Date {
 	d := shared.Date{}
 	_ = d.UnmarshalText([]byte(date))

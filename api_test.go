@@ -116,7 +116,11 @@ func TestCreate(t *testing.T) {
 			}
 
 			var getJSON map[string]any
-			json.NewDecoder(getResp.Body).Decode(&getJSON)
+			//nolint:errcheck
+			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
+			if err != nil {
+				return
+			}
 
 			delete(getJSON, "status")
 			delete(getJSON, "uid")
@@ -174,10 +178,18 @@ func TestCreateWithImages(t *testing.T) {
 			}
 
 			var getJSON map[string]json.RawMessage
-			json.NewDecoder(getResp.Body).Decode(&getJSON)
+			//nolint:errcheck
+			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
+			if err != nil {
+				return
+			}
 
 			var restrictionsAndConditionsImages []map[string]string
-			json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
+			//nolint:errcheck
+			err = json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
+			if err != nil {
+				return
+			}
 
 			getJSON["channel"] = json.RawMessage(`"online"`)
 			getJSON["restrictionsAndConditions"] = json.RawMessage(`"I do not want to be put into a care home unless x"`)
@@ -238,7 +250,11 @@ func TestGetList(t *testing.T) {
 			UID string `json:"uid"`
 		} `json:"lpas"`
 	}
-	json.NewDecoder(getResp.Body).Decode(&getJSON)
+	//nolint:errcheck
+	err := json.NewDecoder(getResp.Body).Decode(&getJSON)
+	if err != nil {
+		return
+	}
 
 	assert.Len(t, getJSON.Lpas, 3)
 	assert.Contains(t, uids, getJSON.Lpas[0].UID)
@@ -299,7 +315,11 @@ func TestGetListWithImages(t *testing.T) {
 					} `json:"restrictionsAndConditionsImages"`
 				} `json:"lpas"`
 			}
-			json.NewDecoder(getResp.Body).Decode(&getJSON)
+			//nolint:errcheck
+			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
+			if err != nil {
+				return
+			}
 
 			assert.Len(t, getJSON.Lpas, 3)
 			assert.Contains(t, uids, getJSON.Lpas[0].UID)
@@ -466,8 +486,10 @@ func TestUpdatesEnd(t *testing.T) {
 
 func doCreateExample(t *testing.T, examplePath string) string {
 	lpaUID := makeLpaUID()
+	// #nosec G304
 	exampleLpa, _ := os.ReadFile(examplePath)
-
+	// #nosec G304
+	
 	req, _ := http.NewRequest(http.MethodPut,
 		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 		bytes.NewReader(exampleLpa))

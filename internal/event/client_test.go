@@ -11,10 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type ctxValueType string
+
+const ctxValue ctxValueType = "for"
+
 var (
-	ctx           = context.WithValue(context.Background(), "for", "testing")
-	expectedError = errors.New("err")
-	eventBusName  = "an-event-bus-name"
+	ctx          = context.WithValue(context.Background(), ctxValue, "testing")
+	errExpected  = errors.New("err")
+	eventBusName = "an-event-bus-name"
 )
 
 func TestNewClient(t *testing.T) {
@@ -37,12 +41,12 @@ func TestClientSendLpaUpdated(t *testing.T) {
 				Detail:       aws.String(`{"uid":"M-1234-1234-1234","changeType":"CREATE"}`),
 			}},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: eventBridgeClient, eventBusName: eventBusName}
 
 	err := client.SendLpaUpdated(ctx, event, nil)
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientSendLpaUpdatedWithMetric(t *testing.T) {
@@ -63,10 +67,10 @@ func TestClientSendLpaUpdatedWithMetric(t *testing.T) {
 				Detail:       aws.String(`{"metrics":[{"metric":{"Project":"X","Category":"Y","Subcategory":"","Environment":"","MeasureName":"","MeasureValue":"","MeasureValueType":"","Time":""}}]}`),
 			}},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: eventBridgeClient, eventBusName: eventBusName}
 
 	err := client.SendLpaUpdated(ctx, event, &Metric{Project: "X", Category: "Y"})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }

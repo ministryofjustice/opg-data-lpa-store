@@ -17,11 +17,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type ctxValueType string
+
+const ctxValue ctxValueType = "for"
+
 var (
-	ctx           = context.WithValue(context.Background(), "for", "testing")
-	expectedError = errors.New("expected")
-	bucketName    = "a-bucket"
-	objectKey     = "an-object-key"
+	ctx         = context.WithValue(context.Background(), ctxValue, "testing")
+	errExpected = errors.New("expected")
+	bucketName  = "a-bucket"
+	objectKey   = "an-object-key"
 )
 
 func TestS3ClientPut(t *testing.T) {
@@ -33,7 +37,7 @@ func TestS3ClientPut(t *testing.T) {
 			Body:                 bytes.NewReader([]byte(`{"ID":1}`)),
 			ServerSideEncryption: types.ServerSideEncryptionAwsKms,
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &S3Client{
 		bucketName: bucketName,
@@ -41,7 +45,7 @@ func TestS3ClientPut(t *testing.T) {
 	}
 
 	err := client.Put(ctx, objectKey, struct{ ID int }{ID: 1})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestS3ClientUploadFile(t *testing.T) {
@@ -92,7 +96,7 @@ func TestS3ClientUploadFileWhenS3Error(t *testing.T) {
 	awsS3Client := newMockAwsS3Client(t)
 	awsS3Client.EXPECT().
 		PutObject(mock.Anything, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &S3Client{
 		bucketName: "bucket1",
@@ -100,7 +104,7 @@ func TestS3ClientUploadFileWhenS3Error(t *testing.T) {
 	}
 
 	_, err := client.UploadFile(ctx, upload, "dir/myfile.txt")
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestS3ClientPresignLpa(t *testing.T) {
@@ -146,7 +150,7 @@ func TestS3ClientPresignLpaWhenError(t *testing.T) {
 	presigner := newMockPresignClient(t)
 	presigner.EXPECT().
 		PresignGetObject(mock.Anything, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &S3Client{
 		bucketName: "bucket1",
@@ -156,7 +160,7 @@ func TestS3ClientPresignLpaWhenError(t *testing.T) {
 	_, err := client.PresignLpa(ctx, shared.Lpa{
 		RestrictionsAndConditionsImages: []shared.File{{Path: "x.jpg", Hash: "xxx"}},
 	})
-	assert.ErrorIs(t, err, expectedError)
+	assert.ErrorIs(t, err, errExpected)
 }
 
 func TestS3ClientGetNoObjectFound(t *testing.T) {
@@ -166,7 +170,7 @@ func TestS3ClientGetNoObjectFound(t *testing.T) {
 			Bucket: aws.String("bucket1"),
 			Key:    aws.String("uid"),
 		}).
-		Return(nil, expectedError).
+		Return(nil, errExpected).
 		Once()
 
 	client := &S3Client{
@@ -176,7 +180,7 @@ func TestS3ClientGetNoObjectFound(t *testing.T) {
 
 	_, err := client.Get(ctx, "uid")
 
-	assert.ErrorIs(t, err, expectedError)
+	assert.ErrorIs(t, err, errExpected)
 }
 
 func TestS3ClientGetObjectFound(t *testing.T) {
