@@ -113,6 +113,7 @@ func (c *S3Client) Get(ctx context.Context, objectKey string) (string, error) {
 		return "", err
 	}
 
+	//nolint:errcheck
 	defer result.Body.Close()
 
 	body, err := io.ReadAll(result.Body)

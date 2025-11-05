@@ -32,7 +32,7 @@ func TestGetEventHeader(t *testing.T) {
 func TestGetEventHeaderWhenNotFound(t *testing.T) {
 	event := events.APIGatewayProxyRequest{
 		MultiValueHeaders: map[string][]string{
-			"MY-HEADER": []string{"a", "b"},
+			"MY-HEADER": {"a", "b"},
 		},
 	}
 

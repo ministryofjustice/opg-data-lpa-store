@@ -142,7 +142,10 @@ func handlePactState(r *http.Request) error {
 		newUID := randomUID()
 		uidMap[oldUID] = newUID
 
-		createLPA(newUID, r.Header.Clone())
+		err := createLPA(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
 	}
 
 	existsWithChangesRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists and has changes$`)
@@ -151,8 +154,14 @@ func handlePactState(r *http.Request) error {
 		newUID := randomUID()
 		uidMap[oldUID] = newUID
 
-		createLPA(newUID, r.Header.Clone())
-		addLPAUpdate(newUID, r.Header.Clone())
+		err := createLPA(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
+		err = addLPAUpdate(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
 	}
 
 	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)

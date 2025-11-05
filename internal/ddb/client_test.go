@@ -14,11 +14,15 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
+type ctxValueType string
+
+const ctxValue ctxValueType = "for"
+
 var (
-	ctx              = context.WithValue(context.Background(), "for", "testing")
+	ctx              = context.WithValue(context.Background(), ctxValue, "testing")
 	tableName        = "a-table"
 	changesTableName = "a-change-table"
-	expectedError    = errors.New("hey")
+	errExpected      = errors.New("hey")
 )
 
 func TestNew(t *testing.T) {
@@ -60,7 +64,7 @@ func TestClientPutChanges(t *testing.T) {
 				},
 			}},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{
 		svc:              dynamodbClient,
@@ -78,7 +82,7 @@ func TestClientPutChanges(t *testing.T) {
 			{Key: "a-key", Old: json.RawMessage("old"), New: json.RawMessage("new")},
 		},
 	})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientPut(t *testing.T) {
@@ -90,7 +94,7 @@ func TestClientPut(t *testing.T) {
 				"hey": &types.AttributeValueMemberS{Value: "hello"},
 			},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{
 		svc:       dynamodbClient,
@@ -98,7 +102,7 @@ func TestClientPut(t *testing.T) {
 	}
 
 	err := client.Put(ctx, map[string]string{"hey": "hello"})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientGet(t *testing.T) {
@@ -131,12 +135,12 @@ func TestClientGetWhenClientErrors(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
 		GetItem(ctx, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: dynamodbClient}
 
 	_, err := client.Get(ctx, "my-uid")
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientGetList(t *testing.T) {
@@ -182,12 +186,12 @@ func TestClientGetListWhenClientErrors(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
 		BatchGetItem(ctx, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: dynamodbClient}
 
 	_, err := client.GetList(ctx, []string{"my-uid", "another-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientGetChanges(t *testing.T) {
@@ -315,7 +319,7 @@ func TestClientGetChangesErrorOnQuery(t *testing.T) {
 		Return(queryPaginator)
 
 	queryPaginator.EXPECT().HasMorePages().Return(true).Once()
-	queryPaginator.EXPECT().NextPage(ctx).Return(nil, expectedError).Once()
+	queryPaginator.EXPECT().NextPage(ctx).Return(nil, errExpected).Once()
 
 	client := &Client{
 		svc:              dynamodbClient,
@@ -325,5 +329,5 @@ func TestClientGetChangesErrorOnQuery(t *testing.T) {
 
 	updates, err := client.GetChanges(ctx, "my-uid")
 	assert.Nil(t, updates)
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
