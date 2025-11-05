@@ -86,9 +86,17 @@ jobs:
         with:
           image-ref: ${{ matrix.ecr_repository }}:latest
           severity: "HIGH,CRITICAL"
-          format: "sarif"
-          output: "trivy-results.sarif"
+          format: "sarif,spdx"
+          output: "trivy-results.sarif,sbom.spdx.json"
           vuln-type: 'os,library'
+      - name: Upload SBOM to GitHub Insights tab for ${{ matrix.ecr_repository }}
+        id: sbom_upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: trivy-sbom-report-${{ matrix.ecr_repository }}
+          path: sbom.spdx.json
+          retention-days: 28
+        if: always()
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@4e94bd11f71e507f7f87df81788dff88d1dacbfb # v4.31.0
