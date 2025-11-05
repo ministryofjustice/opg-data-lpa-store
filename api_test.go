@@ -118,9 +118,7 @@ func TestCreate(t *testing.T) {
 			var getJSON map[string]any
 			//nolint:errcheck
 			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
-			if err != nil {
-				return
-			}
+			assert.Nil(t, err)
 
 			delete(getJSON, "status")
 			delete(getJSON, "uid")
@@ -180,16 +178,12 @@ func TestCreateWithImages(t *testing.T) {
 			var getJSON map[string]json.RawMessage
 			//nolint:errcheck
 			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
-			if err != nil {
-				return
-			}
+			assert.Nil(t, err)
 
 			var restrictionsAndConditionsImages []map[string]string
 			//nolint:errcheck
 			err = json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
-			if err != nil {
-				return
-			}
+			assert.Nil(t, err)
 
 			getJSON["channel"] = json.RawMessage(`"online"`)
 			getJSON["restrictionsAndConditions"] = json.RawMessage(`"I do not want to be put into a care home unless x"`)
@@ -252,9 +246,7 @@ func TestGetList(t *testing.T) {
 	}
 	//nolint:errcheck
 	err := json.NewDecoder(getResp.Body).Decode(&getJSON)
-	if err != nil {
-		return
-	}
+	assert.Nil(t, err)
 
 	assert.Len(t, getJSON.Lpas, 3)
 	assert.Contains(t, uids, getJSON.Lpas[0].UID)
@@ -317,9 +309,7 @@ func TestGetListWithImages(t *testing.T) {
 			}
 			//nolint:errcheck
 			err := json.NewDecoder(getResp.Body).Decode(&getJSON)
-			if err != nil {
-				return
-			}
+			assert.Nil(t, err)
 
 			assert.Len(t, getJSON.Lpas, 3)
 			assert.Contains(t, uids, getJSON.Lpas[0].UID)
@@ -489,7 +479,7 @@ func doCreateExample(t *testing.T, examplePath string) string {
 	// #nosec G304
 	exampleLpa, _ := os.ReadFile(examplePath)
 	// #nosec G304
-	
+
 	req, _ := http.NewRequest(http.MethodPut,
 		fmt.Sprintf("%s/lpas/%s", baseURL, lpaUID),
 		bytes.NewReader(exampleLpa))
