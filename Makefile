@@ -11,6 +11,9 @@ build: ## Build containers
 up: ## Start application
 	docker compose up -d --build apigw
 
+watch: ## Start and build app and watch for changes
+	docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build --watch $(LAMBDA_LIST) apigw
+
 down: ## Stop application
 	docker compose down
 

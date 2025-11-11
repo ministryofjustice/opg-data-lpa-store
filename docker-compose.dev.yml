@@ -1,0 +1,69 @@
+services:
+  apigw:
+    depends_on:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-create:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/create
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-get:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/get
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-getlist:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/getlist
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-getstatic:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/getstatic
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-getupdates:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/getupdates
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
+
+  lambda-update:
+    develop:
+      watch:
+        - path: ./internal
+          action: rebuild
+        - path: ./lambda/update
+          action: rebuild
+        - path: ./mock-apigw
+          action: rebuild
