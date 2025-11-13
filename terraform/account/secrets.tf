@@ -32,8 +32,8 @@ data "aws_iam_policy_document" "jwt_key_cross_account_access" {
         [
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-lambda/*",
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-fixtures/*",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/use-a-lpa-dev-seeding",
       ])
     }
-
   }
 }
