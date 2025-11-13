@@ -84,7 +84,6 @@ data "aws_iam_policy_document" "jwt_kms" {
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-fixtures/*",
       ])
     }
-
   }
 
   statement {
