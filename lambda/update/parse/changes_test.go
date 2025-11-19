@@ -139,6 +139,20 @@ func TestFieldOldTime(t *testing.T) {
 	assert.WithinDuration(t, now, yesterday, time.Second)
 }
 
+func TestFieldOldTimeIsEmpty(t *testing.T) {
+	newTime := time.Date(2024, time.March, 1, 13, 14, 15, 0, time.UTC)
+
+	changes := []shared.Change{
+		{Key: "/thing", New: json.RawMessage(`"` + newTime.Format(time.RFC3339Nano) + `"`), Old: json.RawMessage(`""`)},
+	}
+
+	var existing time.Time
+	errs := Changes(changes).Field("/thing", &existing).Errors()
+
+	assert.Empty(t, errs)
+	assert.Equal(t, newTime, existing)
+}
+
 func TestFieldOldLang(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/thing", New: json.RawMessage(`"cy"`), Old: json.RawMessage(`"en"`)},
