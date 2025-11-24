@@ -151,7 +151,7 @@ func (p *Parser) Field(key string, existing any, opts ...Option) *Parser {
 func oldEqualsExisting(old any, existing any) bool {
 	switch v := existing.(type) {
 	case *time.Time:
-		if old == nil {
+		if old == nil || old == "" {
 			return v.IsZero()
 		}
 
