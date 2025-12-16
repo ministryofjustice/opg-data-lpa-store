@@ -100,10 +100,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ matrix.ecr_repository }}
+          DOCKER_TAG: ${{ inputs.docker_tag }}
         run: |
-          docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:${{ inputs.docker_tag }}
+          docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:$DOCKER_TAG
           if ${{ github.workflow == 'Main pipeline Workflow' }}; then
             docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-${{ inputs.docker_tag }}
+            docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-$DOCKER_TAG
           fi
           docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY

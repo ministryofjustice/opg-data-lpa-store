@@ -77,9 +77,11 @@ jobs:
         working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Destroy
+        env:
+          WORKSPACE_NAME: ${{ inputs.workspace_name }}
         run: |
-          terraform workspace select ${{ inputs.workspace_name }}
+          terraform workspace select $WORKSPACE_NAME
           terraform destroy -auto-approve
           terraform workspace select default
-          terraform workspace delete ${{ inputs.workspace_name }}
+          terraform workspace delete $WORKSPACE_NAME
         working-directory: ${{ env.tf_dir }}
