@@ -61,6 +61,13 @@
   "signedAt": "2024-01-10T23:00:00Z",
   "witnessedByCertificateProviderAt": "2024-01-11T01:00:00Z",
   "certificateProviderNotRelatedConfirmedAt": "2024-01-11T22:00:00Z",
-  "howAttorneysMakeDecisions": "jointly",
-  "restrictionsAndConditions": "I do not want to be put into a care home unless x"
+  "howAttorneysMakeDecisions": "jointly-for-some-severally-for-others",
+  "howAttorneysMakeDecisionsDetailsImages": [{
+    "filename": "my-decisions.png",
+    "data": "aGVsbG8K"
+  }],
+  "restrictionsAndConditionsImages": [{
+    "filename": "my-restrictions.png",
+    "data": "aGVsbG8K"
+  }]
 }
