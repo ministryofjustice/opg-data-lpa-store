@@ -31,7 +31,6 @@ var (
 
 	examplePath      = "docs/example-lpa.json"
 	examplePaperPath = "docs/example-lpa-all-paper.json"
-	exampleImagePath = "docs/example-lpa-images.json"
 )
 
 func TestJWTRequired(t *testing.T) {
@@ -132,7 +131,7 @@ func TestCreate(t *testing.T) {
 	}
 }
 
-func TestCreateWithImages(t *testing.T) {
+func TestCreatePaperWithImages(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping api test")
 		return
@@ -140,28 +139,28 @@ func TestCreateWithImages(t *testing.T) {
 
 	testcases := map[string]struct {
 		urlFormat string
-		pathRe    func(string) string
+		pathRe    func(string, string) string
 	}{
 		"Plain": {
 			urlFormat: "%s/lpas/%s",
-			pathRe: func(lpaUID string) string {
-				return "^" + lpaUID + "/scans/rc_0_my-restrictions.png$"
+			pathRe: func(lpaUID string, filename string) string {
+				return fmt.Sprintf("^%s/scans/%s.png$", lpaUID, filename)
 			},
 		},
 		"Presigned": {
 			urlFormat: "%s/lpas/%s?presign-images",
-			pathRe: func(lpaUID string) string {
+			pathRe: func(lpaUID string, filename string) string {
 				hostBucket := "http?://localstack:4566/"
 				if !strings.HasPrefix(baseURL, "http://localhost") {
 					hostBucket = "https://s3.eu-west-1.amazonaws.com/[a-z0-9\\-]+/"
 				}
 
-				return hostBucket + lpaUID + "/scans/rc_0_my-restrictions.png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&.+$"
+				return hostBucket + lpaUID + "/scans/" + filename + ".png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&.+$"
 			},
 		},
 	}
 
-	lpaUID := doCreateExample(t, exampleImagePath)
+	lpaUID := doCreateExample(t, examplePaperPath)
 
 	for scenario, tc := range testcases {
 		t.Run(scenario, func(t *testing.T) {
@@ -185,19 +184,33 @@ func TestCreateWithImages(t *testing.T) {
 			err = json.Unmarshal(getJSON["restrictionsAndConditionsImages"], &restrictionsAndConditionsImages)
 			assert.Nil(t, err)
 
-			getJSON["channel"] = json.RawMessage(`"online"`)
-			getJSON["restrictionsAndConditions"] = json.RawMessage(`"I do not want to be put into a care home unless x"`)
+			var howAttorneysMakeDecisionsDetailsImages []map[string]string
+			//nolint:errcheck
+			err = json.Unmarshal(getJSON["howAttorneysMakeDecisionsDetailsImages"], &howAttorneysMakeDecisionsDetailsImages)
+			assert.Nil(t, err)
+
 			delete(getJSON, "status")
 			delete(getJSON, "uid")
 			delete(getJSON, "updatedAt")
 			delete(getJSON, "restrictionsAndConditionsImages")
+			delete(getJSON, "howAttorneysMakeDecisionsDetailsImages")
 
-			outData, _ := os.ReadFile("docs/example-lpa.json")
+			outData, _ := os.ReadFile("docs/example-lpa-all-paper.json")
+
+			var outJSON map[string]json.RawMessage
+			//nolint:errcheck
+			err = json.NewDecoder(bytes.NewReader(outData)).Decode(&outJSON)
+			assert.Nil(t, err)
+
+			delete(outJSON, "restrictionsAndConditionsImages")
+			delete(outJSON, "howAttorneysMakeDecisionsDetailsImages")
 
 			getBody, _ := json.Marshal(getJSON)
-			assert.JSONEq(t, string(outData), string(getBody))
+			getOut, _ := json.Marshal(outJSON)
+			assert.JSONEq(t, string(getOut), string(getBody))
 
-			assert.Regexp(t, tc.pathRe(lpaUID), restrictionsAndConditionsImages[0]["path"])
+			assert.Regexp(t, tc.pathRe(lpaUID, "rc_0_my-restrictions"), restrictionsAndConditionsImages[0]["path"])
+			assert.Regexp(t, tc.pathRe(lpaUID, "amd_0_my-decisions"), howAttorneysMakeDecisionsDetailsImages[0]["path"])
 		})
 	}
 }
@@ -262,31 +275,31 @@ func TestGetListWithImages(t *testing.T) {
 
 	testcases := map[string]struct {
 		urlFormat string
-		pathRe    func(string) string
+		pathRe    func(string, string) string
 	}{
 		"Plain": {
 			urlFormat: "%s/lpas",
-			pathRe: func(lpaUID string) string {
-				return "^" + lpaUID + "/scans/rc_0_my-restrictions.png$"
+			pathRe: func(lpaUID string, filename string) string {
+				return fmt.Sprintf("^%s/scans/%s.png$", lpaUID, filename)
 			},
 		},
 		"Presigned": {
 			urlFormat: "%s/lpas?presign-images",
-			pathRe: func(lpaUID string) string {
-				hostBucket := "http://localstack:4566/"
+			pathRe: func(lpaUID string, filename string) string {
+				hostBucket := "http?://localstack:4566/"
 				if !strings.HasPrefix(baseURL, "http://localhost") {
 					hostBucket = "https://s3.eu-west-1.amazonaws.com/[a-z0-9\\-]+/"
 				}
 
-				return hostBucket + lpaUID + "/scans/rc_0_my-restrictions.png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&.+$"
+				return hostBucket + lpaUID + "/scans/" + filename + ".png\\?X-Amz-Algorithm=AWS4-HMAC-SHA256&.+$"
 			},
 		},
 	}
 
 	uids := []string{
-		doCreateExample(t, exampleImagePath),
-		doCreateExample(t, exampleImagePath),
-		doCreateExample(t, exampleImagePath),
+		doCreateExample(t, examplePaperPath),
+		doCreateExample(t, examplePaperPath),
+		doCreateExample(t, examplePaperPath),
 	}
 
 	for scenario, tc := range testcases {
@@ -305,6 +318,9 @@ func TestGetListWithImages(t *testing.T) {
 					RestrictionsAndConditionsImages []struct {
 						Path string `json:"path"`
 					} `json:"restrictionsAndConditionsImages"`
+					HowAttorneysMakeDecisionsDetailsImages []struct {
+						Path string `json:"path"`
+					} `json:"howAttorneysMakeDecisionsDetailsImages"`
 				} `json:"lpas"`
 			}
 			//nolint:errcheck
@@ -318,8 +334,10 @@ func TestGetListWithImages(t *testing.T) {
 
 			for _, lpa := range getJSON.Lpas {
 				restrictionsAndConditionsImages := lpa.RestrictionsAndConditionsImages
+				howAttorneysMakeDecisionsDetailsImages := lpa.HowAttorneysMakeDecisionsDetailsImages
 
-				assert.Regexp(t, tc.pathRe(lpa.UID), restrictionsAndConditionsImages[0].Path)
+				assert.Regexp(t, tc.pathRe(lpa.UID, "rc_0_my-restrictions"), restrictionsAndConditionsImages[0].Path)
+				assert.Regexp(t, tc.pathRe(lpa.UID, "amd_0_my-decisions"), howAttorneysMakeDecisionsDetailsImages[0].Path)
 			}
 		})
 	}

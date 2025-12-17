@@ -184,6 +184,12 @@
   },
   "then": {
     "properties": {
+      "howAttorneysMakeDecisionsDetailsImages": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/File"
+        }
+      },
       "restrictionsAndConditionsImages": {
         "type": "array",
         "items": {

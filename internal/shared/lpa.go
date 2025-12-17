@@ -18,6 +18,7 @@ type LpaInit struct {
 	AuthorisedSignatory                           *AuthorisedSignatory    `json:"authorisedSignatory,omitempty"`
 	HowAttorneysMakeDecisions                     HowMakeDecisions        `json:"howAttorneysMakeDecisions,omitempty"`
 	HowAttorneysMakeDecisionsDetails              string                  `json:"howAttorneysMakeDecisionsDetails,omitempty"`
+	HowAttorneysMakeDecisionsDetailsImages        []FileUpload            `json:"howAttorneysMakeDecisionsDetailsImages,omitempty"`
 	HowAttorneysMakeDecisionsIsDefault            bool                    `json:"howAttorneysMakeDecisionsIsDefault,omitempty"`
 	HowReplacementAttorneysMakeDecisions          HowMakeDecisions        `json:"howReplacementAttorneysMakeDecisions,omitempty"`
 	HowReplacementAttorneysMakeDecisionsDetails   string                  `json:"howReplacementAttorneysMakeDecisionsDetails,omitempty"`
@@ -38,12 +39,13 @@ type LpaInit struct {
 
 type Lpa struct {
 	LpaInit
-	Uid                             string     `json:"uid"`
-	Status                          LpaStatus  `json:"status"`
-	RegistrationDate                *time.Time `json:"registrationDate,omitempty"`
-	UpdatedAt                       time.Time  `json:"updatedAt"`
-	RestrictionsAndConditionsImages []File     `json:"restrictionsAndConditionsImages,omitempty"`
-	Notes                           []Note     `json:"notes,omitempty"`
+	Uid                                    string     `json:"uid"`
+	Status                                 LpaStatus  `json:"status"`
+	RegistrationDate                       *time.Time `json:"registrationDate,omitempty"`
+	UpdatedAt                              time.Time  `json:"updatedAt"`
+	RestrictionsAndConditionsImages        []File     `json:"restrictionsAndConditionsImages,omitempty"`
+	HowAttorneysMakeDecisionsDetailsImages []File     `json:"howAttorneysMakeDecisionsDetailsImages,omitempty"`
+	Notes                                  []Note     `json:"notes,omitempty"`
 }
 
 type Note struct {
