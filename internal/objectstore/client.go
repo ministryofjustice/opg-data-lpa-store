@@ -100,6 +100,20 @@ func (c *S3Client) PresignLpa(ctx context.Context, lpa shared.Lpa) (shared.Lpa, 
 		}
 	}
 
+	if len(lpa.HowAttorneysMakeDecisionsDetailsImages) > 0 {
+		for i, decisionsImage := range lpa.HowAttorneysMakeDecisionsDetailsImages {
+			req, err := c.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+				Bucket: aws.String(c.bucketName),
+				Key:    aws.String(decisionsImage.Path),
+			})
+			if err != nil {
+				return lpa, err
+			}
+
+			lpa.HowAttorneysMakeDecisionsDetailsImages[i].Path = req.URL
+		}
+	}
+
 	return lpa, nil
 }
 
