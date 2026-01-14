@@ -126,6 +126,19 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 		}
 	}
 
+	if data.Channel == shared.ChannelPaper && len(input.HowAttorneysMakeDecisionsDetailsImages) > 0 {
+		data.HowAttorneysMakeDecisionsDetailsImages = make([]shared.File, len(input.HowAttorneysMakeDecisionsDetailsImages))
+		for i, image := range input.HowAttorneysMakeDecisionsDetailsImages {
+			path := fmt.Sprintf("%s/scans/amd_%d_%s", data.Uid, i, image.Filename)
+
+			data.HowAttorneysMakeDecisionsDetailsImages[i], err = l.staticLpaStorage.UploadFile(ctx, image, path)
+			if err != nil {
+				l.logger.Error("error saving how attorneys make decisions image", slog.Any("err", err))
+				return shared.ProblemInternalServerError.Respond()
+			}
+		}
+	}
+
 	// add UIDs to actors
 	if data.Donor.UID == "" {
 		data.Donor.UID = uuid.NewString()

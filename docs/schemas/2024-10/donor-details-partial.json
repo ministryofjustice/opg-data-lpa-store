@@ -33,7 +33,7 @@
         }
       ],
       "type": "object",
-      "required": ["dateOfBirth", "email"],
+      "required": ["dateOfBirth"],
       "properties": {
         "dateOfBirth": {
           "type": "string",
@@ -184,6 +184,12 @@
   },
   "then": {
     "properties": {
+      "howAttorneysMakeDecisionsDetailsImages": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/File"
+        }
+      },
       "restrictionsAndConditionsImages": {
         "type": "array",
         "items": {
