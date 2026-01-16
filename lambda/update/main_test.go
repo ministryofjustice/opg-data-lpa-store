@@ -148,6 +148,78 @@ func TestHandleEvent(t *testing.T) {
 	assert.Contains(t, resp.Body, `"en"`)
 }
 
+func TestHandleEventWhenAllChangesRedundant(t *testing.T) {
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		Debug("Successfully parsed JWT from event header", mock.Anything)
+
+	store := newMockStore(t)
+	store.EXPECT().
+		Get(mock.Anything, mock.Anything).
+		Return(shared.Lpa{Uid: "1", Status: shared.LpaStatusCannotRegister}, nil)
+
+	verifier := newMockVerifier(t)
+	verifier.EXPECT().
+		VerifyHeader(mock.Anything).
+		Return(&shared.LpaStoreClaims{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Subject: "subject",
+			},
+		}, nil)
+
+	l := Lambda{
+		eventClient: newMockEventClient(t),
+		store:       store,
+		verifier:    verifier,
+		logger:      logger,
+		now:         testNowFn,
+	}
+
+	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
+		Body: `{"type":"OPG_STATUS_CHANGE","changes":[{"key":"/status","old":"cannot-register","new":"cannot-register"}]}`,
+	})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 400, resp.StatusCode)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes/0","detail":"redundant change for /status"}]}`, resp.Body)
+}
+
+func TestHandleEventWhenAnyChangeRedundant(t *testing.T) {
+	logger := newMockLogger(t)
+	logger.EXPECT().
+		Debug("Successfully parsed JWT from event header", mock.Anything)
+
+	store := newMockStore(t)
+	store.EXPECT().
+		Get(mock.Anything, mock.Anything).
+		Return(shared.Lpa{Uid: "1"}, nil)
+
+	verifier := newMockVerifier(t)
+	verifier.EXPECT().
+		VerifyHeader(mock.Anything).
+		Return(&shared.LpaStoreClaims{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Subject: "subject",
+			},
+		}, nil)
+
+	l := Lambda{
+		eventClient: newMockEventClient(t),
+		store:       store,
+		verifier:    verifier,
+		logger:      logger,
+		now:         testNowFn,
+	}
+
+	resp, err := l.HandleEvent(context.Background(), events.APIGatewayProxyRequest{
+		Body: `{"type":"CERTIFICATE_PROVIDER_SIGN","changes":[{"key":"/certificateProvider/email","old":"a@example.com","new":"a@example.com"},{"key":"/certificateProvider/signedAt","old":null,"new":"2022-01-02T12:13:14.000000006Z"}]}`,
+	})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 400, resp.StatusCode)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes/0","detail":"redundant change for /certificateProvider/email"}]}`, resp.Body)
+}
+
 func TestHandleEventWhenUnknownType(t *testing.T) {
 	logger := newMockLogger(t)
 	logger.EXPECT().
@@ -194,7 +266,7 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.Equal(t, 400, resp.StatusCode)
-	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"missing /certificateProvider/signedAt"}]}`, resp.Body)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"no changes provided"}]}`, resp.Body)
 }
 
 func TestHandleEventWhenLpaNotFound(t *testing.T) {
