@@ -266,7 +266,7 @@ func TestHandleEventWhenUpdateInvalid(t *testing.T) {
 	})
 	assert.Nil(t, err)
 	assert.Equal(t, 400, resp.StatusCode)
-	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"no changes provided"}]}`, resp.Body)
+	assert.JSONEq(t, `{"code":"INVALID_REQUEST","detail":"Invalid request","errors":[{"source":"/changes","detail":"missing /certificateProvider/signedAt"}]}`, resp.Body)
 }
 
 func TestHandleEventWhenLpaNotFound(t *testing.T) {

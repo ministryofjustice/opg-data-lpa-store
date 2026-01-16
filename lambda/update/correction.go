@@ -326,6 +326,10 @@ func (c Correction) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, []shared.FieldError) {
 	var data Correction
 
+	if len(changes) == 0 {
+		return data, []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}}
+	}
+
 	data.SignedAt = lpa.SignedAt
 	data.AttorneyAppointmentType.HowReplacementAttorneysStepIn = lpa.HowReplacementAttorneysStepIn
 	data.AttorneyAppointmentType.HowReplacementAttorneysStepInDetails = lpa.HowReplacementAttorneysStepInDetails
