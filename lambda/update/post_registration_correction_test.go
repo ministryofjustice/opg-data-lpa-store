@@ -2,9 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func createCustomDate(date string) shared.Date {
@@ -286,6 +287,10 @@ func TestValidatePostRegistrationCorrection(t *testing.T) {
 		expected PostRegistrationCorrection
 		errors   []shared.FieldError
 	}{
+		"no changes provided": {
+			lpa:    &shared.Lpa{},
+			errors: []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}},
+		},
 		"valid donor update": {
 			changes: []shared.Change{
 				{Key: "/donor/firstNames", New: json.RawMessage(`"Jane"`), Old: jsonNull},

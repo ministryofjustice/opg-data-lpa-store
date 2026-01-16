@@ -12,11 +12,6 @@
             "old": "Mahhhhhhhhhh"
         },
         {
-            "key": "/certificateProvider/address/country",
-            "new": "GB",
-            "old": "GB"
-        },
-        {
             "key": "/certificateProvider/signedAt",
             "new": "2024-01-13T22:00:00Z",
             "old": null
@@ -30,11 +25,6 @@
             "key": "/certificateProvider/email",
             "new": "b@example.com",
             "old": "a@example.com"
-        },
-        {
-            "key": "/certificateProvider/channel",
-            "new": "online",
-            "old": "online"
         }
     ]
 }

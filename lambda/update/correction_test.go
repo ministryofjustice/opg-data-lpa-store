@@ -601,6 +601,10 @@ func TestValidateCorrection(t *testing.T) {
 		expected Correction
 		errors   []shared.FieldError
 	}{
+		"no changes provided": {
+			lpa:    &shared.Lpa{},
+			errors: []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}},
+		},
 		"valid donor update": {
 			changes: []shared.Change{
 				{Key: "/donor/firstNames", New: json.RawMessage(`"Jane"`), Old: jsonNull},
