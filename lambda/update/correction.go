@@ -23,6 +23,18 @@ type Correction struct {
 	SignedAt                time.Time
 }
 
+func signedAtChanged(new time.Time, existing *time.Time) bool {
+	if existing == nil {
+		return !new.IsZero()
+	}
+
+	if new.IsZero() {
+		return true
+	}
+
+	return !new.Equal(*existing)
+}
+
 type DonorPreRegistrationCorrection struct {
 	shared.DonorCorrection
 }
@@ -77,7 +89,7 @@ type CertificateProviderPreRegistrationCorrection struct {
 }
 
 func (c CertificateProviderPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) && lpa.Channel == shared.ChannelOnline {
+	if lpa.Channel == shared.ChannelOnline && signedAtChanged(c.SignedAt, lpa.CertificateProvider.SignedAt) {
 		return []shared.FieldError{{
 			Source: "/certificateProvider" + signedAt,
 			Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
@@ -104,6 +116,8 @@ func (c CertificateProviderPreRegistrationCorrection) Apply(lpa *shared.Lpa) []s
 
 	if !c.SignedAt.IsZero() {
 		lpa.CertificateProvider.SignedAt = &c.SignedAt
+	} else {
+		lpa.CertificateProvider.SignedAt = nil
 	}
 
 	return nil
@@ -115,7 +129,7 @@ type AttorneyPreRegistrationCorrection struct {
 
 func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if c.Index != nil {
-		if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.Attorneys[*c.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
+		if lpa.Channel == shared.ChannelOnline && signedAtChanged(c.SignedAt, lpa.Attorneys[*c.Index].SignedAt) {
 			source := "/attorney/" + strconv.Itoa(*c.Index) + signedAt
 			return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 		}
@@ -127,7 +141,11 @@ func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.Field
 		attorney.Address = c.Address
 		attorney.Email = c.Email
 		attorney.Mobile = c.Mobile
-		attorney.SignedAt = &c.SignedAt
+		if c.SignedAt.IsZero() {
+			attorney.SignedAt = nil
+		} else {
+			attorney.SignedAt = &c.SignedAt
+		}
 	}
 
 	return nil
@@ -214,12 +232,21 @@ type IndependentWitnessPreRegistrationCorrection struct {
 }
 
 func (c IndependentWitnessPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
+	if c.FirstNames == "" && c.LastName == "" && c.Phone == "" && c.Address.IsZero() {
+		return nil
+	}
+
+	if lpa.IndependentWitness == nil {
+		lpa.IndependentWitness = &shared.IndependentWitness{}
+	}
+
 	if c.FirstNames != "" && c.LastName != "" {
 		lpa.IndependentWitness.Person = shared.Person{
 			FirstNames: c.FirstNames,
 			LastName:   c.LastName,
 		}
 	}
+
 	if c.Phone != "" {
 		lpa.IndependentWitness.Phone = c.Phone
 	}
