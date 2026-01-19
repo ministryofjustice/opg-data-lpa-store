@@ -12,6 +12,11 @@
             "old": "Mahhhhhhhhhh"
         },
         {
+            "key": "/certificateProvider/address/country",
+            "new": null,
+            "old": "GB"
+        },
+        {
             "key": "/certificateProvider/signedAt",
             "new": "2024-01-13T22:00:00Z",
             "old": null
