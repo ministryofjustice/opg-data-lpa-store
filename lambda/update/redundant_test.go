@@ -12,10 +12,10 @@ func TestRedundantChangeErrors(t *testing.T) {
 	changes := []shared.Change{
 		{Key: "/duplicate", Old: json.RawMessage(`"foo"`), New: json.RawMessage(`"foo"`)},
 		{Key: "/different", Old: json.RawMessage(`"foo"`), New: json.RawMessage(`"bar"`)},
-		{Key: "/invalid", Old: json.RawMessage(`not-json`), New: json.RawMessage(`null`)},
 	}
 
-	errors := redundantChangeErrors(changes)
+	errors, err := redundantChangeErrors(changes)
+	assert.NoError(t, err)
 
 	assert.Equal(t, []shared.FieldError{{
 		Source: "/changes/0",
@@ -24,8 +24,21 @@ func TestRedundantChangeErrors(t *testing.T) {
 }
 
 func TestRedundantChangeErrorsEmpty(t *testing.T) {
-	assert.Nil(t, redundantChangeErrors(nil))
-	assert.Nil(t, redundantChangeErrors([]shared.Change{}))
+	errors, err := redundantChangeErrors(nil)
+	assert.NoError(t, err)
+	assert.Nil(t, errors)
+
+	errors, err = redundantChangeErrors([]shared.Change{})
+	assert.NoError(t, err)
+	assert.Nil(t, errors)
+}
+
+func TestRedundantChangeErrorsInvalidJSON(t *testing.T) {
+	changes := []shared.Change{{Key: "/invalid", Old: json.RawMessage(`not-json`), New: json.RawMessage(`null`)}}
+
+	errors, err := redundantChangeErrors(changes)
+	assert.Error(t, err)
+	assert.Nil(t, errors)
 }
 
 func TestIsRedundantChangeNilAndEmpty(t *testing.T) {
@@ -37,21 +50,6 @@ func TestIsRedundantChangeNilAndEmpty(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, redundant)
 }
-
-func TestIsRedundantChangeNormalisesValues(t *testing.T) {
-	t.Run("numbers", func(t *testing.T) {
-		redundant, err := isRedundantChange(json.RawMessage(`1`), json.RawMessage(`1.0`))
-		assert.NoError(t, err)
-		assert.True(t, redundant)
-	})
-
-	t.Run("objects", func(t *testing.T) {
-		redundant, err := isRedundantChange(json.RawMessage(`{"a":1,"b":[true,"x"]}`), json.RawMessage(`{"b":[true,"x"],"a":1}`))
-		assert.NoError(t, err)
-		assert.True(t, redundant)
-	})
-}
-
 func TestIsRedundantChangeInvalidJSON(t *testing.T) {
 	redundant, err := isRedundantChange(json.RawMessage(`not-json`), json.RawMessage(`null`))
 	assert.Error(t, err)

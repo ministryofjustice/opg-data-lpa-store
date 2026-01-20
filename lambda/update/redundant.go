@@ -4,22 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"reflect"
 
 	"github.com/ministryofjustice/opg-data-lpa-store/internal/shared"
 )
 
-func redundantChangeErrors(changes []shared.Change) []shared.FieldError {
+func redundantChangeErrors(changes []shared.Change) ([]shared.FieldError, error) {
 	if len(changes) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	var errors []shared.FieldError
 	for i, change := range changes {
 		redundant, err := isRedundantChange(change.Old, change.New)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("change %d: %w", i, err)
 		}
 
 		if redundant {
@@ -30,7 +29,7 @@ func redundantChangeErrors(changes []shared.Change) []shared.FieldError {
 		}
 	}
 
-	return errors
+	return errors, nil
 }
 
 func isRedundantChange(oldRaw, newRaw json.RawMessage) (bool, error) {
@@ -48,7 +47,7 @@ func isRedundantChange(oldRaw, newRaw json.RawMessage) (bool, error) {
 		return true, nil
 	}
 
-	return reflect.DeepEqual(normalizeComparableValue(oldValue), normalizeComparableValue(newValue)), nil
+	return reflect.DeepEqual(oldValue, newValue), nil
 }
 
 func decodeJSONValue(raw json.RawMessage) (any, error) {
@@ -65,30 +64,6 @@ func decodeJSONValue(raw json.RawMessage) (any, error) {
 	}
 
 	return value, nil
-}
-
-func normalizeComparableValue(value any) any {
-	switch v := value.(type) {
-	case map[string]any:
-		normalized := make(map[string]any, len(v))
-		for key, item := range v {
-			normalized[key] = normalizeComparableValue(item)
-		}
-		return normalized
-	case []any:
-		normalized := make([]any, len(v))
-		for i, item := range v {
-			normalized[i] = normalizeComparableValue(item)
-		}
-		return normalized
-	case json.Number:
-		if rat, ok := new(big.Rat).SetString(v.String()); ok {
-			return rat.RatString()
-		}
-		return v.String()
-	default:
-		return value
-	}
 }
 
 func isNilOrEmpty(value any) bool {
