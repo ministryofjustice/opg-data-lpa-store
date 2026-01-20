@@ -162,10 +162,7 @@ func validatePostRegistrationCorrection(changes []shared.Change, lpa *shared.Lpa
 					data.Attorney.Address = lpa.Attorneys[attorneyIdx].Address
 					data.Attorney.Email = lpa.Attorneys[attorneyIdx].Email
 					data.Attorney.Mobile = lpa.Attorneys[attorneyIdx].Mobile
-
-					if lpa.Attorneys[attorneyIdx].SignedAt != nil {
-						data.Attorney.SignedAt = *lpa.Attorneys[attorneyIdx].SignedAt
-					}
+					data.Attorney.SignedAt = lpa.Attorneys[attorneyIdx].SignedAt
 
 					return validatePostRegistrationAttorney(&data.Attorney, p)
 				}).

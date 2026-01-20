@@ -27,7 +27,7 @@ func TestAttorneySignApply(t *testing.T) {
 	errors := a.Apply(lpa)
 	assert.Empty(t, errors)
 	assert.Equal(t, a.Mobile, lpa.Attorneys[attorneyIndex].Mobile)
-	assert.Equal(t, a.SignedAt, *lpa.Attorneys[attorneyIndex].SignedAt)
+	assert.Equal(t, a.SignedAt, lpa.Attorneys[attorneyIndex].SignedAt)
 	assert.Equal(t, a.ContactLanguagePreference, lpa.Attorneys[attorneyIndex].ContactLanguagePreference)
 	assert.Equal(t, a.Channel, lpa.Attorneys[attorneyIndex].Channel)
 }
@@ -35,7 +35,7 @@ func TestAttorneySignApply(t *testing.T) {
 func TestAttorneySignApplyWhenAlreadySigned(t *testing.T) {
 	attorneyIndex := 0
 	signedAt := time.Now()
-	lpa := &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{{SignedAt: &signedAt}}}}
+	lpa := &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{{SignedAt: signedAt}}}}
 	a := AttorneySign{
 		Index: &attorneyIndex,
 	}
@@ -100,7 +100,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				},
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
-				{Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+				{Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: yesterday},
 			}}},
 		},
 		"missing all": {
@@ -268,7 +268,7 @@ func TestValidateUpdateAttorneySign(t *testing.T) {
 				},
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
-				{}, {Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+				{}, {Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: yesterday},
 			}}},
 		},
 	}
@@ -337,7 +337,7 @@ func TestValidateUpdateAttorneySignActorUID(t *testing.T) {
 				},
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
-				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+				{Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: yesterday},
 			}}},
 		},
 		"missing all": {
@@ -505,7 +505,7 @@ func TestValidateUpdateAttorneySignActorUID(t *testing.T) {
 				},
 			},
 			lpa: &shared.Lpa{LpaInit: shared.LpaInit{Attorneys: []shared.Attorney{
-				{}, {Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: &yesterday},
+				{}, {Person: shared.Person{UID: "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d"}, Channel: shared.ChannelPaper, Email: "a@example.com", Mobile: "06666", SignedAt: yesterday},
 			}}},
 		},
 	}

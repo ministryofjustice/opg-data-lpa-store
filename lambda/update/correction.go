@@ -77,7 +77,7 @@ type CertificateProviderPreRegistrationCorrection struct {
 }
 
 func (c CertificateProviderPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
-	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.CertificateProvider.SignedAt) && lpa.Channel == shared.ChannelOnline {
+	if !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.CertificateProvider.SignedAt) && lpa.Channel == shared.ChannelOnline {
 		return []shared.FieldError{{
 			Source: "/certificateProvider" + signedAt,
 			Detail: "The Certificate Provider Signed on date cannot be changed for online LPAs",
@@ -101,10 +101,7 @@ func (c CertificateProviderPreRegistrationCorrection) Apply(lpa *shared.Lpa) []s
 	lpa.CertificateProvider.Address = c.Address
 	lpa.CertificateProvider.Email = c.Email
 	lpa.CertificateProvider.Phone = c.Phone
-
-	if !c.SignedAt.IsZero() {
-		lpa.CertificateProvider.SignedAt = &c.SignedAt
-	}
+	lpa.CertificateProvider.SignedAt = c.SignedAt
 
 	return nil
 }
@@ -115,7 +112,7 @@ type AttorneyPreRegistrationCorrection struct {
 
 func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
 	if c.Index != nil {
-		if !c.SignedAt.IsZero() && !c.SignedAt.Equal(*lpa.Attorneys[*c.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
+		if !c.SignedAt.IsZero() && !c.SignedAt.Equal(lpa.Attorneys[*c.Index].SignedAt) && lpa.Channel == shared.ChannelOnline {
 			source := "/attorney/" + strconv.Itoa(*c.Index) + signedAt
 			return []shared.FieldError{{Source: source, Detail: "The attorney signed at date cannot be changed for online LPA"}}
 		}
@@ -127,7 +124,7 @@ func (c AttorneyPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.Field
 		attorney.Address = c.Address
 		attorney.Email = c.Email
 		attorney.Mobile = c.Mobile
-		attorney.SignedAt = &c.SignedAt
+		attorney.SignedAt = c.SignedAt
 	}
 
 	return nil
@@ -241,7 +238,7 @@ func (c WitnessedByPreRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.Fi
 	}
 
 	if !c.WitnessedByIndependentWitnessAt.IsZero() {
-		lpa.WitnessedByIndependentWitnessAt = &c.WitnessedByIndependentWitnessAt
+		lpa.WitnessedByIndependentWitnessAt = c.WitnessedByIndependentWitnessAt
 	}
 
 	return nil
@@ -315,9 +312,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	data.CertificateProvider.Address = lpa.CertificateProvider.Address
 	data.CertificateProvider.Email = lpa.CertificateProvider.Email
 	data.CertificateProvider.Phone = lpa.CertificateProvider.Phone
-	if lpa.CertificateProvider.SignedAt != nil {
-		data.CertificateProvider.SignedAt = *lpa.CertificateProvider.SignedAt
-	}
+	data.CertificateProvider.SignedAt = lpa.CertificateProvider.SignedAt
 
 	if lpa.AuthorisedSignatory != nil {
 		data.AuthorisedSignatory.FirstNames = lpa.AuthorisedSignatory.FirstNames
@@ -331,9 +326,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 	}
 
 	data.WitnessedBy.WitnessedByCertificateProviderAt = lpa.WitnessedByCertificateProviderAt
-	if lpa.WitnessedByIndependentWitnessAt != nil {
-		data.WitnessedBy.WitnessedByIndependentWitnessAt = *lpa.WitnessedByIndependentWitnessAt
-	}
+	data.WitnessedBy.WitnessedByIndependentWitnessAt = lpa.WitnessedByIndependentWitnessAt
 
 	parser := parse.Changes(changes).
 		Field(signedAt, &data.SignedAt, parse.Validate(validate.NotEmpty()), parse.Optional()).
@@ -355,10 +348,7 @@ func validateCorrection(changes []shared.Change, lpa *shared.Lpa) (Correction, [
 					data.Attorney.Address = lpa.Attorneys[attorneyIdx].Address
 					data.Attorney.Email = lpa.Attorneys[attorneyIdx].Email
 					data.Attorney.Mobile = lpa.Attorneys[attorneyIdx].Mobile
-
-					if lpa.Attorneys[attorneyIdx].SignedAt != nil {
-						data.Attorney.SignedAt = *lpa.Attorneys[attorneyIdx].SignedAt
-					}
+					data.Attorney.SignedAt = lpa.Attorneys[attorneyIdx].SignedAt
 
 					return validateAttorney(&data.Attorney, p)
 				}).

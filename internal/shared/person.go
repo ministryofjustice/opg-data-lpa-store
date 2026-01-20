@@ -37,7 +37,7 @@ type CertificateProvider struct {
 	Email                     string         `json:"email,omitempty"`
 	Phone                     string         `json:"phone"`
 	Channel                   Channel        `json:"channel"`
-	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
+	SignedAt                  time.Time      `json:"signedAt,omitzero"`
 	ContactLanguagePreference Lang           `json:"contactLanguagePreference,omitempty"`
 	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
 }
@@ -84,7 +84,7 @@ type Attorney struct {
 	Status                    AttorneyStatus  `json:"status"`
 	AppointmentType           AppointmentType `json:"appointmentType"`
 	Mobile                    string          `json:"mobile,omitempty"`
-	SignedAt                  *time.Time      `json:"signedAt,omitempty"`
+	SignedAt                  time.Time       `json:"signedAt,omitzero"`
 	ContactLanguagePreference Lang            `json:"contactLanguagePreference,omitempty"`
 	Channel                   Channel         `json:"channel"`
 	CannotMakeJointDecisions  bool            `json:"cannotMakeJointDecisions,omitempty"`

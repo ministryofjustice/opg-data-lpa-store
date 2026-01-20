@@ -13,8 +13,7 @@ func (r Register) Apply(lpa *shared.Lpa) []shared.FieldError {
 		return []shared.FieldError{{Source: "/type", Detail: "status must be statutory-waiting-period to register"}}
 	}
 
-	now := time.Now().UTC()
-	lpa.RegistrationDate = &now
+	lpa.RegistrationDate = time.Now().UTC()
 	lpa.Status = shared.LpaStatusRegistered
 
 	return nil

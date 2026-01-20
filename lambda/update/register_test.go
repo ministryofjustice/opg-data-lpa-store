@@ -17,7 +17,7 @@ func TestRegisterApply(t *testing.T) {
 
 	errors := Register{}.Apply(lpa)
 	assert.Nil(t, errors)
-	assert.WithinDuration(t, now, *lpa.RegistrationDate, time.Millisecond)
+	assert.WithinDuration(t, now, lpa.RegistrationDate, time.Millisecond)
 	assert.Equal(t, shared.LpaStatusRegistered, lpa.Status)
 }
 

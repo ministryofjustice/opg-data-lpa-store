@@ -241,7 +241,7 @@ func TestCorrectionApply(t *testing.T) {
 						},
 						Email:    "Branson.Conn@example.com",
 						Phone:    "01977 67513",
-						SignedAt: &twoDaysAgo,
+						SignedAt: twoDaysAgo,
 					},
 				},
 			},
@@ -260,7 +260,7 @@ func TestCorrectionApply(t *testing.T) {
 						},
 						Email:    "Lynn.Christiansen@example.com",
 						Phone:    "01003 19993",
-						SignedAt: &yesterday,
+						SignedAt: yesterday,
 					},
 				},
 				Notes: []shared.Note{{
@@ -284,7 +284,7 @@ func TestCorrectionApply(t *testing.T) {
 				LpaInit: shared.LpaInit{
 					Channel: "online",
 					CertificateProvider: shared.CertificateProvider{
-						SignedAt: &yesterday,
+						SignedAt: yesterday,
 					},
 				},
 			},
@@ -331,7 +331,7 @@ func TestCorrectionApply(t *testing.T) {
 							},
 							Email:    "test@test.com",
 							Mobile:   "0123456789",
-							SignedAt: &yesterday,
+							SignedAt: yesterday,
 						},
 					},
 				},
@@ -354,7 +354,7 @@ func TestCorrectionApply(t *testing.T) {
 							},
 							Email:    "jane.smith@example.com",
 							Mobile:   "987654321",
-							SignedAt: &now,
+							SignedAt: now,
 						},
 					},
 				},
@@ -460,7 +460,7 @@ func TestCorrectionApply(t *testing.T) {
 					Channel: "online",
 					Attorneys: []shared.Attorney{
 						{
-							SignedAt: &yesterday,
+							SignedAt: yesterday,
 						},
 					},
 				},
@@ -566,13 +566,13 @@ func TestCorrectionApply(t *testing.T) {
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					WitnessedByCertificateProviderAt: yesterday,
-					WitnessedByIndependentWitnessAt:  &yesterday,
+					WitnessedByIndependentWitnessAt:  yesterday,
 				},
 			},
 			expected: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					WitnessedByCertificateProviderAt: now,
-					WitnessedByIndependentWitnessAt:  &now,
+					WitnessedByIndependentWitnessAt:  now,
 				},
 			},
 		},

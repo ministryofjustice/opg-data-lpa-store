@@ -222,13 +222,9 @@ func Country() Validator {
 type OptionalTimeValidator struct{}
 
 func (v OptionalTimeValidator) Valid(val any) string {
-	t, ok := val.(*time.Time)
+	_, ok := val.(time.Time)
 	if !ok {
 		return msgType
-	}
-
-	if t != nil && t.IsZero() {
-		return msgDateTime
 	}
 
 	return ""

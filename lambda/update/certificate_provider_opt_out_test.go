@@ -21,7 +21,7 @@ func TestCertificateProviderOptOutApply(t *testing.T) {
 
 func TestCertificateProviderOptOutApplyWhenCertificateProvided(t *testing.T) {
 	now := time.Now()
-	certificateProvider := shared.CertificateProvider{Email: "a@example", SignedAt: &now}
+	certificateProvider := shared.CertificateProvider{Email: "a@example", SignedAt: now}
 	lpa := &shared.Lpa{LpaInit: shared.LpaInit{
 		CertificateProvider: certificateProvider},
 	}

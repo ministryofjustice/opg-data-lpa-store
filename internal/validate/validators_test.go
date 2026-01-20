@@ -35,10 +35,10 @@ func TestDate(t *testing.T) {
 }
 
 func TestOptionalTime(t *testing.T) {
-	now := time.Now()
-	assert.Equal(t, "", OptionalTime().Valid(&now))
-	assert.Equal(t, "must be a valid datetime", OptionalTime().Valid(&time.Time{}))
-	assert.Equal(t, "", OptionalTime().Valid((*time.Time)(nil)))
+	assert.Equal(t, "unexpected type", OptionalTime().Valid(5))
+	assert.Equal(t, "unexpected type", OptionalTime().Valid(&time.Time{}))
+	assert.Equal(t, "", OptionalTime().Valid(time.Now()))
+	assert.Equal(t, "", OptionalTime().Valid(time.Time{}))
 }
 
 func TestAddressInvalidCountry(t *testing.T) {

@@ -87,7 +87,7 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: now},
 					},
 				},
 			},
@@ -95,7 +95,7 @@ func TestAttorneyOptOutApply(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					Attorneys: []shared.Attorney{
-						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: &now},
+						{Person: shared.Person{UID: "b"}, Status: shared.AttorneyStatusActive, SignedAt: now},
 					},
 				},
 			},

@@ -33,19 +33,19 @@ type LpaInit struct {
 	RestrictionsAndConditionsImages               []FileUpload            `json:"restrictionsAndConditionsImages,omitempty"`
 	SignedAt                                      time.Time               `json:"signedAt"`
 	WitnessedByCertificateProviderAt              time.Time               `json:"witnessedByCertificateProviderAt"`
-	WitnessedByIndependentWitnessAt               *time.Time              `json:"witnessedByIndependentWitnessAt,omitempty"`
-	CertificateProviderNotRelatedConfirmedAt      *time.Time              `json:"certificateProviderNotRelatedConfirmedAt,omitempty"`
+	WitnessedByIndependentWitnessAt               time.Time               `json:"witnessedByIndependentWitnessAt,omitzero"`
+	CertificateProviderNotRelatedConfirmedAt      time.Time               `json:"certificateProviderNotRelatedConfirmedAt,omitzero"`
 }
 
 type Lpa struct {
 	LpaInit
-	Uid                                    string     `json:"uid"`
-	Status                                 LpaStatus  `json:"status"`
-	RegistrationDate                       *time.Time `json:"registrationDate,omitempty"`
-	UpdatedAt                              time.Time  `json:"updatedAt"`
-	RestrictionsAndConditionsImages        []File     `json:"restrictionsAndConditionsImages,omitempty"`
-	HowAttorneysMakeDecisionsDetailsImages []File     `json:"howAttorneysMakeDecisionsDetailsImages,omitempty"`
-	Notes                                  []Note     `json:"notes,omitempty"`
+	Uid                                    string    `json:"uid"`
+	Status                                 LpaStatus `json:"status"`
+	RegistrationDate                       time.Time `json:"registrationDate,omitzero"`
+	UpdatedAt                              time.Time `json:"updatedAt"`
+	RestrictionsAndConditionsImages        []File    `json:"restrictionsAndConditionsImages,omitempty"`
+	HowAttorneysMakeDecisionsDetailsImages []File    `json:"howAttorneysMakeDecisionsDetailsImages,omitempty"`
+	Notes                                  []Note    `json:"notes,omitempty"`
 }
 
 type Note struct {

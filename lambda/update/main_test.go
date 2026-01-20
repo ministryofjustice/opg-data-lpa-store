@@ -59,7 +59,7 @@ func TestHandleEvent(t *testing.T) {
 			Uid: "1",
 			LpaInit: shared.LpaInit{
 				CertificateProvider: shared.CertificateProvider{
-					SignedAt:                  &signedAt,
+					SignedAt:                  signedAt,
 					ContactLanguagePreference: shared.LangEn,
 					Channel:                   shared.ChannelOnline,
 					Email:                     "b@example.com",

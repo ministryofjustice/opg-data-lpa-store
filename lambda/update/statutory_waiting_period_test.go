@@ -16,10 +16,10 @@ func TestStatutoryWaitingPeriodApply(t *testing.T) {
 		LpaInit: shared.LpaInit{
 			SignedAt: now,
 			CertificateProvider: shared.CertificateProvider{
-				SignedAt: &now,
+				SignedAt: now,
 			},
 			Attorneys: []shared.Attorney{{
-				SignedAt: &now,
+				SignedAt: now,
 			}},
 			TrustCorporations: []shared.TrustCorporation{{
 				Signatories: []shared.Signatory{{
@@ -45,8 +45,8 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 			lpa: &shared.Lpa{
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
+					CertificateProvider: shared.CertificateProvider{SignedAt: now},
+					Attorneys:           []shared.Attorney{{SignedAt: now}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Signatories: []shared.Signatory{{SignedAt: now}},
 					}},
@@ -60,7 +60,7 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
 					CertificateProvider: shared.CertificateProvider{},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
+					Attorneys:           []shared.Attorney{{SignedAt: now}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Signatories: []shared.Signatory{{SignedAt: now}},
 					}},
@@ -73,8 +73,8 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}, {}},
+					CertificateProvider: shared.CertificateProvider{SignedAt: now},
+					Attorneys:           []shared.Attorney{{SignedAt: now}, {}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Signatories: []shared.Signatory{{SignedAt: now}},
 					}},
@@ -87,8 +87,8 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}, {Status: shared.AttorneyStatusRemoved}},
+					CertificateProvider: shared.CertificateProvider{SignedAt: now},
+					Attorneys:           []shared.Attorney{{SignedAt: now}, {Status: shared.AttorneyStatusRemoved}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Signatories: []shared.Signatory{{SignedAt: now}},
 					}},
@@ -101,8 +101,8 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
+					CertificateProvider: shared.CertificateProvider{SignedAt: now},
+					Attorneys:           []shared.Attorney{{SignedAt: now}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Signatories: []shared.Signatory{{SignedAt: now}, {}},
 					}},
@@ -115,8 +115,8 @@ func TestStatutoryWaitingPeriodApplyWhenUnsigned(t *testing.T) {
 				Status: shared.LpaStatusInProgress,
 				LpaInit: shared.LpaInit{
 					SignedAt:            now,
-					CertificateProvider: shared.CertificateProvider{SignedAt: &now},
-					Attorneys:           []shared.Attorney{{SignedAt: &now}},
+					CertificateProvider: shared.CertificateProvider{SignedAt: now},
+					Attorneys:           []shared.Attorney{{SignedAt: now}},
 					TrustCorporations: []shared.TrustCorporation{{
 						Status:      shared.AttorneyStatusRemoved,
 						Signatories: []shared.Signatory{{SignedAt: now}, {}},
