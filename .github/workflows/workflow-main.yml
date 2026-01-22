@@ -15,9 +15,32 @@ jobs:
     name: Generate tag
     uses: ./.github/workflows/generate-tag.yml
 
+  static-analysis:
+    name: Run static analysis checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: "0"
+      - uses: actions/setup-go@4dc6199c7b1a012772edbd06daecab0f50c9053c # v6.1.0
+        with:
+          go-version: "1.25"
+      - run: make go-lint
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
+        if: always()
+        with:
+          sarif_file: test-results/golangci-lint.sarif
+
+  go-test:
+    name: Go test
+    uses: ./.github/workflows/go-test.yml
+    with:
+      docker_tag: ${{ needs.generate-tag.outputs.tag }}
+
   build:
     name: Build, Scan & Push Images
-    needs: [generate-tag]
+    needs: [generate-tag, go-test, static-analysis]
     uses: ./.github/workflows/build-push-images.yml
     with:
       docker_tag: ${{ needs.generate-tag.outputs.tag }}

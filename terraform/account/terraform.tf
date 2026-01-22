@@ -5,7 +5,7 @@ terraform {
     encrypt = true
     region  = "eu-west-1"
     assume_role = {
-      role_arn = "arn:aws:iam::311462405659:role/lpa-store-ci"
+      role_arn = "arn:aws:iam::311462405659:role/lpa-store-management-ci"
     }
     dynamodb_table = "remote_lock"
   }
@@ -86,7 +86,7 @@ provider "aws" {
   region = "eu-west-1"
 
   assume_role {
-    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
     session_name = "lpa-store-terraform-session"
   }
 
@@ -100,7 +100,7 @@ provider "aws" {
   region = "eu-west-2"
 
   assume_role {
-    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.default_role}"
+    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
     session_name = "lpa-store-terraform-session"
   }
 

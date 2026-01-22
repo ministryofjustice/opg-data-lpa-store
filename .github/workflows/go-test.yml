@@ -3,22 +3,11 @@ name: "[Job] Go test"
 on:
   workflow_call:
     inputs:
-      docker_tag:
-        description: "Tag for docker image"
-        required: true
-        type: string
       checkout_tag:
         description: "Ref or tag to checkout"
         default: ${{ github.ref }}
         required: false
         type: string
-    secrets:
-      aws_access_key_id:
-        description: "AWS Access Key ID"
-        required: true
-      aws_secret_access_key:
-        description: "AWS Secret Access Key"
-        required: true
 
 defaults:
   run:
