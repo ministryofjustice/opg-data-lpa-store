@@ -5,7 +5,7 @@ terraform {
     encrypt = true
     region  = "eu-west-1"
     assume_role = {
-      role_arn = "arn:aws:iam::311462405659:role/lpa-store-ci"
+      role_arn = "arn:aws:iam::311462405659:role/${var.management_role}"
     }
     dynamodb_table = "remote_lock"
   }

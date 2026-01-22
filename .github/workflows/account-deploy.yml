@@ -7,24 +7,42 @@ on:
         description: "The terraform workspace to target for account actions"
         required: true
         type: string
+
+      oidc_role:
+        description: "The OIDC role to assume for AWS access"
+        required: true
+        type: string
+
+      default_role:
+        description: "The default CI role to assume"
+        required: true
+        type: string
+
+      management_role:
+        description: "The management CI role to assume"
+        required: true
+        type: string
+
+      shared_role:
+        description: "The shared CI role to assume"
+        required: true
+        type: string
+      
       apply:
         description: "Whether to apply the deployment"
         required: false
         type: boolean
         default: false
-    secrets:
-      aws_access_key_id:
-        description: "AWS Access Key ID"
-        required: true
-      aws_secret_access_key:
-        description: "AWS Secret Access Key"
-        required: true
 
 jobs:
   terraform_account_workflow:
     runs-on: ubuntu-latest
     env:
       tf_dir: "./terraform/account"
+      TF_WORKSPACE: ${{ inputs.workspace_name }}
+      TF_default_role: ${{ inputs.default_role }}
+      TF_management_role: ${{ inputs.management_role }}
+      TF_shared_role: ${{ inputs.shared_role }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -45,11 +63,10 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::631181914621:role/${{ inputs.oidc_role }}
           role-duration-seconds: 3600
-          role-session-name: OPGLpaStoreGithubAction
+          role-session-name: ${{ inputs.oidc_role }}-github-action
 
       - name: Lint Terraform
         run: terraform fmt -check -recursive
@@ -61,8 +78,6 @@ jobs:
         working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Plan
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform workspace show
           terraform plan -lock-timeout=300s -input=false -parallelism=30 -out=terraform.plan
@@ -70,8 +85,6 @@ jobs:
 
       - name: Terraform Apply
         if: inputs.apply == true
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ${{ env.tf_dir }}
