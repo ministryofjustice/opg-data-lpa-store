@@ -1,5 +1,8 @@
 name: "[Job] Deploy to Environment"
 
+permissions:
+  id-token: write
+
 on:
   workflow_call:
     inputs:
@@ -7,24 +10,41 @@ on:
         description: "The terraform workspace to target for environment actions"
         required: true
         type: string
+
+      oidc_role:
+        description: "The OIDC role to assume for AWS access"
+        required: true
+        type: string
+
+      default_role:
+        description: "The default CI role to assume"
+        required: true
+        type: string
+
+      management_role:
+        description: "The management CI role to assume"
+        required: true
+        type: string
+
+      backup_role:
+        description: "The backup CI role to assume"
+        required: true
+        type: string
+
       version_tag:
         description: "The docker image tag to deploy in the environment"
         required: true
         type: string
+
       apply:
         description: "Whether to apply the deployment"
         required: false
         type: boolean
         default: false
+
     secrets:
       allowlist_deploy_key:
         description: "SSH Deploy Key"
-        required: true
-      aws_access_key_id:
-        description: "AWS Access Key ID"
-        required: true
-      aws_secret_access_key:
-        description: "AWS Secret Access Key"
         required: true
       github_access_token:
         description: "Github Token"
@@ -44,6 +64,11 @@ jobs:
       url: ${{ steps.terraform_outputs.outputs.url }}
     env:
       tf_dir: "./terraform/environment"
+      TF_WORKSPACE: ${{ inputs.workspace_name }}
+      TF_VAR_app_version: ${{ inputs.version_tag }}
+      TF_VAR_default_role: ${{ inputs.default_role }}
+      TF_VAR_management_role: ${{ inputs.management_role }}
+      TF_VAR_backup_role: ${{ inputs.backup_role }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -64,11 +89,10 @@ jobs:
       - name: Configure AWS Credentials For Terraform
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::631181914621:role/${{ inputs.oidc_role }}
           role-duration-seconds: 3600
-          role-session-name: OPGLpaStoreGithubAction
+          role-session-name: ${{ inputs.oidc_role }}-github-action
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.allowlist_deploy_key }}
@@ -87,9 +111,6 @@ jobs:
         working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Plan
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           terraform workspace show
           terraform plan -lock-timeout=300s -input=false -parallelism=30 -out=terraform.plan
@@ -97,9 +118,6 @@ jobs:
 
       - name: Terraform Apply
         if: inputs.apply == true
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ${{ env.tf_dir }}
@@ -107,9 +125,6 @@ jobs:
       - name: Terraform Outputs
         if: inputs.apply == true
         id: terraform_outputs
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
-          TF_VAR_app_version: ${{ inputs.version_tag }}
         run: |
           echo "url=$(terraform output -raw base_url)" >> $GITHUB_OUTPUT
         working-directory: ${{ env.tf_dir }}
