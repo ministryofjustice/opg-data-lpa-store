@@ -153,6 +153,4 @@ jobs:
     with:
       base_url: ${{ needs.deploy-pr-env.outputs.base_url }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
