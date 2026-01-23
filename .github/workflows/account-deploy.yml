@@ -1,5 +1,8 @@
 name: "[Job] Plan/Deploy to Account"
 
+permissions:
+  id-token: write
+
 on:
   workflow_call:
     inputs:
