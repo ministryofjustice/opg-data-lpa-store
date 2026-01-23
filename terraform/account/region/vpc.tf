@@ -11,7 +11,7 @@ module "vpc" {
 }
 
 resource "aws_security_group" "vpc_endpoints_application" {
-  name   = "vpc-endpoint-access-application-subnets-${data.aws_region.current.name}"
+  name   = "vpc-endpoint-access-application-subnets-${data.aws_region.current.region}"
   vpc_id = module.vpc.vpc.id
 
   provider = aws.region
@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "vpc_endpoints_application_subnet_ingress" {
   security_group_id = aws_security_group.vpc_endpoints_application.id
   type              = "ingress"
   cidr_blocks       = module.vpc.application_subnets[*].cidr_block
-  description       = "Allow Services in Application Subnets of ${data.aws_region.current.name} to connect to VPC Interface Endpoints"
+  description       = "Allow Services in Application Subnets of ${data.aws_region.current.region} to connect to VPC Interface Endpoints"
 
   provider = aws.region
 }
@@ -44,12 +44,12 @@ resource "aws_vpc_endpoint" "application" {
   for_each = local.interface_endpoint
 
   vpc_id              = module.vpc.vpc.id
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.value}"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.${each.value}"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
   security_group_ids  = aws_security_group.vpc_endpoints_application[*].id
   subnet_ids          = module.vpc.application_subnets[*].id
-  tags                = { Name = "${each.value}-application-${data.aws_region.current.name}" }
+  tags                = { Name = "${each.value}-application-${data.aws_region.current.region}" }
 
   provider = aws.region
 }
@@ -64,22 +64,22 @@ data "aws_route_tables" "application" {
 
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = module.vpc.vpc.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  service_name      = "com.amazonaws.${data.aws_region.current.region}.s3"
   route_table_ids   = tolist(data.aws_route_tables.application.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.s3.json
-  tags              = { Name = "s3-application-${data.aws_region.current.name}" }
+  tags              = { Name = "s3-application-${data.aws_region.current.region}" }
 
   provider = aws.region
 }
 
 resource "aws_vpc_endpoint" "dynamodb" {
   vpc_id            = module.vpc.vpc.id
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
+  service_name      = "com.amazonaws.${data.aws_region.current.region}.dynamodb"
   route_table_ids   = tolist(data.aws_route_tables.application.ids)
   vpc_endpoint_type = "Gateway"
   policy            = data.aws_iam_policy_document.allow_account_access.json
-  tags              = { Name = "dynamodb-application-${data.aws_region.current.name}" }
+  tags              = { Name = "dynamodb-application-${data.aws_region.current.region}" }
 
   provider = aws.region
 }
@@ -115,7 +115,7 @@ data "aws_iam_policy_document" "s3_bucket_access" {
     sid       = "Access-to-specific-bucket-only"
     effect    = "Allow"
     actions   = ["s3:GetObject"]
-    resources = ["arn:aws:s3:::prod-${data.aws_region.current.name}-starport-layer-bucket/*"]
+    resources = ["arn:aws:s3:::prod-${data.aws_region.current.region}-starport-layer-bucket/*"]
     principals {
       type        = "AWS"
       identifiers = ["*"]
