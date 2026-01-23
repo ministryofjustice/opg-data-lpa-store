@@ -98,7 +98,7 @@ jobs:
     name: "TF Plan Account: ${{ matrix.account }}"
     uses: ./.github/workflows/account-deploy.yml
     with:
-      workspace_name: ${{ matrix.account }}
+      workspace_name: ${{ matrix.workspace_name }}
       oidc_role: ${{ matrix.oidc_role }}
       default_role: ${{ matrix.default_role }}
       management_role: ${{ matrix.management_role }}
