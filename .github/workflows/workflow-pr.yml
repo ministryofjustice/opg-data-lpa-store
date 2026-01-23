@@ -89,12 +89,12 @@ jobs:
             oidc_role: oidc-lpa-store-pull-request
             default_role: lpa-store-preproduction-pull-request-ci
             management_role: lpa-store-management-ci
-            shared_role: lpa-store-shared-development-pull-request-ci
+            shared_role: lpa-store-shared-development-ci
           - workspace_name: production
             oidc_role: oidc-lpa-store-pull-request
             default_role: lpa-store-production-pull-request-ci
             management_role: lpa-store-management-ci
-            shared_role: lpa-store-shared-development-pull-request-ci
+            shared_role: lpa-store-shared-development-ci
     name: "TF Plan Account: ${{ matrix.account }}"
     uses: ./.github/workflows/account-deploy.yml
     with:
