@@ -53,10 +53,11 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-development-ci
+      management_role: lpa-store-management-ci
+      shared_role: lpa-store-shared-development-ci
       apply: true
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy-dev-env:
     name: Deploy Development Environment
@@ -64,12 +65,14 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: development
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-development-ci
+      management_role: lpa-store-management-ci
+      backup_role: lpa-store-backup-ci
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   test-dev-env:
@@ -89,10 +92,11 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: preproduction
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-preproduction-ci
+      management_role: lpa-store-management-ci
+      shared_role: lpa-store-shared-development-ci
       apply: true
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy-preproduction-env:
     name: Deploy Preproduction Environment
@@ -100,12 +104,14 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: preproduction
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-preproduction-ci
+      management_role: lpa-store-management-ci
+      backup_role: lpa-store-backup-ci
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-production-account:
@@ -114,10 +120,11 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: production
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-production-ci
+      management_role: lpa-store-management-ci
+      shared_role: lpa-store-shared-development-ci
       apply: true
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   deploy-production-env:
     name: Deploy Production Environment
@@ -125,12 +132,14 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: production
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-production-ci
+      management_role: lpa-store-management-ci
+      backup_role: lpa-store-backup-ci
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-demo-env:
@@ -139,12 +148,14 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: demo
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-development-ci
+      management_role: lpa-store-management-ci
+      backup_role: lpa-store-backup-ci
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-integration-env:
@@ -153,10 +164,12 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: integration
+      oidc_role: oidc-lpa-store-main
+      default_role: lpa-store-development-ci
+      management_role: lpa-store-management-ci
+      backup_role: lpa-store-backup-ci
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
