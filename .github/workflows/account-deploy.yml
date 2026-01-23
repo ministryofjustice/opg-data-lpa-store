@@ -74,7 +74,6 @@ jobs:
       - name: Lint Terraform
         run: terraform fmt -check -recursive
         working-directory: ${{ env.tf_dir }}
-        continue-on-error: true
 
       - name: Terraform Init
         run: terraform init -input=false

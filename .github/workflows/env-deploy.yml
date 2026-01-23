@@ -57,9 +57,6 @@ on:
 jobs:
   terraform_environment_workflow:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ inputs.apply && inputs.workspace_name || null }}
-      url: ${{ steps.terraform_outputs.outputs.url }}
     outputs:
       url: ${{ steps.terraform_outputs.outputs.url }}
     env:
@@ -104,7 +101,6 @@ jobs:
       - name: Lint Terraform
         run: terraform fmt -check -recursive
         working-directory: ${{ env.tf_dir }}
-        continue-on-error: true
 
       - name: Terraform Init
         run: terraform init -input=false
