@@ -4,7 +4,7 @@ resource "aws_secretsmanager_secret" "jwt_key" {
   policy      = data.aws_iam_policy_document.jwt_key_cross_account_access.json
   kms_key_id  = module.jwt_kms.eu_west_1_target_key_id
   replica {
-    region     = data.aws_region.eu_west_2.name
+    region     = data.aws_region.eu_west_2.region
     kms_key_id = module.jwt_kms.eu_west_2_target_key_id
   }
   provider = aws.management_eu_west_1
