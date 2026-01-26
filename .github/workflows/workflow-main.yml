@@ -35,8 +35,6 @@ jobs:
   go-test:
     name: Go test
     uses: ./.github/workflows/go-test.yml
-    with:
-      docker_tag: ${{ needs.generate-tag.outputs.tag }}
 
   build:
     name: Build, Scan & Push Images
