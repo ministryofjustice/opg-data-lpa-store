@@ -1,5 +1,8 @@
 name: "[Job] Destroy Environment"
 
+permissions:
+  id-token: write
+
 on:
   workflow_call:
     inputs:
