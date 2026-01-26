@@ -103,6 +103,8 @@ jobs:
         working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Init
+        env:
+          TF_WORKSPACE: default
         run: terraform init -input=false
         working-directory: ${{ env.tf_dir }}
 
