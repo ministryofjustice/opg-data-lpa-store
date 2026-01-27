@@ -24,6 +24,8 @@ jobs:
           exit 1
 
   terraform_environment_workflow:
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
     needs: check
     env:
