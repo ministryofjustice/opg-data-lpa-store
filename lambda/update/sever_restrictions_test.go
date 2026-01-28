@@ -58,15 +58,11 @@ func TestSeverRestrictionsApply(t *testing.T) {
 }
 
 func TestValidateSeverRestrictions(t *testing.T) {
-
-	update := shared.Update{
-		Type: "SEVER_RESTRICTIONS_AND_CONDITIONS",
-		Changes: []shared.Change{
-			{
-				Key: "/restrictionsAndConditions",
-				New: json.RawMessage(`"I want"`),
-				Old: json.RawMessage(`"I do not want"`),
-			},
+	changes := []shared.Change{
+		{
+			Key: "/restrictionsAndConditions",
+			New: json.RawMessage(`"I want"`),
+			Old: json.RawMessage(`"I do not want"`),
 		},
 	}
 
@@ -76,6 +72,11 @@ func TestValidateSeverRestrictions(t *testing.T) {
 		},
 	}
 
-	_, errors := validateUpdate(update, lpa)
-	assert.ElementsMatch(t, errors, errors)
+	_, errors := validateSeverRestrictions(changes, lpa)
+	assert.Empty(t, errors)
+}
+
+func TestValidateSeverRestrictionsNoChanges(t *testing.T) {
+	_, errors := validateSeverRestrictions(nil, &shared.Lpa{})
+	assert.Equal(t, []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}}, errors)
 }
