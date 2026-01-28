@@ -30,9 +30,9 @@ jobs:
     needs: check
     env:
       tf_dir: "./terraform/environment"
-      TF_VAR_default_role: lpa-store-development-ci
-      TF_VAR_management_role: lpa-store-management-ci
-      TF_VAR_backup_role: lpa-store-backup-ci
+      TF_VAR_default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      TF_VAR_management_role: ${{ vars.MANAGEMENT_ROLE }}
+      TF_VAR_backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -54,7 +54,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::631181914621:role/oidc-lpa-store-pull-request
+          role-to-assume: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
           role-duration-seconds: 3600
           role-session-name: oidc-lpa-store-pull-request-github-action
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
