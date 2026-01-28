@@ -87,9 +87,9 @@ jobs:
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::631181914621:role/${{ inputs.oidc_role }}
+          role-to-assume: ${{ inputs.oidc_role }}
           role-duration-seconds: 3600
-          role-session-name: ${{ inputs.oidc_role }}-github-action
+          role-session-name: environment-deploy-github-action
       - uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.allowlist_deploy_key }}
