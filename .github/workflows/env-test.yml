@@ -38,7 +38,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::493907465011:role/oidc-lpa-store-development-test-runner
+          role-to-assume: ${{ vars.OIDC_DEVELOPMENT_TEST_RUNNER_ROLE }}
           role-duration-seconds: 3600
           role-session-name: oidc-lpa-store-development-test-runner-github-action
       - name: Run test suite

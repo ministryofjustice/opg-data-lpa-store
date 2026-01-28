@@ -67,9 +67,9 @@ jobs:
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::631181914621:role/${{ inputs.oidc_role }}
+          role-to-assume: ${{ inputs.oidc_role }}
           role-duration-seconds: 3600
-          role-session-name: ${{ inputs.oidc_role }}-github-action
+          role-session-name: account-deploy-github-action
 
       - name: Lint Terraform
         run: terraform fmt -check -recursive
