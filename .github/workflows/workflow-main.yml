@@ -86,7 +86,7 @@ jobs:
     with:
       workspace_name: preproduction
       oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
-      default_role: ${{ vars.PREPRODUCTION_ROLE }}
+      default_role: ${{ vars.PREPRODUCTION_MAIN_ROLE }}
       management_role: ${{ vars.MANAGEMENT_ROLE }}
       shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
