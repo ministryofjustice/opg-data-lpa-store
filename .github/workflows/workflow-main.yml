@@ -48,10 +48,10 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-development-ci
-      management_role: lpa-store-management-ci
-      shared_role: lpa-store-shared-development-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
 
   deploy-dev-env:
@@ -60,10 +60,10 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: development
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-development-ci
-      management_role: lpa-store-management-ci
-      backup_role: lpa-store-backup-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
@@ -85,10 +85,10 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: preproduction
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-preproduction-ci
-      management_role: lpa-store-management-ci
-      shared_role: lpa-store-shared-development-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PREPRODUCTION_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
 
   deploy-preproduction-env:
@@ -97,10 +97,10 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: preproduction
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-preproduction-ci
-      management_role: lpa-store-management-ci
-      backup_role: lpa-store-backup-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PREPRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
@@ -113,10 +113,10 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: production
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-production-ci
-      management_role: lpa-store-management-ci
-      shared_role: lpa-store-shared-development-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
 
   deploy-production-env:
@@ -125,10 +125,10 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: production
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-production-ci
-      management_role: lpa-store-management-ci
-      backup_role: lpa-store-backup-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
@@ -141,10 +141,10 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: demo
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-development-ci
-      management_role: lpa-store-management-ci
-      backup_role: lpa-store-backup-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
@@ -157,10 +157,10 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: integration
-      oidc_role: oidc-lpa-store-main
-      default_role: lpa-store-development-ci
-      management_role: lpa-store-management-ci
-      backup_role: lpa-store-backup-ci
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
