@@ -58,7 +58,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/oidc-lpa-store-management-ecr
+          role-to-assume: ${{ vars.OIDC_MANAGEMENT_ECR_ROLE }}
           role-duration-seconds: 3600
           role-session-name: OIDCLPAStoreManagementECRGitHubAction
       - name: ECR Login
