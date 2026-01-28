@@ -1,12 +1,12 @@
 locals {
   stage_name = "current"
   template_file = templatefile("../../docs/openapi/openapi-aws.compiled.yaml", {
-    lambda_create_invoke_arn  = module.lambda["create"].invoke_arn
-    lambda_get_invoke_arn     = module.lambda["get"].invoke_arn
-    lambda_update_invoke_arn  = module.lambda["update"].invoke_arn
-    lambda_getupdates_invoke_arn  = module.lambda["getupdates"].invoke_arn
-    lambda_getlist_invoke_arn = module.lambda["getlist"].invoke_arn
-    lambda_getstatic_invoke_arn = module.lambda["getstatic"].invoke_arn
+    lambda_create_invoke_arn     = module.lambda["create"].invoke_arn
+    lambda_get_invoke_arn        = module.lambda["get"].invoke_arn
+    lambda_update_invoke_arn     = module.lambda["update"].invoke_arn
+    lambda_getupdates_invoke_arn = module.lambda["getupdates"].invoke_arn
+    lambda_getlist_invoke_arn    = module.lambda["getlist"].invoke_arn
+    lambda_getstatic_invoke_arn  = module.lambda["getstatic"].invoke_arn
   })
 }
 

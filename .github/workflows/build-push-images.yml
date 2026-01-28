@@ -12,13 +12,6 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
-    secrets:
-      aws_access_key_id:
-        description: "AWS Access Key ID"
-        required: true
-      aws_secret_access_key:
-        description: "AWS Secret Access Key"
-        required: true
 
 defaults:
   run:
@@ -52,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     name: ${{ matrix.ecr_repository }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.checkout_tag }}
 
@@ -64,12 +57,10 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::311462405659:role/lpa-store-ci
+          role-to-assume: arn:aws:iam::311462405659:role/oidc-lpa-store-management-ecr
           role-duration-seconds: 3600
-          role-session-name: GitHubActions
+          role-session-name: OIDCLPAStoreManagementECRGitHubAction
       - name: ECR Login
         id: login_ecr
         uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1
@@ -91,7 +82,7 @@ jobs:
           vuln-type: 'os,library'
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@5d4e8d1aca955e8d8589aabd499c5cae939e33c7 # v4.31.9
+        uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789 # v4.31.11
         if: always()
         with:
           sarif_file: "trivy-results.sarif"
