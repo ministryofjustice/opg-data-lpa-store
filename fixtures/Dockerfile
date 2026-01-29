@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:lts-alpine3.23@sha256:cd6fb7efa6490f039f3471a189214d5f548c11df1ff9e5b181aa49e22c14383e AS builder
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3.13-alpine3.23
+FROM python:3.13-alpine3.23@sha256:9298134acf0820ed89d8259944248b24b41e4de911a083f33bd70b583acc368a
 
 WORKDIR /app
 
