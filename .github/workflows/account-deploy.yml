@@ -30,7 +30,7 @@ on:
         description: "The shared CI role to assume"
         required: true
         type: string
-      
+
       apply:
         description: "Whether to apply the deployment"
         required: false
@@ -71,9 +71,18 @@ jobs:
           role-duration-seconds: 3600
           role-session-name: account-deploy-github-action
 
-      - name: Lint Terraform
+      - name: Format Terraform
         run: terraform fmt -check -recursive
         working-directory: ${{ env.tf_dir }}
+
+      - uses: terraform-linters/setup-tflint@4cb9feea73331a35b422df102992a03a44a3bb33 # v6.2.1
+        name: Setup TFLint
+        with:
+          tflint_version: v0.60.0
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
 
       - name: Terraform Init
         run: terraform init -input=false
