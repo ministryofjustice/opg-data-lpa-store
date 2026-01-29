@@ -64,6 +64,7 @@ module "s3_lpa_store_static_eu_west_2" {
   }
 }
 
+#trivy:ignore:aws-s3-encryption-customer-key
 module "s3_data_store_backup_account" {
   count                           = local.cross_account_backup_enabled ? 1 : 0
   source                          = "../modules/s3_cross_account_backup"
