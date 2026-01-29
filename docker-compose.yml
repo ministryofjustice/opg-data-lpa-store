@@ -148,7 +148,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:4.12
+    image: localstack/localstack:4.13
     ports:
       - "4566:4566"
     volumes:
