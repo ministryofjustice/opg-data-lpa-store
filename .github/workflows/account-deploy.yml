@@ -84,14 +84,14 @@ jobs:
         id: tf_lint
         run: tflint --recursive
 
-      - name: Terraform Init
-        run: terraform init -input=false
-        working-directory: ${{ env.tf_dir }}
-
       - name: Trivy tfsec
         id: trivy_tfsec
         run: |
           make tf-sec
+
+      - name: Terraform Init
+        run: terraform init -input=false
+        working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Plan
         run: |
