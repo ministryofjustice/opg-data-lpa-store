@@ -42,7 +42,7 @@ resource "aws_security_group_rule" "ecs_to_public_web" {
   from_port         = 443
   to_port           = 443
   security_group_id = aws_security_group.ecs.id
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["0.0.0.0/0"] #trivy:ignore:aws-ec2-no-public-egress-sgr
 
   provider = aws.region
 }

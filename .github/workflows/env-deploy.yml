@@ -111,6 +111,11 @@ jobs:
         id: tf_lint
         run: tflint --recursive
 
+      - name: Trivy tfsec
+        id: trivy_tfsec
+        run: |
+          make tf-sec
+
       - name: Terraform Init
         env:
           TF_WORKSPACE: default
