@@ -33,8 +33,9 @@
           </button>
           <ul class="govuk-service-navigation__list" id="navigation">
 
-            {% for route in (('get_form_donor', 'Donor'), ('get_form_cp', 'Certificate provider'),
-            ('get_form_attorney', 'Attorney')) %}
+            {% for route in (('get_form_donor', 'Donor'), ('form_donor_id', 'Donor ID'), ('form_cp',
+            'Certificate provider'), ('form_cp_id', 'Certificate provider ID'),
+            ('form_attorney', 'Attorney')) %}
             {%- if request.path == url_for(route[0]) %}
             <li class="govuk-service-navigation__item govuk-service-navigation__item--active">
               <a class="govuk-service-navigation__link" href="{{ url_for(route[0]) }}" aria-current="true">
