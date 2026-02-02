@@ -6,7 +6,7 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3.13-alpine3.23@sha256:9298134acf0820ed89d8259944248b24b41e4de911a083f33bd70b583acc368a
+FROM python:3.14-alpine3.23@sha256:31da4cb527055e4e3d7e9e006dffe9329f84ebea79eaca0a1f1c27ce61e40ca5
 
 WORKDIR /app
 
