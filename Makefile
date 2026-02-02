@@ -39,8 +39,8 @@ tf-sec:
 	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./terraform/
 
 docker-lint:
-	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./lambda/Dockerfile
-	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./fixtures/Dockerfile
+	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig ./lambda/Dockerfile
+	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig ./fixtures/Dockerfile
 
 test: ## Unit tests
 	go test ./... -race -short -covermode=atomic -coverprofile=coverage.out
