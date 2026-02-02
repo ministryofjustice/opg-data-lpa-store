@@ -13,13 +13,11 @@ COPY ./lambda/$DIR /app/lambda/$DIR
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main "./lambda/$DIR"
 
-FROM alpine:3
+FROM scratch
 
-RUN apk upgrade libssl3 libcrypto3
-
+COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build-env /go/bin/main /var/task/main
 
-RUN addgroup -S app && adduser -S -g app app
-USER app
+USER 65532
 
 ENTRYPOINT [ "/var/task/main" ]
