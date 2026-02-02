@@ -24,6 +24,19 @@ permissions:
   pull-requests: read
 
 jobs:
+  docker_lint:
+    runs-on: ubuntu-latest
+    name: Lint dockerfiles
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.checkout_tag }}
+
+      - name: Lint dockerfiles
+        id: docker_lint
+        run: |
+          make docker-lint
+
   docker_build_scan_push:
     strategy:
       matrix:
