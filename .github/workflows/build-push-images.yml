@@ -96,3 +96,4 @@ jobs:
             docker tag ${{ matrix.ecr_repository }}:latest $ECR_REGISTRY/$ECR_REPOSITORY:main-$DOCKER_TAG
           fi
           docker push --all-tags $ECR_REGISTRY/$ECR_REPOSITORY
+`
