@@ -17,14 +17,29 @@ defaults:
   run:
     shell: bash
 
-permissions:
-  id-token: write
-  contents: write
-  security-events: write
-  pull-requests: read
-
 jobs:
+  docker_lint:
+    permissions:
+      pull-requests: read
+    runs-on: ubuntu-latest
+    name: Lint dockerfiles
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.checkout_tag }}
+
+      - name: Lint dockerfiles
+        id: docker_lint
+        run: |
+          make docker-lint
+
   docker_build_scan_push:
+    permissions:
+      id-token: write
+      contents: write
+      security-events: write
+      pull-requests: read
+    needs: docker_lint
     strategy:
       matrix:
         include:
@@ -70,22 +85,19 @@ jobs:
 
       - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
         id: trivy_scan
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # 0.33.1
         env:
           TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-        with:
-          image-ref: ${{ matrix.ecr_repository }}:latest
-          severity: "HIGH,CRITICAL"
-          format: "sarif"
-          output: "trivy-results.sarif"
-          vuln-type: 'os,library'
+          DOCKER_USERNAME: ${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
+          DOCKER_PASSWORD: ${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
+        run: |
+          make scan IMAGE_NAME=${{ matrix.ecr_repository }}
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
-        uses: github/codeql-action/upload-sarif@19b2f06db2b6f5108140aeb04014ef02b648f789 # v4.31.11
+        uses: github/codeql-action/upload-sarif@b20883b0cd1f46c72ae0ba6d1090936928f9fa30 # v4.32.0
         if: always()
         with:
-          sarif_file: "trivy-results.sarif"
+          sarif_file: "test-results/trivy.sarif"
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR
         env:

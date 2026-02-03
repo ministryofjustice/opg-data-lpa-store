@@ -1,4 +1,4 @@
-FROM node:lts-alpine AS builder
+FROM node:lts-alpine3.23@sha256:cd6fb7efa6490f039f3471a189214d5f548c11df1ff9e5b181aa49e22c14383e AS builder
 
 WORKDIR /app
 
@@ -6,12 +6,14 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3.13-alpine3.20
+FROM python:3.14-alpine3.23@sha256:31da4cb527055e4e3d7e9e006dffe9329f84ebea79eaca0a1f1c27ce61e40ca5
 
 WORKDIR /app
 
 COPY fixtures/requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip3 install --upgrade pip && \
+    pip3 install -r requirements.txt && \
+    rm -rf /root/.cache/pip/http-v2/e/b/5/4/a/eb54ad8098bbce2484999b06578a3689563ea077088029e738ccebf4.body
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
