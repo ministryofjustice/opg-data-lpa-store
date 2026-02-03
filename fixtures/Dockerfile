@@ -11,7 +11,8 @@ FROM python:3.14-alpine3.23@sha256:31da4cb527055e4e3d7e9e006dffe9329f84ebea79eac
 WORKDIR /app
 
 COPY fixtures/requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt && \
+RUN pip3 install --upgrade pip && \
+    pip3 install -r requirements.txt && \
     rm -rf /root/.cache/pip/http-v2/e/b/5/4/a/eb54ad8098bbce2484999b06578a3689563ea077088029e738ccebf4.body
 
 COPY fixtures/app.py app.py
