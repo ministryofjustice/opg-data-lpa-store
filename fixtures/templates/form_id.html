@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ actor_type }} ID check{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-xl">{{ actor_type }} ID check</h1>
+
+{% if success == True %}
+<div class="govuk-notification-banner govuk-notification-banner--success" role="alert"
+  aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+  <div class="govuk-notification-banner__header">
+    <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+      Success
+    </h2>
+  </div>
+  <div class="govuk-notification-banner__content">
+    <p class="govuk-body">{{ actor_type }} ID check was submitted</p>
+  </div>
+</div>
+{% elif success == False %}
+{% include "partials/error_summary.html" %}
+{% endif %}
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="f-uid">UID</label>
+    <input class="govuk-input govuk-input--width-20" id="f-uid" name="uid" type="text" value="{{ uid }}" required />
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="f-type">ID type</label>
+    <select class="govuk-select" id="f-type" name="type" required>
+      <option value="one-login" {% if id_type=='one-login' %}selected{% endif %}>GOV.UK One Login (one-login)</option>
+      <option value="opg-paper-id" {% if id_type=='opg-paper-id' %}selected{% endif %}>OPG Paper ID service
+        (opg-paper-id)</option>
+    </select>
+  </div>
+
+  <div class="moj-datepicker" data-module="moj-date-picker">
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="f-checked-at">
+        Checked at
+      </label>
+      <input class="govuk-input moj-js-datepicker-input" id="f-checked-at" name="checkedAt" type="text"
+        value="{{ checked_at }}" required />
+    </div>
+  </div>
+
+  <button type="submit" class="govuk-button" data-module="govuk-button">
+    Send
+  </button>
+</form>
+{% endblock %}
