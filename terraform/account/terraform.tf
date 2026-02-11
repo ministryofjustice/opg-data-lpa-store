@@ -5,7 +5,7 @@ terraform {
     encrypt = true
     region  = "eu-west-1"
     assume_role = {
-      role_arn = "arn:aws:iam::311462405659:role/lpa-store-management-ci"
+      role_arn = "arn:aws:iam::311462405659:role/opg-lpa-store-state-access"
     }
     use_lockfile = true
   }
@@ -84,20 +84,6 @@ provider "aws" {
 provider "aws" {
   alias  = "shared_eu_west_1"
   region = "eu-west-1"
-
-  assume_role {
-    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
-    session_name = "lpa-store-terraform-session"
-  }
-
-  default_tags {
-    tags = local.default_tags
-  }
-}
-
-provider "aws" {
-  alias  = "shared_eu_west_2"
-  region = "eu-west-2"
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
