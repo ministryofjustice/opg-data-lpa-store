@@ -6,6 +6,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=create
@@ -30,6 +31,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=update
@@ -53,6 +55,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=get
@@ -76,6 +79,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=getlist
@@ -99,6 +103,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=getupdates
@@ -122,6 +127,7 @@ services:
         condition: service_healthy
     build:
       context: .
+      provenance: false
       dockerfile: ./lambda/Dockerfile
       args:
         - DIR=getstatic
@@ -143,6 +149,7 @@ services:
     depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates, lambda-getstatic]
     build:
       context: .
+      provenance: false
       dockerfile: ./mock-apigw/Dockerfile
     ports:
       - 9000:8080
@@ -184,6 +191,7 @@ services:
     image: lpa-store/fixtures
     build:
       context: .
+      provenance: false
       dockerfile: ./fixtures/Dockerfile
     ports:
       - "5000:8080"
