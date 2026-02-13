@@ -128,6 +128,10 @@ func (c PostRegistrationCorrection) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validatePostRegistrationCorrection(changes []shared.Change, lpa *shared.Lpa) (PostRegistrationCorrection, []shared.FieldError) {
 	var data PostRegistrationCorrection
 
+	if len(changes) == 0 {
+		return data, []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}}
+	}
+
 	data.AttorneyAppointmentType.HowReplacementAttorneysStepIn = lpa.HowReplacementAttorneysStepIn
 	data.AttorneyAppointmentType.HowReplacementAttorneysStepInDetails = lpa.HowReplacementAttorneysStepInDetails
 

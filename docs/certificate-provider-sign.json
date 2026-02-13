@@ -13,7 +13,7 @@
         },
         {
             "key": "/certificateProvider/address/country",
-            "new": "GB",
+            "new": null,
             "old": "GB"
         },
         {
@@ -30,11 +30,6 @@
             "key": "/certificateProvider/email",
             "new": "b@example.com",
             "old": "a@example.com"
-        },
-        {
-            "key": "/certificateProvider/channel",
-            "new": "online",
-            "old": "online"
         }
     ]
 }
