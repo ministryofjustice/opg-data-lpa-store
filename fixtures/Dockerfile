@@ -13,7 +13,7 @@ WORKDIR /app
 COPY fixtures/requirements.txt requirements.txt
 RUN pip3 install --upgrade pip && \
     pip3 install -r requirements.txt && \
-    rm -rf /root/.cache/pip/http-v2/e/b/5/4/a/eb54ad8098bbce2484999b06578a3689563ea077088029e738ccebf4.body
+    pip3 cache purge
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
