@@ -7,6 +7,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=create
     environment:
@@ -31,6 +32,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=update
     environment:
@@ -54,6 +56,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=get
     environment:
@@ -77,6 +80,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=getlist
     environment:
@@ -100,6 +104,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=getupdates
     environment:
@@ -123,6 +128,7 @@ services:
     build:
       context: .
       dockerfile: ./lambda/Dockerfile
+      provenance: false
       args:
         - DIR=getstatic
     environment:
@@ -140,7 +146,15 @@ services:
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates, lambda-getstatic]
+    depends_on:
+      [
+        lambda-create,
+        lambda-update,
+        lambda-get,
+        lambda-getlist,
+        lambda-getupdates,
+        lambda-getstatic,
+      ]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
@@ -185,6 +199,7 @@ services:
     build:
       context: .
       dockerfile: ./fixtures/Dockerfile
+      provenance: false
     ports:
       - "5000:8080"
     environment:
