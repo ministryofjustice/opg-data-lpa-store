@@ -17,7 +17,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/leodido/go-urn v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.147.0
+	github.com/ministryofjustice/opg-go-common v1.150.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/text v0.34.0
 )
