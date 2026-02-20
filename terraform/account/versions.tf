@@ -5,5 +5,5 @@ terraform {
       version = "~> 6.30.0"
     }
   }
-  required_version = "1.14.4"
+  required_version = "1.14.5"
 }
