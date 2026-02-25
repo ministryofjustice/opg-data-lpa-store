@@ -511,7 +511,7 @@ func doCreateExample(t *testing.T, examplePath string) string {
 
 func doRequest(req *http.Request) (*http.Response, error) {
 	if req.URL.Hostname() == "localhost" {
-		return http.DefaultClient.Do(req)
+		return http.DefaultClient.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
 	}
 
 	cfg, err := config.LoadDefaultConfig(req.Context())
@@ -544,7 +544,7 @@ func doRequest(req *http.Request) (*http.Response, error) {
 		return nil, err
 	}
 
-	return http.DefaultClient.Do(req)
+	return http.DefaultClient.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
 }
 
 func makeLpaUID() string {

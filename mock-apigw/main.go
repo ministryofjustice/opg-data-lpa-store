@@ -29,7 +29,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/_pact_state" {
 		err := handlePactState(r)
 		if err != nil {
-			log.Printf("Error setting up state: %s", err.Error())
+			log.Printf("Error setting up state: %v", err)
 			http.Error(w, err.Error(), 500)
 		} else {
 			w.WriteHeader(200)
@@ -103,7 +103,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(proxyReq)
+	resp, err := client.Do(proxyReq) //nolint:gosec // SSRF is contained because URL is controlled
 
 	if err != nil {
 		log.Fatal(err)
@@ -249,7 +249,7 @@ func createLPA(uid string, headers http.Header) error {
 	req.Header = headers
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
 	if err != nil {
 		return err
 	}
@@ -282,7 +282,7 @@ func addLPAUpdate(uid string, headers http.Header) error {
 	req.Header = headers
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
 	if err != nil {
 		return err
 	}
