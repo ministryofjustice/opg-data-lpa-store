@@ -125,8 +125,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mattn/go-runewidth v0.0.19 h1:v++JhqYnZuu5jSKrk9RbgF5v4CGUjqRfBm05byFGLdw=
 github.com/mattn/go-runewidth v0.0.19/go.mod h1:XBkDxAl56ILZc9knddidhrOlY5R/pDhgLpndooCuJAs=
-github.com/ministryofjustice/opg-go-common v1.159.0 h1:is8xSdasqltKYUZqLbB1QeR5g2CWzSSUhzuT8/bavwo=
-github.com/ministryofjustice/opg-go-common v1.159.0/go.mod h1:1c9fE1jUpZt8hYN4r+GEcQ+5hYqYdEhE9y2outYZah0=
+github.com/ministryofjustice/opg-go-common v1.162.0 h1:yhxV7HRmi8snO53TZhk5seuwVDZV/H3JKkixzDE9k98=
+github.com/ministryofjustice/opg-go-common v1.162.0/go.mod h1:Pgm2lWH5NTa026skecXnZ1IZYGFW+hBMddE/bwVeOxU=
 github.com/mitchellh/copystructure v1.2.0 h1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=
 github.com/mitchellh/copystructure v1.2.0/go.mod h1:qLl+cE2AmVv+CoeAwDPye/v+N2HKCj9FbZEVFJRxO9s=
 github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
