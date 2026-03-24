@@ -5,19 +5,19 @@ go 1.25.0
 toolchain go1.26.1
 
 require (
-	github.com/aws/aws-lambda-go v1.53.0
+	github.com/aws/aws-lambda-go v1.54.0
 	github.com/aws/aws-sdk-go-v2 v1.41.4
 	github.com/aws/aws-sdk-go-v2/config v1.32.12
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.35
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.8.35
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.56.2
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.36
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.8.36
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.57.0
 	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.45.22
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.97.1
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.41.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/leodido/go-urn v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.159.0
+	github.com/ministryofjustice/opg-go-common v1.162.0
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/text v0.35.0
 )
