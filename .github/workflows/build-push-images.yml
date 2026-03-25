@@ -12,6 +12,10 @@ on:
         default: ${{ github.ref }}
         required: false
         type: string
+    secrets:
+      snyk_opg_org_token:
+        description: "Snyk token for OPG organization"
+        required: true
 
 defaults:
   run:
@@ -70,20 +74,20 @@ jobs:
           mask-password: true
           registries: 311462405659
 
-      - name: Trivy Image Vulnerability Scanner for ${{ matrix.ecr_repository }}
-        id: trivy_scan
+      - name: Snyk Scan
+        uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
+        with:
+          SNYK_TEST_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          SNYK_TOKEN: ${{ secrets.snyk_opg_org_token }}
         env:
-          TRIVY_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-db:2
-          TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
-          DOCKER_USERNAME: ${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
-          DOCKER_PASSWORD: ${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
-        run: exit 1
-      - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
-        id: trivy_upload_sarif
+          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ matrix.ecr_repository }}
+
+      - name: Upload Snyk scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
         if: always()
         with:
-          sarif_file: "test-results/trivy.sarif"
+          sarif_file: "test-results/snyk.sarif"
 
       - name: Push ${{ matrix.ecr_repository }} Image to ECR
         env:

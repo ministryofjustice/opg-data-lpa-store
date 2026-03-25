@@ -111,10 +111,19 @@ jobs:
         id: tf_lint
         run: tflint --recursive
 
-      - name: Trivy tfsec
-        id: trivy_tfsec
-        run: |
-          exit 1
+      - name: Snyk IAC
+        id: snyk_iac
+        run: echo "::warning title=MISSING-IAC-SCAN::Please add the snyk iac scan composite action when it is available."
+
+      # TODO: Add Snyk IAC scan and upload results to GitHub Security tab when the composite action is available.
+
+      # - name: Upload Snyk IAC scan results to GitHub Security tab
+      #   id: snyk_upload_sarif
+      #   uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
+      #   if: always()
+      #   with:
+      #     category: "Terraform"
+      #     sarif_file: "test-results/snyk-iac.sarif"
 
       - name: Terraform Init
         env:
