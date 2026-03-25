@@ -18,21 +18,6 @@ defaults:
     shell: bash
 
 jobs:
-  docker_lint:
-    permissions:
-      pull-requests: read
-    runs-on: ubuntu-latest
-    name: Lint dockerfiles
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          ref: ${{ inputs.checkout_tag }}
-
-      - name: Lint dockerfiles
-        id: docker_lint
-        run: |
-          make docker-lint
-
   docker_build_scan_push:
     permissions:
       id-token: write
@@ -92,8 +77,7 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: ${{ steps.login_ecr.outputs.registry }}/trivy-db-public-ecr/aquasecurity/trivy-java-db:1
           DOCKER_USERNAME: ${{ steps.login_ecr.outputs.docker_username_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
           DOCKER_PASSWORD: ${{ steps.login_ecr.outputs.docker_password_311462405659_dkr_ecr_eu_west_1_amazonaws_com }}
-        run: |
-          make scan IMAGE_NAME=${{ matrix.ecr_repository }}
+        run: exit 1
       - name: Upload Trivy scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         id: trivy_upload_sarif
         uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6

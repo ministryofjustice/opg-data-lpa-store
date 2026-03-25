@@ -1,4 +1,3 @@
-#trivy:ignore:aws-elb-alb-not-public
 resource "aws_lb" "load_balancer" {
   name                       = var.environment_name
   internal                   = false

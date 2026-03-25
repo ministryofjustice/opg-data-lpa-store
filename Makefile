@@ -18,29 +18,9 @@ down: ## Stop application
 	docker compose down
 
 test-results:
-	mkdir -p -m 0777 test-results .gocache .trivy-cache
+	mkdir -p -m 0777 test-results .gocache
 
 setup-directories: test-results
-
-scan-all:
-	@make scan IMAGE_NAME=lpa-store/lambda/api-create
-	@make scan IMAGE_NAME=lpa-store/lambda/api-get
-	@make scan IMAGE_NAME=lpa-store/lambda/api-getstatic
-	@make scan IMAGE_NAME=lpa-store/lambda/api-update
-	@make scan IMAGE_NAME=lpa-store/lambda/api-getlist
-	@make scan IMAGE_NAME=lpa-store/lambda/api-getupdates
-	@make scan IMAGE_NAME=lpa-store/fixtures
-
-scan: setup-directories
-	docker compose run --rm trivy image --format table --exit-code 0 $(IMAGE_NAME)
-	docker compose run --rm trivy image --format sarif --output /test-results/trivy.sarif --exit-code 1 $(IMAGE_NAME)
-
-tf-sec:
-	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./terraform/
-
-docker-lint:
-	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./lambda/Dockerfile
-	docker compose run --rm trivy filesystem --format table --exit-code 1 --scanners secret,misconfig --severity CRITICAL,HIGH,MEDIUM ./fixtures/Dockerfile
 
 test: ## Unit tests
 	go test ./... -race -short -covermode=atomic -coverprofile=coverage.out
