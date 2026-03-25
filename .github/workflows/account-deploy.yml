@@ -87,7 +87,7 @@ jobs:
       - name: Trivy tfsec
         id: trivy_tfsec
         run: |
-          make tf-sec
+          exit 1
 
       - name: Terraform Init
         run: terraform init -input=false

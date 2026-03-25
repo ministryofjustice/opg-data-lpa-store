@@ -27,4 +27,3 @@ docs/architecture/dsl/**/workspace.json
 .gocache
 # test output
 test-results
-.trivy-cache
