@@ -59,6 +59,8 @@ jobs:
     uses: ./.github/workflows/build-push-images.yml
     with:
       docker_tag: ${{ needs.generate-tag.outputs.tag }}
+    secrets:
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   plan-account:
     strategy:

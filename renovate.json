@@ -13,6 +13,7 @@
   "postUpdateOptions": [
     "gomodTidy"
   ],
+  "minimumReleaseAge": "7 days",
   "packageRules": [
     {
       "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
@@ -27,7 +28,6 @@
       "groupSlug": "all-minor-patch-updates",
       "matchUpdateTypes": ["minor", "patch"],
       "prPriority": 1,
-      "minimumReleaseAge": "3 days",
       "matchPackageNames": ["*"]
     },
     {
@@ -36,15 +36,13 @@
       "groupSlug": "github-minor-patch-updates",
       "matchUpdateTypes": ["minor", "patch"],
       "prPriority": 2,
-      "minimumReleaseAge": "3 days",
       "matchPackageNames": ["*"],
       "matchFileNames": [".github/**"]
     }
   ],
   "major": {
     "automerge": false,
-    "labels": ["Dependencies", "Renovate"],
-    "minimumReleaseAge": "3 days"
+    "labels": ["Dependencies", "Renovate"]
   },
   "vulnerabilityAlerts": {
     "groupName": "Security Alerts",
