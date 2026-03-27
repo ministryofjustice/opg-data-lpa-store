@@ -76,11 +76,8 @@ jobs:
       - name: Snyk Scan
         uses: ministryofjustice/opg-github-actions/actions/snyk-scan@8dea82fc8b8e7ffca431f0fb83848d523147ccd8 # v4.5.0
         with:
-          SNYK_TEST_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          SNYK_TEST_IMAGE: ${{ steps.login_ecr.outputs.registry }}/${{ matrix.ecr_repository }}:latest
           SNYK_TOKEN: ${{ secrets.snyk_opg_org_token }}
-        env:
-          ECR_REGISTRY: ${{ steps.login_ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ matrix.ecr_repository }}
 
       - name: Upload Snyk scan results to GitHub Security tab for ${{ matrix.ecr_repository }}
         uses: github/codeql-action/upload-sarif@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
