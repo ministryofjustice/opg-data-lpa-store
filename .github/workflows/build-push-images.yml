@@ -28,7 +28,6 @@ jobs:
       contents: write
       security-events: write
       pull-requests: read
-    needs: docker_lint
     strategy:
       matrix:
         include:
