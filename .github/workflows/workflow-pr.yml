@@ -89,6 +89,8 @@ jobs:
       default_role: ${{ matrix.default_role }}
       management_role: ${{ matrix.management_role }}
       shared_role: ${{ matrix.shared_role }}
+    secrets:
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   plan-environment:
     strategy:
@@ -122,6 +124,7 @@ jobs:
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-pr-env:
     name: Deploy PR Environment
@@ -144,6 +147,7 @@ jobs:
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   test-pr-env:
     name: Test PR Environment
