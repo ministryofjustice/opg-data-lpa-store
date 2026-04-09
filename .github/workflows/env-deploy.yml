@@ -2,6 +2,9 @@ name: "[Job] Deploy to Environment"
 
 permissions:
   id-token: write
+  contents: write
+  security-events: write
+  pull-requests: read
 
 on:
   workflow_call:
