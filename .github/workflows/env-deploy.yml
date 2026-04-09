@@ -86,13 +86,6 @@ jobs:
         with:
           terraform_version: ${{ steps.tf_version.outputs.version }}
           terraform_wrapper: false
-      - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
-        with:
-          aws-region: eu-west-1
-          role-to-assume: ${{ inputs.oidc_role }}
-          role-duration-seconds: 3600
-          role-session-name: environment-deploy-github-action
 
       - name: Setup SSH private key
         id: deploy-key
@@ -146,6 +139,14 @@ jobs:
         with:
           category: "Terraform"
           sarif_file: "test-results/snyk-iac.sarif"
+
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ inputs.oidc_role }}
+          role-duration-seconds: 3600
+          role-session-name: environment-deploy-github-action
 
       - name: Terraform Init
         env:
