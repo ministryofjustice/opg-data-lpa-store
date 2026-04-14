@@ -2,18 +2,21 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
+    "helpers:pinGitHubActionDigests",
     "schedule:earlyMondays",
-    "helpers:pinGitHubActionDigests"
+    "docker:pinDigests"
   ],
   "branchPrefix": "renovate-",
   "branchNameStrict": true,
   "commitMessageAction": "Renovate Update",
-  "labels": ["Dependencies", "Renovate"],
+  "labels": [
+    "Dependencies",
+    "Renovate"
+  ],
   "configMigration": true,
   "postUpdateOptions": [
     "gomodTidy"
   ],
-  "minimumReleaseAge": "7 days",
   "packageRules": [
     {
       "description": "Ignore internal dependency upgrades - Renovate doesn't recognise that these are relative and therefore don't need to refer to the correct digest",
@@ -23,27 +26,22 @@
       "enabled": false
     },
     {
-      "automerge": true,
       "groupName": "Patch & Minor Updates",
       "groupSlug": "all-minor-patch-updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "prPriority": 1,
-      "matchPackageNames": ["*"]
-    },
-    {
-      "automerge": true,
-      "groupName": "Github Patch & Minor Updates",
-      "groupSlug": "github-minor-patch-updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "prPriority": 2,
-      "matchPackageNames": ["*"],
-      "matchFileNames": [".github/**"]
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "prPriority": 4,
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
-  "major": {
-    "automerge": false,
-    "labels": ["Dependencies", "Renovate"]
-  },
+  "branchConcurrentLimit": 5,
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "minimumReleaseAge": "7 days",
   "vulnerabilityAlerts": {
     "groupName": "Security Alerts",
     "rangeStrategy": "update-lockfile",
