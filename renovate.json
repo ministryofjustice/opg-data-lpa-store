@@ -2,12 +2,17 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended",
-    "helpers:pinGitHubActionDigests"
+    "helpers:pinGitHubActionDigests",
+    "schedule:earlyMondays",
+    "docker:pinDigests"
   ],
   "branchPrefix": "renovate-",
   "branchNameStrict": true,
   "commitMessageAction": "Renovate Update",
-  "labels": ["Dependencies", "Renovate"],
+  "labels": [
+    "Dependencies",
+    "Renovate"
+  ],
   "configMigration": true,
   "postUpdateOptions": [
     "gomodTidy"
@@ -21,20 +26,22 @@
       "enabled": false
     },
     {
-      "automerge": true,
       "groupName": "Patch & Minor Updates",
       "groupSlug": "all-minor-patch-updates",
-      "matchUpdateTypes": ["minor", "patch"],
-      "schedule": "* 0-6 1 * *",
-      "minimumReleaseAge": "3 days",
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "prPriority": 4,
-      "matchPackageNames": ["*"]
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
-  "major": {
-    "automerge": false,
-    "minimumReleaseAge": "3 days"
-  },
+  "branchConcurrentLimit": 5,
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 1,
+  "minimumReleaseAge": "7 days",
   "vulnerabilityAlerts": {
     "groupName": "Security Alerts",
     "rangeStrategy": "update-lockfile",
