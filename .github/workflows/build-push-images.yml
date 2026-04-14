@@ -29,6 +29,7 @@ jobs:
       security-events: write
       pull-requests: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - ecr_repository: lpa-store/lambda/api-create
