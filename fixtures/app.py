@@ -1,7 +1,7 @@
 import requests, os, logging, sys, json, uuid
 from lib.aws_auth import AwsAuth
 from lib.jwt import generate_jwt
-from lib.api import attorney_sign, certificate_provider_sign
+from lib.api import attorney_sign, certificate_provider_id, certificate_provider_sign, donor_id
 from urllib.parse import quote
 
 from datetime import datetime
@@ -120,9 +120,35 @@ def post_form_donor():
         error=json.loads(resp.text),
     )
 
+@app.route("/form/donor/id", methods=["GET", "POST"])
+def form_donor_id():
+    uid = request.form.get("uid", "")
+    checked_at = request.form.get(
+        "checkedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
+    id_type = request.form.get("type", "one-login")
+
+    if request.method == "POST":
+        resp = donor_id(uid, prepare_date(checked_at), id_type)
+        success = resp.status_code < 400
+        error = json.loads(resp.text)
+    else:
+        success = None
+        error = None
+
+    return render_template(
+        "form_id.html",
+        **{
+            "actor_type": "Donor",
+            "uid": uid,
+            "checked_at": checked_at,
+        },
+        success=success,
+        error=error,
+    )
 
 @app.route("/form/certificate-provider", methods=["GET", "POST"])
-def get_form_cp():
+def form_cp():
     uid = request.form.get("uid", "")
     signed_at = request.form.get(
         "signedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
@@ -148,8 +174,35 @@ def get_form_cp():
     )
 
 
+@app.route("/form/certificate-provider/id", methods=["GET", "POST"])
+def form_cp_id():
+    uid = request.form.get("uid", "")
+    checked_at = request.form.get(
+        "checkedAt", datetime.now().strftime(DATE_FORMAT_DATEPICKER)
+    )
+    id_type = request.form.get("type", "one-login")
+
+    if request.method == "POST":
+        resp = certificate_provider_id(uid, prepare_date(checked_at), id_type)
+        success = resp.status_code < 400
+        error = json.loads(resp.text)
+    else:
+        success = None
+        error = None
+
+    return render_template(
+        "form_id.html",
+        **{
+            "actor_type": "Certificate provider",
+            "uid": uid,
+            "checked_at": checked_at,
+        },
+        success=success,
+        error=error,
+    )
+
 @app.route("/form/attorney", methods=["GET", "POST"])
-def get_form_attorney():
+def form_attorney():
     uid = request.form.get("uid", "")
     attorney_uuid = request.form.get("attorneyUuid", "")
     signed_at = request.form.get(

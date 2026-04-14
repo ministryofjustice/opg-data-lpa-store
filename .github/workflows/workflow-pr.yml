@@ -21,7 +21,7 @@ jobs:
       - name: Generate workspace name
         id: name_workspace
         run: |
-          workspace=${{ github.event.number }}${{ github.head_ref }}
+          workspace=${{ github.event.number }}$GITHUB_HEAD_REF
           workspace=${workspace//-}
           workspace=${workspace//_}
           workspace=${workspace//\/}
@@ -36,15 +36,15 @@ jobs:
     name: Run static analysis checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: "0"
-      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: "1.24"
-      - run: make check-code
+          go-version: "1.26"
+      - run: make go-lint
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@76621b61decf072c1cee8dd1ce2d2a82d33c17ed # v3.29.8
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         if: always()
         with:
           sarif_file: test-results/golangci-lint.sarif
@@ -52,11 +52,6 @@ jobs:
   go-test:
     name: Go test
     uses: ./.github/workflows/go-test.yml
-    with:
-      docker_tag: ${{ needs.generate-tag.outputs.tag }}
-    secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   build:
     name: Build, Scan & Push Images
@@ -65,41 +60,71 @@ jobs:
     with:
       docker_tag: ${{ needs.generate-tag.outputs.tag }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   plan-account:
     strategy:
       matrix:
-        account:
-          - development
-          - preproduction
-          - production
-    name: "TF Plan Account: ${{ matrix.account }}"
+        include:
+          - workspace_name: development
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.DEVELOPMENT_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
+          - workspace_name: preproduction
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.PREPRODUCTION_PULL_REQUEST_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
+          - workspace_name: production
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.PRODUCTION_PULL_REQUEST_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
+    name: "TF Plan Account: ${{ matrix.workspace_name }}"
     uses: ./.github/workflows/account-deploy.yml
     with:
-      workspace_name: ${{ matrix.account }}
+      workspace_name: ${{ matrix.workspace_name }}
+      oidc_role: ${{ matrix.oidc_role }}
+      default_role: ${{ matrix.default_role }}
+      management_role: ${{ matrix.management_role }}
+      shared_role: ${{ matrix.shared_role }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   plan-environment:
     strategy:
       matrix:
-        environment:
-          - preproduction
-          - production
-    name: "TF Plan Environment: ${{ matrix.environment }}"
+        include:
+          - workspace_name: development
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.DEVELOPMENT_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            backup_role: ${{ vars.BACKUP_PULL_REQUEST_ROLE }}
+          - workspace_name: preproduction
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.PREPRODUCTION_PULL_REQUEST_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            backup_role: ${{ vars.BACKUP_PULL_REQUEST_ROLE }}
+          - workspace_name: production
+            oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+            default_role: ${{ vars.PRODUCTION_PULL_REQUEST_ROLE }}
+            management_role: ${{ vars.MANAGEMENT_ROLE }}
+            backup_role: ${{ vars.BACKUP_PULL_REQUEST_ROLE }}
+    name: "TF Plan Environment: ${{ matrix.workspace_name }}"
     needs: [generate-tag]
     uses: ./.github/workflows/env-deploy.yml
     with:
-      workspace_name: ${{ matrix.environment }}
+      workspace_name: ${{ matrix.workspace_name }}
+      oidc_role: ${{ matrix.oidc_role }}
+      default_role: ${{ matrix.default_role }}
+      management_role: ${{ matrix.management_role }}
+      backup_role: ${{ matrix.backup_role }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-pr-env:
     name: Deploy PR Environment
@@ -113,13 +138,16 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: ${{ needs.generate-environment-workspace-name.outputs.environment_workspace_name }}
+      oidc_role: ${{ vars.OIDC_PULL_REQUEST_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE}}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   test-pr-env:
     name: Test PR Environment
@@ -128,6 +156,4 @@ jobs:
     with:
       base_url: ${{ needs.deploy-pr-env.outputs.base_url }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}

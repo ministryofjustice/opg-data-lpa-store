@@ -18,6 +18,8 @@ import (
 
 var LPAPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})$")
 var UpdatePath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/updates$")
+var GetStaticPath = regexp.MustCompile("^/lpas/(M(?:-[0-9A-Z]{4}){3})/static$")
+
 var uidMap = map[string]string{}
 
 func delegateHandler(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +29,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/_pact_state" {
 		err := handlePactState(r)
 		if err != nil {
-			log.Printf("Error setting up state: %s", err.Error())
+			log.Printf("Error setting up state: %v", err)
 			http.Error(w, err.Error(), 500)
 		} else {
 			w.WriteHeader(200)
@@ -48,6 +50,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodPost {
 		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
 		lambdaName = "update"
+	} else if UpdatePath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = UpdatePath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "getupdates"
 	} else if r.URL.Path == "/lpas" && r.Method == http.MethodPost {
 		lambdaName = "getlist"
 		bs := reqBody.Bytes()
@@ -55,6 +60,9 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 			bs = bytes.ReplaceAll(bs, []byte(oldUID), []byte(newUID))
 		}
 		reqBody = *bytes.NewBuffer(bs)
+	} else if GetStaticPath.MatchString(r.URL.Path) && r.Method == http.MethodGet {
+		uid = GetStaticPath.FindStringSubmatch(r.URL.Path)[1]
+		lambdaName = "getstatic"
 	}
 
 	if newUID, ok := uidMap[uid]; ok {
@@ -95,7 +103,7 @@ func delegateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(proxyReq)
+	resp, err := client.Do(proxyReq) //nolint:gosec // SSRF is contained because URL is controlled
 
 	if err != nil {
 		log.Fatal(err)
@@ -134,8 +142,41 @@ func handlePactState(r *http.Request) error {
 		newUID := randomUID()
 		uidMap[oldUID] = newUID
 
-		url := fmt.Sprintf("http://localhost:8080/lpas/%s", oldUID)
-		body := `{
+		err := createLPA(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
+	}
+
+	existsWithChangesRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) exists and has changes$`)
+	if matches := existsWithChangesRe.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+
+		err := createLPA(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
+		err = addLPAUpdate(newUID, r.Header.Clone())
+		if err != nil {
+			return err
+		}
+	}
+
+	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)
+	if matches := doesNotExistRe.FindStringSubmatch(state.State); len(matches) > 0 {
+		oldUID := matches[1]
+		newUID := randomUID()
+		uidMap[oldUID] = newUID
+	}
+
+	return nil
+}
+
+func createLPA(uid string, headers http.Header) error {
+	url := fmt.Sprintf("http://localhost:8080/lpas/%s", uid)
+	body := `{
 			"lpaType": "personal-welfare",
 			"channel": "online",
 			"language": "en",
@@ -200,29 +241,54 @@ func handlePactState(r *http.Request) error {
 			"howAttorneysMakeDecisions": "jointly"
 		}`
 
-		req, err := http.NewRequest("PUT", url, strings.NewReader(body))
-		if err != nil {
-			return err
-		}
-
-		req.Header = r.Header.Clone()
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
-		}
-
-		if resp.StatusCode >= 400 {
-			return fmt.Errorf("request failed with status code %d", resp.StatusCode)
-		}
+	req, err := http.NewRequest("PUT", url, strings.NewReader(body))
+	if err != nil {
+		return err
 	}
 
-	doesNotExistRe := regexp.MustCompile(`^An LPA with UID (M-[A-Z0-9-]+) does not exist$`)
-	if matches := doesNotExistRe.FindStringSubmatch(state.State); len(matches) > 0 {
-		oldUID := matches[1]
-		newUID := randomUID()
-		uidMap[oldUID] = newUID
+	req.Header = headers
+
+	client := &http.Client{}
+	resp, err := client.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("request failed with status code %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+func addLPAUpdate(uid string, headers http.Header) error {
+	url := fmt.Sprintf("http://localhost:8080/lpas/%s/updates", uid)
+	body := `{
+			"type": "CORRECTION",
+			"changes": [
+					{
+							"key": "/donor/lastName",
+							"new": "Perkins",
+							"old": "Zoller"
+					}
+			]
+	}`
+
+	req, err := http.NewRequest("POST", url, strings.NewReader(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header = headers
+
+	client := &http.Client{}
+	resp, err := client.Do(req) //nolint:gosec // SSRF is contained because URL is controlled
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("request failed with status code %d", resp.StatusCode)
 	}
 
 	return nil

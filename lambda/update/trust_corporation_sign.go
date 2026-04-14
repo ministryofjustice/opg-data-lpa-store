@@ -57,7 +57,7 @@ func validateTrustCorporationSign(changes []shared.Change, lpa *shared.Lpa) (Tru
 					return each.
 						Field("/mobile", &data.Mobile).
 						Field("/contactLanguagePreference", &data.ContactLanguagePreference, parse.Validate(validate.Valid())).
-						Field("/companyNumber", &data.CompanyNumber, parse.Optional()).
+						Field("/companyNumber", &data.CompanyNumber, parse.Validate(validate.NotEmpty())).
 						Field("/email", &data.Email, parse.Optional()).
 						Field("/channel", &data.Channel, parse.Validate(validate.Valid()), parse.Optional()).
 						Prefix("/signatories", func(prefix *parse.Parser) []shared.FieldError {

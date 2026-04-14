@@ -25,7 +25,7 @@ type Donor struct {
 	Person
 	Address                   Address        `json:"address"`
 	DateOfBirth               Date           `json:"dateOfBirth"`
-	Email                     string         `json:"email"`
+	Email                     string         `json:"email,omitempty"`
 	OtherNamesKnownBy         string         `json:"otherNamesKnownBy,omitempty"`
 	ContactLanguagePreference Lang           `json:"contactLanguagePreference"`
 	IdentityCheck             *IdentityCheck `json:"identityCheck,omitempty"`
@@ -34,7 +34,7 @@ type Donor struct {
 type CertificateProvider struct {
 	Person
 	Address                   Address        `json:"address"`
-	Email                     string         `json:"email"`
+	Email                     string         `json:"email,omitempty"`
 	Phone                     string         `json:"phone"`
 	Channel                   Channel        `json:"channel"`
 	SignedAt                  *time.Time     `json:"signedAt,omitempty"`
@@ -93,7 +93,7 @@ type Attorney struct {
 type TrustCorporation struct {
 	UID                       string          `json:"uid"`
 	Name                      string          `json:"name"`
-	CompanyNumber             string          `json:"companyNumber,omitempty"`
+	CompanyNumber             string          `json:"companyNumber"`
 	Email                     string          `json:"email,omitempty"`
 	AppointmentType           AppointmentType `json:"appointmentType"`
 	Address                   Address         `json:"address"`

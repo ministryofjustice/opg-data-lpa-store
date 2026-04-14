@@ -1,5 +1,11 @@
 name: "[Job] Plan/Deploy to Account"
 
+permissions:
+  id-token: write
+  contents: write
+  security-events: write
+  pull-requests: read
+
 on:
   workflow_call:
     inputs:
@@ -7,17 +13,36 @@ on:
         description: "The terraform workspace to target for account actions"
         required: true
         type: string
+
+      oidc_role:
+        description: "The OIDC role to assume for AWS access"
+        required: true
+        type: string
+
+      default_role:
+        description: "The default CI role to assume"
+        required: true
+        type: string
+
+      management_role:
+        description: "The management CI role to assume"
+        required: true
+        type: string
+
+      shared_role:
+        description: "The shared CI role to assume"
+        required: true
+        type: string
+
       apply:
         description: "Whether to apply the deployment"
         required: false
         type: boolean
         default: false
+
     secrets:
-      aws_access_key_id:
-        description: "AWS Access Key ID"
-        required: true
-      aws_secret_access_key:
-        description: "AWS Secret Access Key"
+      snyk_opg_org_token:
+        description: "Snyk token for OPG organization"
         required: true
 
 jobs:
@@ -25,14 +50,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       tf_dir: "./terraform/account"
+      TF_WORKSPACE: ${{ inputs.workspace_name }}
+      TF_VAR_default_role: ${{ inputs.default_role }}
+      TF_VAR_management_role: ${{ inputs.management_role }}
+      TF_VAR_shared_role: ${{ inputs.shared_role }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: "0"
-      - uses: unfor19/install-aws-cli-action@f5b46b7f32cf5e7ebd652656c5036bf83dd1e60c # 1.0.8
+
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/.github/actions/terraform-version@ea1e81f43e7593acd74cc114085930f5f54914a2 # v3.1.7
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
@@ -42,27 +71,63 @@ jobs:
         with:
           terraform_version: ${{ steps.tf_version.outputs.version }}
           terraform_wrapper: false
-      - name: Configure AWS Credentials For Terraform
-        uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
-        with:
-          aws-access-key-id: ${{ secrets.aws_access_key_id }}
-          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
-          aws-region: eu-west-1
-          role-duration-seconds: 3600
-          role-session-name: OPGLpaStoreGithubAction
 
-      - name: Lint Terraform
+      - name: Format Terraform
         run: terraform fmt -check -recursive
         working-directory: ${{ env.tf_dir }}
-        continue-on-error: true
+
+      - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6.2.2
+        name: Setup TFLint
+        with:
+          tflint_version: v0.60.0
+
+      - name: Lint Terraform
+        id: tf_lint
+        run: tflint --recursive
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ vars.OIDC_MANAGEMENT_ECR_ROLE }}
+          role-duration-seconds: 3600
+          role-session-name: GitHubActions
+
+      - name: ECR Login
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@f2e9fc6c2b355c1890b65e6f6f0e2ac3e6e22f78 # v2.1.2
+        with:
+          registries: 311462405659
+
+      - name: Snky IAC
+        id: snyk_iac
+        uses: ministryofjustice/opg-github-actions/actions/snyk-iac@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
+        with:
+          iac_test_directory: "./terraform/account/"
+          sarif_filename: "snyk-iac.sarif"
+          SNYK_TOKEN: ${{ secrets.snyk_opg_org_token }}
+
+      - name: Upload Snyk IAC scan results to GitHub Security tab
+        id: snyk_upload_sarif
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
+        if: always()
+        with:
+          category: "Terraform"
+          sarif_file: "test-results/snyk-iac.sarif"
+
+      - name: Configure AWS Credentials For Terraform
+        uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ inputs.oidc_role }}
+          role-duration-seconds: 3600
+          role-session-name: account-deploy-github-action
 
       - name: Terraform Init
         run: terraform init -input=false
         working-directory: ${{ env.tf_dir }}
 
       - name: Terraform Plan
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform workspace show
           terraform plan -lock-timeout=300s -input=false -parallelism=30 -out=terraform.plan
@@ -70,8 +135,6 @@ jobs:
 
       - name: Terraform Apply
         if: inputs.apply == true
-        env:
-          TF_WORKSPACE: ${{ inputs.workspace_name }}
         run: |
           terraform apply -lock-timeout=300s -input=false -auto-approve -parallelism=30 terraform.plan
         working-directory: ${{ env.tf_dir }}

@@ -30,7 +30,7 @@ def __get_lpa(uid):
     return json.loads(response.text)
 
 
-def __send_correction(uid, type, *changes) -> requests.Response:
+def __send_update(uid, type, *changes) -> requests.Response:
     aws_auth = AwsAuth()
 
     base_url = os.environ["BASE_URL"]
@@ -73,7 +73,7 @@ def attorney_sign(uid, attorney_uuid, signed_at) -> requests.Response:
     if attorney_index == None:
         raise Exception("Could not find attorney with UID {}".format(attorney_uuid))
 
-    return __send_correction(
+    return __send_update(
         uid,
         "ATTORNEY_SIGN",
         {
@@ -85,12 +85,44 @@ def attorney_sign(uid, attorney_uuid, signed_at) -> requests.Response:
 
 
 def certificate_provider_sign(uid, signed_at) -> requests.Response:
-    return __send_correction(
+    return __send_update(
         uid,
         "CERTIFICATE_PROVIDER_SIGN",
         {
             "key": "/certificateProvider/signedAt",
             "old": None,
             "new": signed_at,
+        },
+    )
+
+def donor_id(uid, checked_at, id_type) -> requests.Response:
+    return __send_update(
+        uid,
+        "DONOR_CONFIRM_IDENTITY",
+        {
+            "key": "/donor/identityCheck/checkedAt",
+            "old": None,
+            "new": checked_at,
+        },
+        {
+            "key": "/donor/identityCheck/type",
+            "old": None,
+            "new": id_type,
+        },
+    )
+
+def certificate_provider_id(uid, checked_at, type) -> requests.Response:
+    return __send_update(
+        uid,
+        "CERTIFICATE_PROVIDER_CONFIRM_IDENTITY",
+        {
+            "key": "/certificateProvider/identityCheck/checkedAt",
+            "old": None,
+            "new": checked_at,
+        },
+        {
+            "key": "/certificateProvider/identityCheck/type",
+            "old": None,
+            "new": type,
         },
     )

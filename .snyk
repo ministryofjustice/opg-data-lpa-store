@@ -1,0 +1,48 @@
+version: v1.25.1
+ignore:
+# Docker ignores
+  snyk:lic:pip:certifi:MPL-2.0:
+    - '*':
+      reason: Acceptable license
+      expires: 2026-05-26T08:00:00Z
+      created: 2026-03-27T11:45:00Z
+  SNYK-PYTHON-REQUESTS-15763443:
+    - '*':
+      reason: Known issue in LPA Store container
+      expires: 2026-05-26T08:00:00Z
+      created: 2026-03-27T11:45:00Z
+
+# IAC ignores
+  # LOW
+  SNYK-CC-TF-56:
+    - 'region/vpc.tf > resource > aws_security_group[vpc_endpoints_application] > description':
+      reason: Security group description missing, to be fixed before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+  SNYK-CC-AWS-417:
+    - 'dynamodb.tf > resource > aws_dynamodb_table[changes_table] > server_side_encryption > kms_key_arn':
+      reason: DynamoDB table not using customer managed key, to be fixed before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+    - 'dynamodb.tf > resource > aws_dynamodb_table[deeds_table] > server_side_encryption > kms_key_arn':
+      reason: DynamoDB table not using customer managed key, to be fixed before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+  # MEDIUM
+  SNYK-CC-AWS-428:
+    - 'region/vpc.tf > resource > aws_vpc_endpoint[application]':
+      reason: Endpoint policy missing, to be fixed before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+  SNYK-CC-TF-119:
+    - 'region/vpc.tf > data > aws_iam_policy_document[allow_account_access]':
+      reason: Overly broad IAM policy, that needs fixing before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+  # HIGH
+  SNYK-CC-TF-69:
+    - 'region/vpc.tf > aws_iam_policy_document[allow_account_access] > statement':
+      reason: Overly permissive policy, that needs fixing before live.
+      expires: 2026-07-26T08:00:00Z
+      created: 2026-04-09T10:05:00Z
+patch: {}

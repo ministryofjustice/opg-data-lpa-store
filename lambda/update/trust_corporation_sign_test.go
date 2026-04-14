@@ -164,12 +164,17 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						New: json.RawMessage(`"online"`),
 						Old: json.RawMessage(`"paper"`),
 					},
+					{
+						Key: "/trustCorporations/0/companyNumber",
+						New: json.RawMessage(`"ABCD4567"`),
+						Old: json.RawMessage(`"ABCD1234"`),
+					},
 				},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					TrustCorporations: []shared.TrustCorporation{
-						{Email: "a@example.com", Channel: shared.ChannelPaper},
+						{Email: "a@example.com", Channel: shared.ChannelPaper, CompanyNumber: "ABCD1234"},
 					},
 				},
 			},
@@ -224,6 +229,11 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/0/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -275,11 +285,17 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 						New: json.RawMessage(`"digital"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/0/companyNumber",
+						New: json.RawMessage(`""`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/5/new", Detail: "invalid value"},
 				{Source: "/changes/6/new", Detail: "invalid value"},
+				{Source: "/changes/7/new", Detail: "field is required"},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -319,6 +335,11 @@ func TestValidateUpdateTrustCorporationSign(t *testing.T) {
 					{
 						Key: "/trustCorporations/0/contactLanguagePreference",
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/0/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
 						Old: jsonNull,
 					},
 				},
@@ -462,15 +483,21 @@ func TestValidateUpdateTrustCorporationSignUIDReferences(t *testing.T) {
 						New: json.RawMessage(`"online"`),
 						Old: json.RawMessage(`"paper"`),
 					},
+					{
+						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/companyNumber",
+						New: json.RawMessage(`"ABCD5678"`),
+						Old: json.RawMessage(`"ABCD1234"`),
+					},
 				},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
 					TrustCorporations: []shared.TrustCorporation{
 						{
-							UID:     "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
-							Email:   "a@example.com",
-							Channel: shared.ChannelPaper,
+							UID:           "9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d",
+							Email:         "a@example.com",
+							Channel:       shared.ChannelPaper,
+							CompanyNumber: "ABCD1234",
 						},
 					},
 				},
@@ -526,6 +553,11 @@ func TestValidateUpdateTrustCorporationSignUIDReferences(t *testing.T) {
 						New: json.RawMessage(`"John"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
@@ -577,11 +609,17 @@ func TestValidateUpdateTrustCorporationSignUIDReferences(t *testing.T) {
 						New: json.RawMessage(`"digital"`),
 						Old: jsonNull,
 					},
+					{
+						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/companyNumber",
+						New: json.RawMessage(`""`),
+						Old: jsonNull,
+					},
 				},
 			},
 			errors: []shared.FieldError{
 				{Source: "/changes/5/new", Detail: "invalid value"},
 				{Source: "/changes/6/new", Detail: "invalid value"},
+				{Source: "/changes/7/new", Detail: "field is required"},
 			},
 			lpa: &shared.Lpa{
 				LpaInit: shared.LpaInit{
@@ -621,6 +659,11 @@ func TestValidateUpdateTrustCorporationSignUIDReferences(t *testing.T) {
 					{
 						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/contactLanguagePreference",
 						New: json.RawMessage(`"` + shared.LangCy + `"`),
+						Old: jsonNull,
+					},
+					{
+						Key: "/trustCorporations/9ac5cb7c-fc75-40c7-8e53-059f36dbbe3d/companyNumber",
+						New: json.RawMessage(`"ABCD1234"`),
 						Old: jsonNull,
 					},
 				},

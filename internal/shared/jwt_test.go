@@ -75,7 +75,7 @@ func TestVerifyIssuer(t *testing.T) {
 
 	assert.NotNil(t, err)
 	if err != nil {
-		assert.Containsf(t, err.Error(), "Invalid Issuer", "")
+		assert.Containsf(t, err.Error(), "invalid issuer", "")
 	}
 }
 
@@ -115,7 +115,7 @@ func TestVerifySub(t *testing.T) {
 			if tc.shouldFail {
 				assert.NotNil(t, err)
 				if err != nil {
-					assert.Containsf(t, err.Error(), "Subject is not a valid URN", "")
+					assert.Containsf(t, err.Error(), "subject is not a valid URN", "")
 				}
 			} else {
 				assert.Nil(t, err)

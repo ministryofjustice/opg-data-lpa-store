@@ -18,11 +18,11 @@ import (
 
 const (
 	sirius string = "opg.poas.sirius"
-	mrlpa         = "opg.poas.makeregister"
-	use           = "opg.poas.use"
+	mrlpa  string = "opg.poas.makeregister"
+	use    string = "opg.poas.use"
 )
 
-var validIssuers []string = []string{
+var validIssuers = []string{
 	sirius,
 	mrlpa,
 	use,
@@ -40,7 +40,7 @@ func (l LpaStoreClaims) Validate() error {
 		return err
 	}
 
-	if iat.Time.After(time.Now()) {
+	if iat.After(time.Now()) {
 		return errors.New("IssuedAt must not be in the future")
 	}
 
@@ -59,7 +59,7 @@ func (l LpaStoreClaims) Validate() error {
 	}
 
 	if !isValid {
-		return errors.New("Invalid Issuer")
+		return errors.New("invalid issuer")
 	}
 
 	// validate subject (sub) depending on the issuer value
@@ -71,7 +71,7 @@ func (l LpaStoreClaims) Validate() error {
 	_, isUrn := urn.Parse([]byte(sub))
 
 	if !isUrn {
-		return errors.New("Subject is not a valid URN")
+		return errors.New("subject is not a valid URN")
 	}
 
 	return nil
@@ -112,7 +112,7 @@ func (v JWTVerifier) VerifyHeader(event events.APIGatewayProxyRequest) (*LpaStor
 	jwtHeaders := GetEventHeader("X-Jwt-Authorization", event)
 
 	if len(jwtHeaders) < 1 {
-		return nil, fmt.Errorf("Invalid X-Jwt-Authorization header")
+		return nil, fmt.Errorf("invalid X-Jwt-Authorization header")
 	}
 
 	tokenStr := bearerRegexp.ReplaceAllString(jwtHeaders[0], "")
@@ -139,7 +139,7 @@ func (v JWTVerifier) verifyToken(tokenStr string) (*LpaStoreClaims, error) {
 	}
 
 	if !parsedToken.Valid {
-		return nil, fmt.Errorf("Invalid JWT")
+		return nil, fmt.Errorf("invalid JWT")
 	}
 
 	return &lsc, nil

@@ -84,7 +84,6 @@ data "aws_iam_policy_document" "jwt_kms" {
           "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/lpa-store-fixtures/*",
       ])
     }
-
   }
 
   statement {
@@ -115,7 +114,7 @@ data "aws_iam_policy_document" "jwt_kms" {
       type = "AWS"
       identifiers = [
         "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/breakglass",
-        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-ci",
+        "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/lpa-store-management-ci",
         "arn:aws:iam::${data.aws_caller_identity.management.account_id}:role/modernising-lpa-ci",
       ]
     }

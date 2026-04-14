@@ -5,9 +5,9 @@ terraform {
     encrypt = true
     region  = "eu-west-1"
     assume_role = {
-      role_arn = "arn:aws:iam::311462405659:role/lpa-store-ci"
+      role_arn = "arn:aws:iam::311462405659:role/opg-lpa-store-state-access"
     }
-    dynamodb_table = "remote_lock"
+    use_lockfile = true
   }
 }
 
@@ -58,7 +58,7 @@ provider "aws" {
   region = "eu-west-2"
 
   assume_role {
-    role_arn     = "arn:aws:iam::${local.backup_account_id}:role/${var.default_role}"
+    role_arn     = "arn:aws:iam::${local.backup_account_id}:role/${var.backup_role}"
     session_name = "terraform-session"
   }
 

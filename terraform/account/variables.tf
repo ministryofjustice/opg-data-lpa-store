@@ -36,11 +36,17 @@ locals {
 variable "default_role" {
   description = "Role to assume in LPA Store account"
   type        = string
-  default     = "lpa-store-ci"
+  default     = "lpa-store-development-ci"
 }
 
 variable "management_role" {
   description = "Role to assume in Management account"
   type        = string
-  default     = "lpa-store-ci"
+  default     = "lpa-store-management-ci"
+}
+
+variable "shared_role" {
+  description = "Role to assume in Shared Services account"
+  type        = string
+  default     = "lpa-store-shared-development-ci"
 }

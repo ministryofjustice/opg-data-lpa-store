@@ -13,9 +13,13 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+type ctxValueType string
+
+const ctxValue ctxValueType = "for"
+
 var (
-	ctx           = context.WithValue(context.Background(), "for", "testing")
-	expectedError = errors.New("expect")
+	ctx         = context.WithValue(context.Background(), ctxValue, "testing")
+	errExpected = errors.New("expect")
 )
 
 func TestLambdaHandleEvent(t *testing.T) {
@@ -130,7 +134,7 @@ func TestLambdaHandleEventWhenPresignImagesErrors(t *testing.T) {
 	presignClient := newMockPresignClient(t)
 	presignClient.EXPECT().
 		PresignLpa(mock.Anything, mock.Anything).
-		Return(shared.Lpa{}, expectedError)
+		Return(shared.Lpa{}, errExpected)
 
 	lambda := &Lambda{
 		verifier:      verifier,
@@ -217,12 +221,12 @@ func TestLambdaHandleEventWhenStoreErrors(t *testing.T) {
 	logger.EXPECT().
 		Debug("Successfully parsed JWT from event header")
 	logger.EXPECT().
-		Error("error fetching LPAs", slog.Any("err", expectedError))
+		Error("error fetching LPAs", slog.Any("err", errExpected))
 
 	store := newMockStore(t)
 	store.EXPECT().
 		GetList(ctx, []string{"my-uid", "another-uid"}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	lambda := &Lambda{
 		verifier: verifier,

@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
@@ -17,6 +18,7 @@ import (
 
 type awsS3Client interface {
 	PutObject(ctx context.Context, input *s3.PutObjectInput, opts ...func(*s3.Options)) (*s3.PutObjectOutput, error)
+	GetObject(ctx context.Context, input *s3.GetObjectInput, opts ...func(*s3.Options)) (*s3.GetObjectOutput, error)
 }
 
 type presignClient interface {
@@ -98,5 +100,41 @@ func (c *S3Client) PresignLpa(ctx context.Context, lpa shared.Lpa) (shared.Lpa, 
 		}
 	}
 
+	if len(lpa.HowAttorneysMakeDecisionsDetailsImages) > 0 {
+		for i, decisionsImage := range lpa.HowAttorneysMakeDecisionsDetailsImages {
+			req, err := c.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+				Bucket: aws.String(c.bucketName),
+				Key:    aws.String(decisionsImage.Path),
+			})
+			if err != nil {
+				return lpa, err
+			}
+
+			lpa.HowAttorneysMakeDecisionsDetailsImages[i].Path = req.URL
+		}
+	}
+
 	return lpa, nil
+}
+
+func (c *S3Client) Get(ctx context.Context, objectKey string) (string, error) {
+	result, err := c.awsClient.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(c.bucketName),
+		Key:    aws.String(objectKey),
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	//nolint:errcheck
+	defer result.Body.Close()
+
+	body, err := io.ReadAll(result.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
 }

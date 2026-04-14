@@ -39,6 +39,10 @@ func (r SeverRestrictions) Apply(lpa *shared.Lpa) []shared.FieldError {
 func validateSeverRestrictions(changes []shared.Change, lpa *shared.Lpa) (SeverRestrictions, []shared.FieldError) {
 	var data SeverRestrictions
 
+	if len(changes) == 0 {
+		return data, []shared.FieldError{{Source: "/changes", Detail: "no changes provided"}}
+	}
+
 	data.restrictionsAndConditions = lpa.RestrictionsAndConditions
 
 	errors := parse.Changes(changes).

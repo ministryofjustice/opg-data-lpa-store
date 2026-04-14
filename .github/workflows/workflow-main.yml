@@ -15,25 +15,48 @@ jobs:
     name: Generate tag
     uses: ./.github/workflows/generate-tag.yml
 
+  static-analysis:
+    name: Run static analysis checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: "0"
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: "1.26"
+      - run: make go-lint
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
+        if: always()
+        with:
+          sarif_file: test-results/golangci-lint.sarif
+
+  go-test:
+    name: Go test
+    uses: ./.github/workflows/go-test.yml
+
   build:
     name: Build, Scan & Push Images
-    needs: [generate-tag]
+    needs: [generate-tag, go-test, static-analysis]
     uses: ./.github/workflows/build-push-images.yml
     with:
       docker_tag: ${{ needs.generate-tag.outputs.tag }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-dev-account:
     name: TF Deploy Dev Account
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: development
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-dev-env:
     name: Deploy Development Environment
@@ -41,13 +64,16 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: development
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   test-dev-env:
     name: Test Development Environment
@@ -56,8 +82,6 @@ jobs:
     with:
       base_url: ${{ needs.deploy-dev-env.outputs.base_url }}
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       jwt_secret_key: ${{ secrets.JWT_SECRET_KEY }}
 
   deploy-preproduction-account:
@@ -66,10 +90,13 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: preproduction
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PREPRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-preproduction-env:
     name: Deploy Preproduction Environment
@@ -77,13 +104,16 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: preproduction
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PREPRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-production-account:
     name: TF Deploy Production Account
@@ -91,10 +121,13 @@ jobs:
     uses: ./.github/workflows/account-deploy.yml
     with:
       workspace_name: production
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      shared_role: ${{ vars.SHARED_DEVELOPMENT_ROLE }}
       apply: true
     secrets:
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-production-env:
     name: Deploy Production Environment
@@ -102,13 +135,16 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: production
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.PRODUCTION_MAIN_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-demo-env:
     name: Deploy Demo Environment
@@ -116,13 +152,16 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: demo
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}
 
   deploy-integration-env:
     name: Deploy Integration Environment
@@ -130,10 +169,13 @@ jobs:
     uses: ./.github/workflows/env-deploy.yml
     with:
       workspace_name: integration
+      oidc_role: ${{ vars.OIDC_MAIN_ROLE }}
+      default_role: ${{ vars.DEVELOPMENT_ROLE }}
+      management_role: ${{ vars.MANAGEMENT_ROLE }}
+      backup_role: ${{ vars.BACKUP_MAIN_ROLE }}
       version_tag: ${{ needs.generate-tag.outputs.tag }}
       apply: true
     secrets:
       allowlist_deploy_key: ${{ secrets.SSH_PRIVATE_KEY_ALLOW_LIST_REPOSITORY }}
-      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      snyk_opg_org_token: ${{ secrets.SNYK_OPG_ORG_TOKEN }}

@@ -81,6 +81,19 @@ func (l *Lambda) HandleEvent(ctx context.Context, req events.APIGatewayProxyRequ
 	subject, _ := claims.GetSubject()
 	update.Author = shared.URN(subject)
 
+	redundantErrors, err := redundantChangeErrors(update.Changes)
+	if err != nil {
+		l.logger.Error("error evaluating redundant changes", slog.Any("err", err))
+		return shared.ProblemInternalServerError.Respond()
+	}
+
+	if len(redundantErrors) > 0 {
+		problem := shared.ProblemInvalidRequest
+		problem.Errors = redundantErrors
+
+		return problem.Respond()
+	}
+
 	applyable, errors := validateUpdate(update, &lpa)
 	if len(errors) > 0 {
 		problem := shared.ProblemInvalidRequest

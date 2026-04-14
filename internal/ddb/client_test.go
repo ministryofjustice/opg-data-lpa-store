@@ -14,11 +14,15 @@ import (
 	mock "github.com/stretchr/testify/mock"
 )
 
+type ctxValueType string
+
+const ctxValue ctxValueType = "for"
+
 var (
-	ctx              = context.WithValue(context.Background(), "for", "testing")
+	ctx              = context.WithValue(context.Background(), ctxValue, "testing")
 	tableName        = "a-table"
 	changesTableName = "a-change-table"
-	expectedError    = errors.New("hey")
+	errExpected      = errors.New("hey")
 )
 
 func TestNew(t *testing.T) {
@@ -44,11 +48,12 @@ func TestClientPutChanges(t *testing.T) {
 				Put: &types.Put{
 					TableName: aws.String(changesTableName),
 					Item: map[string]types.AttributeValue{
+						"id":      &types.AttributeValueMemberS{Value: "123"},
 						"uid":     &types.AttributeValueMemberS{Value: "a-uid"},
 						"applied": &types.AttributeValueMemberS{Value: "2024-01-01Tsomething"},
 						"author":  &types.AttributeValueMemberS{Value: "an-author"},
 						"type":    &types.AttributeValueMemberS{Value: "a-type"},
-						"change": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						"changes": &types.AttributeValueMemberL{Value: []types.AttributeValue{
 							&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
 								"Key": &types.AttributeValueMemberS{Value: "a-key"},
 								"Old": &types.AttributeValueMemberB{Value: []byte("old")},
@@ -59,7 +64,7 @@ func TestClientPutChanges(t *testing.T) {
 				},
 			}},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{
 		svc:              dynamodbClient,
@@ -68,6 +73,7 @@ func TestClientPutChanges(t *testing.T) {
 	}
 
 	err := client.PutChanges(ctx, map[string]string{"hey": "hello"}, shared.Update{
+		Id:      "123",
 		Uid:     "a-uid",
 		Applied: "2024-01-01Tsomething",
 		Author:  "an-author",
@@ -76,7 +82,7 @@ func TestClientPutChanges(t *testing.T) {
 			{Key: "a-key", Old: json.RawMessage("old"), New: json.RawMessage("new")},
 		},
 	})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientPut(t *testing.T) {
@@ -88,7 +94,7 @@ func TestClientPut(t *testing.T) {
 				"hey": &types.AttributeValueMemberS{Value: "hello"},
 			},
 		}).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{
 		svc:       dynamodbClient,
@@ -96,7 +102,7 @@ func TestClientPut(t *testing.T) {
 	}
 
 	err := client.Put(ctx, map[string]string{"hey": "hello"})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientGet(t *testing.T) {
@@ -129,12 +135,12 @@ func TestClientGetWhenClientErrors(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
 		GetItem(ctx, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: dynamodbClient}
 
 	_, err := client.Get(ctx, "my-uid")
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
 }
 
 func TestClientGetList(t *testing.T) {
@@ -153,7 +159,7 @@ func TestClientGetList(t *testing.T) {
 		}).
 		Return(&dynamodb.BatchGetItemOutput{
 			Responses: map[string][]map[string]types.AttributeValue{
-				tableName: []map[string]types.AttributeValue{{
+				tableName: {{
 					"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
 					"lpaType": &types.AttributeValueMemberS{Value: "property-and-affairs"},
 				}, {
@@ -180,10 +186,148 @@ func TestClientGetListWhenClientErrors(t *testing.T) {
 	dynamodbClient := newMockDynamodbClient(t)
 	dynamodbClient.EXPECT().
 		BatchGetItem(ctx, mock.Anything).
-		Return(nil, expectedError)
+		Return(nil, errExpected)
 
 	client := &Client{svc: dynamodbClient}
 
 	_, err := client.GetList(ctx, []string{"my-uid", "another-uid"})
-	assert.Equal(t, expectedError, err)
+	assert.Equal(t, errExpected, err)
+}
+
+func TestClientGetChanges(t *testing.T) {
+	dynamodbClient := newMockDynamodbClient(t)
+	paginatorFactory := newMockPaginatorFactory(t)
+	queryPaginator := newMockQueryPaginator(t)
+
+	// First page
+	page1 := &dynamodb.QueryOutput{
+		Items: []map[string]types.AttributeValue{
+			{
+				"id":      &types.AttributeValueMemberS{Value: "1231"},
+				"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
+				"applied": &types.AttributeValueMemberS{Value: "2024-01-01T00:00:00Z"},
+				"author":  &types.AttributeValueMemberS{Value: "author-1"},
+				"type":    &types.AttributeValueMemberS{Value: "type-1"},
+				"changes": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+					&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+						"Key": &types.AttributeValueMemberS{Value: "key-1"},
+						"Old": &types.AttributeValueMemberB{Value: []byte("old-1")},
+						"New": &types.AttributeValueMemberB{Value: []byte("new-1")},
+					}},
+				}},
+			},
+		},
+	}
+
+	// Second page
+	page2 := &dynamodb.QueryOutput{
+		Items: []map[string]types.AttributeValue{
+			{
+				"id":      &types.AttributeValueMemberS{Value: "1232"},
+				"uid":     &types.AttributeValueMemberS{Value: "my-uid"},
+				"applied": &types.AttributeValueMemberS{Value: "2024-01-02T00:00:00Z"},
+				"author":  &types.AttributeValueMemberS{Value: "author-2"},
+				"type":    &types.AttributeValueMemberS{Value: "type-2"},
+				"changes": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+					&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+						"Key": &types.AttributeValueMemberS{Value: "key-2"},
+						"Old": &types.AttributeValueMemberB{Value: []byte("old-2")},
+						"New": &types.AttributeValueMemberB{Value: []byte("new-2")},
+					}},
+				}},
+			},
+		},
+	}
+
+	s := "#0 = :0"
+	scanIndexForward := false
+	paginatorFactory.EXPECT().
+		NewQueryPaginator(&dynamodb.QueryInput{
+			TableName:                aws.String(changesTableName),
+			ExpressionAttributeNames: map[string]string{"#0": "uid"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":0": &types.AttributeValueMemberS{Value: "my-uid"},
+			},
+			KeyConditionExpression: &s,
+			ScanIndexForward:       &scanIndexForward,
+		}).
+		Return(queryPaginator)
+
+	queryPaginator.EXPECT().HasMorePages().Return(true).Once()
+	queryPaginator.EXPECT().NextPage(ctx).Return(page1, nil).Once()
+	queryPaginator.EXPECT().HasMorePages().Return(true).Once()
+	queryPaginator.EXPECT().NextPage(ctx).Return(page2, nil).Once()
+	queryPaginator.EXPECT().HasMorePages().Return(false).Once()
+
+	client := &Client{
+		svc:              dynamodbClient,
+		changesTableName: changesTableName,
+		paginatorFactory: paginatorFactory,
+	}
+
+	updates, err := client.GetChanges(ctx, "my-uid")
+	assert.Nil(t, err)
+	assert.Equal(t, []shared.Update{
+		{
+			Id:      "1231",
+			Uid:     "my-uid",
+			Applied: "2024-01-01T00:00:00Z",
+			Author:  "author-1",
+			Type:    "type-1",
+			Changes: []shared.Change{
+				{
+					Key: "key-1",
+					Old: json.RawMessage("old-1"),
+					New: json.RawMessage("new-1"),
+				},
+			},
+		},
+		{
+			Id:      "1232",
+			Uid:     "my-uid",
+			Applied: "2024-01-02T00:00:00Z",
+			Author:  "author-2",
+			Type:    "type-2",
+			Changes: []shared.Change{
+				{
+					Key: "key-2",
+					Old: json.RawMessage("old-2"),
+					New: json.RawMessage("new-2"),
+				},
+			},
+		},
+	}, updates)
+}
+
+func TestClientGetChangesErrorOnQuery(t *testing.T) {
+	dynamodbClient := newMockDynamodbClient(t)
+	paginatorFactory := newMockPaginatorFactory(t)
+	queryPaginator := newMockQueryPaginator(t)
+
+	s := "#0 = :0"
+	scanIndexForward := false
+	paginatorFactory.EXPECT().
+		NewQueryPaginator(&dynamodb.QueryInput{
+			TableName:                aws.String(changesTableName),
+			ExpressionAttributeNames: map[string]string{"#0": "uid"},
+			ExpressionAttributeValues: map[string]types.AttributeValue{
+				":0": &types.AttributeValueMemberS{Value: "my-uid"},
+			},
+			KeyConditionExpression: &s,
+			ScanIndexForward:       &scanIndexForward,
+		}).
+		Return(queryPaginator)
+
+	queryPaginator.EXPECT().HasMorePages().Return(true).Once()
+	queryPaginator.EXPECT().NextPage(ctx).Return(nil, errExpected).Once()
+
+	client := &Client{
+		svc:              dynamodbClient,
+		changesTableName: changesTableName,
+		paginatorFactory: paginatorFactory,
+	}
+
+	updates, err := client.GetChanges(ctx, "my-uid")
+	assert.Nil(t, updates)
+	assert.Equal(t, errExpected, err)
 }

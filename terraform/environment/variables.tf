@@ -40,17 +40,23 @@ variable "environments" {
 variable "default_role" {
   description = "Role to assume in LPA Store account"
   type        = string
-  default     = "lpa-store-ci"
+  default     = "lpa-store-development-ci"
 }
 
 variable "management_role" {
   description = "Role to assume in Management account"
   type        = string
-  default     = "lpa-store-ci"
+  default     = "lpa-store-management-ci"
 }
 
 variable "app_version" {
   description = "Version of application to deploy"
   type        = string
   default     = "latest"
+}
+
+variable "backup_role" {
+  description = "Role to assume in backup account"
+  type        = string
+  default     = "lpa-store-backup-ci"
 }

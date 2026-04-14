@@ -14,7 +14,7 @@ func main() {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 		"iat": time.Now().Add(time.Hour * -24).Unix(),
 		"iss": "opg.poas.sirius",
-		"sub": "urn:opg:poas:sirius:users:34",
+		"sub": "urn:opg:sirius:users:34",
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

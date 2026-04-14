@@ -92,8 +92,55 @@ services:
       - "./lambda/.aws-lambda-rie:/aws-lambda"
     entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
 
+  lambda-getupdates:
+    image: lpa-store/lambda/api-getupdates
+    depends_on:
+      localstack:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./lambda/Dockerfile
+      args:
+        - DIR=getupdates
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+      DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
+      EVENT_BUS_NAME: local-main
+      JWT_SECRET_KEY_ARN: local/jwt-key
+    volumes:
+      - "./lambda/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+
+  lambda-getstatic:
+    image: lpa-store/lambda/api-getstatic
+    depends_on:
+      localstack:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: ./lambda/Dockerfile
+      args:
+        - DIR=getstatic
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_BASE_URL: http://localstack:4566
+      AWS_ACCESS_KEY_ID: localstack
+      AWS_SECRET_ACCESS_KEY: localstack
+      DDB_TABLE_NAME_DEEDS: deeds
+      DDB_TABLE_NAME_CHANGES: changes
+      S3_BUCKET_NAME_ORIGINAL: opg-lpa-store-static-eu-west-1
+      EVENT_BUS_NAME: local-main
+      JWT_SECRET_KEY_ARN: local/jwt-key
+    volumes:
+      - "./lambda/.aws-lambda-rie:/aws-lambda"
+    entrypoint: /aws-lambda/aws-lambda-rie /var/task/main
+
   apigw:
-    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist]
+    depends_on: [lambda-create, lambda-update, lambda-get, lambda-getlist, lambda-getupdates, lambda-getstatic]
     build:
       context: .
       dockerfile: ./mock-apigw/Dockerfile
@@ -101,7 +148,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:4.7
+    image: localstack/localstack:4.14
     ports:
       - "4566:4566"
     volumes:
@@ -116,11 +163,11 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v2.3.1
+    image: golangci/golangci-lint:v2.11.4
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
-    command: golangci-lint run --timeout 5m --enable gosec --output.text.path stdout --output.sarif.path test-results/golangci-lint.sarif ./lambda/get/... ./lambda/create/... ./lambda/update/...
+    command: golangci-lint run --timeout 5m --enable gosec --output.text.path stdout --output.sarif.path test-results/golangci-lint.sarif ./...
 
   pact-verifier:
     image: pactfoundation/pact-ref-verifier
