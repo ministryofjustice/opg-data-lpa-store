@@ -79,7 +79,7 @@ jobs:
 
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
@@ -92,7 +92,7 @@ jobs:
 
       - name: Setup SSH private key
         id: deploy-key
-        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@3a15a16fcc221821c2869eecd8822c5d62af2984 # v4.7.0
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@ceeda9d30ec7f6705c819d0b7664b9a79df99a3b # v4.8.0
         with:
           deploy_key: ${{ secrets.allowlist_deploy_key }}
 
@@ -114,7 +114,7 @@ jobs:
         run: tflint --recursive
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.OIDC_MANAGEMENT_ECR_ROLE }}
