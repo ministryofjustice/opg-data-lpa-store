@@ -148,7 +148,7 @@ services:
       - 9000:8080
 
   localstack:
-    image: localstack/localstack:4.14
+    image: localstack/localstack:4.14@sha256:3ebc37595918b8accb852f8048fef2aff047d465167edd655528065b07bc364a
     ports:
       - "4566:4566"
     volumes:
@@ -163,14 +163,14 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v2.11.4
+    image: golangci/golangci-lint:v2.11.4@sha256:67dfc9eeeb0eb13fc1a36329c2c378197dc561f1edf1a7792e3f771606bb0e15
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
     command: golangci-lint run --timeout 5m --enable gosec --output.text.path stdout --output.sarif.path test-results/golangci-lint.sarif ./...
 
   pact-verifier:
-    image: pactfoundation/pact-ref-verifier
+    image: pactfoundation/pact-ref-verifier@sha256:514b680cd0ad2fa95c6df7a541e3b03c8dd1176de26e84e58a349de96e305bce
     entrypoint:
       - pact_verifier_cli
       - --hostname=apigw
