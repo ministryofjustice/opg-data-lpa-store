@@ -45,8 +45,8 @@ variable "management_role" {
   default     = "lpa-store-management-ci"
 }
 
-variable "shared_role" {
-  description = "Role to assume in Shared Services account"
-  type        = string
-  default     = "lpa-store-shared-development-ci"
-}
+# variable "shared_role" {
+#   description = "Role to assume in Shared Services account"
+#   type        = string
+#   default     = "lpa-store-shared-development-ci"
+# }
