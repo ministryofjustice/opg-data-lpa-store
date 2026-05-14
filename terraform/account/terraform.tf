@@ -81,16 +81,16 @@ provider "aws" {
   }
 }
 
-provider "aws" {
-  alias  = "shared_eu_west_1"
-  region = "eu-west-1"
+# provider "aws" {
+#   alias  = "shared_eu_west_1"
+#   region = "eu-west-1"
 
-  assume_role {
-    role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
-    session_name = "lpa-store-terraform-session"
-  }
+#   assume_role {
+#     role_arn     = "arn:aws:iam::${local.account.shared_account_id}:role/${var.shared_role}"
+#     session_name = "lpa-store-terraform-session"
+#   }
 
-  default_tags {
-    tags = local.default_tags
-  }
-}
+#   default_tags {
+#     tags = local.default_tags
+#   }
+# }
