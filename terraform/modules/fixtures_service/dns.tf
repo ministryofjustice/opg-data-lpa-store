@@ -12,7 +12,7 @@ resource "aws_route53_record" "fixtures" {
   zone_id        = data.aws_route53_zone.service.zone_id
   name           = "fixtures-${var.environment_name}"
   type           = "A"
-  set_identifier = data.aws_region.current.name
+  set_identifier = data.aws_region.current.region
 
   weighted_routing_policy {
     weight = 100

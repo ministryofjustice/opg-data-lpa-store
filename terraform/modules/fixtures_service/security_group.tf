@@ -30,7 +30,7 @@ resource "aws_security_group_rule" "ecs_to_vpc_endpoint" {
 
 data "aws_security_group" "vpc_endpoints_application" {
   vpc_id = var.vpc_id
-  name   = "vpc-endpoint-access-application-subnets-${data.aws_region.current.name}"
+  name   = "vpc-endpoint-access-application-subnets-${data.aws_region.current.region}"
 
   provider = aws.region
 }
@@ -59,7 +59,7 @@ resource "aws_security_group_rule" "ecs_to_vpc_gateways" {
 }
 
 data "aws_prefix_list" "s3" {
-  name = "com.amazonaws.${data.aws_region.current.name}.s3"
+  name = "com.amazonaws.${data.aws_region.current.region}.s3"
 
   provider = aws.region
 }
