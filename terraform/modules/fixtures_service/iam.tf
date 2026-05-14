@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "ecs_task_role_assume_policy" {
 }
 
 resource "aws_iam_role_policy" "task_role" {
-  name   = "fixtures-task-role-${var.environment_name}-${data.aws_region.current.name}"
+  name   = "fixtures-task-role-${var.environment_name}-${data.aws_region.current.region}"
   role   = aws_iam_role.task_role.id
   policy = data.aws_iam_policy_document.task_role.json
 
@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "task_role" {
       "execute-api:Invoke",
       "execute-api:ManageConnections"
     ]
-    resources = ["arn:aws:execute-api:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:*"]
+    resources = ["arn:aws:execute-api:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:*"]
   }
 
   provider = aws.region
@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "execution_assume_role" {
 }
 
 resource "aws_iam_role_policy" "execution_role" {
-  name   = "fixtures-execution-role-${var.environment_name}-${data.aws_region.current.name}"
+  name   = "fixtures-execution-role-${var.environment_name}-${data.aws_region.current.region}"
   role   = aws_iam_role.execution_role.id
   policy = data.aws_iam_policy_document.execution_role.json
 

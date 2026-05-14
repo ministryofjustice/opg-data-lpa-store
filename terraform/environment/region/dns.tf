@@ -17,7 +17,7 @@ resource "aws_route53_record" "environment_record" {
   name           = local.a_record
   type           = "A"
   zone_id        = data.aws_route53_zone.service.id
-  set_identifier = data.aws_region.current.name
+  set_identifier = data.aws_region.current.region
 
   weighted_routing_policy {
     weight = var.dns_weighting

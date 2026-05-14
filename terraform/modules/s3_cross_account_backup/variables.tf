@@ -1,5 +1,5 @@
 locals {
-  s3_logging_bucket_name = "${var.s3_access_logging_bucket_prefix}-${data.aws_region.backup_account.name}"
+  s3_logging_bucket_name = "${var.s3_access_logging_bucket_prefix}-${data.aws_region.backup_account.region}"
 }
 
 variable "bucket_name" {

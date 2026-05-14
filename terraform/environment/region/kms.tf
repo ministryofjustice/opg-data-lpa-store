@@ -1,5 +1,5 @@
 resource "aws_kms_key" "cloudwatch" {
-  description             = "CloudWatch ${terraform.workspace} ${data.aws_region.current.name}"
+  description             = "CloudWatch ${terraform.workspace} ${data.aws_region.current.region}"
   deletion_window_in_days = 10
   policy                  = data.aws_iam_policy_document.cloudwatch_kms.json
   enable_key_rotation     = true
@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "cloudwatch_kms" {
     ]
     principals {
       type        = "Service"
-      identifiers = ["logs.${data.aws_region.current.name}.amazonaws.com"]
+      identifiers = ["logs.${data.aws_region.current.region}.amazonaws.com"]
     }
   }
   statement {
