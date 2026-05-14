@@ -18,7 +18,7 @@
 # }
 
 # resource "aws_iam_role_policy" "opg_metrics" {
-#   name     = "opg-metrics-${data.aws_region.current.name}"
+#   name     = "opg-metrics-${data.aws_region.current.region}"
 #   role     = aws_iam_role.opg_metrics.name
 #   policy   = data.aws_iam_policy_document.opg_metrics.json
 #   provider = aws.eu_west_1

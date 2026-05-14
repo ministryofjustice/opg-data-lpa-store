@@ -108,7 +108,7 @@ resource "aws_api_gateway_account" "api_gateway" {
 
 
 data "aws_iam_policy_document" "lpa_store" {
-  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-resource-policy"
+  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.region}-resource-policy"
   override_policy_documents = concat(
     length(var.environment.allowed_wildcard_arns) > 0 ? [data.aws_iam_policy_document.lpa_store_wildcard.json] : [],
     local.ip_restrictions_enabled ? [data.aws_iam_policy_document.lpa_rest_api_ip_restriction_policy[0].json] : []
@@ -136,12 +136,12 @@ data "aws_iam_policy_document" "lpa_store" {
     }
 
     actions   = ["execute-api:Invoke"]
-    resources = ["arn:aws:execute-api:${data.aws_region.current.name}:${var.environment.account_id}:*/current/GET/health-check"]
+    resources = ["arn:aws:execute-api:${data.aws_region.current.region}:${var.environment.account_id}:*/current/GET/health-check"]
   }
 }
 
 data "aws_iam_policy_document" "lpa_store_wildcard" {
-  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.name}-wildcard-resource-policy"
+  policy_id = "lpa-store-${var.environment_name}-${data.aws_region.current.region}-wildcard-resource-policy"
 
   statement {
     sid    = "AllowExecutionFromWildcards"

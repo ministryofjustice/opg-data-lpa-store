@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "lambda_s3_policy" {
     condition {
       test     = "StringLike"
       variable = "kms:ViaService"
-      values   = ["s3.${data.aws_region.current.name}.amazonaws.com"]
+      values   = ["s3.${data.aws_region.current.region}.amazonaws.com"]
     }
 
     condition {
@@ -118,4 +118,3 @@ data "aws_iam_policy_document" "lambda_secrets_policy" {
     ]
   }
 }
-
