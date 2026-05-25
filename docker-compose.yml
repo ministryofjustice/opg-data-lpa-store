@@ -163,7 +163,7 @@ services:
       retries: 50
 
   go-lint:
-    image: golangci/golangci-lint:v2.11.4@sha256:67dfc9eeeb0eb13fc1a36329c2c378197dc561f1edf1a7792e3f771606bb0e15
+    image: golangci/golangci-lint:v2.12.2@sha256:5cceeef04e53efe1470638d4b4b4f5ceefd574955ab3941b2d9a68a8c9ad5240
     working_dir: /go/src/app
     volumes:
       - ./:/go/src/app
