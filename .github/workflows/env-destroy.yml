@@ -40,7 +40,7 @@ jobs:
 
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@9e8b7c2fb29c11e77b12913f74459fa48b11829f # v4.8.2
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@9e756945a9e2b6ac5dc81473b01f8b38600e6ed6 # v4.8.6
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
@@ -60,7 +60,7 @@ jobs:
 
       - name: Setup SSH private key
         id: deploy-key
-        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@9e8b7c2fb29c11e77b12913f74459fa48b11829f # v4.8.2
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@9e756945a9e2b6ac5dc81473b01f8b38600e6ed6 # v4.8.6
         with:
           deploy_key: ${{ secrets.allowlist_deploy_key }}
 
