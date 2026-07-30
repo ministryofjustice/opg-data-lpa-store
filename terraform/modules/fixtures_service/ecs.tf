@@ -46,6 +46,10 @@ resource "aws_ecs_task_definition" "fixtures" {
   task_role_arn            = aws_iam_role.task_role.arn
   execution_role_arn       = aws_iam_role.execution_role.arn
 
+  volume {
+    name = "app_tmp"
+  }
+
   provider = aws.region
 }
 
@@ -55,7 +59,12 @@ locals {
       cpu                    = 1,
       essential              = true,
       image                  = var.ecr_image_uri,
-      mountPoints            = [],
+      mountPoints            = [
+      {
+          containerPath = "/tmp",
+          sourceVolume  = "app_tmp"
+        }
+      ],
       readonlyRootFilesystem = true
       name                   = "fixtures",
       portMappings = [
