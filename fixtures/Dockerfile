@@ -16,12 +16,13 @@ COPY --from=ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a19
 ENV UV_MALWARE_CHECK=1
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_NO_BUILD=1
+ENV UV_FROZEN=1
 
 WORKDIR /app
 
 COPY fixtures/pyproject.toml pyproject.toml
 COPY fixtures/uv.lock uv.lock
-RUN uv sync --frozen  --no-dev
+RUN uv sync --no-dev
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
