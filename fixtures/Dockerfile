@@ -38,7 +38,14 @@ COPY docs/schemas static/schemas
 
 EXPOSE 8080
 
-RUN addgroup -S app && adduser -S -g app app
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --home "/nonexistent" \
+  --shell "/sbin/nologin" \
+  --no-create-home \
+  --uid 65532 \
+  app
 USER app
 
 CMD ["uv", "run", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
