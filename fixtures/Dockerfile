@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY fixtures/pyproject.toml pyproject.toml
 COPY fixtures/uv.lock uv.lock
-RUN uv sync --no-dev
+RUN uv sync --no-dev --no-cache
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
@@ -48,4 +48,4 @@ RUN adduser \
   app
 USER app
 
-CMD ["uv", "run", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "--no-cache", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
