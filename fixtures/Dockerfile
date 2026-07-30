@@ -20,9 +20,17 @@ ENV UV_FROZEN=1
 
 WORKDIR /app
 
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --shell "/sbin/nologin" \
+  --uid 65532 \
+  app
+
 COPY fixtures/pyproject.toml pyproject.toml
 COPY fixtures/uv.lock uv.lock
-RUN uv sync --no-dev --no-cache
+RUN uv sync --no-dev --cache-dir /home/app/.cache/uv
+RUN chown -R app:app /home/app/.cache/uv
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
@@ -38,14 +46,6 @@ COPY docs/schemas static/schemas
 
 EXPOSE 8080
 
-RUN adduser \
-  --disabled-password \
-  --gecos "" \
-  --home "/nonexistent" \
-  --shell "/sbin/nologin" \
-  --no-create-home \
-  --uid 65532 \
-  app
 USER app
 
-CMD ["uv", "run", "--no-cache", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
