@@ -15,22 +15,21 @@ RUN apk upgrade libcrypto3 libuuid musl musl-utils zlib
 COPY --from=ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a1973ba753e7241ce3a08ef979ddd7bea5 /uv /uvx /bin/
 ENV UV_MALWARE_CHECK=1
 ENV UV_SYSTEM_PYTHON=1
-ENV UV_NO_BUILD=1
-ENV UV_FROZEN=1
 
 WORKDIR /app
 
 RUN adduser \
   --disabled-password \
   --gecos "" \
+  --home "/nonexistent" \
   --shell "/sbin/nologin" \
+  --no-create-home \
   --uid 65532 \
   app
 
 COPY fixtures/pyproject.toml pyproject.toml
 COPY fixtures/uv.lock uv.lock
-RUN uv sync --no-dev --cache-dir /home/app/.cache/uv
-RUN chown -R app:app /home/app/.cache/uv
+RUN uv sync --no-dev --locked
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
@@ -48,4 +47,4 @@ EXPOSE 8080
 
 USER app
 
-CMD ["uv", "run", "--no-build", "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["/app/.venv/bin/flask", "run", "--host", "0.0.0.0", "--port", "8080"]
