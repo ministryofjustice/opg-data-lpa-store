@@ -12,12 +12,25 @@ FROM python:3.14-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4
 
 RUN apk upgrade libcrypto3 libuuid musl musl-utils zlib
 
+COPY --from=ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a1973ba753e7241ce3a08ef979ddd7bea5 /uv /uvx /bin/
+ENV UV_MALWARE_CHECK=1
+ENV UV_SYSTEM_PYTHON=1
+ENV UV_NO_BUILD=1
+
 WORKDIR /app
 
-COPY fixtures/requirements.txt requirements.txt
-RUN pip3 install --upgrade pip && \
-    pip3 install -r requirements.txt && \
-    pip3 cache purge
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --home "/nonexistent" \
+  --shell "/sbin/nologin" \
+  --no-create-home \
+  --uid 65532 \
+  app
+
+COPY fixtures/pyproject.toml pyproject.toml
+COPY fixtures/uv.lock uv.lock
+RUN uv sync --no-dev --locked
 
 COPY fixtures/app.py app.py
 COPY fixtures/lib lib
@@ -33,7 +46,6 @@ COPY docs/schemas static/schemas
 
 EXPOSE 8080
 
-RUN addgroup -S app && adduser -S -g app app
 USER app
 
-CMD [ "flask", "run", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["/app/.venv/bin/flask", "run", "--host", "0.0.0.0", "--port", "8080"]
