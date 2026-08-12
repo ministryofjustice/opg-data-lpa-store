@@ -73,13 +73,13 @@ jobs:
       TF_VAR_management_role: ${{ inputs.management_role }}
       TF_VAR_backup_role: ${{ inputs.backup_role }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: "0"
 
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@722a5f955424aaba01e9ca43d68390cd4048d6e1 # v4.10.2
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
@@ -92,7 +92,7 @@ jobs:
 
       - name: Setup SSH private key
         id: deploy-key
-        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
+        uses: ministryofjustice/opg-github-actions/actions/github-deploy-key@722a5f955424aaba01e9ca43d68390cd4048d6e1 # v4.10.2
         with:
           deploy_key: ${{ secrets.allowlist_deploy_key }}
 
@@ -104,7 +104,7 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: ${{ env.tf_dir }}
 
-      - uses: terraform-linters/setup-tflint@b480b8fcdaa6f2c577f8e4fa799e89e756bb7c93 # v6.2.2
+      - uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
         name: Setup TFLint
         with:
           tflint_version: v0.60.0
@@ -114,7 +114,7 @@ jobs:
         run: tflint --recursive
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # v6.2.0
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ vars.OIDC_MANAGEMENT_ECR_ROLE }}
@@ -123,13 +123,13 @@ jobs:
 
       - name: ECR Login
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@fa648b43de3d4d023bcb3f89ed6940096949c419 # v2.1.5
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2.1.6
         with:
           registries: 311462405659
 
       - name: Snky IAC
         id: snyk_iac
-        uses: ministryofjustice/opg-github-actions/actions/snyk-iac@2ad72748485e27f590599a7e9768b9fc0d5b8e03 # v4.8.7
+        uses: ministryofjustice/opg-github-actions/actions/snyk-iac@722a5f955424aaba01e9ca43d68390cd4048d6e1 # v4.10.2
         with:
           iac_test_directory: "./terraform/environment/"
           sarif_filename: "snyk-iac.sarif"
@@ -137,7 +137,7 @@ jobs:
 
       - name: Upload Snyk IAC scan results to GitHub Security tab
         id: snyk_upload_sarif
-        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
         if: always()
         with:
           category: "Terraform"
