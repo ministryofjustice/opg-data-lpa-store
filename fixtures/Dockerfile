@@ -11,6 +11,7 @@ RUN npm ci --ignore-scripts
 FROM python:3.14-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4d4ebdabbc523b9a1614
 
 RUN apk upgrade libcrypto3 libuuid musl musl-utils zlib
+RUN apk del .python-rundeps
 
 COPY --from=ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a1973ba753e7241ce3a08ef979ddd7bea5 /uv /uvx /bin/
 ENV UV_MALWARE_CHECK=1
@@ -46,6 +47,6 @@ COPY docs/schemas static/schemas
 
 EXPOSE 8080
 
-USER app
+# USER app
 
 CMD ["/app/.venv/bin/flask", "run", "--host", "0.0.0.0", "--port", "8080"]
