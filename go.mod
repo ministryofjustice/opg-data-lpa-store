@@ -2,24 +2,24 @@ module github.com/ministryofjustice/opg-data-lpa-store
 
 go 1.25.0
 
-toolchain go1.26.4
+toolchain go1.27.0
 
 require (
-	github.com/aws/aws-lambda-go v1.54.0
-	github.com/aws/aws-sdk-go-v2 v1.41.12
-	github.com/aws/aws-sdk-go-v2/config v1.32.23
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.20.46
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.8.46
-	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.58.0
-	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.46.5
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.103.2
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.42.2
+	github.com/aws/aws-lambda-go v1.55.0
+	github.com/aws/aws-sdk-go-v2 v1.45.1
+	github.com/aws/aws-sdk-go-v2/config v1.33.1
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.21.1
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression v1.9.1
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.65.1
+	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.51.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.109.1
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.46.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/leodido/go-urn v1.4.0
-	github.com/ministryofjustice/opg-go-common v1.165.13
-	github.com/stretchr/testify v1.11.1
-	golang.org/x/text v0.37.0
+	github.com/leodido/go-urn v1.5.0
+	github.com/ministryofjustice/opg-go-common v1.165.26
+	github.com/stretchr/testify v1.12.1
+	golang.org/x/text v0.41.0
 )
 
 require (
@@ -72,7 +72,7 @@ require (
 	github.com/spf13/cobra v1.10.2 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
-	github.com/vektra/mockery/v3 v3.7.0 // indirect
+	github.com/vektra/mockery/v3 v3.7.4 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
