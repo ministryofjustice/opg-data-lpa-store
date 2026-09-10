@@ -1,4 +1,4 @@
-FROM golang:1.26.3@sha256:2d6c80227255c3112a4d08e67ba98e58efd3846daf15d9d7d4c389565d881b1a AS build-env
+FROM golang:1.27.1@sha256:512690a5660563b57d37ecc31129e7f136e831db2aed24a1dbeb8ad7380dc0fa AS build-env
 
 WORKDIR /app
 COPY ./go.mod /app/go.mod
