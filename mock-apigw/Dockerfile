@@ -1,4 +1,4 @@
-FROM golang:1.27.0@sha256:4013ae0f9e7994f8535c58c811f8f863fbed38b72e0d51e6592156f758d66146 AS build-env
+FROM golang:1.27.3-alpine@sha256:d200d2dd76b03a99b52651fd1325aff7dcd35422c35c01bac56571b0507f3deb AS build-env
 
 WORKDIR /app
 
@@ -11,11 +11,11 @@ COPY mock-apigw mock-apigw
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/main ./mock-apigw
 
-FROM alpine:3@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+FROM scratch
 
+COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build-env /go/bin/main /var/task/main
 
-RUN addgroup -S app && adduser -S -g app app
-USER app
+USER 65532
 
 ENTRYPOINT [ "/var/task/main" ]
