@@ -19,7 +19,7 @@ jobs:
       - run: make build up
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
-          go-version: 'stable'
+          go-version-file: "go.mod"
       - run: echo "JWT=$(go run scripts/make_jwt.go)" >> "$GITHUB_ENV"
       - name: Verify specified Pact
         if: ${{ github.event_name == 'repository_dispatch' }}
