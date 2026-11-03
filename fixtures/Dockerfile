@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.23@sha256:2bdb65ed1dab192432bc31c95f94155ca5ad7fc1392fb7eb7526ab682fa5bf14 AS builder
+FROM node:lts-alpine3.23@sha256:e6c03d42b46af3b1e98207e59f06a43cfe5efd3ec4b4d3d9802bddf04f833374 AS builder
 
 RUN apk upgrade zlib
 
@@ -8,12 +8,12 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3.14-alpine3.23@sha256:5a824eb82cc75361f98611f3cfc5091ea33f10a6ccea4d4ebdabbc523b9a1614
+FROM python:3.14-alpine3.23@sha256:2fc6f06143be3b5ea0f7d8977773a22b398dc9a3641bb7b75940f98e9767631e
 
 RUN apk upgrade libcrypto3 libuuid musl musl-utils zlib \
   && apk del .python-rundeps
 
-COPY --from=ghcr.io/astral-sh/uv:0.11.2@sha256:c4f5de312ee66d46810635ffc5df34a1973ba753e7241ce3a08ef979ddd7bea5 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff /uv /uvx /bin/
 ENV UV_MALWARE_CHECK=1
 ENV UV_SYSTEM_PYTHON=1
 ENV UV_NO_BUILD=1
