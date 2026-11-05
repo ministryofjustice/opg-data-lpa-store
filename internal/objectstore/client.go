@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"io"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
@@ -29,6 +30,7 @@ type S3Client struct {
 	bucketName string
 	awsClient  awsS3Client
 	presigner  presignClient
+	kmsKeyID   *string
 }
 
 func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
@@ -36,10 +38,16 @@ func NewS3Client(awsConfig aws.Config, bucketName string) *S3Client {
 		o.UsePathStyle = true
 	})
 
+	var kmsKeyID *string
+	if id := os.Getenv("S3_KMS_KEY_ID"); id != "" {
+		kmsKeyID = aws.String(id)
+	}
+
 	return &S3Client{
 		bucketName: bucketName,
 		awsClient:  awsClient,
 		presigner:  s3.NewPresignClient(awsClient),
+		kmsKeyID:   kmsKeyID,
 	}
 }
 
@@ -54,6 +62,7 @@ func (c *S3Client) Put(ctx context.Context, objectKey string, obj any) error {
 		Key:                  aws.String(objectKey),
 		Body:                 bytes.NewReader(b),
 		ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+		SSEKMSKeyId:          c.kmsKeyID,
 	})
 
 	return err
@@ -70,6 +79,7 @@ func (c *S3Client) UploadFile(ctx context.Context, file shared.FileUpload, path 
 		Key:                  aws.String(path),
 		Body:                 bytes.NewReader(imgData),
 		ServerSideEncryption: types.ServerSideEncryptionAwsKms,
+		SSEKMSKeyId:          c.kmsKeyID,
 	}); err != nil {
 		return shared.File{}, err
 	}

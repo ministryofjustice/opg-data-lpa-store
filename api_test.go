@@ -150,7 +150,7 @@ func TestCreatePaperWithImages(t *testing.T) {
 		"Presigned": {
 			urlFormat: "%s/lpas/%s?presign-images",
 			pathRe: func(lpaUID string, filename string) string {
-				hostBucket := "http?://localstack:4566/"
+				hostBucket := "http?://ministack:4566/"
 				if !strings.HasPrefix(baseURL, "http://localhost") {
 					hostBucket = "https://s3.eu-west-1.amazonaws.com/[a-z0-9\\-]+/"
 				}
@@ -286,7 +286,7 @@ func TestGetListWithImages(t *testing.T) {
 		"Presigned": {
 			urlFormat: "%s/lpas?presign-images",
 			pathRe: func(lpaUID string, filename string) string {
-				hostBucket := "http?://localstack:4566/"
+				hostBucket := "http?://ministack:4566/"
 				if !strings.HasPrefix(baseURL, "http://localhost") {
 					hostBucket = "https://s3.eu-west-1.amazonaws.com/[a-z0-9\\-]+/"
 				}
