@@ -48,7 +48,10 @@ run-structurizr-export:
 go-lint: ## Lint Go code
 	docker compose run --rm go-lint
 
-check-code: go-lint test
+gosec: setup-directories ## Scan Go code for security flaws
+	docker compose run --rm gosec
+
+check-code: go-lint gosec test
 
 up-fixtures: ## Bring up fixtures UI locally
 	docker compose up -d --build fixtures
