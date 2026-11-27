@@ -61,7 +61,7 @@ jobs:
 
       - name: "Parse terraform version [directory: ${{ env.tf_dir }}]"
         id: tf_version
-        uses: ministryofjustice/opg-github-actions/actions/terraform-version@ae37b9b322286123971417e82b665e56e9d6aa3f # v4.10.3
+        uses: ministryofjustice/opg-github-actions/actions/terraform-version@12bdbe54f92af873347bc0cd6f4e7769265c1a90 # v4.10.5
         with:
           terraform_directory: ${{ env.tf_dir }}
       - name: "Terraform version [${{ steps.tf_version.outputs.version }}]"
@@ -79,7 +79,7 @@ jobs:
       - uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337 # v6.3.2
         name: Setup TFLint
         with:
-          tflint_version: v0.65.0
+          tflint_version: v0.66.0
 
       - name: Lint Terraform
         id: tf_lint
@@ -95,7 +95,7 @@ jobs:
 
       - name: ECR Login
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+        uses: aws-actions/amazon-ecr-login@7290e214a610b32bc0eef81748948b6d466a8783 # v2.2.0
         with:
           registries: 311462405659
 
@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload Snyk IAC scan results to GitHub Security tab
         id: snyk_upload_sarif
-        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         if: always()
         with:
           category: "Terraform"
