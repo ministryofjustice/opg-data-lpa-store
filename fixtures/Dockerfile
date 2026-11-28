@@ -8,7 +8,7 @@ COPY fixtures/package.json package.json
 COPY fixtures/package-lock.json package-lock.json
 RUN npm ci --ignore-scripts
 
-FROM python:3.14-alpine3.23@sha256:2fc6f06143be3b5ea0f7d8977773a22b398dc9a3641bb7b75940f98e9767631e
+FROM python:3.15-alpine3.23@sha256:32f06114a111c2467804d06194c5584f16804a78cfaf427fb1fcbb0b3391d0f1
 
 RUN apk upgrade libcrypto3 libuuid musl musl-utils zlib \
   && apk del .python-rundeps
